@@ -1,0 +1,13 @@
+[*.cs]
+
+# CS8618: Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
+dotnet_diagnostic.CS8618.severity = suggestion
+
+[*.cs]
+# Desativa o aviso de conflito entre nomes de tipo e namespaces (CA1724)
+dotnet_diagnostic.CA1724.severity = none
+
+# Desativa avisos gerais de regras de nomenclatura incompatíveis (IDE1006)
+dotnet_diagnostic.IDE1006.severity = none
+
+dotnet_diagnostic.IDE0130.severity = none
