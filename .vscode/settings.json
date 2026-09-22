@@ -1,0 +1,79 @@
+{
+    "editor.fontFamily": "Geist Mono",
+    "editor.fontSize": 23,
+    "editor.fontLigatures": true,
+    "editor.fontWeight": "300",
+    "editor.renderLineHighlight": "none",
+    "editor.minimap.enabled": false,
+    "editor.guides.indentation": false,
+    "editor.emptySelectionClipboard": false,
+    "editor.tabSize": 4,
+    "editor.glyphMargin": false,
+    "editor.formatOnPaste": false,
+    "editor.formatOnType": false,
+    "editor.formatOnSave": true,
+    "editor.padding.top": 20,
+    "editor.stickyScroll.enabled": false,
+    "editor.lineNumbers": "off",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "prettier.prettierPath": "./node_modules/prettier",
+    "workbench.colorTheme": "Dracula Theme Soft",
+    "workbench.iconTheme": "material-icon-theme",
+    "workbench.activityBar.location": "default",
+    "workbench.tree.indent": 20,
+    "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "terminal.integrated.initialHint": false,
+    "terminal.integrated.defaultProfile.osx": "zsh",
+    "terminal.integrated.defaultProfile.windows": "Git Bash",
+    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.fontSize": 18,
+    "terminal.integrated.fontFamily": "'Fira Code'",
+    "terminal.integrated.fontLigatures.enabled": true,
+    "js/ts.preferences.importModuleSpecifier": "non-relative",
+    "js/ts.updateImportsOnFileMove.enabled": "never",
+    "html.format.wrapLineLength": 145,
+    "breadcrumbs.enabled": false,
+    "explorer.compactFolders": false,
+    "prettier.requireConfig": true,
+    "diffEditor.renderSideBySide": false,
+    "diffEditor.renderIndicators": false,
+    "json.format.keepLines": true,
+    "files.exclude": {
+        ".gitignore": true,
+        ".csharpierrc.json": true,
+        "**/.prettierignore": true,
+        "**/eslint.config.js": true,
+        "**/*.md": true,
+        "**/*.spec.ts": true,
+        "**/e2e": true,
+        "**/karma.conf.js": true,
+        "**/package-lock.json": true,
+        "**/test.ts": true,
+        "**/tsconfig.spec.json": true,
+        "**/tslint.json": true,
+        "**/.config": true,
+        "**/obj": true,
+        "**/bin": true
+    },
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+    "tailwindCSS.classAttributes": [
+        "class",
+        "className",
+        "theme"
+    ],
+    "tailwindCSS.experimental.classRegex": [
+        [
+            "twMerge\\(([^)]*)\\)",
+            "[\"'`]([^\"'`]*).*?[\"'`]"
+        ],
+        [
+            "createTheme(?:<\\w+>)?\\s*\\(([^)]*)\\)",
+            "{?\\s?[\\w].*:\\s*?[\"'`]([^\"'`]*).*?,?\\s?}?"
+        ]
+    ],
+}
