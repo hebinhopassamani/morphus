@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'Geist';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/fonts/geist/Geist.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Geist';
+    font-style: italic;
+    font-weight: 400;
+    src: url('/fonts/geist/Geist-Italic.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Geist Mono';
+    font-style: normal;
+    font-weight: 400 700;
+    src: url('/fonts/geist/GeistMono.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Geist Mono';
+    font-style: italic;
+    font-weight: 400 700;
+    src: url('/fonts/geist/GeistMono-Italic.woff2') format('woff2');
+}

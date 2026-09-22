@@ -1,0 +1,76 @@
+@theme {
+    --font-mpx-family: 'Geist Mono';
+    --font-mpx-display: 'Geist Mono';
+
+    --text-mpx-label-small: var(--text-sm);
+    --font-mpx-label-small: var(--font-weight-normal) var(--text-sm) var(--font-mpx-family);
+    --font-mpx-label-small-weight: var(--font-weight-normal);
+    --font-mpx-label-small-line-height: var(--text-sm-line-height);
+    --font-mpx-label-small-tracking: var(--tracking-wide);
+
+    --text-mpx-label-madium: var(--text-base);
+    --font-mpx-label-madium: var(--font-weight-medium) var(--text-base) var(--font-mpx-family);
+    --font-mpx-label-madium-weight: var(--font-weight-medium);
+    --font-mpx-label-madium-line-height: var(--text-base-line-height);
+    --font-mpx-label-madium-tracking: var(--tracking-wider);
+
+    --text-mpx-label-large: var(--text-lg);
+    --font-mpx-label-large: var(--font-weight-semibold) var(--text-lg) var(--font-mpx-family);
+    --font-mpx-label-large-weight: var(--font-weight-semibold);
+    --font-mpx-label-large-line-height: var(--text-lg-line-height);
+    --font-mpx-label-large-tracking: var(--tracking-widest);
+
+    --text-mpx-title-small: var(--text-base);
+    --font-mpx-title-small: var(--font-weight-medium) var(--text-base) var(--font-mpx-family);
+    --font-mpx-title-small-weight: var(--font-weight-medium);
+    --font-mpx-title-small-line-height: var(--text-base-line-height);
+    --font-mpx-title-small-tracking: var(--tracking-normal);
+
+    --text-mpx-title-madium: var(--text-lg);
+    --font-mpx-title-madium: var(--font-weight-semibold) var(--text-lg) var(--font-mpx-family);
+    --font-mpx-title-madium-weight: var(--font-weight-semibold);
+    --font-mpx-title-madium-line-height: var(--text-lg-line-height);
+    --font-mpx-title-madium-tracking: var(--tracking-wider);
+
+    --text-mpx-title-large: var(--text-xl);
+    --font-mpx-title-large: var(--font-weight-bold) var(--text-xl) var(--font-mpx-family);
+    --font-mpx-title-large-weight: var(--font-weight-bold);
+    --font-mpx-title-large-line-height: var(--text-xl-line-height);
+    --font-mpx-title-large-tracking: var(--tracking-widest);
+
+    --text-mpx-headline-small: var(--text-md);
+    --font-mpx-headline-small: var(--font-weight-semibold) var(--text-md) var(--font-mpx-family);
+    --font-mpx-headline-small-weight: var(--font-weight-semibold);
+    --font-mpx-headline-small-line-height: var(--text-md-line-height);
+    --font-mpx-headline-small-tracking: var(--tracking-wider);
+
+    --text-mpx-headline-madium: var(--text-xl);
+    --font-mpx-headline-madium: var(--font-weight-bold) var(--text-xl) var(--font-mpx-family);
+    --font-mpx-headline-madium-weight: var(--font-weight-bold);
+    --font-mpx-headline-madium-line-height: var(--text-xl-line-height);
+    --font-mpx-headline-madium-tracking: var(--tracking-wider);
+
+    --text-mpx-headline: var(--text-2xl);
+    --font-mpx-headline: var(--font-weight-extrabold) var(--text-2xl) var(--font-mpx-family);
+    --font-mpx-headline-weight: var(--font-weight-extrabold);
+    --font-mpx-headline-line-height: var(--text-2xl-line-height);
+    --font-mpx-headline-tracking: var(--tracking-widest);
+
+    --text-mpx-display-small: var(--text-base);
+    --font-mpx-display-small: var(--font-weight-semibold) var(--text-base) var(--font-mpx-family);
+    --font-mpx-display-small-weight: var(--font-weight-semibold);
+    --font-mpx-display-small-line-height: var(--text-base-line-height);
+    --font-mpx-display-small-tracking: var(--tracking-normal);
+
+    --text-mpx-display-madium: var(--text-2xl);
+    --font-mpx-display-madium: var(--font-weight-bold) var(--text-2xl) var(--font-mpx-family);
+    --font-mpx-display-madium-weight: var(--font-weight-bold);
+    --font-mpx-display-madium-line-height: var(--text-2xl-line-height);
+    --font-mpx-display-madium-tracking: var(--tracking-wider);
+
+    --font-mpx-display-large: var(--text-3xl);
+    --font-mpx-display-large: var(--font-weight-extrabold) var(--text-3xl) var(--font-mpx-family);
+    --font-mpx-display-large-weight: var(--font-weight-extrabold);
+    --font-mpx-display-large-line-height: var(--text-3xl-line-height);
+    --font-mpx-display-large-tracking: var(--tracking-widest);
+}

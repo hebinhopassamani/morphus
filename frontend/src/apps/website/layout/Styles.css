@@ -1,0 +1,32 @@
+.website-container {
+    --nav-width: 15rem;
+    --topbar-height: 4.5rem;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    background-color: rgb(241, 239, 237);
+
+    .website-navbar {
+        display: flex;
+        flex-direction: row;
+        justify-content: start;
+        align-items: center;
+        height: var(--topbar-height);
+        width: 100%;
+        background-color: rgb(196, 211, 190);
+    }
+
+    .website-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        height: 100vh;
+        flex: auto;
+        background-color: rgb(209, 209, 209);
+    }
+}
