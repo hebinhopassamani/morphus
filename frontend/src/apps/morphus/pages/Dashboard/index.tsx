@@ -1,10 +1,10 @@
-import type { MorphusProps } from '@core/types/morphus.type';
 import { useParams } from 'react-router';
-import styles from './Styles.module.css';
+import styles from './styles.module.css';
+import type { MorphusProps } from '@core/types/morphus.type';
 
-type DashboardPageProps = {} & MorphusProps;
+interface MpxDashboardPageProps extends MorphusProps {}
 
-export function DashboardPage({ children }: DashboardPageProps) {
+export function MpxDashboardPage({ children }: MpxDashboardPageProps) {
     const params = useParams();
     return <div className={styles.dashboard}>{`${children} ${params.id}`}</div>;
 }

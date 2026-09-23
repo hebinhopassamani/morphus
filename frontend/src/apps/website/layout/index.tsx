@@ -1,15 +1,15 @@
 import { Outlet } from 'react-router';
-import { Content } from '@website/layout/Content';
-import { Navbar } from '@website/layout/NavBar';
+import { SecContent } from '@website/layout/content';
+import { SecNavbar } from '@website/layout/navBar';
 import './Styles.css';
 
 export function WebSiteLayout() {
     return (
         <div className='website-container'>
-            <Navbar />
-            <Content>
+            <SecNavbar />
+            <SecContent>
                 <Outlet />
-            </Content>
+            </SecContent>
         </div>
     );
 }

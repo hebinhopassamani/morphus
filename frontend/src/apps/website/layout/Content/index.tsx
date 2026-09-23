@@ -1,7 +1,7 @@
 import type { MorphusProps } from '@core/types/morphus.type';
 
-export type ContentProps = {} & MorphusProps;
+export type SecContentProps = {} & MorphusProps;
 
-export function Content({ children }: ContentProps) {
+export function SecContent({ children }: SecContentProps) {
     return <div className='website-content'>{children}</div>;
 }

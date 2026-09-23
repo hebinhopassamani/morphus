@@ -1,76 +1,83 @@
 @theme {
-    --font-mpx-family: 'Geist Mono';
-    --font-mpx-display: 'Geist Mono';
+    --font-mpx-default: var(--font-default);
+    --font-mpx-mont-serra: var(--font-mont-serra);
+    --font-mpx-mont-serra-headline: var(-font-mont-serra-headline);
+    --font-mpx-mont-serra-display: var(--font-mont-serra-display);
+    --font-mpx-geist: var(--font-geist);
+    --font-mpx-geist-mono: var(--font-geist-mono);
+    --font-mpx-rubick: var(--font-rubick);
+    --font-mpx-roboto: var(--font-roboto);
+    --font-mpx-roboto-mono: var(--font-roboto-mono);
 
-    --text-mpx-label-small: var(--text-sm);
-    --font-mpx-label-small: var(--font-weight-normal) var(--text-sm) var(--font-mpx-family);
-    --font-mpx-label-small-weight: var(--font-weight-normal);
-    --font-mpx-label-small-line-height: var(--text-sm-line-height);
-    --font-mpx-label-small-tracking: var(--tracking-wide);
+    --text-mpx-sm-label: var(--text-label-sm);
+    --font-mpx-sm-label: var(--font-label-sm);
+    --font-weight-mpx-sm-label: var(--font-weight-label-sm);
+    --font-leading-mpx-sm-label: var(--font-leading-label-sm);
+    --font-tracking-mpx-sm-label: var(--font-tracking-label-sm);
 
-    --text-mpx-label-madium: var(--text-base);
-    --font-mpx-label-madium: var(--font-weight-medium) var(--text-base) var(--font-mpx-family);
-    --font-mpx-label-madium-weight: var(--font-weight-medium);
-    --font-mpx-label-madium-line-height: var(--text-base-line-height);
-    --font-mpx-label-madium-tracking: var(--tracking-wider);
+    --text-mpx-md-label: var(--text-label-md);
+    --font-mpx-md-label: var(--font-label-md);
+    --font-weight-mpx-md-label: var(--font-weight-label-md);
+    --font-leading-mpx-md-label: var(--font-leading-label-md);
+    --font-tracking-mpx-md-label: var(--font-tracking-label-md);
 
-    --text-mpx-label-large: var(--text-lg);
-    --font-mpx-label-large: var(--font-weight-semibold) var(--text-lg) var(--font-mpx-family);
-    --font-mpx-label-large-weight: var(--font-weight-semibold);
-    --font-mpx-label-large-line-height: var(--text-lg-line-height);
-    --font-mpx-label-large-tracking: var(--tracking-widest);
+    --text-mpx-lg-label: var(--text-label-lg);
+    --font-mpx-lg-label: var(--font-label-lg);
+    --font-weight-mpx-lg-label: var(--font-weight-label-lg);
+    --font-leading-mpx-lg-label: var(--font-leading-label-lg);
+    --font-tracking-mpx-lg-label: var(--font-tracking-label-lg);
 
-    --text-mpx-title-small: var(--text-base);
-    --font-mpx-title-small: var(--font-weight-medium) var(--text-base) var(--font-mpx-family);
-    --font-mpx-title-small-weight: var(--font-weight-medium);
-    --font-mpx-title-small-line-height: var(--text-base-line-height);
-    --font-mpx-title-small-tracking: var(--tracking-normal);
+    --text-mpx-sm-title: var(--text-title-sm);
+    --font-mpx-sm-title: var(--font-title-sm);
+    --font-weight-mpx-sm-title: var(--font-weight-title-sm);
+    --font-leading-mpx-sm-title: var(--font-leading-title-sm);
+    --font-tracking-mpx-sm-title: var(--font-tracking-title-sm);
 
-    --text-mpx-title-madium: var(--text-lg);
-    --font-mpx-title-madium: var(--font-weight-semibold) var(--text-lg) var(--font-mpx-family);
-    --font-mpx-title-madium-weight: var(--font-weight-semibold);
-    --font-mpx-title-madium-line-height: var(--text-lg-line-height);
-    --font-mpx-title-madium-tracking: var(--tracking-wider);
+    --text-mpx-md-title: var(--text-title-md);
+    --font-mpx-md-title: var(--font-title-md);
+    --font-weight-mpx-md-title: var(--font-weight-title-md);
+    --font-leading-mpx-md-title: var(--font-leading-title-md);
+    --font-tracking-mpx-md-title: var(--font-tracking-title-md);
 
-    --text-mpx-title-large: var(--text-xl);
-    --font-mpx-title-large: var(--font-weight-bold) var(--text-xl) var(--font-mpx-family);
-    --font-mpx-title-large-weight: var(--font-weight-bold);
-    --font-mpx-title-large-line-height: var(--text-xl-line-height);
-    --font-mpx-title-large-tracking: var(--tracking-widest);
+    --text-mpx-lg-title: var(--text-title-lg);
+    --font-mpx-lg-title: var(--font-title-lg);
+    --font-weight-mpx-lg-title: var(--font-weight-title-lg);
+    --font-leading-mpx-lg-title: var(--font-leading-title-lg);
+    --font-tracking-mpx-lg-title: var(--font-tracking-title-lg);
 
-    --text-mpx-headline-small: var(--text-md);
-    --font-mpx-headline-small: var(--font-weight-semibold) var(--text-md) var(--font-mpx-family);
-    --font-mpx-headline-small-weight: var(--font-weight-semibold);
-    --font-mpx-headline-small-line-height: var(--text-md-line-height);
-    --font-mpx-headline-small-tracking: var(--tracking-wider);
+    --text-mpx-sm-headline: var(--text-headline-sm);
+    --font-mpx-sm-headline: var(--font-headline-sm);
+    --font-weight-mpx-sm-headline: var(--font-weight-headline-sm);
+    --font-leading-mpx-sm-headline: var(--font-leading-headline-sm);
+    --font-tracking-mpx-sm-headline: var(--font-tracking-headline-sm);
 
-    --text-mpx-headline-madium: var(--text-xl);
-    --font-mpx-headline-madium: var(--font-weight-bold) var(--text-xl) var(--font-mpx-family);
-    --font-mpx-headline-madium-weight: var(--font-weight-bold);
-    --font-mpx-headline-madium-line-height: var(--text-xl-line-height);
-    --font-mpx-headline-madium-tracking: var(--tracking-wider);
+    --text-mpx-md-headline: var(--text-headline-md);
+    --font-mpx-md-headline: var(--font-headline-md);
+    --font-weight-mpx-md-headline: var(--font-weight-headline-md);
+    --font-leading-mpx-md-headline: var(--font-leading-headline-md);
+    --font-tracking-mpx-md-headline: var(--font-tracking-headline-md);
 
-    --text-mpx-headline: var(--text-2xl);
-    --font-mpx-headline: var(--font-weight-extrabold) var(--text-2xl) var(--font-mpx-family);
-    --font-mpx-headline-weight: var(--font-weight-extrabold);
-    --font-mpx-headline-line-height: var(--text-2xl-line-height);
-    --font-mpx-headline-tracking: var(--tracking-widest);
+    --text-mpx-lg-headline: var(--text-headline-lg);
+    --font-mpx-lg-headline: var(--font-headline-lg);
+    --font-weight-mpx-lg-headline: var(--font-weight-headline-lg);
+    --font-leading-mpx-lg-headline: var(--font-leading-headline-lg);
+    --font-tracking-mpx-lg-headline: var(--font-tracking-headline-lg);
 
-    --text-mpx-display-small: var(--text-base);
-    --font-mpx-display-small: var(--font-weight-semibold) var(--text-base) var(--font-mpx-family);
-    --font-mpx-display-small-weight: var(--font-weight-semibold);
-    --font-mpx-display-small-line-height: var(--text-base-line-height);
-    --font-mpx-display-small-tracking: var(--tracking-normal);
+    --text-mpx-sm-display: var(--text-display-sm);
+    --font-mpx-sm-display: var(--font-display-sm);
+    --font-weight-mpx-sm-display: var(--font-weight-display-sm);
+    --font-leading-mpx-sm-display: var(--font-leading-display-sm);
+    --font-tracking-mpx-sm-display: var(--font-tracking-display-sm);
 
-    --text-mpx-display-madium: var(--text-2xl);
-    --font-mpx-display-madium: var(--font-weight-bold) var(--text-2xl) var(--font-mpx-family);
-    --font-mpx-display-madium-weight: var(--font-weight-bold);
-    --font-mpx-display-madium-line-height: var(--text-2xl-line-height);
-    --font-mpx-display-madium-tracking: var(--tracking-wider);
+    --text-mpx-md-display: var(--text-display-md);
+    --font-mpx-md-display: var(--font-display-md);
+    --font-weight-mpx-md-display: var(--font-weight-display-md);
+    --font-leading-mpx-md-display: var(--font-leading-display-md);
+    --font-tracking-mpx-md-display: var(--font-tracking-display-md);
 
-    --font-mpx-display-large: var(--text-3xl);
-    --font-mpx-display-large: var(--font-weight-extrabold) var(--text-3xl) var(--font-mpx-family);
-    --font-mpx-display-large-weight: var(--font-weight-extrabold);
-    --font-mpx-display-large-line-height: var(--text-3xl-line-height);
-    --font-mpx-display-large-tracking: var(--tracking-widest);
+    --text-mpx-lg-display: var(--text-display-lg);
+    --font-mpx-lg-display: var(--font-display-lg);
+    --font-weight-mpx-lg-display: var(--font-weight-display-lg);
+    --font-leading-mpx-lg-display: var(--font-leading-display-lg);
+    --font-tracking-mpx-lg-display: var(--font-tracking-display-lg);
 }

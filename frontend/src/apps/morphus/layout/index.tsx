@@ -1,17 +1,17 @@
-import { Content } from '@morphus/layout/Content';
-import { Navbar } from '@morphus/layout/Navbar';
-import { Sidenav } from '@morphus/layout/Sidenav';
+import { MpxContent } from '@morphus/layout/content';
+import { MpxNavbar } from '@morphus/layout/navbar';
+import { MpxSidenav } from '@morphus/layout/sidenav';
 import { Outlet } from 'react-router';
-import './Styles.css';
+import './styles.css';
 
 export function MorphusLayout() {
     return (
-        <div className='morphus-container'>
-            <Sidenav />
-            <Content>
-                <Navbar />
+        <div className='morphus-container text-mpx-label-small-li'>
+            <MpxSidenav />
+            <MpxContent>
+                <MpxNavbar />
                 <Outlet />
-            </Content>
+            </MpxContent>
         </div>
     );
 }

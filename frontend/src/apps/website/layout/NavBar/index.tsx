@@ -1,7 +1,7 @@
 import type { MorphusProps } from '@core/types/morphus.type';
 
-type NavbarProps = {} & MorphusProps;
+type SecNavbarProps = {} & MorphusProps;
 
-export function Navbar({ children }: NavbarProps) {
+export function SecNavbar({ children }: SecNavbarProps) {
     return <div className='website-navbar'>{children}</div>;
 }

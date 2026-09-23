@@ -1,7 +1,7 @@
 import type { MorphusProps } from '@core/types/morphus.type';
 
-export type SidenavProps = {} & MorphusProps;
+export type MpxSidenavProps = {} & MorphusProps;
 
-export function Sidenav({ children }: SidenavProps) {
+export function MpxSidenav({ children }: MpxSidenavProps) {
     return <div className='morphus-sidenav'>{children}</div>;
 }

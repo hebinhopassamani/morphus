@@ -1,4 +1,9 @@
-import type { MpxCardTheme } from '@components/Card';
-import { createTheme } from 'flowbite-react';
+// import type { CustomFlowbiteTheme } from 'flowbite-react/types';
 
-export const mpxCardTheme = createTheme<MpxCardTheme>({});
+// const customTheme: CustomFlowbiteTheme = {
+//     card: {
+//         root: {
+//             base: '',
+//         },
+//     },
+// };

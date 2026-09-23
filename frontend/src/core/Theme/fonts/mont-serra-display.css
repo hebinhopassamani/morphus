@@ -1,0 +1,151 @@
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Black.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-BlackItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Bold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-BoldItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-ExtraBold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-ExtraBoldItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-ExtraLight.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-ExtraLightItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Italic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Light.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-LightItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Medium.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-MediumItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Regular.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-SemiBold.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-SemiBoldItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-Thin.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Display';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Display/Montserrat-ThinItalic.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Mont Serra Headline';
+    font-style: italic;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/Mont_Serra_Headline/GeistMono-Italic.woff2') format('woff2');
+}

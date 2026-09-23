@@ -1,9 +1,9 @@
-{
-    "editor.fontFamily": "Geist Mono",
-    "editor.fontSize": 23,
+{    
+    "editor.fontFamily": "Fira Code",
+    "editor.fontSize": 20,
     "editor.fontLigatures": true,
-    "editor.fontWeight": "300",
-    "editor.renderLineHighlight": "none",
+    "editor.fontWeight": "300",    
+    "editor.lineHeight": 1.4,
     "editor.minimap.enabled": false,
     "editor.guides.indentation": false,
     "editor.emptySelectionClipboard": false,
@@ -13,15 +13,19 @@
     "editor.formatOnType": false,
     "editor.formatOnSave": true,
     "editor.padding.top": 20,
+    "editor.padding.bottom": 20,
+    "editor.renderLineHighlight": "none",
     "editor.stickyScroll.enabled": false,
     "editor.lineNumbers": "off",
+    "workbench.tree.renderIndentGuides": "none",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.prettierPath": "./node_modules/prettier",
     "workbench.colorTheme": "Dracula Theme Soft",
     "workbench.iconTheme": "material-icon-theme",
     "workbench.activityBar.location": "default",
-    "workbench.tree.indent": 20,
+    "workbench.tree.indent": 8,
     "workbench.secondarySideBar.defaultVisibility": "hidden",
+    "workbench.tree.enableStickyScroll": false,
     "terminal.integrated.initialHint": false,
     "terminal.integrated.defaultProfile.osx": "zsh",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
@@ -31,7 +35,6 @@
     "terminal.integrated.fontLigatures.enabled": true,
     "js/ts.preferences.importModuleSpecifier": "non-relative",
     "js/ts.updateImportsOnFileMove.enabled": "never",
-    "html.format.wrapLineLength": 145,
     "breadcrumbs.enabled": false,
     "explorer.compactFolders": false,
     "prettier.requireConfig": true,
@@ -55,25 +58,7 @@
         "**/obj": true,
         "**/bin": true
     },
-    "editor.quickSuggestions": {
-        "strings": "on"
-    },
-    "files.associations": {
-        "*.css": "tailwindcss"
-    },
-    "tailwindCSS.classAttributes": [
-        "class",
-        "className",
-        "theme"
-    ],
-    "tailwindCSS.experimental.classRegex": [
-        [
-            "twMerge\\(([^)]*)\\)",
-            "[\"'`]([^\"'`]*).*?[\"'`]"
-        ],
-        [
-            "createTheme(?:<\\w+>)?\\s*\\(([^)]*)\\)",
-            "{?\\s?[\\w].*:\\s*?[\"'`]([^\"'`]*).*?,?\\s?}?"
-        ]
-    ],
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }

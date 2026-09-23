@@ -1,4 +1,4 @@
-.securit-container {
+.security-container {
     --sec-topbar-height: 4.5rem;
 
     display: flex;
@@ -8,7 +8,7 @@
     flex-grow: 1;
     width: 100%;
 
-    .securit-sidenav {
+    .security-navbar {
         display: flex;
         flex-direction: row;
         justify-content: start;
@@ -24,7 +24,7 @@
         color: var(--color-mps-surface-700);
     }
 
-    .securit-content {
+    .security-content {
         display: flex;
         flex-direction: column;
         justify-content: start;

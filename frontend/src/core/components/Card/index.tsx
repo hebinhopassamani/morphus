@@ -1,35 +1,31 @@
-import { mpxCardTheme } from '@components/Card/theme';
-import type { MorphusTheme, MpxThemeColrosGroupNames } from '@core/types/colors.type';
-import { useThemeProvider } from 'flowbite-react';
-import { get } from 'flowbite-react/helpers/get';
-import { resolveProps } from 'flowbite-react/helpers/resolve-props';
-import { useResolveTheme } from 'flowbite-react/helpers/resolve-theme';
-import type { ThemingProps } from 'flowbite-react/types';
-import { forwardRef, type ComponentProps } from 'react';
+// import type { MpxCardProps } from '@components/Card/card.structures';
+// import { useThemeProvider } from 'flowbite-react';
+// import { get } from 'flowbite-react/helpers/get';
+// import { resolveProps } from 'flowbite-react/helpers/resolve-props';
+// import { useResolveTheme } from 'flowbite-react/helpers/resolve-theme';
+// import { twMerge } from 'flowbite-react/helpers/tailwind-merge';
+// import { forwardRef } from 'react';
 
-export interface MpxCardTheme extends MorphusTheme {
-    base: string;
-    color: MpxThemeColrosGroupNames;
-}
+// export const MpxCard = forwardRef<HTMLDivElement, MpxCardProps>((props, ref) => {
+//     //const [mpxThem, setMpxTheme] = useState(new MorphusTheme().theme);
 
-export interface MpxCardProps extends ComponentProps<'div'>, ThemingProps<MpxCardTheme> {
-    color?: keyof MpxThemeColrosGroupNames;
-}
+//     const provider = useThemeProvider();
 
-export const MpxCard = forwardRef<HTMLDivElement, MpxCardProps>((props, ref) => {
-    const provider = useThemeProvider();
+//     const theme = useResolveTheme(
+//         [cardTheme, provider.theme?.carTheme, props.theme],
+//         [get(provider.clearTheme, 'card'), props.clearTheme],
+//         [get(provider.applyTheme, 'card'), props.applyTheme]
+//     );
 
-    const theme = useResolveTheme(
-        [mpxCardTheme, provider.theme?.cardTheme, props.theme],
-        [get(provider.clearTheme, 'card'), props.clearTheme],
-        [get(provider.applyTheme, 'card'), props.applyTheme]
-    );
+//     const { children, className, ...restProps } = resolveProps(props, provider.props?.cardProps);
 
-    const { children, color, className, ...restProps } = resolveProps(props, provider.props?.cardProps);
-
-    return (
-        <div ref={ref} className={twMerge(theme.base, theme.color[color], className)} {...restProps}>
-            {children}
-        </div>
-    );
-});
+//     return (
+//         <div
+//             ref={ref}
+//             className={twMerge(theme.base, className)}
+//             {...restProps}
+//         >
+//             {children}
+//         </div>
+//     );
+// });
