@@ -6,7 +6,7 @@ export function SecNavbar({ children }: SecNavbarProps) {
     return (
         <div className='security-navbar shadow-lg shadow-black/50 border-b border-b-gray-300'>
             {children}
-            <label className=''>Teste de Titulo</label>
+            <label className='mpx-label-large'>Teste de Titulo</label>
         </div>
     );
 }

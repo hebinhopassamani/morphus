@@ -1,0 +1,20 @@
+@import './colors/colors.css';
+@import './colors/tokens.css';
+
+@import './thipography/utilities.css';
+@import './thipography/tokens.css';
+
+@import './fonts/geist.css';
+@import './fonts/anybody.css';
+@import './fonts/fira-code.css';
+@import './fonts/ibm-plex-mono.css';
+@import './fonts/jetbrains_mono.css';
+@import './fonts/mont-serra-display.css';
+@import './fonts/mont-serra-headline.css';
+@import './fonts/mont-serrat.css';
+@import './fonts/noto-sans.css';
+@import './fonts/google-sans.css';
+@import './fonts/roboto.css';
+@import './fonts/rubick.css';
+@import './fonts/ubuntu.css';
+@import './fonts/styles.css';

@@ -1,8 +1,8 @@
-{    
+{
     "editor.fontFamily": "Fira Code",
     "editor.fontSize": 20,
     "editor.fontLigatures": true,
-    "editor.fontWeight": "300",    
+    "editor.fontWeight": "300",
     "editor.lineHeight": 1.4,
     "editor.minimap.enabled": false,
     "editor.guides.indentation": false,
@@ -17,19 +17,22 @@
     "editor.renderLineHighlight": "none",
     "editor.stickyScroll.enabled": false,
     "editor.lineNumbers": "off",
+    "editor.suggest.selectionMode": "never",
+    "editor.hover.delay": 800,
     "workbench.tree.renderIndentGuides": "none",
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "workbench.experimental.modernUI": true,
+    "window.density.layout": "compact",    "editor.defaultFormatter": "esbenp.prettier-vscode",
     "prettier.prettierPath": "./node_modules/prettier",
     "workbench.colorTheme": "Dracula Theme Soft",
     "workbench.iconTheme": "material-icon-theme",
     "workbench.activityBar.location": "default",
-    "workbench.tree.indent": 8,
+    "workbench.tree.indent": 18,
     "workbench.secondarySideBar.defaultVisibility": "hidden",
     "workbench.tree.enableStickyScroll": false,
     "terminal.integrated.initialHint": false,
     "terminal.integrated.defaultProfile.osx": "zsh",
     "terminal.integrated.defaultProfile.windows": "Git Bash",
-    "terminal.integrated.cursorStyle": "underline",
+    "terminal.integrated.cursorStyle": "block",
     "terminal.integrated.fontSize": 18,
     "terminal.integrated.fontFamily": "'Fira Code'",
     "terminal.integrated.fontLigatures.enabled": true,
@@ -57,6 +60,9 @@
         "**/.config": true,
         "**/obj": true,
         "**/bin": true
+    },
+    "files.associations": {
+        "*.css": "tailwindcss"
     },
     "[jsonc]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"

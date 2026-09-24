@@ -1,0 +1,31 @@
+@font-face {
+	font-family: 'Fira Code', monospace;
+	font-style: normal;
+	font-weight: 300 700;
+	font-display: swap;
+	src: url('/fonts/Fira_Code/FiraCode-VariableFont_wght.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Fira Mono', monospace;
+	font-style: normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url('/fonts/Fira_Mono/FiraMono-Regular.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Fira Mono', monospace;
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('/fonts/Fira_Mono/FiraMono-Medium.ttf') format('truetype');
+}
+
+@font-face {
+	font-family: 'Fira Mono', monospace;
+	font-style: normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url('/fonts/Fira_Mono/FiraMono-Bold.ttf') format('truetype');
+}
