@@ -1,7 +1,7 @@
 @theme {
 	--text-mpx-label-small: var(--mpx-text-xs);
 	--text-mpx-label-medium: var(--mpx-text-md);
-	--text-mpx-label-large: var(--mpx-text-xs);
+	--text-mpx-label-large: var(--mpx-text-lg);
 	--text-mpx-p-small: var(--mpx-text-sm);
 	--text-mpx-p-medium: var(--mpx-text-md);
 	--text-mpx-p-large: var(--mpx-text-lg);
@@ -79,7 +79,7 @@
 	--font-mpx-paragraph: var(--mpx-brand);
 	--font-mpx-body: var(--mpx-plain);
 	--font-mpx-h1: var(--mpx-plain);
-	--font-mpx-h2: var(--mpxplain);
+	--font-mpx-h2: var(--mpx-plain);
 	--font-mpx-h3: var(--mpx-brand);
 
 	--shadow-mpx-1: 0 1px rgb(0 0 0 / 0.05);

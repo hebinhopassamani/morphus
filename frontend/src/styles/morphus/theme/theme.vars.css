@@ -1,4 +1,4 @@
-@theme inline {
+@theme {
 	--mpx-brand: var(--mpx-roboto);
 	--mpx-plain: var(--mpx-roboto-flex);
 
