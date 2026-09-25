@@ -5,6 +5,24 @@
 	font-style: normal;
 }
 
+.roboto-flex-morphus {
+	font-family: 'Roboto Flex', sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 100 1000;
+	font-style: normal;
+	font-variation-settings:
+		'slnt' 0,
+		'wdth' 100,
+		'GRAD' 0,
+		'XOPQ' 96,
+		'XTRA' 468,
+		'YOPQ' 79,
+		'YTAS' 750,
+		'YTDE' -203,
+		'YTFI' 738,
+		'YTLC' 514,
+		'YTUC' 712;
+}
 .noto-sans-mono {
 	font-family: 'Noto Sans', sans-serif;
 	font-optical-sizing: auto;

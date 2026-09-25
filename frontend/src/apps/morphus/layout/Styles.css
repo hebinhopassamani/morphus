@@ -1,42 +1,42 @@
 .morphus-container {
-    --mps-sidebar-width: 15rem;
-    --mps-topbar-height: 4.5rem;
+	--mpx-sidebar-width: 15rem;
+	--mpx-sidenav-height: 4.5rem;
 
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    align-items: center;
-    flex: auto;
-    width: 100%;
-    background-color: rgb(231, 230, 229);
+	display: flex;
+	flex-direction: row;
+	justify-content: start;
+	align-items: center;
+	flex: auto;
+	width: 100%;
+	background-color: rgb(231, 230, 229);
 
-    .morphus-sidenav {
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: center;
-        height: 100%;
-        width: var(--mps-sidebar-width);
-        background-color: rgb(214, 212, 214);
-    }
+	.morphus-sidenav {
+		display: flex;
+		flex-direction: column;
+		justify-content: start;
+		align-items: center;
+		height: 100%;
+		width: var(--mpx-sidebar-width);
+		background-color: rgb(214, 212, 214);
+	}
 
-    .morphus-navbar {
-        display: flex;
-        flex-direction: row;
-        justify-content: start;
-        align-items: center;
-        height: var(--mps-topbar-height);
-        width: 100%;
-        background-color: rgb(215, 224, 212);
-    }
+	.morphus-navbar {
+		display: flex;
+		flex-direction: row;
+		justify-content: start;
+		align-items: center;
+		width: 100%;
+		min-height: var(--mpx-topbar-height);
+		background-color: var(--mpx-surface);
+		color: var(--mpx-on-surface);
+	}
 
-    .morphus-content {
-        display: flex;
-        flex-direction: column;
-        justify-content: start;
-        align-items: center;
-        height: 100%;
-        flex: auto;
-        background-color: rgb(219, 219, 238);
-    }
+	.morphus-content {
+		display: flex;
+		flex-direction: column;
+		justify-content: start;
+		align-items: center;
+		height: 100%;
+		flex: auto;
+	}
 }

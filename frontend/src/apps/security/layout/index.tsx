@@ -5,15 +5,15 @@ import { SecContent } from '@security/layout/content';
 import './styles.css';
 
 export function SecurityLayout() {
-    const { toggleMode } = useThemeMode();
-    return (
-        <div className='security-container'>
-            <SecNavbar>
-                <DarkThemeToggle className='cursor-pointer  mpx-' onToggle={toggleMode} />
-            </SecNavbar>
-            <SecContent>
-                <Outlet />
-            </SecContent>
-        </div>
-    );
+	const { toggleMode } = useThemeMode();
+	return (
+		<div className='security-container'>
+			<SecNavbar>
+				<DarkThemeToggle className='cursor-pointer' onToggle={toggleMode} />
+			</SecNavbar>
+			<SecContent>
+				<Outlet />
+			</SecContent>
+		</div>
+	);
 }

@@ -5,13 +5,13 @@ import { Outlet } from 'react-router';
 import './styles.css';
 
 export function MorphusLayout() {
-    return (
-        <div className='morphus-container text-mpx-label-small-li'>
-            <MpxSidenav />
-            <MpxContent>
-                <MpxNavbar />
-                <Outlet />
-            </MpxContent>
-        </div>
-    );
+	return (
+		<div className='morphus-container'>
+			<MpxSidenav />
+			<MpxContent>
+				<MpxNavbar />
+				<Outlet />
+			</MpxContent>
+		</div>
+	);
 }

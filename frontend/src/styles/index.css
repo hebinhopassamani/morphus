@@ -1,5 +1,4 @@
 @import 'tailwindcss';
 @import 'flowbite-react/plugin/tailwindcss';
 @import './morphus/baseline.css';
-@import './themes/baseline.css';
 @source '../../.flowbite-react/class-list.json';
