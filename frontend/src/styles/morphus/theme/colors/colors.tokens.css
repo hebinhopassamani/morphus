@@ -1,0 +1,63 @@
+@theme {
+	--color-mpx-outline: var(--mpx-slate-200);
+	--color-mpx-background: var(--mpx-white);
+	--color-mpx-on-background: var(--mpx-black);
+
+	--color-mpx-primary: var(--mpx-sky-50);
+	--color-mpx-primary-container: var(--mpx-sky-100);
+	--color-mpx-primary-inverse: var(--mpx-sky-700);
+	--color-mpx-on-primary: var(--mpx-sky-900);
+	--color-mpx-on-primary-container: var(--mpx-sky-900);
+	--color-mpx-on-primary-inverse: var(--mpx-sky-50);
+
+	--color-mpx-secondary: var(--mpx-teal-50);
+	--color-mpx-secondary-container: var(--mpx-teal-100);
+	--color-mpx-on-secondary: var(--mpx-sky-900);
+	--color-mpx-on-secondary-container: var(--mpx-sky-900);
+
+	--color-mpx-tertiary: var(--mpx-purple-200);
+	--color-mpx-tertiary-container: var(--mpx-purple-400);
+	--color-mpx-on-tertiary: var(--mpx-sky-900);
+	--color-mpx-on-tertiary-container: var(--mpx-sky-900);
+
+	--color-mpx-surface: var(--mpx-zinc-100);
+	--color-mpx-surface-tint: var(--mpx-black);
+	--color-mpx-surface-variant: var(--mpx-zinc-100);
+	--color-mpx-surface-inverse: var(--mpx-zinc-100);
+	--color-mpx-on-surface: var(--mpx-black);
+	--color-mpx-on-surface-tint: var(--mpx-black);
+	--color-mpx-on-surface-variant: var(--mpx-zinc-100);
+	--color-mpx-on-surface-inverse: var(--mpx-zinc-100);
+
+	--color-mpx-info: var(--mpx-taupe-950);
+	--color-mpx-info-variant: var(--mpx-sky-300);
+	--color-mpx-info-container: var(--mpx-sky-100);
+	--color-mpx-on-info: var(--mpx-sky-900);
+	--color-mpx-on-info-variant: var(--mpx-sky-50);
+	--color-mpx-on-info-container: var(--mpx-sky-900);
+	--color-mpx-info-outline: var(--mpx-slate-300);
+
+	--color-mpx-warning: var(--mpx-amber-50);
+	--color-mpx-warning-variant: var(--mpx-amber-300);
+	--color-mpx-warning-container: var(--mpx-amber-100);
+	--color-mpx-on-warning: var(--mpx-amber-900);
+	--color-mpx-on-warning-variant: var(--mpx-amber-50);
+	--color-mpx-on-warning-container: var(--mpx-amber-900);
+	--color-mpx-warning-outline: var(--mpx-ywllow-600);
+
+	--color-mpx-success: var(--mpx-green-50);
+	--color-mpx-success-variant: var(--mpx-green-300);
+	--color-mpx-success-container: var(--mpx-green-100);
+	--color-mpx-on-success: var(--mpx-green-900);
+	--color-mpx-on-success-variant: var(--mpx-green-50);
+	--color-mpx-on-success-container: var(--mpx-green-900);
+	--color-mpx-success-outline: var(--mpx-green-500);
+
+	--color-mpx-error: var(--mpx-red-50);
+	--color-mpx-error-variant: var(--mpx-red-300);
+	--color-mpx-error-container: var(--mpx-red-100);
+	--color-mpx-on-error: var(--mpx-red-900);
+	--color-mpx-on-error-variant: var(--mpx-red-50);
+	--color-mpx-on-error-container: var(--mpx-red-900);
+	--color-mpx-error-outline: var(--mpx-red-600);
+}

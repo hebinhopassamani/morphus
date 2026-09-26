@@ -1,0 +1,119 @@
+@utility label-small {
+	@apply font-mpx-label 
+	text-mpx-label-small 
+	leading-mpx-label-low 
+	font-mpx-label-medium 
+	tracking-mpx-label-normal;
+}
+
+@utility label-medium {
+	@apply font-mpx-label 
+	text-mpx-label-medium 
+	leading-mpx-label-medium 
+	font-mpx-label-medium 
+	tracking-mpx-label-wide;
+}
+
+@utility label-large {
+	@apply font-mpx-label 
+	text-mpx-label-large 
+	leading-mpx-label-height 
+	font-mpx-label-bold 
+	tracking-mpx-label-wide;
+}
+
+@utility body-small {
+	@apply font-mpx-body 
+	text-mpx-body-small 
+	leading-mpx-body-low 
+	font-mpx-body-medium 
+	tracking-mpx-body-normal;
+}
+
+@utility body-medium {
+	@apply font-mpx-body 
+	text-mpx-body-medium 
+	leading-mpx-body-medium 
+	font-mpx-body-medium 
+	tracking-mpx-body-wide;
+}
+
+@utility body-large {
+	@apply font-mpx-body 
+	text-mpx-body-large 
+	leading-mpx-body-height 
+	font-mpx-body-bold 
+	tracking-mpx-body-wide;
+}
+
+@utility h3-small {
+	@apply font-mpx-h3 
+	text-mpx-h3-small 
+	leading-mpx-h3-low 
+	font-mpx-h3-medium 
+	tracking-mpx-h3-normal;
+}
+
+@utility h3-medium {
+	@apply font-mpx-h3 
+	text-mpx-h3-medium 
+	leading-mpx-h3-medium 
+	font-mpx-h3-medium 
+	tracking-mpx-h3-wide;
+}
+
+@utility h3-large {
+	@apply font-mpx-h3 
+	text-mpx-h3-large 
+	leading-mpx-h3-height 
+	font-mpx-h3-bold 
+	tracking-mpx-h3-wide;
+}
+
+@utility h2-small {
+	@apply font-mpx-h2 
+	text-mpx-h2-small 
+	leading-mpx-h2-low 
+	font-mpx-h2-medium 
+	tracking-mpx-h2-normal;
+}
+
+@utility h2-medium {
+	@apply font-mpx-h2 
+	text-mpx-h2-medium 
+	leading-mpx-h2-medium 
+	font-mpx-h2-medium 
+	tracking-mpx-h2-wide;
+}
+
+@utility h2-large {
+	@apply font-mpx-h2 
+	text-mpx-h2-large 
+	leading-mpx-h2-height 
+	font-mpx-h2-bold 
+	tracking-mpx-h2-wide;
+}
+
+@utility h1-small {
+	@apply font-mpx-h1 
+	text-mpx-h1-small 
+	leading-mpx-h1-low 
+	font-mpx-h1-medium 
+	tracking-mpx-h1-normal;
+}
+
+@utility h1-medium {
+	@apply font-mpx-h1 
+	text-mpx-h1-medium 
+	leading-mpx-h1-medium 
+	font-mpx-h1-medium 
+	tracking-mpx-h1-wide;
+}
+
+@utility h1-large {
+	@apply font-mpx-h1 
+	text-mpx-h1-large 
+	leading-mpx-h1-height 
+	font-mpx-h1-bold 
+	tracking-mpx-h1-wide;
+}

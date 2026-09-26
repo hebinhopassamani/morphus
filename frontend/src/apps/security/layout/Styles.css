@@ -20,7 +20,7 @@
 		border-bottom-right-radius: 8px;
 		border-bottom-left-radius: 8px;
 		min-height: var(--sec-topbar-height);
-		background-color: var(--mpx-surface);
+		background-color: var(--color-mpx-secondary);
 		color: var(--mpx-on-surface);
 	}
 

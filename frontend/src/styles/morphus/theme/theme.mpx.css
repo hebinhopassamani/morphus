@@ -1,5 +1,5 @@
-@import './lightdark.colors.css';
-@import './theme.colors.css';
-@import './theme.custom.css';
-@import './theme.utilities.css';
-@import './theme.vars.css';
+@import './colors/colors.base.css';
+@import './colors/colors.tokens.css';
+@import './colors/colors.utilities.css';
+@import './thipography/thipography.tokens.css';
+@import './thipography/thipography.utilities.css';

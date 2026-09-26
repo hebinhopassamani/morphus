@@ -4,9 +4,9 @@ export type SecNavbarProps = {} & MorphusProps;
 
 export function SecNavbar({ children }: SecNavbarProps) {
 	return (
-		<div className='security-navbar shadow-lg  shadow-black/50 border-b border-b-gray-300'>
+		<div className='security-navbar shadow-lg bg-heber! shadow-black/50 border-b border-b-gray-300'>
 			{children}
-			<label className='label-large'>Teste de Titulo</label>
+			<label className='bg-t-heber'>Teste de Titulo</label>
 		</div>
 	);
 }

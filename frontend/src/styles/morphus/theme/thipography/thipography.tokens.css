@@ -1,0 +1,131 @@
+@theme {
+	/* ------------fonts Intaladas ---------------- */
+	--mpx-sans: var(--font-sans);
+	--mpx-serif: var(--font-serif);
+	--mpx-mono: var(--font-mono);
+	--mpx-roboto: 'Roboto';
+	--mpx-roboto-flex: 'Roboto Flex';
+	--mpx-roboto-mono: 'Roboto mono';
+	--mpx-geist-mono: 'Geist mono';
+	--mpx-geist: 'Geist';
+	--mpx-fira-code: 'Fira Code';
+	--mpx-fira-mono: 'Fira Mono';
+	--mpx-jet-brains-mono: 'JetBrains Mono';
+	--mpx-ibm-plex-mono: 'IBM Plex Mono';
+	--mpx-google-sans: 'Google Sans';
+	--mpx-noto-sans: 'Noto Sans';
+	--mpx-ubuntu: 'Ubuntu';
+	--mpx-montserrat: 'Mont Serrat';
+	--mpx-anybody: 'Anybody';
+
+	/* ------------fonts ---------------- */
+	--mpx-brand: var(--mpx-roboto);
+	--mpx-plain: var(--mpx-roboto-flex);
+
+	--font-mpx-label: var(--mpx-brand);
+	--font-mpx-paragraph: var(--mpx-brand);
+	--font-mpx-body: var(--mpx-plain);
+	--font-mpx-h1: var(--mpx-plain);
+	--font-mpx-h2: var(--mpx-plain);
+	--font-mpx-h3: var(--mpx-brand);
+
+	/* ------------ fonts Size ---------------- */
+	--text-mpx-label-small: var(--text-xs);
+	--text-mpx-label-medium: var(--text-md);
+	--text-mpx-label-large: var(--text-lg);
+
+	--text-mpx-p-small: var(--text-sm);
+	--text-mpx-p-medium: var(--text-md);
+	--text-mpx-p-large: var(--text-lg);
+
+	--text-mpx-body-small: var(--text-sm);
+	--text-mpx-body-medium: var(--text-md);
+	--text-mpx-body-large: var(--text-xl);
+
+	--text-mpx-h1-small: var(--text-4xl);
+	--text-mpx-h1-medium: var(--text-5xl);
+	--text-mpx-h1-large: var(--text-6xl);
+
+	--text-mpx-h2-small: var(--text-2xl);
+	--text-mpx-h2-medium: var(--text-3xl);
+	--text-mpx-h2-large: var(--text-4xl);
+
+	--text-mpx-h3-small: var(--text-lg);
+	--text-mpx-h3-medium: var(--text-xl);
+	--text-mpx-h3-large: var(--text-2xl);
+
+	/* ------------ fonts Line Height -------------- */
+	--leading-mpx-label-low: var(--text-xs--line-height);
+	--leading-mpx-label-medium: var(--text-md--line-height);
+	--leading-mpx-label-height: var(--text-lg--line-height);
+
+	--leading-mpx-p-low: var(--text-sm--line-height);
+	--leading-mpx-p-medium: var(--text-md--line-height);
+	--leading-mpx-p-height: var(--text-lg--line-height);
+
+	--leading-mpx-body-low: var(--text-sm--line-height);
+	--leading-mpx-body-medium: var(--text-md--line-height);
+	--leading-mpx-body-height: var(--text-xl--line-height);
+
+	--leading-mpx-h1-low: var(--text-4x--line-height);
+	--leading-mpx-h1-medium: var(--text-5x--line-height);
+	--leading-mpx-h1-height: var(--text-6x--line-height);
+
+	--leading-mpx-h2-low: var(--text-2x--line-height);
+	--leading-mpx-h2-medium: var(--text-3x--line-height);
+	--leading-mpx-h2-height: var(--text-4x--line-height);
+
+	--leading-mpx-h3-low: var(--text-lg--line-height);
+	--leading-mpx-h3-medium: var(--text-xl--line-height);
+	--leading-mpx-h3-height: var(--text-2x--line-height);
+
+	/* ------------ fonts weight ---------------- */
+	--font-weight-mpx-label-light: var(--font-weight-medium);
+	--font-weight-mpx-label-medium: var(--font-weight-semibold);
+	--font-weight-mpx-label-bold: var(--font-weight-bold);
+
+	--font-weight-mpx-p-light: var(--font-weight-light);
+	--font-weight-mpx-p-medium: var(--font-weight-normal);
+	--font-weight-mpx-p-bold: var(--font-weight-semibold);
+
+	--font-weight-mpx-body-light: var(--font-weight-light);
+	--font-weight-mpx-body-medium: var(--font-weight-normal);
+	--font-weight-mpx-body-bold: var(--font-weight-medium);
+
+	--font-weight-mpx-h1-light: var(--font-weight-medium);
+	--font-weight-mpx-h1-medium: var(--font-weight-bold);
+	--font-weight-mpx-h1-bold: var(--font-weight-extrabold);
+
+	--font-weight-mpx-h2-light: var(--font-weight-medium);
+	--font-weight-mpx-h2-medium: var(--font-weight-semibold);
+	--font-weight-mpx-h2-bold: var(--font-weight-bold);
+
+	--font-weight-mpx-h3-light: var(--font-weight-normal);
+	--font-weight-mpx-h3-medium: var(--font-weight-medium);
+	--font-weight-mpx-h3-bold: var(--font-weight-semibold);
+
+	/* ------------ fonts Lether Spacing--------------- */
+	--tracking-mpx-label-tight: var(--tracking-tight);
+	--tracking-mpx-label-normal: var(--tracking-normal);
+	--tracking-mpx-label-wide: var(--tracking-wide);
+
+	--tracking-mpx-p-tight: var(--tracking-tighter);
+	--tracking-mpx-p-normal: var(--tracking-normal);
+	--tracking-mpx-p-wide: var(--tracking-wider);
+
+	--tracking-mpx-body-tight: var(--tracking-tight);
+	--tracking-mpx-body-normal: var(--tracking-normal);
+	--tracking-mpx-body-wide: var(--tracking-wide);
+
+	--tracking-mpx-h1-tight: var(--tracking-tight);
+	--tracking-mpx-h1-normal: var(--tracking-normal);
+	--tracking-mpx-h1-wide: var(--tracking-wide);
+
+	--tracking-mpx-h2-tight: var(--tracking-tighter);
+	--tracking-mpx-h2-normal: var(--tracking-normal);
+	--tracking-mpx-h2-wide: var(--tracking-wide);
+
+	--tracking-mpx-h3-tight: var(--tracking-wider);
+	--tracking-mpx-h3-normal: var(--tracking-normal);
+	--tracking-mpx-h3-wide: var(--tracking-wider);
+}
