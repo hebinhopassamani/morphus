@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
+import { MatIconButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
@@ -9,7 +9,6 @@ import { Theming } from '@/apps/core/theming';
 
 @Component({
   imports: [
-    MatButton,
     MatIconButton,
     MatIcon,
     MatMenu,

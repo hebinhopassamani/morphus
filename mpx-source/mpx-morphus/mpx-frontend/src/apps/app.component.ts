@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import {
   NavigationCancel,
   NavigationEnd,
@@ -23,14 +23,32 @@ export class AppComponent {
   private readonly router = inject(Router);
 
   protected readonly isNavigating = signal(false);
+  protected readonly holdOverlay = signal(false);
+
+  private overlayHoldTimer: ReturnType<typeof setTimeout> | null = null;
 
   protected readonly showTopBar = computed(
-    () => this.auth.isLoading() || this.isNavigating(),
+    () => this.auth.isLoading() || this.holdOverlay() || this.isNavigating(),
   );
 
-  protected readonly showFullOverlay = computed(() => this.auth.isLoading());
+  protected readonly showFullOverlay = computed(
+    () => this.auth.isLoading() || this.holdOverlay(),
+  );
 
   constructor() {
+    effect(() => {
+      if (this.auth.isLoading()) {
+        this.holdOverlay.set(true);
+        if (this.overlayHoldTimer) {
+          clearTimeout(this.overlayHoldTimer);
+        }
+        this.overlayHoldTimer = setTimeout(() => {
+          this.holdOverlay.set(false);
+          this.overlayHoldTimer = null;
+        }, 1200);
+      }
+    });
+
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.isNavigating.set(true);

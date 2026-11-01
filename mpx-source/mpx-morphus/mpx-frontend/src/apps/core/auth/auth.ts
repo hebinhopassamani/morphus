@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, inject, PLATFORM_ID, Service, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
+import { catchError, delay, finalize, Observable, tap, throwError } from 'rxjs';
 import { LocalStorage } from '@/apps/core/local-storage';
 import { environment } from '@/environments/environment';
 import {
@@ -136,6 +136,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<MorphusSession>(`${this.apiUrl}/google-login`, request).pipe(
+      delay(1200),
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message =
@@ -174,6 +175,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<MorphusSession>(`${this.apiUrl}/login`, request).pipe(
+      delay(1200),
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'E-mail ou senha inválidos.';
@@ -189,6 +191,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<MorphusSession>(`${this.apiUrl}/create-account`, request).pipe(
+      delay(1200),
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'Não foi possível criar a conta. Verifique os dados informados.';
@@ -242,6 +245,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<MorphusSession>(`${this.apiUrl}/onboarding/step-corporation`, request).pipe(
+      delay(1200),
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'Não foi possível salvar os dados da matriz.';
@@ -257,6 +261,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<OnboardingStateResponse>(`${this.apiUrl}/onboarding/step-workspace`, request).pipe(
+      delay(1200),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'Não foi possível salvar os dados do workspace.';
         this.errorState.set({ message });
@@ -271,6 +276,7 @@ export class Auth {
     this.errorState.set(null);
 
     return this.http.post<MorphusSession>(`${this.apiUrl}/onboarding/complete`, request).pipe(
+      delay(1200),
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'Não foi possível concluir a configuração inicial.';
