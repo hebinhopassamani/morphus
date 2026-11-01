@@ -55,10 +55,10 @@
 
         <span class="min-w-0 text-start">
           <span class="block truncate font-semibold">
-            {{ auth.corporation()?.name || 'Morphus' }}
+            {{ auth.corporation()?.name || 'Corporação' }}
           </span>
-          <span class="block truncate text-sm text-neutral-a11">
-            {{ auth.corporation()?.email || context.activeWorkspace()?.name || 'Morphus Workspace' }}
+          <span class="block truncate text-xs text-neutral-a11">
+            {{ context.activeWorkspace()?.name || 'Morphus Workspace' }}
           </span>
         </span>
       </span>
@@ -70,75 +70,75 @@
       />
     </button>
 
-    <!-- Menu de Contexto (Corporação -> Workspace -> Aplicação) -->
+    <!-- Menu de Contexto (Corporação em destaque no topo + 2 linhas: Workspace e Aplicação) -->
     <mat-menu
       class="min-w-60"
       xPosition="before"
       #contextMenu="matMenu"
     >
-      <!-- Cabeçalho do Menu mostrando a Corporação ativa -->
-      <button mat-menu-item>
-        <div
-          class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-a4 text-primary-a11"
-        >
-          @if (context.isImageIcon(auth.corporation()?.icon)) {
-            <img
-              class="size-9 object-cover"
-              [src]="auth.corporation()!.icon!"
-              [alt]="auth.corporation()?.name || 'Corporação'"
-            />
-          } @else {
-            <mat-icon
-              class="size-5"
-              [svgIcon]="auth.corporation()?.icon || 'building-2'"
-            />
-          }
-        </div>
-        <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
-          <div class="truncate text-lg font-medium">
-            {{ auth.corporation()?.name || 'Morphus' }}
-          </div>
-          <div class="truncate text-sm text-neutral-a11">
-            {{ auth.corporation()?.email || 'Ambiente Corporativo' }}
-          </div>
-        </div>
-      </button>
-
-      <mat-divider />
-
-      <!-- 1. Corporação -->
+      <!-- Destaque no Topo: Corporação (expande lista se houver mais de uma) -->
       @if (auth.availableCorporations().length > 1) {
         <button
           mat-menu-item
           [matMenuTriggerFor]="corporationsMenu"
         >
-          @if (context.isImageIcon(auth.corporation()?.icon)) {
-            <img
-              class="me-3 size-4 rounded-xs object-cover"
-              [src]="auth.corporation()!.icon!"
-              alt=""
-            />
-          } @else {
-            <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
-          }
-          <span>{{ auth.corporation()?.name || 'Corporação' }}</span>
+          <div
+            class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-a4 text-primary-a11"
+          >
+            @if (context.isImageIcon(auth.corporation()?.icon)) {
+              <img
+                class="size-9 object-cover"
+                [src]="auth.corporation()!.icon!"
+                [alt]="auth.corporation()?.name || 'Corporação'"
+              />
+            } @else {
+              <mat-icon
+                class="size-5! text-primary-a11!"
+                [svgIcon]="auth.corporation()?.icon || 'building-2'"
+              />
+            }
+          </div>
+          <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
+            <div class="truncate text-lg font-medium">
+              {{ auth.corporation()?.name || 'Corporação' }}
+            </div>
+            <div class="truncate text-xs text-neutral-a11">
+              Corporação ativa
+            </div>
+          </div>
         </button>
       } @else {
         <button mat-menu-item>
-          @if (context.isImageIcon(auth.corporation()?.icon)) {
-            <img
-              class="me-3 size-4 rounded-xs object-cover"
-              [src]="auth.corporation()!.icon!"
-              alt=""
-            />
-          } @else {
-            <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
-          }
-          <span>{{ auth.corporation()?.name || 'Corporação' }}</span>
+          <div
+            class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-a4 text-primary-a11"
+          >
+            @if (context.isImageIcon(auth.corporation()?.icon)) {
+              <img
+                class="size-9 object-cover"
+                [src]="auth.corporation()!.icon!"
+                [alt]="auth.corporation()?.name || 'Corporação'"
+              />
+            } @else {
+              <mat-icon
+                class="size-5! text-primary-a11!"
+                [svgIcon]="auth.corporation()?.icon || 'building-2'"
+              />
+            }
+          </div>
+          <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
+            <div class="truncate text-lg font-medium">
+              {{ auth.corporation()?.name || 'Corporação' }}
+            </div>
+            <div class="truncate text-xs text-neutral-a11">
+              Corporação ativa
+            </div>
+          </div>
         </button>
       }
 
-      <!-- 2. Workspace -->
+      <mat-divider />
+
+      <!-- Linha 1 abaixo do divisor: Workspace -->
       @if (context.workspaces().length > 1) {
         <button
           mat-menu-item
@@ -170,7 +170,7 @@
         </button>
       }
 
-      <!-- 3. Aplicação (excluindo Security e Website) -->
+      <!-- Linha 2 abaixo do divisor: Aplicação (excluindo Security e Website) -->
       @if (context.availableApplications().length > 1) {
         <button
           mat-menu-item
