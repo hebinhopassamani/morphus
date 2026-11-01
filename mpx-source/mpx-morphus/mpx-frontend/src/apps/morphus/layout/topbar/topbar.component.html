@@ -4,34 +4,6 @@
     <mat-icon svgIcon="panel-left" />
   </button>
 
-  <div class="mx-1.5 h-4 w-px bg-neutral-a5"></div>
-
-  <!-- Botões rápidos e compactos (Padrão Fuse) para Corporação, Workspace e Aplicação -->
-  <button
-    matIconButton
-    [matTooltip]="'Corporação: ' + (auth.corporation()?.name || 'Selecionar')"
-    [disabled]="auth.availableCorporations().length <= 1"
-    (click)="goToSelectCorporation()"
-  >
-    <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
-  </button>
-
-  <button
-    matIconButton
-    [matMenuTriggerFor]="workspaceMenu"
-    [matTooltip]="'Workspace: ' + (context.activeWorkspace()?.name || 'Morphus Workspace')"
-  >
-    <mat-icon [svgIcon]="context.activeWorkspace()?.icon || 'folder'" />
-  </button>
-
-  <button
-    matIconButton
-    [matMenuTriggerFor]="applicationMenu"
-    [matTooltip]="'Aplicação: ' + (context.activeApplication()?.name || 'Morphus')"
-  >
-    <mat-icon [svgIcon]="context.activeApplication()?.icon || 'layout-grid'" />
-  </button>
-
   <div class="flex-auto"></div>
 
   <!-- Quick Settings (Pincel do Fuse) -->
@@ -57,31 +29,6 @@
       </div>
     }
   </button>
-
-  <!-- Menus de Workspace e Aplicação -->
-  <mat-menu #workspaceMenu="matMenu">
-    @for (ws of context.workspaces(); track ws.id) {
-      <button mat-menu-item (click)="selectWorkspace(ws)">
-        <mat-pseudo-checkbox
-          appearance="minimal"
-          [state]="context.activeWorkspace()?.id === ws.id ? 'checked' : 'unchecked'"
-        />
-        <span class="ms-1">{{ ws.name }}</span>
-      </button>
-    }
-  </mat-menu>
-
-  <mat-menu #applicationMenu="matMenu">
-    @for (app of context.availableApplications(); track app.id) {
-      <button mat-menu-item (click)="selectApplication(app)">
-        <mat-pseudo-checkbox
-          appearance="minimal"
-          [state]="context.activeApplication()?.id === app.id ? 'checked' : 'unchecked'"
-        />
-        <span class="ms-1">{{ app.name }}</span>
-      </button>
-    }
-  </mat-menu>
 
   <!-- User Menu (Original do Fuse) -->
   <mat-menu

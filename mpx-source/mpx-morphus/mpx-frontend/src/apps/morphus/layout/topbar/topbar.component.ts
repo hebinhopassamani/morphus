@@ -5,13 +5,10 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { Auth } from '@/apps/core/auth';
 import { Scheme, Theming } from '@/apps/core/theming';
-import { MorphusApplication } from '@morphus/entities/application';
-import { Workspace } from '@morphus/entities/workspace';
 import { MpxQuickSettingsComponent } from '@morphus/layout/topbar/quick-settings.component';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   imports: [
@@ -32,9 +29,7 @@ export class MpxTopBarComponent {
   readonly menuToggle = output<void>();
 
   protected readonly auth = inject(Auth);
-  protected readonly context = inject(MorphusContextService);
   protected readonly theming = inject(Theming);
-  private readonly router = inject(Router);
 
   protected readonly isDark = computed(() => this.theming.isDark());
 
@@ -62,21 +57,5 @@ export class MpxTopBarComponent {
 
   protected updateScheme(scheme: Scheme): void {
     this.theming.scheme.set(scheme);
-  }
-
-  protected goToSelectCorporation(): void {
-    if (this.auth.availableCorporations().length > 1) {
-      this.router.navigate(['/security/select-corporation'], {
-        queryParams: { returnUrl: this.router.url },
-      });
-    }
-  }
-
-  protected selectWorkspace(workspace: Workspace): void {
-    this.context.selectWorkspace(workspace);
-  }
-
-  protected selectApplication(application: MorphusApplication): void {
-    this.context.selectApplication(application);
   }
 }

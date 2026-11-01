@@ -1,47 +1,53 @@
-<h1 class="text-3xl font-semibold">Política de Privacidade</h1>
-<p class="text-sm text-neutral-11">Última atualização: 15 de outubro de 2026</p>
+<div class="mx-auto flex w-full max-w-4xl flex-col gap-y-4 py-4">
+  <h1 class="text-3xl font-bold tracking-tight">Política de Privacidade</h1>
+  <p class="text-sm text-neutral-a10">Última atualização: 01 de novembro de 2026</p>
 
-<p>
-  Esta política explica como o Morphus (<a class="text-primary-a11" href="https://morphus.me">morphus.me</a>) coleta, usa e protege os seus dados pessoais, de
-  acordo com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
-</p>
+  <p>
+    Esta Política de Privacidade descreve como o <strong>Morphus</strong> (<a class="text-primary-a11 underline" href="https://morphus.me">morphus.me</a>) coleta, utiliza, armazena e protege os seus dados pessoais, em conformidade com a Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018 — LGPD).
+  </p>
 
-<h2>Dados que coletamos</h2>
-<ul>
-  <li>Dados de cadastro: nome, endereço de e-mail e senha (armazenada de forma criptografada pelo nosso provedor de autenticação).</li>
-  <li>Ao entrar com o Google: nome, endereço de e-mail e foto de perfil fornecidos pela sua conta Google.</li>
-  <li>Dados técnicos de acesso, como endereço IP, navegador e data e hora do acesso, usados para segurança.</li>
-</ul>
+  <h2 class="mt-4 text-xl font-semibold">1. Dados que coletamos</h2>
+  <ul class="list-disc ps-6 text-neutral-a11">
+    <li><strong>Dados de cadastro direto:</strong> nome completo, endereço de e-mail, telefone (opcional), nome da organização e senha (armazenada exclusivamente sob hash criptográfico irreversível).</li>
+    <li><strong>Login com Google (OAuth 2.0):</strong> quando você opta por entrar com sua conta Google, recebemos apenas seu nome, endereço de e-mail verificado e URL da foto de perfil pública.</li>
+    <li><strong>Dados operacionais e corporativos:</strong> registros vinculados à sua Corporação, Filiais e Workspaces para funcionamento dos módulos contratados.</li>
+    <li><strong>Registros técnicos de segurança:</strong> data e hora de autenticação, tokens de sessão e endereço IP para prevenção a fraudes e auditoria de segurança.</li>
+  </ul>
 
-<h2>Como usamos os dados</h2>
-<ul>
-  <li>Identificar você e permitir o acesso à sua conta.</li>
-  <li>Enviar comunicações sobre a sua conta, como confirmação de e-mail e redefinição de senha.</li>
-  <li>Proteger a plataforma contra fraudes e acessos indevidos.</li>
-</ul>
-<p>Não vendemos seus dados pessoais e não os usamos para publicidade de terceiros.</p>
+  <h2 class="mt-4 text-xl font-semibold">2. Finalidade do uso dos dados</h2>
+  <ul class="list-disc ps-6 text-neutral-a11">
+    <li>Autenticar sua identidade e controlar suas permissões de acesso (<em>Roles</em> e <em>Claims</em>) em cada Corporação, Workspace e Aplicação.</li>
+    <li>Enviar e-mails estritamente transacionais da plataforma (boas-vindas, confirmação de conta e recuperação de senha).</li>
+    <li>Garantir o isolamento multi-tenant para que cada organização acesse unicamente os seus próprios dados.</li>
+  </ul>
+  <p class="text-neutral-a11">
+    O Morphus <strong>não vende, não aluga e não compartilha</strong> dados pessoais para fins publicitários, nem utiliza dados provenientes das APIs do Google para treinamento de modelos de inteligência artificial ou qualquer finalidade diversa da autenticação do usuário.
+  </p>
 
-<h2>Com quem compartilhamos</h2>
-<ul>
-  <li>Auth0 (Okta): provedor que gerencia login, cadastro e senhas.</li>
-  <li>Google: quando você escolhe entrar com a sua conta Google.</li>
-  <li>Hostinger: hospedagem do site e envio de e-mails.</li>
-</ul>
-<p>Esses fornecedores tratam os dados apenas para prestar os serviços descritos acima.</p>
+  <h2 class="mt-4 text-xl font-semibold">3. Compartilhamento e Infraestrutura</h2>
+  <p class="text-neutral-a11">
+    Os dados são processados em servidores seguros com banco de dados PostgreSQL isolado e tráfego criptografado via HTTPS/TLS. Provedores essenciais de infraestrutura (como serviço de hospedagem em nuvem, SMTP transacional e autenticação Google OAuth quando acionada pelo usuário) atuam exclusivamente como operadores técnicos sob rigoroso dever de confidencialidade.
+  </p>
 
-<h2>Seus direitos</h2>
-<p>
-  Você pode, a qualquer momento, solicitar acesso, correção, portabilidade ou exclusão dos seus dados, além de revogar o consentimento, conforme o artigo 18 da
-  LGPD.
-</p>
+  <h2 class="mt-4 text-xl font-semibold">4. Direitos do Titular (Art. 18 da LGPD)</h2>
+  <p class="text-neutral-a11">
+    Você pode, a qualquer momento, solicitar a confirmação da existência de tratamento, o acesso, a atualização, a portabilidade ou a exclusão dos seus dados pessoais diretamente nas configurações da sua conta ou pelo nosso canal de atendimento.
+  </p>
 
-<h2>Retenção</h2>
-<p>Mantemos seus dados enquanto a sua conta estiver ativa. Ao solicitar a exclusão da conta, os dados são removidos, salvo quando a lei exigir a guarda.</p>
+  <h2 class="mt-4 text-xl font-semibold">5. Retenção e Exclusão</h2>
+  <p class="text-neutral-a11">
+    Mantemos os dados enquanto sua conta ou vínculo corporativo estiver ativo. Mediante solicitação de encerramento, os dados pessoais são eliminados, ressalvadas as hipóteses legais de guarda obrigatória previstas na legislação brasileira.
+  </p>
 
-<h2>Contato</h2>
-<p>
-  Para exercer seus direitos ou tirar dúvidas sobre esta política, escreva para
-  <a class="text-primary-a11" href="mailto:contato@morphus.me">contato&#64;morphus.me</a>.
-</p>
+  <h2 class="mt-4 text-xl font-semibold">6. Contato do Encarregado (DPO)</h2>
+  <p class="text-neutral-a11">
+    Para exercer seus direitos ou esclarecer dúvidas sobre privacidade e proteção de dados, entre em contato pelo e-mail
+    <a class="text-primary-a11 underline" href="mailto:contato@morphus.me">contato&#64;morphus.me</a>.
+  </p>
 
-<a class="link mt-6 text-primary-a11 decoration-primary-a11" routerLink="/">Voltar para o início</a>
+  <div class="pt-6">
+    <a class="text-sm font-semibold text-primary-a11 underline underline-offset-4" routerLink="/">
+      &larr; Voltar para a página inicial
+    </a>
+  </div>
+</div>

@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MorphusContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   imports: [RouterOutlet],
@@ -7,4 +8,6 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './content.component.css',
   templateUrl: './content.component.html',
 })
-export class MpxContentComponent {}
+export class MpxContentComponent {
+  protected readonly context = inject(MorphusContextService);
+}

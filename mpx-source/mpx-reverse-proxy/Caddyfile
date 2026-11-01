@@ -8,12 +8,12 @@
 
 	# Repassa chamadas de API para o container da API .NET
 	handle /api/* {
-		reverse_proxy api:8080
+		reverse_proxy mpx-backend:8080
 	}
 
 	# Repassa o tráfego restante para o servidor estático do Angular
 	handle {
-		reverse_proxy frontend:80
+		reverse_proxy mpx-frontend:80
 	}
 }
 
@@ -21,5 +21,5 @@
 {$KALUPA_DOMAIN} {
 	encode zstd gzip
 
-	reverse_proxy n8n:5678
+	reverse_proxy mpx-kalupa:5678
 }

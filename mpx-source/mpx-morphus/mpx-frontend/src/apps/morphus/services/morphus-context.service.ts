@@ -1,18 +1,22 @@
 import { computed, effect, inject, Service, signal, untracked } from '@angular/core';
+import { Router } from '@angular/router';
 import { Auth } from '@/apps/core/auth';
 import { LocalStorage } from '@/apps/core/local-storage';
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { Menu } from '@security/entities/Menu';
+import { CorporationSummary } from '@security/entities/Session';
 import { MenuService } from './menu.service';
 import { WorkspaceService } from './workspace.service';
 
 const ACTIVE_WORKSPACE_STORAGE_KEY = 'morphus:activeWorkspaceId';
 const ACTIVE_APPLICATION_STORAGE_KEY = 'morphus:activeApplicationId';
+const INVISIBLE_APPLICATION_KEYS = new Set(['SECURITY', 'WEBSITE']);
 
 @Service()
 export class MorphusContextService {
   private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
   private readonly localStorage = inject(LocalStorage);
   private readonly workspaceService = inject(WorkspaceService);
   private readonly menuService = inject(MenuService);
@@ -26,13 +30,17 @@ export class MorphusContextService {
   );
   private readonly menusState = signal<Menu[]>([]);
   private readonly loadingMenusState = signal<boolean>(false);
+  private readonly switchingContextState = signal<boolean>(false);
 
-  readonly workspaces = this.workspacesState.asReadonly();
+  readonly workspaces = computed<Workspace[]>(() =>
+    this.workspacesState().filter((w) => !w.inactive),
+  );
   readonly menus = this.menusState.asReadonly();
   readonly isLoadingMenus = this.loadingMenusState.asReadonly();
+  readonly isSwitchingContext = this.switchingContextState.asReadonly();
 
   readonly activeWorkspace = computed<Workspace | null>(() => {
-    const list = this.workspacesState();
+    const list = this.workspaces();
     if (!list.length) {
       return null;
     }
@@ -45,7 +53,12 @@ export class MorphusContextService {
   });
 
   readonly availableApplications = computed<MorphusApplication[]>(() => {
-    return this.activeWorkspace()?.applications ?? [];
+    const apps = this.activeWorkspace()?.applications ?? [];
+    return apps.filter(
+      (app) =>
+        !app.inactive &&
+        !INVISIBLE_APPLICATION_KEYS.has((app.key ?? '').trim().toUpperCase()),
+    );
   });
 
   readonly activeApplication = computed<MorphusApplication | null>(() => {
@@ -91,6 +104,19 @@ export class MorphusContextService {
     });
   }
 
+  isImageIcon(icon?: string | null): boolean {
+    if (!icon) {
+      return false;
+    }
+    const trimmed = icon.trim();
+    return (
+      trimmed.startsWith('http://') ||
+      trimmed.startsWith('https://') ||
+      trimmed.startsWith('/') ||
+      trimmed.startsWith('data:image/')
+    );
+  }
+
   loadWorkspaces(): void {
     this.workspaceService.getList().subscribe({
       next: (workspaces) => {
@@ -102,27 +128,67 @@ export class MorphusContextService {
     });
   }
 
-  selectWorkspace(workspace: Workspace): void {
-    if (!workspace.id) {
+  switchCorporation(corp: CorporationSummary): void {
+    if (!corp.id || corp.id === this.auth.corporation()?.id) {
       return;
     }
+
+    this.switchingContextState.set(true);
+    this.activeWorkspaceIdState.set(null);
+    this.activeApplicationIdState.set(null);
+    this.localStorage.removeItem(ACTIVE_WORKSPACE_STORAGE_KEY);
+    this.localStorage.removeItem(ACTIVE_APPLICATION_STORAGE_KEY);
+
+    this.auth.switchCorporation(corp.id).subscribe({
+      next: () => {
+        void this.router.navigateByUrl('/admin/corporation').finally(() => {
+          this.switchingContextState.set(false);
+        });
+      },
+      error: () => {
+        this.switchingContextState.set(false);
+      },
+    });
+  }
+
+  selectWorkspace(workspace: Workspace): void {
+    if (!workspace.id || workspace.id === this.activeWorkspace()?.id) {
+      return;
+    }
+
+    this.switchingContextState.set(true);
     this.activeWorkspaceIdState.set(workspace.id);
     this.localStorage.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, workspace.id);
 
-    // Seleciona a primeira aplicação do novo workspace (preferindo MORPHUS se existir)
-    const apps = workspace.applications ?? [];
-    const defaultApp = apps.find((a) => a.key === 'MORPHUS') ?? apps[0];
+    const visibleApps = (workspace.applications ?? []).filter(
+      (app) =>
+        !app.inactive &&
+        !INVISIBLE_APPLICATION_KEYS.has((app.key ?? '').trim().toUpperCase()),
+    );
+    const defaultApp =
+      visibleApps.find((a) => a.key === 'MORPHUS') ?? visibleApps[0];
+
     if (defaultApp?.id) {
-      this.selectApplication(defaultApp);
+      this.activeApplicationIdState.set(defaultApp.id);
+      this.localStorage.setItem(ACTIVE_APPLICATION_STORAGE_KEY, defaultApp.id);
+    } else {
+      this.activeApplicationIdState.set(null);
+      this.localStorage.removeItem(ACTIVE_APPLICATION_STORAGE_KEY);
     }
+
+    this.reRenderApplicationView(defaultApp ?? null);
   }
 
   selectApplication(application: MorphusApplication): void {
-    if (!application.id) {
+    if (!application.id || application.id === this.activeApplication()?.id) {
       return;
     }
+
+    this.switchingContextState.set(true);
     this.activeApplicationIdState.set(application.id);
     this.localStorage.setItem(ACTIVE_APPLICATION_STORAGE_KEY, application.id);
+
+    this.reRenderApplicationView(application);
   }
 
   loadMenusForApplication(applicationId: string): void {
@@ -137,5 +203,22 @@ export class MorphusContextService {
         this.loadingMenusState.set(false);
       },
     });
+  }
+
+  private reRenderApplicationView(application: MorphusApplication | null): void {
+    const targetRoute = this.resolveApplicationEntryRoute(application);
+    setTimeout(() => {
+      void this.router.navigateByUrl(targetRoute).finally(() => {
+        this.switchingContextState.set(false);
+      });
+    }, 0);
+  }
+
+  private resolveApplicationEntryRoute(application: MorphusApplication | null): string {
+    const key = (application?.key ?? 'MORPHUS').trim().toUpperCase();
+    if (key === 'MORPHUS') {
+      return '/admin/corporation';
+    }
+    return '/admin/corporation';
   }
 }

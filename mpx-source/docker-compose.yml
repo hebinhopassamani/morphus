@@ -22,8 +22,8 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - frontend
-      - n8n
+      - mpx-frontend
+      - mpx-kalupa
 
   mpx-frontend:
     build:
@@ -34,7 +34,7 @@ services:
     container_name: mpx-frontend
     restart: unless-stopped
     depends_on:
-      - api
+      - mpx-backend
 
   mpx-backend:
     build:
@@ -43,12 +43,12 @@ services:
     container_name: mpx-backend
     restart: unless-stopped
     depends_on:
-      db:
+      mpx-postgres:
         condition: service_healthy
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};
+      ConnectionStrings__DefaultConnection: Host=mpx-postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};
       POSTGRES_DB_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
 
   mpx-postgres:
@@ -74,9 +74,9 @@ services:
     container_name: mpx-kalupa-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${N8N_DB_USER:-kalupa_admin}
-      POSTGRES_PASSWORD: ${N8N_DB_PASSWORD:-MudarSenhaN8n123!}
-      POSTGRES_DB: ${N8N_DB_NAME:-kalupa_n8n_prod}
+      POSTGRES_USER: ${KALUPA_USER:?Defina KALUPA_USER no arquivo .env}
+      POSTGRES_PASSWORD: ${KALUPA_PASSWORD:?Defina KALUPA_PASSWORD no arquivo .env}
+      POSTGRES_DB: ${KALUPA_DB:?Defina KALUPA_DB no arquivo .env}
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 10s
@@ -90,21 +90,21 @@ services:
     container_name: mpx-kalupa
     restart: unless-stopped
     depends_on:
-      n8n_db:
+      mpx-kalupa-db:
         condition: service_healthy
     environment:
       - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=n8n_db
+      - DB_POSTGRESDB_HOST=mpx-kalupa-db
       - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=${N8N_DB_NAME:-kalupa_n8n_prod}
-      - DB_POSTGRESDB_USER=${N8N_DB_USER:-kalupa_admin}
-      - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD:-MudarSenhaN8n123!}
+      - DB_POSTGRESDB_DATABASE=${KALUPA_DB:?Defina KALUPA_DB no arquivo .env}
+      - DB_POSTGRESDB_USER=${KALUPA_USER:?Defina KALUPA_USER no arquivo .env}
+      - DB_POSTGRESDB_PASSWORD=${KALUPA_PASSWORD:?Defina KALUPA_PASSWORD no arquivo .env}
       - N8N_RESTRICT_FILE_ACCESS_TO=/files
       - N8N_HOST=${KALUPA_PUBLIC_DOMAIN:?Defina KALUPA_PUBLIC_DOMAIN no arquivo .env}
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - N8N_EDITOR_BASE_URL=https://${KALUPA_DOMAIN}/
-      - N8N_WEBHOOK_URL=https://${KALUPA_DOMAIN}/
+      - N8N_EDITOR_BASE_URL=https://${KALUPA_PUBLIC_DOMAIN}/
+      - N8N_WEBHOOK_URL=https://${KALUPA_PUBLIC_DOMAIN}/
       - NODE_ENV=production
       - GENERIC_TIMEZONE=America/Sao_Paulo
     volumes:

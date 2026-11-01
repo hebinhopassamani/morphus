@@ -27,4 +27,270 @@
 
     <div buiSidebarSpacer></div>
   </div>
+
+  <!-- Footer com seletor de Corporação, Workspace e Aplicação (Padrão Fuse) -->
+  <div buiSidebarFooter class="p-4">
+    <button
+      matButton
+      [matMenuTriggerFor]="contextMenu"
+      class="tertiary small w-full [--button-padding-x:0.375rem] [--button-padding-y:0.375rem]"
+    >
+      <span class="me-2 flex min-w-0 flex-auto items-center gap-x-3">
+        <span
+          class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-primary-a3 text-primary-a11"
+        >
+          @if (context.isImageIcon(auth.corporation()?.icon)) {
+            <img
+              class="size-9 object-cover"
+              [src]="auth.corporation()!.icon!"
+              [alt]="auth.corporation()?.name || 'Corporação'"
+            />
+          } @else {
+            <mat-icon
+              class="size-5"
+              [svgIcon]="auth.corporation()?.icon || 'building-2'"
+            />
+          }
+        </span>
+
+        <span class="min-w-0 text-start">
+          <span class="block truncate font-semibold">
+            {{ auth.corporation()?.name || 'Morphus' }}
+          </span>
+          <span class="block truncate text-sm text-neutral-a11">
+            {{ auth.corporation()?.email || context.activeWorkspace()?.name || 'Morphus Workspace' }}
+          </span>
+        </span>
+      </span>
+
+      <mat-icon
+        class="ms-auto me-1"
+        svgIcon="ellipsis-vertical"
+        iconPositionEnd
+      />
+    </button>
+
+    <!-- Menu de Contexto (Corporação -> Workspace -> Aplicação) -->
+    <mat-menu
+      class="min-w-60"
+      xPosition="before"
+      #contextMenu="matMenu"
+    >
+      <!-- Cabeçalho do Menu mostrando a Corporação ativa -->
+      <button mat-menu-item>
+        <div
+          class="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary-a4 text-primary-a11"
+        >
+          @if (context.isImageIcon(auth.corporation()?.icon)) {
+            <img
+              class="size-9 object-cover"
+              [src]="auth.corporation()!.icon!"
+              [alt]="auth.corporation()?.name || 'Corporação'"
+            />
+          } @else {
+            <mat-icon
+              class="size-5"
+              [svgIcon]="auth.corporation()?.icon || 'building-2'"
+            />
+          }
+        </div>
+        <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
+          <div class="truncate text-lg font-medium">
+            {{ auth.corporation()?.name || 'Morphus' }}
+          </div>
+          <div class="truncate text-sm text-neutral-a11">
+            {{ auth.corporation()?.email || 'Ambiente Corporativo' }}
+          </div>
+        </div>
+      </button>
+
+      <mat-divider />
+
+      <!-- 1. Corporação -->
+      @if (auth.availableCorporations().length > 1) {
+        <button
+          mat-menu-item
+          [matMenuTriggerFor]="corporationsMenu"
+        >
+          @if (context.isImageIcon(auth.corporation()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="auth.corporation()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
+          }
+          <span>{{ auth.corporation()?.name || 'Corporação' }}</span>
+        </button>
+      } @else {
+        <button mat-menu-item>
+          @if (context.isImageIcon(auth.corporation()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="auth.corporation()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
+          }
+          <span>{{ auth.corporation()?.name || 'Corporação' }}</span>
+        </button>
+      }
+
+      <!-- 2. Workspace -->
+      @if (context.workspaces().length > 1) {
+        <button
+          mat-menu-item
+          [matMenuTriggerFor]="workspacesMenu"
+        >
+          @if (context.isImageIcon(context.activeWorkspace()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="context.activeWorkspace()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="context.activeWorkspace()?.icon || 'layout-grid'" />
+          }
+          <span>{{ context.activeWorkspace()?.name || 'Morphus Workspace' }}</span>
+        </button>
+      } @else {
+        <button mat-menu-item>
+          @if (context.isImageIcon(context.activeWorkspace()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="context.activeWorkspace()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="context.activeWorkspace()?.icon || 'layout-grid'" />
+          }
+          <span>{{ context.activeWorkspace()?.name || 'Morphus Workspace' }}</span>
+        </button>
+      }
+
+      <!-- 3. Aplicação (excluindo Security e Website) -->
+      @if (context.availableApplications().length > 1) {
+        <button
+          mat-menu-item
+          [matMenuTriggerFor]="applicationsMenu"
+        >
+          @if (context.isImageIcon(context.activeApplication()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="context.activeApplication()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="context.activeApplication()?.icon || 'boxes'" />
+          }
+          <span>{{ context.activeApplication()?.name || 'Morphus' }}</span>
+        </button>
+      } @else {
+        <button mat-menu-item>
+          @if (context.isImageIcon(context.activeApplication()?.icon)) {
+            <img
+              class="me-3 size-4 rounded-xs object-cover"
+              [src]="context.activeApplication()!.icon!"
+              alt=""
+            />
+          } @else {
+            <mat-icon [svgIcon]="context.activeApplication()?.icon || 'boxes'" />
+          }
+          <span>{{ context.activeApplication()?.name || 'Morphus' }}</span>
+        </button>
+      }
+    </mat-menu>
+
+    <!-- Submenu de Corporações (quando houver mais de uma) -->
+    <mat-menu #corporationsMenu="matMenu">
+      @for (corp of auth.availableCorporations(); track corp.id) {
+        <button
+          mat-menu-item
+          (click)="selectCorporation(corp)"
+        >
+          <mat-pseudo-checkbox
+            appearance="minimal"
+            [state]="auth.corporation()?.id === corp.id ? 'checked' : 'unchecked'"
+          />
+          <span class="ms-1.5 inline-flex items-center gap-x-2">
+            @if (context.isImageIcon(corp.icon)) {
+              <img
+                class="size-4 shrink-0 rounded-xs object-cover"
+                [src]="corp.icon!"
+                alt=""
+              />
+            } @else {
+              <mat-icon
+                class="size-4 shrink-0"
+                [svgIcon]="corp.icon || 'building-2'"
+              />
+            }
+            <span>{{ corp.name }}</span>
+          </span>
+        </button>
+      }
+    </mat-menu>
+
+    <!-- Submenu de Workspaces (quando houver mais de um) -->
+    <mat-menu #workspacesMenu="matMenu">
+      @for (ws of context.workspaces(); track ws.id) {
+        <button
+          mat-menu-item
+          (click)="selectWorkspace(ws)"
+        >
+          <mat-pseudo-checkbox
+            appearance="minimal"
+            [state]="context.activeWorkspace()?.id === ws.id ? 'checked' : 'unchecked'"
+          />
+          <span class="ms-1.5 inline-flex items-center gap-x-2">
+            @if (context.isImageIcon(ws.icon)) {
+              <img
+                class="size-4 shrink-0 rounded-xs object-cover"
+                [src]="ws.icon!"
+                alt=""
+              />
+            } @else {
+              <mat-icon
+                class="size-4 shrink-0"
+                [svgIcon]="ws.icon || 'layout-grid'"
+              />
+            }
+            <span>{{ ws.name }}</span>
+          </span>
+        </button>
+      }
+    </mat-menu>
+
+    <!-- Submenu de Aplicações (quando houver mais de uma liberada) -->
+    <mat-menu #applicationsMenu="matMenu">
+      @for (app of context.availableApplications(); track app.id) {
+        <button
+          mat-menu-item
+          (click)="selectApplication(app)"
+        >
+          <mat-pseudo-checkbox
+            appearance="minimal"
+            [state]="context.activeApplication()?.id === app.id ? 'checked' : 'unchecked'"
+          />
+          <span class="ms-1.5 inline-flex items-center gap-x-2">
+            @if (context.isImageIcon(app.icon)) {
+              <img
+                class="size-4 shrink-0 rounded-xs object-cover"
+                [src]="app.icon!"
+                alt=""
+              />
+            } @else {
+              <mat-icon
+                class="size-4 shrink-0"
+                [svgIcon]="app.icon || 'boxes'"
+              />
+            }
+            <span>{{ app.name }}</span>
+          </span>
+        </button>
+      }
+    </mat-menu>
+  </div>
 </aside>
