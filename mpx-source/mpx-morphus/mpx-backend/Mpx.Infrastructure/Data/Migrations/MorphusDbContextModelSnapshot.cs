@@ -16,7 +16,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261022020210_AdicionarCorporationIcon";
+    public override string LastMigrationId => "20261101201946_AdicionarOnboardingEWorkspaceApplications";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -590,18 +590,11 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
-                b.Property<Guid>("WorkspaceId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workspace_id");
-
                 b.HasKey("Id")
                     .HasName("pk_applications");
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_applications_corporation_id");
-
-                b.HasIndex("WorkspaceId")
-                    .HasDatabaseName("ix_applications_workspace_id");
 
                 b.ToTable("applications");
             });
@@ -760,7 +753,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("timestamp with time zone")
                     .HasColumnName("birthdate");
 
-                b.Property<Guid>("CorporationId")
+                b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
@@ -797,6 +790,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
                     .HasColumnName("nick_name");
+
+                b.Property<bool>("OnboardingCompleted")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("onboarding_completed");
 
                 b.Property<string>("PasswordHash")
                     .HasMaxLength(250)
@@ -845,7 +844,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("terms_confirmed");
 
-                b.Property<Guid>("UserStatusId")
+                b.Property<Guid?>("UserStatusId")
                     .HasColumnType("uuid")
                     .HasColumnName("user_status_id");
 
@@ -1039,6 +1038,44 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasDatabaseName("ix_workspaces_corporation_id");
 
                 b.ToTable("workspaces");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceApplication", b =>
+            {
+                b.Property<Guid>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("WorkspaceId", "ApplicationId")
+                    .HasName("pk_workspace_applications");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_workspace_applications_application_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_workspace_applications_corporation_id");
+
+                b.ToTable("workspace_applications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceUser", b =>
@@ -1348,16 +1385,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasConstraintName("fk_applications_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
-                    .WithMany("Applications")
-                    .HasForeignKey("WorkspaceId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_applications_workspaces_workspace_id");
-
                 b.Navigation("Corporation");
-
-                b.Navigation("Workspace");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
@@ -1447,14 +1475,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Users")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
                     .HasConstraintName("fk_users_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.UserStatus", "UserStatus")
                     .WithMany("Users")
                     .HasForeignKey("UserStatusId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
                     .HasConstraintName("fk_users_user_status_user_status_id");
 
                 b.Navigation("Corporation");
@@ -1546,6 +1572,36 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Corporation");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceApplication", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MorphusApplication", "Application")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_workspace_applications_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_workspace_applications_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_workspace_applications_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Workspace");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceUser", b =>
             {
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
@@ -1623,6 +1679,8 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.Navigation("Users");
 
+                b.Navigation("WorkspaceApplications");
+
                 b.Navigation("WorkspaceUsers");
 
                 b.Navigation("Workspaces");
@@ -1660,6 +1718,8 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Menus");
 
                 b.Navigation("Modules");
+
+                b.Navigation("WorkspaceApplications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
@@ -1696,7 +1756,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
         modelBuilder.Entity("Mpx.Domain.Entities.Workspace", b =>
             {
-                b.Navigation("Applications");
+                b.Navigation("WorkspaceApplications");
 
                 b.Navigation("WorkspaceUsers");
             });

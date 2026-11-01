@@ -53,7 +53,7 @@ export class MorphusContextService {
   });
 
   readonly availableApplications = computed<MorphusApplication[]>(() => {
-    const apps = this.activeWorkspace()?.applications ?? [];
+    const apps = this.extractWorkspaceApplications(this.activeWorkspace());
     return apps.filter(
       (app) =>
         !app.inactive &&
@@ -160,7 +160,7 @@ export class MorphusContextService {
     this.activeWorkspaceIdState.set(workspace.id);
     this.localStorage.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, workspace.id);
 
-    const visibleApps = (workspace.applications ?? []).filter(
+    const visibleApps = this.extractWorkspaceApplications(workspace).filter(
       (app) =>
         !app.inactive &&
         !INVISIBLE_APPLICATION_KEYS.has((app.key ?? '').trim().toUpperCase()),
@@ -212,6 +212,18 @@ export class MorphusContextService {
         this.switchingContextState.set(false);
       });
     }, 0);
+  }
+
+  private extractWorkspaceApplications(workspace: Workspace | null): MorphusApplication[] {
+    if (!workspace) {
+      return [];
+    }
+    if (workspace.workspaceApplications?.length) {
+      return workspace.workspaceApplications
+        .filter((wa) => !wa.inactive && !!wa.application)
+        .map((wa) => wa.application!);
+    }
+    return workspace.applications ?? [];
   }
 
   private resolveApplicationEntryRoute(application: MorphusApplication | null): string {

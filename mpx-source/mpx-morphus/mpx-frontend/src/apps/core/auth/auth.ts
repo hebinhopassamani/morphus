@@ -11,6 +11,10 @@ import {
   GoogleLoginRequest,
   LoginRequest,
   MorphusSession,
+  OnboardingCompleteRequest,
+  OnboardingCorporationStepRequest,
+  OnboardingStateResponse,
+  OnboardingWorkspaceStepRequest,
   RefreshTokenRequest,
   ResetPasswordRequest,
   SwitchCorporationRequest,
@@ -46,6 +50,14 @@ export class Auth {
     }
     const nowSeconds = Math.floor(Date.now() / 1000);
     return token.expirationTime > nowSeconds;
+  });
+
+  readonly needsOnboarding = computed(() => {
+    if (!this.isAuthenticated()) {
+      return false;
+    }
+    const currentUser = this.user();
+    return currentUser ? currentUser.onboardingCompleted === false : false;
   });
 
   readonly decodedToken = computed<Record<string, unknown> | null>(() => {
@@ -179,6 +191,54 @@ export class Auth {
       tap((session) => this.setSession(session)),
       catchError((err: HttpErrorResponse) => {
         const message = err.error?.message || 'Não foi possível criar a conta. Verifique os dados informados.';
+        this.errorState.set({ message });
+        return throwError(() => err);
+      }),
+      finalize(() => this.loadingState.set(false)),
+    );
+  }
+
+  getOnboardingState(): Observable<OnboardingStateResponse> {
+    return this.http.get<OnboardingStateResponse>(`${this.apiUrl}/onboarding/state`);
+  }
+
+  saveOnboardingCorporationStep(request: OnboardingCorporationStepRequest): Observable<MorphusSession> {
+    this.loadingState.set(true);
+    this.errorState.set(null);
+
+    return this.http.post<MorphusSession>(`${this.apiUrl}/onboarding/step-corporation`, request).pipe(
+      tap((session) => this.setSession(session)),
+      catchError((err: HttpErrorResponse) => {
+        const message = err.error?.message || 'Não foi possível salvar os dados da matriz.';
+        this.errorState.set({ message });
+        return throwError(() => err);
+      }),
+      finalize(() => this.loadingState.set(false)),
+    );
+  }
+
+  saveOnboardingWorkspaceStep(request: OnboardingWorkspaceStepRequest): Observable<OnboardingStateResponse> {
+    this.loadingState.set(true);
+    this.errorState.set(null);
+
+    return this.http.post<OnboardingStateResponse>(`${this.apiUrl}/onboarding/step-workspace`, request).pipe(
+      catchError((err: HttpErrorResponse) => {
+        const message = err.error?.message || 'Não foi possível salvar os dados do workspace.';
+        this.errorState.set({ message });
+        return throwError(() => err);
+      }),
+      finalize(() => this.loadingState.set(false)),
+    );
+  }
+
+  completeOnboarding(request: OnboardingCompleteRequest): Observable<MorphusSession> {
+    this.loadingState.set(true);
+    this.errorState.set(null);
+
+    return this.http.post<MorphusSession>(`${this.apiUrl}/onboarding/complete`, request).pipe(
+      tap((session) => this.setSession(session)),
+      catchError((err: HttpErrorResponse) => {
+        const message = err.error?.message || 'Não foi possível concluir a configuração inicial.';
         this.errorState.set({ message });
         return throwError(() => err);
       }),

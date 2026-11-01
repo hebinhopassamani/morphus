@@ -1,9 +1,8 @@
 using System.Text.Json.Serialization;
-using Mpx.Domain.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class User : IMorphusTenant
+public class User
 {
   public Guid Id { get; set; }
   public required string? Name { get; set; }
@@ -12,9 +11,10 @@ public class User : IMorphusTenant
   public bool EmailConfirmed { get; set; }
   public bool PhoneConfirmed { get; set; }
   public bool TermsConfirmed { get; set; }
+  public bool OnboardingCompleted { get; set; }
   public bool System { get; set; }
-  public Guid UserStatusId { get; set; }
-  public Guid CorporationId { get; set; }
+  public Guid? UserStatusId { get; set; }
+  public Guid? CorporationId { get; set; }
 
   [JsonIgnore]
   public string? PasswordHash { get; set; }

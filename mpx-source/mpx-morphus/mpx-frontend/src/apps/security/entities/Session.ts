@@ -47,14 +47,51 @@ export interface SwitchCorporationRequest {
 }
 
 export interface CreateAccountRequest {
-  corporationName: string;
+  corporationName?: string;
   corporationFullName?: string;
   corporationIcon?: string;
-  corporationEmail: string;
-  adminName: string;
+  corporationEmail?: string;
+  adminName?: string;
   adminEmail: string;
   adminPassword: string;
   phoneNumber?: string;
+}
+
+export interface OnboardingApplicationItem {
+  id: string;
+  corporationId: string;
+  name: string;
+  key: string;
+  icon?: string;
+  description?: string;
+  system: boolean;
+  inactive: boolean;
+}
+
+export interface OnboardingStateResponse {
+  userId: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  onboardingCompleted: boolean;
+  corporationId?: string | null;
+  corporationName?: string | null;
+  workspaceId?: string | null;
+  workspaceName?: string | null;
+  availableApplications: OnboardingApplicationItem[];
+  selectedApplicationIds: string[];
+}
+
+export interface OnboardingCorporationStepRequest {
+  userName: string;
+  corporationName: string;
+}
+
+export interface OnboardingWorkspaceStepRequest {
+  workspaceName: string;
+}
+
+export interface OnboardingCompleteRequest {
+  applicationIds: string[];
 }
 
 export interface ForgotPasswordRequest {

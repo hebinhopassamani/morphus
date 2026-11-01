@@ -17,6 +17,10 @@ namespace Mpx.Application.Handlers;
 public class SecurityHandler(
     IUserRepository userRepository,
     ICorporationRepository corporationRepository,
+    IWorkspaceRepository workspaceRepository,
+    IWorkspaceUserRepository workspaceUserRepository,
+    IWorkspaceApplicationRepository workspaceApplicationRepository,
+    IApplicationUserRepository applicationUserRepository,
     EmailHandler emailHandler,
     IUnitOfWork unitOfWork,
     IConfiguration configuration)
@@ -73,47 +77,24 @@ public class SecurityHandler(
           ? googleUser.Name.Trim()
           : email.Split('@')[0];
 
-      var createRequest = new CreateAccountRequest
+      var newUser = new User
       {
-        CorporationName = displayName,
-        CorporationFullName = displayName,
-        CorporationEmail = email,
-        AdminName = displayName,
-        AdminEmail = email,
-        AdminPassword = MorphusSecurity.GenerateSecureToken()
+        Id = Guid.NewGuid(),
+        Name = displayName,
+        Email = email,
+        PasswordHash = MorphusSecurity.HashPassword(MorphusSecurity.GenerateSecureToken()),
+        Picture = googleUser.Picture,
+        EmailConfirmed = true,
+        TermsConfirmed = true,
+        OnboardingCompleted = false,
+        System = true,
+        Inactive = false,
+        CorporationId = null,
+        UserStatusId = null
       };
 
-      using var transaction = await unitOfWork.BeginTransactionAsync();
-      try
-      {
-        var (newCorporation, newAdminUser) = MorphusAccountSeed.CreateInitialAccountGraph(createRequest);
-        newAdminUser.Picture = googleUser.Picture;
-        newAdminUser.EmailConfirmed = true;
-
-        await corporationRepository.AddAsync(newCorporation);
-        await transaction.Commit();
-
-        try
-        {
-          await emailHandler
-              .NewEmail(newCorporation.Id)
-              .Subject("Bem-vindo ao Morphus")
-              .LoadHtmlFile("welcome")
-              .SetVariable("{{Nome}}", displayName)
-              .SetVariable("{{Empresa}}", displayName)
-              .MailTo(email, displayName)
-              .SendEmailAsync();
-        }
-        catch
-        {
-          // Não impede o login caso o servidor SMTP externo esteja temporariamente indisponível
-        }
-      }
-      catch
-      {
-        await transaction.Rollback();
-        throw;
-      }
+      await userRepository.AddAsync(newUser);
+      await unitOfWork.SaveChangesAsync();
 
       user = await userRepository.GetByLoginAsync(email);
       if (user is null)
@@ -134,23 +115,24 @@ public class SecurityHandler(
         .Where(cu => !cu.Inactive && cu.Corporation is not null)
         .ToList();
 
-    if (activeCorporationUsers.Count == 0)
-      return null;
-
     Corporation? selectedCorporation = null;
 
-    if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+    if (activeCorporationUsers.Count > 0)
     {
-      selectedCorporation = activeCorporationUsers
-          .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+      {
+        selectedCorporation = activeCorporationUsers
+            .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      }
+
+      selectedCorporation ??= activeCorporationUsers
+          .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
+          ?? activeCorporationUsers[0].Corporation;
     }
-
-    selectedCorporation ??= activeCorporationUsers
-        .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
-        ?? activeCorporationUsers[0].Corporation;
-
-    if (selectedCorporation is null)
+    else if (user.OnboardingCompleted)
+    {
       return null;
+    }
 
     var session = BuildAuthorizedSession(user, selectedCorporation, activeCorporationUsers);
 
@@ -159,6 +141,7 @@ public class SecurityHandler(
 
     return session;
   }
+
   public async Task<MorphusSession?> LoginAsync(LoginRequest request)
   {
     if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
@@ -175,23 +158,24 @@ public class SecurityHandler(
         .Where(cu => !cu.Inactive && cu.Corporation is not null)
         .ToList();
 
-    if (activeCorporationUsers.Count == 0)
-      return null;
-
     Corporation? selectedCorporation = null;
 
-    if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+    if (activeCorporationUsers.Count > 0)
     {
-      selectedCorporation = activeCorporationUsers
-          .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+      {
+        selectedCorporation = activeCorporationUsers
+            .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      }
+
+      selectedCorporation ??= activeCorporationUsers
+          .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
+          ?? activeCorporationUsers[0].Corporation;
     }
-
-    selectedCorporation ??= activeCorporationUsers
-        .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
-        ?? activeCorporationUsers[0].Corporation;
-
-    if (selectedCorporation is null)
+    else if (user.OnboardingCompleted)
+    {
       return null;
+    }
 
     var session = BuildAuthorizedSession(user, selectedCorporation, activeCorporationUsers);
 
@@ -217,23 +201,24 @@ public class SecurityHandler(
         .Where(cu => !cu.Inactive && cu.Corporation is not null)
         .ToList();
 
-    if (activeCorporationUsers.Count == 0)
-      return null;
-
     Corporation? selectedCorporation = null;
 
-    if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+    if (activeCorporationUsers.Count > 0)
     {
-      selectedCorporation = activeCorporationUsers
-          .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      if (request.CorporationId is not null && request.CorporationId != Guid.Empty)
+      {
+        selectedCorporation = activeCorporationUsers
+            .FirstOrDefault(cu => cu.CorporationId == request.CorporationId)?.Corporation;
+      }
+
+      selectedCorporation ??= activeCorporationUsers
+          .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
+          ?? activeCorporationUsers[0].Corporation;
     }
-
-    selectedCorporation ??= activeCorporationUsers
-        .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
-        ?? activeCorporationUsers[0].Corporation;
-
-    if (selectedCorporation is null)
+    else if (user.OnboardingCompleted)
+    {
       return null;
+    }
 
     var session = BuildAuthorizedSession(user, selectedCorporation, activeCorporationUsers);
 
@@ -243,7 +228,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> RefreshSessionOrSwitchCorporationAsync(Guid userId, Guid targetCorporationId)
+  public async Task<MorphusSession?> RefreshSessionOrSwitchCorporationAsync(Guid userId, Guid? targetCorporationId)
   {
     var user = await userRepository.GetByIdWithAccessAsync(userId);
     if (user is null)
@@ -253,11 +238,24 @@ public class SecurityHandler(
         .Where(cu => !cu.Inactive && cu.Corporation is not null)
         .ToList();
 
-    var selectedCorporation = activeCorporationUsers
-        .FirstOrDefault(cu => cu.CorporationId == targetCorporationId)?.Corporation;
+    Corporation? selectedCorporation = null;
 
-    if (selectedCorporation is null)
+    if (activeCorporationUsers.Count > 0)
+    {
+      if (targetCorporationId is not null && targetCorporationId != Guid.Empty)
+      {
+        selectedCorporation = activeCorporationUsers
+            .FirstOrDefault(cu => cu.CorporationId == targetCorporationId)?.Corporation;
+      }
+
+      selectedCorporation ??= activeCorporationUsers
+          .FirstOrDefault(cu => cu.CorporationId == user.CorporationId)?.Corporation
+          ?? activeCorporationUsers[0].Corporation;
+    }
+    else if (user.OnboardingCompleted)
+    {
       return null;
+    }
 
     var session = BuildAuthorizedSession(user, selectedCorporation, activeCorporationUsers);
 
@@ -272,6 +270,41 @@ public class SecurityHandler(
     if (await userRepository.ExistsEmailAsync(request.AdminEmail))
     {
       throw new InvalidOperationException("Já existe um usuário cadastrado com este e-mail.");
+    }
+
+    var cleanEmail = request.AdminEmail.Trim().ToLowerInvariant();
+
+    // Fluxo Novo: Cria apenas o User (com OnboardingCompleted = false) para configurar Matriz, Workspace e Apps na tela de Onboarding
+    if (string.IsNullOrWhiteSpace(request.CorporationName))
+    {
+      var initialName = string.IsNullOrWhiteSpace(request.AdminName)
+          ? cleanEmail.Split('@')[0]
+          : request.AdminName.Trim();
+
+      var newUser = new User
+      {
+        Id = Guid.NewGuid(),
+        Name = initialName,
+        Email = cleanEmail,
+        PasswordHash = MorphusSecurity.HashPassword(request.AdminPassword),
+        PhoneNumber = request.PhoneNumber,
+        Inactive = false,
+        System = true,
+        EmailConfirmed = true,
+        TermsConfirmed = true,
+        OnboardingCompleted = false,
+        CorporationId = null,
+        UserStatusId = null
+      };
+
+      await userRepository.AddAsync(newUser);
+      await unitOfWork.SaveChangesAsync();
+
+      return await LoginAsync(new LoginRequest
+      {
+        Email = cleanEmail,
+        Password = request.AdminPassword
+      });
     }
 
     using var transaction = await unitOfWork.BeginTransactionAsync();
@@ -291,16 +324,15 @@ public class SecurityHandler(
       throw;
     }
 
-    // Dispara o e-mail de boas-vindas usando o EmailHandler (Outbox Pattern + SMTP)
     try
     {
       await emailHandler
           .NewEmail(corporation.Id)
           .Subject("Bem-vindo ao Morphus")
           .LoadHtmlFile("welcome")
-          .SetVariable("{{Nome}}", request.AdminName)
+          .SetVariable("{{Nome}}", request.AdminName ?? cleanEmail)
           .SetVariable("{{Empresa}}", request.CorporationName)
-          .MailTo(request.AdminEmail, request.AdminName)
+          .MailTo(cleanEmail, request.AdminName ?? cleanEmail)
           .SendEmailAsync();
     }
     catch
@@ -310,10 +342,341 @@ public class SecurityHandler(
 
     return await LoginAsync(new LoginRequest
     {
-      Email = request.AdminEmail,
+      Email = cleanEmail,
       Password = request.AdminPassword,
       CorporationId = corporation.Id
     });
+  }
+
+  public async Task<OnboardingStateResponse?> GetOnboardingStateAsync(Guid userId)
+  {
+    var user = await userRepository.GetByIdWithAccessAsync(userId);
+    if (user is null)
+      return null;
+
+    var state = new OnboardingStateResponse
+    {
+      UserId = user.Id,
+      UserName = user.Name,
+      UserEmail = user.Email,
+      OnboardingCompleted = user.OnboardingCompleted
+    };
+
+    var corporationId = user.CorporationId
+        ?? user.CorporationUsers.FirstOrDefault(cu => !cu.Inactive)?.CorporationId;
+
+    if (corporationId is not null && corporationId != Guid.Empty)
+    {
+      var corpGraph = await corporationRepository.GetOnboardingGraphAsync(corporationId.Value);
+      if (corpGraph is not null)
+      {
+        state.CorporationId = corpGraph.Id;
+        state.CorporationName = corpGraph.Name;
+
+        var workspace = corpGraph.Workspaces.FirstOrDefault(w => !w.Inactive);
+        if (workspace is not null)
+        {
+          state.WorkspaceId = workspace.Id;
+          state.WorkspaceName = workspace.Name;
+
+          state.SelectedApplicationIds = corpGraph.WorkspaceApplications
+              .Where(wa => wa.WorkspaceId == workspace.Id && !wa.Inactive)
+              .Select(wa => wa.ApplicationId)
+              .ToList();
+        }
+
+        state.AvailableApplications = corpGraph.Applications
+            .Where(a => !a.Inactive &&
+                        !string.Equals(a.Key, "SECURITY", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(a.Key, "WEBSITE", StringComparison.OrdinalIgnoreCase))
+            .OrderBy(a => a.System ? 0 : 1)
+            .ThenBy(a => a.Name)
+            .Select(a => new MorphusApplication
+            {
+              Id = a.Id,
+              CorporationId = a.CorporationId,
+              Name = a.Name,
+              Key = a.Key,
+              Icon = a.Icon,
+              Description = a.Description,
+              System = a.System,
+              Inactive = a.Inactive
+            })
+            .ToList();
+      }
+    }
+
+    return state;
+  }
+
+  public async Task<MorphusSession?> SaveOnboardingCorporationStepAsync(
+      Guid userId,
+      OnboardingCorporationStepRequest request)
+  {
+    if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.CorporationName))
+      throw new InvalidOperationException("Preencha o seu nome completo e o nome da matriz.");
+
+    var user = await userRepository.GetByIdWithAccessAsync(userId);
+    if (user is null)
+      return null;
+
+    var cleanUserName = request.UserName.Trim();
+    var cleanCorpName = request.CorporationName.Trim();
+
+    user.Name = cleanUserName;
+
+    var existingCorpId = user.CorporationId
+        ?? user.CorporationUsers.FirstOrDefault(cu => !cu.Inactive)?.CorporationId;
+
+    if (existingCorpId is null || existingCorpId == Guid.Empty)
+    {
+      using var transaction = await unitOfWork.BeginTransactionAsync();
+      try
+      {
+        var (newCorporation, activeStatusId) = MorphusAccountSeed.CreateCorporationBaseForOnboarding(
+            cleanCorpName,
+            user.Email ?? string.Empty,
+            user.Id);
+
+        await corporationRepository.AddAsync(newCorporation);
+
+        user.CorporationId = newCorporation.Id;
+        user.UserStatusId = activeStatusId;
+        userRepository.Update(user);
+
+        await transaction.Commit();
+
+        try
+        {
+          if (!string.IsNullOrWhiteSpace(user.Email))
+          {
+            await emailHandler
+                .NewEmail(newCorporation.Id)
+                .Subject("Bem-vindo ao Morphus")
+                .LoadHtmlFile("welcome")
+                .SetVariable("{{Nome}}", cleanUserName)
+                .SetVariable("{{Empresa}}", cleanCorpName)
+                .MailTo(user.Email, cleanUserName)
+                .SendEmailAsync();
+          }
+        }
+        catch
+        {
+          // Ignora falha de SMTP externo durante o onboarding
+        }
+      }
+      catch
+      {
+        await transaction.Rollback();
+        throw;
+      }
+    }
+    else
+    {
+      var corpGraph = await corporationRepository.GetOnboardingGraphAsync(existingCorpId.Value);
+      if (corpGraph is not null)
+      {
+        corpGraph.Name = cleanCorpName;
+        corpGraph.FullName = cleanCorpName;
+        corpGraph.Key = cleanCorpName.ToUpperInvariant().Replace(" ", "_");
+        corporationRepository.Update(corpGraph);
+      }
+
+      userRepository.Update(user);
+      await unitOfWork.SaveChangesAsync();
+    }
+
+    var refreshedUser = await userRepository.GetByIdWithAccessAsync(userId);
+    if (refreshedUser is null)
+      return null;
+
+    var activeCorporationUsers = refreshedUser.CorporationUsers
+        .Where(cu => !cu.Inactive && cu.Corporation is not null)
+        .ToList();
+
+    var selectedCorporation = activeCorporationUsers
+        .FirstOrDefault(cu => cu.CorporationId == refreshedUser.CorporationId)?.Corporation
+        ?? activeCorporationUsers.FirstOrDefault()?.Corporation;
+
+    var session = BuildAuthorizedSession(refreshedUser, selectedCorporation, activeCorporationUsers);
+    userRepository.Update(refreshedUser);
+    await unitOfWork.SaveChangesAsync();
+
+    return session;
+  }
+
+  public async Task<OnboardingStateResponse?> SaveOnboardingWorkspaceStepAsync(
+      Guid userId,
+      OnboardingWorkspaceStepRequest request)
+  {
+    if (string.IsNullOrWhiteSpace(request.WorkspaceName))
+      throw new InvalidOperationException("Informe o nome do seu Workspace.");
+
+    var user = await userRepository.GetByIdWithAccessAsync(userId);
+    if (user is null)
+      return null;
+
+    var corporationId = user.CorporationId
+        ?? user.CorporationUsers.FirstOrDefault(cu => !cu.Inactive)?.CorporationId;
+
+    if (corporationId is null || corporationId == Guid.Empty)
+      throw new InvalidOperationException("Configure os dados da Matriz antes de criar o Workspace.");
+
+    var corpGraph = await corporationRepository.GetOnboardingGraphAsync(corporationId.Value)
+        ?? throw new InvalidOperationException("Corporação não encontrada.");
+
+    var cleanWorkspaceName = request.WorkspaceName.Trim();
+    var cleanWorkspaceKey = cleanWorkspaceName.ToUpperInvariant().Replace(" ", "_");
+
+    var existingWorkspace = corpGraph.Workspaces.FirstOrDefault(w => !w.Inactive);
+    if (existingWorkspace is null)
+    {
+      var newWorkspace = new Workspace
+      {
+        Id = Guid.NewGuid(),
+        CorporationId = corpGraph.Id,
+        Name = cleanWorkspaceName,
+        Key = cleanWorkspaceKey,
+        Icon = "layout-grid",
+        System = true,
+        Inactive = false,
+        Description = "Workspace principal"
+      };
+
+      await workspaceRepository.AddAsync(newWorkspace);
+
+      await workspaceUserRepository.AddRelationshipAsync(new WorkspaceUser
+      {
+        CorporationId = corpGraph.Id,
+        WorkspaceId = newWorkspace.Id,
+        UserId = user.Id,
+        IsOwner = true,
+        Inactive = false,
+        System = true
+      });
+
+      // Vincula as aplicações nativas do sistema (MORPHUS, SECURITY, WEBSITE) ao Workspace criado
+      foreach (var sysApp in corpGraph.Applications.Where(a => a.System))
+      {
+        await workspaceApplicationRepository.AddRelationshipAsync(new WorkspaceApplication
+        {
+          CorporationId = corpGraph.Id,
+          WorkspaceId = newWorkspace.Id,
+          ApplicationId = sysApp.Id,
+          Inactive = false,
+          System = true
+        });
+      }
+    }
+    else
+    {
+      existingWorkspace.Name = cleanWorkspaceName;
+      existingWorkspace.Key = cleanWorkspaceKey;
+      workspaceRepository.Update(existingWorkspace);
+    }
+
+    await unitOfWork.SaveChangesAsync();
+
+    return await GetOnboardingStateAsync(userId);
+  }
+
+  public async Task<MorphusSession?> CompleteOnboardingAsync(
+      Guid userId,
+      OnboardingCompleteRequest request)
+  {
+    var user = await userRepository.GetByIdWithAccessAsync(userId);
+    if (user is null)
+      return null;
+
+    var corporationId = user.CorporationId
+        ?? user.CorporationUsers.FirstOrDefault(cu => !cu.Inactive)?.CorporationId;
+
+    if (corporationId is null || corporationId == Guid.Empty)
+      throw new InvalidOperationException("Configure a Matriz antes de concluir.");
+
+    var corpGraph = await corporationRepository.GetOnboardingGraphAsync(corporationId.Value)
+        ?? throw new InvalidOperationException("Corporação não encontrada.");
+
+    var workspace = corpGraph.Workspaces.FirstOrDefault(w => !w.Inactive)
+        ?? throw new InvalidOperationException("Configure o seu Workspace antes de concluir.");
+
+    var requestedIds = (request.ApplicationIds ?? []).ToHashSet();
+
+    // Garante que as aplicações nativas (System = true) estejam sempre vinculadas,
+    // e vincula também as aplicações opcionais selecionadas pelo usuário para teste
+    foreach (var app in corpGraph.Applications.Where(a => !a.Inactive))
+    {
+      var shouldBeLinked = app.System || requestedIds.Contains(app.Id);
+      var existingWa = corpGraph.WorkspaceApplications
+          .FirstOrDefault(wa => wa.WorkspaceId == workspace.Id && wa.ApplicationId == app.Id);
+
+      if (shouldBeLinked)
+      {
+        if (existingWa is null)
+        {
+          await workspaceApplicationRepository.AddRelationshipAsync(new WorkspaceApplication
+          {
+            CorporationId = corpGraph.Id,
+            WorkspaceId = workspace.Id,
+            ApplicationId = app.Id,
+            Inactive = false,
+            System = app.System
+          });
+        }
+        else if (existingWa.Inactive)
+        {
+          existingWa.Inactive = false;
+          workspaceApplicationRepository.Update(existingWa);
+        }
+
+        var existingAu = corpGraph.ApplicationUsers
+            .FirstOrDefault(au => au.ApplicationId == app.Id && au.UserId == user.Id);
+
+        if (existingAu is null)
+        {
+          await applicationUserRepository.AddRelationshipAsync(new ApplicationUser
+          {
+            CorporationId = corpGraph.Id,
+            ApplicationId = app.Id,
+            UserId = user.Id,
+            IsOwner = true,
+            Inactive = false,
+            System = app.System
+          });
+        }
+        else if (existingAu.Inactive)
+        {
+          existingAu.Inactive = false;
+          applicationUserRepository.Update(existingAu);
+        }
+      }
+      else if (existingWa is not null && !existingWa.System)
+      {
+        workspaceApplicationRepository.RemoveRelationship(existingWa);
+      }
+    }
+
+    user.OnboardingCompleted = true;
+    userRepository.Update(user);
+    await unitOfWork.SaveChangesAsync();
+
+    var refreshedUser = await userRepository.GetByIdWithAccessAsync(userId);
+    if (refreshedUser is null)
+      return null;
+
+    var activeCorporationUsers = refreshedUser.CorporationUsers
+        .Where(cu => !cu.Inactive && cu.Corporation is not null)
+        .ToList();
+
+    var selectedCorporation = activeCorporationUsers
+        .FirstOrDefault(cu => cu.CorporationId == refreshedUser.CorporationId)?.Corporation
+        ?? activeCorporationUsers.FirstOrDefault()?.Corporation;
+
+    var session = BuildAuthorizedSession(refreshedUser, selectedCorporation, activeCorporationUsers);
+    userRepository.Update(refreshedUser);
+    await unitOfWork.SaveChangesAsync();
+
+    return session;
   }
 
   public async Task RequestPasswordResetAsync(ForgotPasswordRequest request, string frontendBaseUrl)
@@ -322,7 +685,7 @@ public class SecurityHandler(
       return;
 
     var user = await userRepository.GetByLoginAsync(request.Email);
-    if (user is null || string.IsNullOrWhiteSpace(user.Email))
+    if (user is null || string.IsNullOrWhiteSpace(user.Email) || user.CorporationId is null)
       return;
 
     var resetToken = MorphusSecurity.GenerateSecureToken();
@@ -336,7 +699,7 @@ public class SecurityHandler(
     var resetLink = $"{frontendBaseUrl.TrimEnd('/')}/security/reset-password?email={encodedEmail}&token={encodedToken}";
 
     await emailHandler
-        .NewEmail(user.CorporationId)
+        .NewEmail(user.CorporationId.Value)
         .Subject("Recuperação de Senha - Morphus")
         .LoadHtmlFile("password-reset")
         .SetVariable("{{Nome}}", user.Name ?? user.Email)
@@ -391,7 +754,7 @@ public class SecurityHandler(
 
   private MorphusSession BuildAuthorizedSession(
       User user,
-      Corporation activeCorporation,
+      Corporation? activeCorporation,
       List<CorporationUser> activeCorporationUsers)
   {
     var nowUtc = DateTime.UtcNow;
@@ -421,6 +784,7 @@ public class SecurityHandler(
         EmailConfirmed = user.EmailConfirmed,
         PhoneConfirmed = user.PhoneConfirmed,
         TermsConfirmed = user.TermsConfirmed,
+        OnboardingCompleted = user.OnboardingCompleted,
         System = user.System,
         UserStatusId = user.UserStatusId,
         CorporationId = user.CorporationId,
@@ -431,7 +795,7 @@ public class SecurityHandler(
         Gender = user.Gender,
         Birthdate = user.Birthdate
       },
-      Corporation = new Corporation
+      Corporation = activeCorporation is null ? null : new Corporation
       {
         Id = activeCorporation.Id,
         Name = activeCorporation.Name,
@@ -501,14 +865,13 @@ public class SecurityHandler(
     return tokenHandler.CreateToken(descriptor);
   }
 
-  private static List<System.Security.Claims.Claim> BuildClaims(User user, Corporation activeCorporation)
+  private static List<System.Security.Claims.Claim> BuildClaims(User user, Corporation? activeCorporation)
   {
     var authClaims = new List<System.Security.Claims.Claim>
     {
       new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
       new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-      new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-      new("corporation_id", activeCorporation.Id.ToString())
+      new(ClaimTypes.NameIdentifier, user.Id.ToString())
     };
 
     if (!string.IsNullOrWhiteSpace(user.Email))
@@ -516,6 +879,11 @@ public class SecurityHandler(
 
     if (!string.IsNullOrWhiteSpace(user.Name))
       authClaims.Add(new(ClaimTypes.Name, user.Name));
+
+    if (activeCorporation is null)
+      return authClaims;
+
+    authClaims.Add(new("corporation_id", activeCorporation.Id.ToString()));
 
     // 1. Claims atribuídas diretamente ao usuário na Corporação/Filial ativa
     foreach (var uc in user.UserClaims.Where(uc => !uc.Inactive && uc.CorporationId == activeCorporation.Id))

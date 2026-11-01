@@ -14,6 +14,6 @@ public class Workspace : IMorphusTenant
   public Guid CorporationId { get; set; }
 
   public virtual Corporation? Corporation { get; set; }
-  public virtual ICollection<MorphusApplication> Applications { get; set; } = [];
+  public virtual ICollection<WorkspaceApplication> WorkspaceApplications { get; set; } = [];
   public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = [];
 }

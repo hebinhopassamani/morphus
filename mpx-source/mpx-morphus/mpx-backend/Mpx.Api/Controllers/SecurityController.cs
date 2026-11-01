@@ -85,8 +85,10 @@ public class SecurityController(SecurityHandler securityHandler) : ControllerBas
     var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     var corpIdClaim = User.FindFirst("corporation_id")?.Value;
 
-    if (!Guid.TryParse(userIdClaim, out var userId) || !Guid.TryParse(corpIdClaim, out var corporationId))
+    if (!Guid.TryParse(userIdClaim, out var userId))
       return Unauthorized();
+
+    Guid? corporationId = Guid.TryParse(corpIdClaim, out var parsedCorpId) ? parsedCorpId : null;
 
     var session = await securityHandler.RefreshSessionOrSwitchCorporationAsync(userId, corporationId);
     if (session is null)
@@ -108,6 +110,87 @@ public class SecurityController(SecurityHandler securityHandler) : ControllerBas
       return Forbid();
 
     return Ok(session);
+  }
+
+  [Authorize]
+  [HttpGet("onboarding/state")]
+  public async Task<IActionResult> GetOnboardingState()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var state = await securityHandler.GetOnboardingStateAsync(userId);
+    if (state is null)
+      return NotFound();
+
+    return Ok(state);
+  }
+
+  [Authorize]
+  [HttpPost("onboarding/step-corporation")]
+  public async Task<IActionResult> SaveOnboardingCorporationStep([FromBody] OnboardingCorporationStepRequest request)
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    try
+    {
+      var session = await securityHandler.SaveOnboardingCorporationStepAsync(userId, request);
+      if (session is null)
+        return Unauthorized();
+
+      return Ok(session);
+    }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(new { message = ex.Message });
+    }
+  }
+
+  [Authorize]
+  [HttpPost("onboarding/step-workspace")]
+  public async Task<IActionResult> SaveOnboardingWorkspaceStep([FromBody] OnboardingWorkspaceStepRequest request)
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    try
+    {
+      var state = await securityHandler.SaveOnboardingWorkspaceStepAsync(userId, request);
+      if (state is null)
+        return Unauthorized();
+
+      return Ok(state);
+    }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(new { message = ex.Message });
+    }
+  }
+
+  [Authorize]
+  [HttpPost("onboarding/complete")]
+  public async Task<IActionResult> CompleteOnboarding([FromBody] OnboardingCompleteRequest request)
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    try
+    {
+      var session = await securityHandler.CompleteOnboardingAsync(userId, request);
+      if (session is null)
+        return Unauthorized();
+
+      return Ok(session);
+    }
+    catch (InvalidOperationException ex)
+    {
+      return BadRequest(new { message = ex.Message });
+    }
   }
 
   [Authorize]

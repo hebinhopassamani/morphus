@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { authGuard } from '@core/auth';
 import { SecurityLayout } from '@security/layout/layout.component';
 import { ForgotPasswordComponent } from '@security/pages/forgot-password/forgot-password.component';
+import { OnboardingComponent } from '@security/pages/onboarding/onboarding.component';
 import { ResetPasswordComponent } from '@security/pages/reset-password/reset-password.component';
 import { SelectCorporationComponent } from '@security/pages/select-corporation/select-corporation.component';
 import { SigninComponent } from '@security/pages/signin/signin.component';
@@ -19,6 +20,11 @@ export const routes: Routes = [
       { path: 'signout', component: SignoutComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
+      {
+        path: 'onboarding',
+        canActivate: [authGuard],
+        component: OnboardingComponent,
+      },
       {
         path: 'select-corporation',
         canActivate: [authGuard],

@@ -45,14 +45,44 @@ public class SwitchCorporationRequest
 
 public class CreateAccountRequest
 {
-  public required string CorporationName { get; set; }
+  public string? CorporationName { get; set; }
   public string? CorporationFullName { get; set; }
   public string? CorporationIcon { get; set; }
-  public required string CorporationEmail { get; set; }
-  public required string AdminName { get; set; }
+  public string? CorporationEmail { get; set; }
+  public string? AdminName { get; set; }
   public required string AdminEmail { get; set; }
   public required string AdminPassword { get; set; }
   public string? PhoneNumber { get; set; }
+}
+
+public class OnboardingStateResponse
+{
+  public Guid UserId { get; set; }
+  public string? UserName { get; set; }
+  public string? UserEmail { get; set; }
+  public bool OnboardingCompleted { get; set; }
+  public Guid? CorporationId { get; set; }
+  public string? CorporationName { get; set; }
+  public Guid? WorkspaceId { get; set; }
+  public string? WorkspaceName { get; set; }
+  public List<MorphusApplication> AvailableApplications { get; set; } = [];
+  public List<Guid> SelectedApplicationIds { get; set; } = [];
+}
+
+public class OnboardingCorporationStepRequest
+{
+  public required string UserName { get; set; }
+  public required string CorporationName { get; set; }
+}
+
+public class OnboardingWorkspaceStepRequest
+{
+  public required string WorkspaceName { get; set; }
+}
+
+public class OnboardingCompleteRequest
+{
+  public List<Guid> ApplicationIds { get; set; } = [];
 }
 
 public class ForgotPasswordRequest

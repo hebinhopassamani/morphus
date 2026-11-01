@@ -15,9 +15,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     builder.Property(b => b.EmailConfirmed).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.PhoneConfirmed).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.TermsConfirmed).IsRequired().HasDefaultValue(false);
+    builder.Property(b => b.OnboardingCompleted).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.System).IsRequired().HasDefaultValue(false);
-    builder.Property(b => b.UserStatusId).IsRequired();
-    builder.Property(b => b.CorporationId).IsRequired();
+    builder.Property(b => b.UserStatusId).IsRequired(false);
+    builder.Property(b => b.CorporationId).IsRequired(false);
     builder.Property(b => b.PasswordHash).IsRequired(false).HasMaxLength(250);
     builder.Property(b => b.NickName).IsRequired(false).HasMaxLength(100);
     builder.Property(b => b.Picture).IsRequired(false).HasMaxLength(250);
@@ -34,11 +35,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     builder.HasOne(b => b.Corporation)
            .WithMany(b => b.Users)
            .HasForeignKey(b => b.CorporationId)
+           .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
 
     builder.HasOne(b => b.UserStatus)
            .WithMany(b => b.Users)
            .HasForeignKey(b => b.UserStatusId)
+           .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
   }
 }

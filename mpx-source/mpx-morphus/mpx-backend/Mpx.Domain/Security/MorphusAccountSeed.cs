@@ -4,57 +4,49 @@ namespace Mpx.Domain.Security;
 
 public static class MorphusAccountSeed
 {
-  public static (Corporation Corporation, User AdminUser) CreateInitialAccountGraph(
-      CreateAccountRequest request,
-      Guid? parentCorporationId = null)
+  public static (Corporation Corporation, Guid ActiveUserStatusId) CreateCorporationBaseForOnboarding(
+      string corporationName,
+      string corporationEmail,
+      Guid existingUserId,
+      Guid? parentCorporationId = null,
+      string? icon = "building-2",
+      string? description = null,
+      string? fullName = null,
+      bool isSystem = true)
   {
     var corporationId = Guid.NewGuid();
+    var cleanName = corporationName.Trim();
 
     var corporation = new Corporation
     {
       Id = corporationId,
-      Name = request.CorporationName,
-      FullName = request.CorporationFullName ?? request.CorporationName,
-      Icon = string.IsNullOrWhiteSpace(request.CorporationIcon) ? "building-2" : request.CorporationIcon.Trim(),
-      Email = request.CorporationEmail,
-      Key = request.CorporationName.Trim().ToUpperInvariant().Replace(" ", "_"),
-      System = true,
+      Name = cleanName,
+      FullName = string.IsNullOrWhiteSpace(fullName) ? cleanName : fullName.Trim(),
+      Icon = string.IsNullOrWhiteSpace(icon) ? "building-2" : icon.Trim(),
+      Email = corporationEmail.Trim().ToLowerInvariant(),
+      Key = cleanName.ToUpperInvariant().Replace(" ", "_"),
+      System = isSystem,
+      Description = description,
       CorporationId = parentCorporationId
     };
 
-    // 1. Workspace Padrão: "Morphus Workspace"
-    var defaultWorkspace = new Workspace
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      Name = "Morphus Workspace",
-      Key = "MORPHUS_WORKSPACE",
-      Icon = "layout-grid",
-      System = true,
-      Inactive = false,
-      Description = "Workspace padrão do ecossistema Morphus"
-    };
-    corporation.Workspaces.Add(defaultWorkspace);
-
-    // 2. As 3 Applications Nativas dentro do Workspace Padrão
+    // 1. Aplicações Nativas e de Demonstração/Teste da Corporação (sem vínculo fixo de WorkspaceId, N:N via WorkspaceApplication)
     var morphusApp = new MorphusApplication
     {
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
-      WorkspaceId = defaultWorkspace.Id,
       Name = "Morphus",
       Key = "MORPHUS",
       Icon = "boxes",
       System = true,
       Inactive = false,
-      Description = "Aplicação principal de gestão empresarial Morphus"
+      Description = "Aplicação principal de gestão empresarial, governança e administração Morphus"
     };
 
     var securityApp = new MorphusApplication
     {
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
-      WorkspaceId = defaultWorkspace.Id,
       Name = "Segurança",
       Key = "SECURITY",
       Icon = "shield",
@@ -67,7 +59,6 @@ public static class MorphusAccountSeed
     {
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
-      WorkspaceId = defaultWorkspace.Id,
       Name = "Website",
       Key = "WEBSITE",
       Icon = "globe",
@@ -76,11 +67,50 @@ public static class MorphusAccountSeed
       Description = "Portal institucional e páginas públicas do Morphus"
     };
 
+    var kalupaApp = new MorphusApplication
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporationId,
+      Name = "Kalupa Automação",
+      Key = "KALUPA",
+      Icon = "workflow",
+      System = false,
+      Inactive = false,
+      Description = "Orquestração de fluxos, webhooks e integrações inteligentes em segundo plano"
+    };
+
+    var crmApp = new MorphusApplication
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporationId,
+      Name = "Morphus CRM",
+      Key = "CRM",
+      Icon = "users",
+      System = false,
+      Inactive = false,
+      Description = "Gestão de funil comercial, clientes, propostas e relacionamento"
+    };
+
+    var financeApp = new MorphusApplication
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporationId,
+      Name = "Morphus Financeiro",
+      Key = "FINANCE",
+      Icon = "wallet",
+      System = false,
+      Inactive = false,
+      Description = "Contas a pagar e receber, fluxo de caixa, centros de custo e faturamento"
+    };
+
     corporation.Applications.Add(morphusApp);
     corporation.Applications.Add(securityApp);
     corporation.Applications.Add(websiteApp);
+    corporation.Applications.Add(kalupaApp);
+    corporation.Applications.Add(crmApp);
+    corporation.Applications.Add(financeApp);
 
-    // 3. Status de Usuário Padrão
+    // 2. Status de Usuário Padrão
     var activeStatus = new UserStatus
     {
       Id = Guid.NewGuid(),
@@ -104,7 +134,7 @@ public static class MorphusAccountSeed
     corporation.UserStatus.Add(activeStatus);
     corporation.UserStatus.Add(inactiveStatus);
 
-    // 4. Módulos e Submódulos Padrão vinculados ao ApplicationId correspondente
+    // 3. Módulos e Submódulos Padrão vinculados ao ApplicationId correspondente
     var moduleDefinitions = new (Guid AppId, string Key, string Name, string Description, (string SubKey, string SubName, string SubDesc)[] SubModules)[]
     {
       // Módulos da Aplicação SECURITY
@@ -129,7 +159,8 @@ public static class MorphusAccountSeed
       // Módulos da Aplicação MORPHUS
       (morphusApp.Id, "WORKSPACE", "Workspaces", "Módulo responsável pelos ambientes de trabalho (workspaces) do sistema", [
         ("REGISTER", "Cadastro", "Submódulo responsável pelo cadastro dos workspaces"),
-        ("WORKSPACE_USER", "Usuários do workspace", "Submódulo responsável pelo vínculo de usuários nos workspaces")
+        ("WORKSPACE_USER", "Usuários do workspace", "Submódulo responsável pelo vínculo de usuários nos workspaces"),
+        ("WORKSPACE_APPLICATION", "Aplicações do workspace", "Submódulo responsável pelo vínculo de aplicações nos workspaces")
       ]),
       (morphusApp.Id, "APPLICATION", "Aplicações", "Módulo responsável pelas aplicações do sistema", [
         ("REGISTER", "Cadastro", "Submódulo responsável pelo cadastro das aplicações"),
@@ -179,7 +210,7 @@ public static class MorphusAccountSeed
       corporation.Modules.Add(mod);
     }
 
-    // 5. Role ADMINISTRATOR
+    // 4. Role ADMINISTRATOR
     var (roleMod, roleSub) = subModuleLookup[("ROLE", "ROLE_CLAIM")];
     var adminRole = new Role
     {
@@ -194,7 +225,7 @@ public static class MorphusAccountSeed
     };
     corporation.Roles.Add(adminRole);
 
-    // 6. Claims Padrão de Todos os Módulos (incluindo Workspace, Application e Menu)
+    // 5. Claims Padrão de Todos os Módulos (incluindo WorkspaceApplication)
     var claimDefinitions = new (string ModKey, string SubKey, string ClaimType, string[] Values)[]
     {
       ("USER", "REGISTER", "USER", ["GET_BY_ID", "LIST", "CREATE", "UPDATE", "DELETE"]),
@@ -208,6 +239,7 @@ public static class MorphusAccountSeed
       ("ROLE", "ROLE_CLAIM", "ROLE_CLAIM", ["LIST", "ADD", "REMOVE", "ACTIVATE", "INACTIVATE"]),
       ("WORKSPACE", "REGISTER", "WORKSPACE", ["GET_BY_ID", "LIST", "CREATE", "UPDATE", "DELETE"]),
       ("WORKSPACE", "WORKSPACE_USER", "WORKSPACE_USER", ["LIST", "ADD", "REMOVE", "ACTIVATE", "INACTIVATE", "SET_OWNER", "REMOVE_OWNER"]),
+      ("WORKSPACE", "WORKSPACE_APPLICATION", "WORKSPACE_APPLICATION", ["LIST", "ADD", "REMOVE", "ACTIVATE", "INACTIVATE"]),
       ("APPLICATION", "REGISTER", "APPLICATION", ["GET_BY_ID", "LIST", "CREATE", "UPDATE", "DELETE"]),
       ("APPLICATION", "APPLICATION_USER", "APPLICATION_USER", ["LIST", "ADD", "REMOVE", "ACTIVATE", "INACTIVATE", "SET_OWNER", "REMOVE_OWNER"]),
       ("MENU", "REGISTER", "MENU", ["GET_BY_ID", "LIST", "CREATE", "UPDATE", "DELETE"]),
@@ -246,7 +278,7 @@ public static class MorphusAccountSeed
       }
     }
 
-    // 7. Menus Iniciais no Banco apontando para ApplicationId
+    // 6. Menus Iniciais no Banco apontando para ApplicationId
     var (moduleMod, moduleSub) = subModuleLookup[("MODULE", "REGISTER")];
     var (menuMod, menuSub) = subModuleLookup[("MENU", "REGISTER")];
 
@@ -297,39 +329,11 @@ public static class MorphusAccountSeed
     corporation.Menus.Add(modulesMenuItem);
     corporation.Menus.Add(menusMenuItem);
 
-    // 8. Usuário Administrador Inicial
-    var adminUser = new User
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      UserStatusId = activeStatus.Id,
-      Name = request.AdminName,
-      Email = request.AdminEmail.Trim().ToLowerInvariant(),
-      PasswordHash = MorphusSecurity.HashPassword(request.AdminPassword),
-      PhoneNumber = request.PhoneNumber,
-      Inactive = false,
-      System = true,
-      EmailConfirmed = true,
-      TermsConfirmed = true
-    };
-
-    corporation.Users.Add(adminUser);
-
-    // 9. Vínculos Administrativos (IsOwner = true) na Corporation, no Workspace e nas 3 Applications
+    // 7. Vínculos Administrativos do existingUserId na Corporation, nas Applications Nativas e na Role ADMINISTRATOR
     corporation.CorporationUsers.Add(new CorporationUser
     {
       CorporationId = corporationId,
-      UserId = adminUser.Id,
-      IsOwner = true,
-      Inactive = false,
-      System = true
-    });
-
-    corporation.WorkspaceUsers.Add(new WorkspaceUser
-    {
-      CorporationId = corporationId,
-      WorkspaceId = defaultWorkspace.Id,
-      UserId = adminUser.Id,
+      UserId = existingUserId,
       IsOwner = true,
       Inactive = false,
       System = true
@@ -341,22 +345,100 @@ public static class MorphusAccountSeed
       {
         CorporationId = corporationId,
         ApplicationId = app.Id,
-        UserId = adminUser.Id,
+        UserId = existingUserId,
         IsOwner = true,
         Inactive = false,
         System = true
       });
     }
 
-    // 10. Vínculo UserRole (ADMINISTRATOR)
     corporation.UserRoles.Add(new UserRole
     {
       CorporationId = corporationId,
-      UserId = adminUser.Id,
+      UserId = existingUserId,
       RoleId = adminRole.Id,
       Inactive = false,
       System = true
     });
+
+    return (corporation, activeStatus.Id);
+  }
+
+  public static (Corporation Corporation, User AdminUser) CreateInitialAccountGraph(
+      CreateAccountRequest request,
+      Guid? parentCorporationId = null)
+  {
+    var adminUserId = Guid.NewGuid();
+    var corpName = string.IsNullOrWhiteSpace(request.CorporationName)
+        ? (request.AdminName ?? request.AdminEmail.Split('@')[0])
+        : request.CorporationName.Trim();
+    var corpEmail = string.IsNullOrWhiteSpace(request.CorporationEmail)
+        ? request.AdminEmail.Trim().ToLowerInvariant()
+        : request.CorporationEmail.Trim().ToLowerInvariant();
+
+    var (corporation, activeStatusId) = CreateCorporationBaseForOnboarding(
+        corpName,
+        corpEmail,
+        adminUserId,
+        parentCorporationId,
+        request.CorporationIcon,
+        null,
+        request.CorporationFullName ?? corpName,
+        true);
+
+    // Cria Workspace padrão e vincula as aplicações nativas
+    var defaultWorkspace = new Workspace
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporation.Id,
+      Name = "Morphus Workspace",
+      Key = "MORPHUS_WORKSPACE",
+      Icon = "layout-grid",
+      System = true,
+      Inactive = false,
+      Description = "Workspace padrão do ecossistema Morphus"
+    };
+    corporation.Workspaces.Add(defaultWorkspace);
+
+    corporation.WorkspaceUsers.Add(new WorkspaceUser
+    {
+      CorporationId = corporation.Id,
+      WorkspaceId = defaultWorkspace.Id,
+      UserId = adminUserId,
+      IsOwner = true,
+      Inactive = false,
+      System = true
+    });
+
+    foreach (var app in corporation.Applications.Where(a => a.System))
+    {
+      corporation.WorkspaceApplications.Add(new WorkspaceApplication
+      {
+        CorporationId = corporation.Id,
+        WorkspaceId = defaultWorkspace.Id,
+        ApplicationId = app.Id,
+        Inactive = false,
+        System = true
+      });
+    }
+
+    var adminUser = new User
+    {
+      Id = adminUserId,
+      CorporationId = corporation.Id,
+      UserStatusId = activeStatusId,
+      Name = string.IsNullOrWhiteSpace(request.AdminName) ? request.AdminEmail.Split('@')[0] : request.AdminName.Trim(),
+      Email = request.AdminEmail.Trim().ToLowerInvariant(),
+      PasswordHash = MorphusSecurity.HashPassword(request.AdminPassword),
+      PhoneNumber = request.PhoneNumber,
+      Inactive = false,
+      System = true,
+      EmailConfirmed = true,
+      TermsConfirmed = true,
+      OnboardingCompleted = true
+    };
+
+    corporation.Users.Add(adminUser);
 
     return (corporation, adminUser);
   }
@@ -371,37 +453,50 @@ public static class MorphusAccountSeed
       string? fullName = null,
       bool isSystem = false)
   {
-    var tempRequest = new CreateAccountRequest
+    var (corporation, _) = CreateCorporationBaseForOnboarding(
+        name,
+        email,
+        existingUserId,
+        parentCorporationId,
+        icon,
+        description,
+        fullName,
+        isSystem);
+
+    var defaultWorkspace = new Workspace
     {
-      CorporationName = name,
-      CorporationFullName = fullName ?? name,
-      CorporationIcon = icon,
-      CorporationEmail = email,
-      AdminName = "Temp",
-      AdminEmail = email,
-      AdminPassword = "TempPassword123!"
+      Id = Guid.NewGuid(),
+      CorporationId = corporation.Id,
+      Name = "Morphus Workspace",
+      Key = "MORPHUS_WORKSPACE",
+      Icon = "layout-grid",
+      System = true,
+      Inactive = false,
+      Description = "Workspace padrão do ecossistema Morphus"
     };
+    corporation.Workspaces.Add(defaultWorkspace);
 
-    var (corporation, tempUser) = CreateInitialAccountGraph(tempRequest, parentCorporationId);
-    corporation.System = isSystem;
-    corporation.Description = description;
-    corporation.Icon = string.IsNullOrWhiteSpace(icon) ? "building-2" : icon.Trim();
+    corporation.WorkspaceUsers.Add(new WorkspaceUser
+    {
+      CorporationId = corporation.Id,
+      WorkspaceId = defaultWorkspace.Id,
+      UserId = existingUserId,
+      IsOwner = true,
+      Inactive = false,
+      System = true
+    });
 
-    // Remove o usuário novo temporário da coleção Users (pois usaremos o usuário já existente)
-    corporation.Users.Clear();
-
-    // Reaponta todos os vínculos criados no grafo para o existingUserId
-    foreach (var cu in corporation.CorporationUsers)
-      cu.UserId = existingUserId;
-
-    foreach (var wu in corporation.WorkspaceUsers)
-      wu.UserId = existingUserId;
-
-    foreach (var au in corporation.ApplicationUsers)
-      au.UserId = existingUserId;
-
-    foreach (var ur in corporation.UserRoles)
-      ur.UserId = existingUserId;
+    foreach (var app in corporation.Applications.Where(a => a.System))
+    {
+      corporation.WorkspaceApplications.Add(new WorkspaceApplication
+      {
+        CorporationId = corporation.Id,
+        WorkspaceId = defaultWorkspace.Id,
+        ApplicationId = app.Id,
+        Inactive = false,
+        System = true
+      });
+    }
 
     return corporation;
   }

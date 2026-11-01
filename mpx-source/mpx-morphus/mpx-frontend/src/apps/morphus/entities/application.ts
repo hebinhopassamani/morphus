@@ -1,4 +1,4 @@
-import { Workspace } from './workspace';
+import { Workspace, WorkspaceApplication } from './workspace';
 
 export interface MorphusApplication {
   id?: string;
@@ -8,9 +8,10 @@ export interface MorphusApplication {
   icon?: string | null;
   system?: boolean;
   inactive?: boolean;
-  workspaceId: string;
+  workspaceId?: string;
   corporationId?: string;
   workspace?: Workspace;
+  workspaceApplications?: WorkspaceApplication[];
 }
 
 export interface ApplicationUser {

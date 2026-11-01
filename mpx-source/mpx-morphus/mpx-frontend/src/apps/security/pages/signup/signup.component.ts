@@ -50,8 +50,6 @@ export class SignupComponent implements OnInit {
 
   protected readonly form = this.fb.nonNullable.group(
     {
-      corporationName: ['', [Validators.required, Validators.minLength(2)]],
-      adminName: ['', [Validators.required, Validators.minLength(2)]],
       adminEmail: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', [Validators.required]],
@@ -64,7 +62,11 @@ export class SignupComponent implements OnInit {
     this.auth.clearError();
 
     if (this.auth.isAuthenticated()) {
-      this.router.navigateByUrl('/admin');
+      if (this.auth.needsOnboarding()) {
+        this.router.navigateByUrl('/security/onboarding');
+      } else {
+        this.router.navigateByUrl('/admin');
+      }
     }
   }
 
@@ -82,22 +84,17 @@ export class SignupComponent implements OnInit {
       return;
     }
 
-    const { corporationName, adminName, adminEmail, password } = this.form.getRawValue();
+    const { adminEmail, password } = this.form.getRawValue();
     const cleanEmail = adminEmail.trim().toLowerCase();
 
     this.auth
       .createAccount({
-        corporationName: corporationName.trim(),
-        corporationFullName: corporationName.trim(),
-        corporationIcon: 'building-2',
-        corporationEmail: cleanEmail,
-        adminName: adminName.trim(),
         adminEmail: cleanEmail,
         adminPassword: password,
       })
       .subscribe({
         next: () => {
-          this.router.navigateByUrl('/admin');
+          this.router.navigateByUrl('/security/onboarding');
         },
       });
   }

@@ -22,6 +22,9 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
             .HasQueryFilter(ConvertFilterExpression(entityType.ClrType));
       }
     }
+
+    builder.Entity<User>()
+        .HasQueryFilter(u => u.CorporationId == tenantProvider.GetCorporationId());
   }
 
   private System.Linq.Expressions.LambdaExpression ConvertFilterExpression(Type type)
@@ -41,15 +44,24 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
 
   public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
   {
-    var addedTenantEntries = ChangeTracker.Entries<IMorphusTenant>()
-        .Where(e => e.State == EntityState.Added && e.Entity.CorporationId == Guid.Empty)
-        .ToList();
+    var currentCorporationId = tenantProvider.GetCorporationId();
 
-    if (addedTenantEntries.Count > 0)
+    if (currentCorporationId != Guid.Empty)
     {
-      var currentCorporationId = tenantProvider.GetCorporationId();
+      var addedTenantEntries = ChangeTracker.Entries<IMorphusTenant>()
+          .Where(e => e.State == EntityState.Added && e.Entity.CorporationId == Guid.Empty)
+          .ToList();
 
       foreach (var entry in addedTenantEntries)
+      {
+        entry.Entity.CorporationId = currentCorporationId;
+      }
+
+      var addedUserEntries = ChangeTracker.Entries<User>()
+          .Where(e => e.State == EntityState.Added && (e.Entity.CorporationId is null || e.Entity.CorporationId == Guid.Empty))
+          .ToList();
+
+      foreach (var entry in addedUserEntries)
       {
         entry.Entity.CorporationId = currentCorporationId;
       }
@@ -62,6 +74,7 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
   public DbSet<CorporationUser> CorporationUsers { get; set; }
   public DbSet<Workspace> Workspaces { get; set; }
   public DbSet<WorkspaceUser> WorkspaceUsers { get; set; }
+  public DbSet<WorkspaceApplication> WorkspaceApplications { get; set; }
   public DbSet<MorphusApplication> Applications { get; set; }
   public DbSet<ApplicationUser> ApplicationUsers { get; set; }
   public DbSet<Menu> Menus { get; set; }

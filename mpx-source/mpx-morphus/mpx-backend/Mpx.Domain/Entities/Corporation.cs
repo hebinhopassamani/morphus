@@ -16,6 +16,7 @@ public class Corporation
 
   public virtual ICollection<Workspace> Workspaces { get; set; } = [];
   public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = [];
+  public virtual ICollection<WorkspaceApplication> WorkspaceApplications { get; set; } = [];
   public virtual ICollection<MorphusApplication> Applications { get; set; } = [];
   public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
   public virtual ICollection<User> Users { get; set; } = [];

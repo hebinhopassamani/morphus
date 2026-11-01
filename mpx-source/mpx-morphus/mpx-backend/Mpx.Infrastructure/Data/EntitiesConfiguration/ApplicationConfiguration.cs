@@ -16,14 +16,8 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<MorphusApplicat
     builder.Property(a => a.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(a => a.System).IsRequired().HasDefaultValue(false);
     builder.Property(a => a.Inactive).IsRequired().HasDefaultValue(false);
-    builder.Property(a => a.WorkspaceId).IsRequired();
     builder.Property(a => a.CorporationId).IsRequired();
     builder.Property(a => a.Description).IsRequired(false).HasColumnType("text");
-
-    builder.HasOne(a => a.Workspace)
-           .WithMany(w => w.Applications)
-           .HasForeignKey(a => a.WorkspaceId)
-           .OnDelete(DeleteBehavior.Restrict);
 
     builder.HasOne(a => a.Corporation)
            .WithMany(c => c.Applications)

@@ -11,11 +11,21 @@ export const authGuard: CanActivateFn = (_route, state) => {
   const auth = inject(Auth);
   const router = inject(Router);
 
-  if (auth.isAuthenticated()) {
-    return true;
+  if (!auth.isAuthenticated()) {
+    return router.createUrlTree(['/security/signin'], {
+      queryParams: state.url && state.url !== '/admin' ? { returnUrl: state.url } : undefined,
+    });
   }
 
-  return router.createUrlTree(['/security/signin'], {
-    queryParams: state.url && state.url !== '/admin' ? { returnUrl: state.url } : undefined,
-  });
+  const isOnboardingRoute = state.url.startsWith('/security/onboarding');
+
+  if (auth.needsOnboarding() && !isOnboardingRoute) {
+    return router.createUrlTree(['/security/onboarding']);
+  }
+
+  if (!auth.needsOnboarding() && isOnboardingRoute) {
+    return router.createUrlTree(['/admin']);
+  }
+
+  return true;
 };

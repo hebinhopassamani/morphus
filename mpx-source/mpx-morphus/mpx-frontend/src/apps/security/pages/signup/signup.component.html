@@ -3,7 +3,9 @@
   <mat-card-content class="flex flex-col items-center">
     <img src="/logo-icon.png" alt="Morphus" class="h-11 w-auto object-contain" />
     <div class="mpx-headline-small mt-2">Criar uma conta</div>
-    <p class="mpx-body-medium mt-0.5 text-center text-neutral-a11">Cadastre sua empresa e comece a usar o Morphus.</p>
+    <p class="mpx-body-medium mt-0.5 text-center text-neutral-a11">
+      Crie seu acesso e configure sua matriz e workspace na próxima etapa.
+    </p>
 
     @if (auth.error(); as error) {
       <div class="mpx-body-small mt-3 w-full rounded-lg bg-error-a3 p-2.5 text-error-a11">
@@ -13,26 +15,6 @@
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-2.5 flex w-full flex-col">
       <div class="flex flex-col gap-y-1">
-        <mat-form-field class="w-full">
-          <mat-label>Nome da empresa</mat-label>
-          <input type="text" autocomplete="organization" formControlName="corporationName" matInput />
-          @if (form.controls.corporationName.hasError('required')) {
-            <mat-error>Informe o nome da sua empresa.</mat-error>
-          } @else if (form.controls.corporationName.hasError('minlength')) {
-            <mat-error>O nome da empresa deve ter pelo menos 2 caracteres.</mat-error>
-          }
-        </mat-form-field>
-
-        <mat-form-field class="w-full">
-          <mat-label>Seu nome completo</mat-label>
-          <input type="text" autocomplete="name" formControlName="adminName" matInput />
-          @if (form.controls.adminName.hasError('required')) {
-            <mat-error>Informe seu nome.</mat-error>
-          } @else if (form.controls.adminName.hasError('minlength')) {
-            <mat-error>O nome deve ter pelo menos 2 caracteres.</mat-error>
-          }
-        </mat-form-field>
-
         <mat-form-field class="w-full">
           <mat-label>E-mail</mat-label>
           <input type="email" autocomplete="email" formControlName="adminEmail" matInput />
@@ -94,8 +76,14 @@
         Aceito os
         <a
           class="mpx-label-medium ms-0.5 inline-flex text-primary-a11 decoration-primary-a11 hover:underline"
-          routerLink="/home/privacidade">
-          termos
+          routerLink="/termos">
+          Termos de Uso
+        </a>
+        e a
+        <a
+          class="mpx-label-medium ms-0.5 inline-flex text-primary-a11 decoration-primary-a11 hover:underline"
+          routerLink="/privacidade">
+          Política de Privacidade
         </a>
       </mat-checkbox>
       @if (form.controls.termsConfirmed.touched && form.controls.termsConfirmed.invalid) {
@@ -108,7 +96,7 @@
         type="submit"
         [disabled]="auth.isLoading()">
         <mat-icon svgIcon="user-plus" />
-        {{ auth.isLoading() ? 'Criando conta...' : 'Criar conta' }}
+        {{ auth.isLoading() ? 'Criando acesso...' : 'Continuar' }}
       </button>
     </form>
 

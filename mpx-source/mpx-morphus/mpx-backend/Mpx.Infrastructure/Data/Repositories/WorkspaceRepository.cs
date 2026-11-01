@@ -10,7 +10,8 @@ public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<W
   {
     return await _context.Workspaces
         .AsNoTracking()
-        .Include(w => w.Applications)
+        .Include(w => w.WorkspaceApplications.Where(wa => !wa.Inactive))
+          .ThenInclude(wa => wa.Application)
         .OrderBy(w => w.Name)
         .ToListAsync();
   }
@@ -19,7 +20,8 @@ public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<W
   {
     return await _context.Workspaces
         .AsNoTracking()
-        .Include(w => w.Applications)
+        .Include(w => w.WorkspaceApplications.Where(wa => !wa.Inactive))
+          .ThenInclude(wa => wa.Application)
         .FirstOrDefaultAsync(w => w.Key == key);
   }
 }

@@ -1,0 +1,356 @@
+<div class="flex w-full max-w-3xl flex-col items-center">
+  <!-- Cabeçalho do Onboarding -->
+  <div class="mb-6 flex flex-col items-center text-center">
+    <img src="/logo-icon.png" alt="Morphus" class="h-12 w-auto object-contain" />
+    <h1 class="mpx-headline-small mt-3 font-semibold tracking-tight">
+      Configuração inicial do seu ambiente
+    </h1>
+    <p class="mpx-body-medium mt-1 max-w-lg text-neutral-a11">
+      Vamos preparar sua Matriz e seu primeiro Workspace em poucos segundos. Se você fechar o navegador, poderá continuar exatamente de onde parou.
+    </p>
+  </div>
+
+  <!-- Indicador de Progresso das 3 Etapas -->
+  <div class="mb-6 grid w-full max-w-xl grid-cols-3 gap-2 sm:gap-3">
+    <button
+      type="button"
+      (click)="goToStep(1)"
+      class="flex items-center gap-x-2.5 rounded-xl border p-2.5 text-start transition"
+      [class.border-primary-a8]="currentStep() === 1"
+      [class.bg-primary-a3]="currentStep() === 1"
+      [class.border-neutral-a5]="currentStep() !== 1"
+      [class.bg-surface-container-low]="currentStep() !== 1"
+    >
+      <div
+        class="flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+        [class.bg-primary-9]="currentStep() === 1"
+        [class.text-white]="currentStep() === 1"
+        [class.bg-primary-a4]="corporationId() && currentStep() !== 1"
+        [class.text-primary-a11]="corporationId() && currentStep() !== 1"
+        [class.bg-neutral-a4]="!corporationId() && currentStep() !== 1"
+      >
+        @if (corporationId() && currentStep() > 1) {
+          <mat-icon class="size-4!" svgIcon="check" />
+        } @else {
+          1
+        }
+      </div>
+      <div class="min-w-0">
+        <div class="truncate text-xs font-semibold">Você e sua Matriz</div>
+        <div class="truncate text-[11px] text-neutral-a11">
+          {{ step1Form.controls.corporationName.value || 'Dados principais' }}
+        </div>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      (click)="goToStep(2)"
+      [disabled]="!corporationId()"
+      class="flex items-center gap-x-2.5 rounded-xl border p-2.5 text-start transition disabled:opacity-50"
+      [class.border-primary-a8]="currentStep() === 2"
+      [class.bg-primary-a3]="currentStep() === 2"
+      [class.border-neutral-a5]="currentStep() !== 2"
+      [class.bg-surface-container-low]="currentStep() !== 2"
+    >
+      <div
+        class="flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+        [class.bg-primary-9]="currentStep() === 2"
+        [class.text-white]="currentStep() === 2"
+        [class.bg-primary-a4]="workspaceId() && currentStep() !== 2"
+        [class.text-primary-a11]="workspaceId() && currentStep() !== 2"
+        [class.bg-neutral-a4]="!workspaceId() && currentStep() !== 2"
+      >
+        @if (workspaceId() && currentStep() > 2) {
+          <mat-icon class="size-4!" svgIcon="check" />
+        } @else {
+          2
+        }
+      </div>
+      <div class="min-w-0">
+        <div class="truncate text-xs font-semibold">1º Workspace</div>
+        <div class="truncate text-[11px] text-neutral-a11">
+          {{ step2Form.controls.workspaceName.value || 'Ambiente de trabalho' }}
+        </div>
+      </div>
+    </button>
+
+    <button
+      type="button"
+      (click)="goToStep(3)"
+      [disabled]="!workspaceId()"
+      class="flex items-center gap-x-2.5 rounded-xl border p-2.5 text-start transition disabled:opacity-50"
+      [class.border-primary-a8]="currentStep() === 3"
+      [class.bg-primary-a3]="currentStep() === 3"
+      [class.border-neutral-a5]="currentStep() !== 3"
+      [class.bg-surface-container-low]="currentStep() !== 3"
+    >
+      <div
+        class="flex size-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
+        [class.bg-primary-9]="currentStep() === 3"
+        [class.text-white]="currentStep() === 3"
+        [class.bg-neutral-a4]="currentStep() !== 3"
+      >
+        3
+      </div>
+      <div class="min-w-0">
+        <div class="truncate text-xs font-semibold">Apps (Opcional)</div>
+        <div class="truncate text-[11px] text-neutral-a11">Selecionar ou pular</div>
+      </div>
+    </button>
+  </div>
+
+  @if (auth.error(); as error) {
+    <div class="mpx-body-small mb-4 w-full max-w-xl rounded-xl bg-error-a3 p-3 text-error-a11">
+      {{ error.message }}
+    </div>
+  }
+
+  @if (isLoadingState()) {
+    <mat-card class="w-full max-w-xl [--card-border-radius:var(--radius-2xl)] [--card-surface-padding:--spacing(6)]">
+      <mat-card-content class="flex flex-col items-center justify-center py-8 text-center">
+        <span class="text-sm text-neutral-a11">Carregando seu progresso...</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (currentStep() === 1) {
+    <!-- ETAPA 1: Nome Completo e Nome da Matriz -->
+    <mat-card class="w-full max-w-xl [--card-border-radius:var(--radius-2xl)] [--card-surface-padding:--spacing(6)]">
+      <mat-card-content class="flex flex-col">
+        <div class="flex items-center gap-x-3">
+          <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
+            <mat-icon class="size-6" svgIcon="building-2" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold leading-snug">Seus dados e sua Matriz</h2>
+            <p class="text-xs text-neutral-a11">
+              Defina como seu nome e sua organização principal aparecerão na plataforma.
+            </p>
+          </div>
+        </div>
+
+        <form [formGroup]="step1Form" (ngSubmit)="onSaveStep1()" class="mt-5 flex flex-col gap-y-2">
+          <mat-form-field class="w-full">
+            <mat-label>Seu nome completo</mat-label>
+            <input type="text" autocomplete="name" formControlName="userName" matInput />
+            @if (step1Form.controls.userName.hasError('required')) {
+              <mat-error>Informe seu nome completo.</mat-error>
+            } @else if (step1Form.controls.userName.hasError('minlength')) {
+              <mat-error>O nome deve ter pelo menos 2 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field class="w-full">
+            <mat-label>Nome da Matriz (Corporação)</mat-label>
+            <input
+              type="text"
+              autocomplete="organization"
+              placeholder="Ex: Grupo Morphus, Passamani Holding..."
+              formControlName="corporationName"
+              matInput
+            />
+            @if (step1Form.controls.corporationName.hasError('required')) {
+              <mat-error>Informe o nome da sua Matriz.</mat-error>
+            } @else if (step1Form.controls.corporationName.hasError('minlength')) {
+              <mat-error>O nome da Matriz deve ter pelo menos 2 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="mt-3 flex items-center justify-between gap-x-3">
+            <button
+              type="button"
+              matButton
+              class="tertiary"
+              (click)="auth.logout()"
+            >
+              Sair da conta
+            </button>
+
+            <button
+              type="submit"
+              matButton
+              class="primary large"
+              [disabled]="auth.isLoading()"
+            >
+              {{ auth.isLoading() ? 'Salvando...' : 'Salvar e avançar' }}
+              <mat-icon svgIcon="arrow-right" iconPositionEnd />
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  } @else if (currentStep() === 2) {
+    <!-- ETAPA 2: Nome do 1º Workspace -->
+    <mat-card class="w-full max-w-xl [--card-border-radius:var(--radius-2xl)] [--card-surface-padding:--spacing(6)]">
+      <mat-card-content class="flex flex-col">
+        <div class="flex items-center gap-x-3">
+          <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
+            <mat-icon class="size-6" svgIcon="layout-grid" />
+          </div>
+          <div>
+            <h2 class="text-lg font-semibold leading-snug">Crie seu primeiro Workspace</h2>
+            <p class="text-xs text-neutral-a11">
+              Workspaces organizam seus setores ou projetos dentro de
+              <strong class="text-on-surface">{{ step1Form.controls.corporationName.value }}</strong>.
+            </p>
+          </div>
+        </div>
+
+        <form [formGroup]="step2Form" (ngSubmit)="onSaveStep2()" class="mt-5 flex flex-col gap-y-2">
+          <mat-form-field class="w-full">
+            <mat-label>Nome do Workspace</mat-label>
+            <input
+              type="text"
+              placeholder="Ex: Matriz, Comercial, Diretoria..."
+              formControlName="workspaceName"
+              matInput
+            />
+            @if (step2Form.controls.workspaceName.hasError('required')) {
+              <mat-error>Informe um nome para o seu Workspace.</mat-error>
+            } @else if (step2Form.controls.workspaceName.hasError('minlength')) {
+              <mat-error>O nome do Workspace deve ter pelo menos 2 caracteres.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs text-neutral-a11">Sugestões rápidas:</span>
+            @for (suggestion of workspaceSuggestions; track suggestion) {
+              <button
+                type="button"
+                (click)="applyWorkspaceSuggestion(suggestion)"
+                class="rounded-md border px-2.5 py-1 text-xs font-medium transition hover:bg-neutral-a3"
+                [class.border-primary-a8]="step2Form.controls.workspaceName.value === suggestion"
+                [class.bg-primary-a3]="step2Form.controls.workspaceName.value === suggestion"
+                [class.text-primary-a11]="step2Form.controls.workspaceName.value === suggestion"
+              >
+                {{ suggestion }}
+              </button>
+            }
+          </div>
+
+          <div class="mt-4 flex items-center justify-between gap-x-3">
+            <button
+              type="button"
+              matButton
+              class="tertiary"
+              (click)="goToStep(1)"
+            >
+              Voltar
+            </button>
+
+            <button
+              type="submit"
+              matButton
+              class="primary large"
+              [disabled]="auth.isLoading()"
+            >
+              {{ auth.isLoading() ? 'Criando Workspace...' : 'Salvar e avançar' }}
+              <mat-icon svgIcon="arrow-right" iconPositionEnd />
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  } @else {
+    <!-- ETAPA 3: Seleção de Aplicações para Teste (Opcional — Pode Pular) -->
+    <div class="flex w-full flex-col">
+      <div class="mb-4 flex flex-col items-center text-center">
+        <span class="rounded-full bg-primary-a3 px-3 py-1 text-xs font-semibold text-primary-a11">
+          Etapa opcional — você pode pular se preferir
+        </span>
+        <h2 class="mt-2 text-lg font-semibold">
+          Quais aplicações deseja habilitar no workspace "{{ step2Form.controls.workspaceName.value }}"?
+        </h2>
+        <p class="text-xs text-neutral-a11">
+          A aplicação principal <strong>Morphus</strong> já vem habilitada. Marque abaixo caso queira testar outras aplicações neste workspace (você poderá vinculá-las a outros workspaces depois).
+        </p>
+      </div>
+
+      <div class="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (app of optionalApplications(); track app.id) {
+          <mat-card
+            appearance="filled"
+            (click)="toggleApp(app)"
+            class="group cursor-pointer overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-md [--card-border-radius:var(--radius-xl)]"
+            [class.ring-2]="isAppSelected(app.id)"
+            [class.ring-primary-9]="isAppSelected(app.id)"
+          >
+            <div class="relative flex h-20 items-end bg-linear-to-r from-primary-a4 via-primary-a3 to-transparent p-4">
+              <div
+                class="flex size-11 items-center justify-center rounded-xl border bg-surface-container-lowest shadow-xs transition group-hover:scale-105"
+              >
+                <mat-icon
+                  class="size-6 text-primary-a11"
+                  [svgIcon]="app.icon || 'boxes'"
+                />
+              </div>
+
+              <span
+                class="ms-auto rounded-md px-2 py-0.5 text-xs font-medium"
+                [class.bg-primary-9]="isAppSelected(app.id)"
+                [class.text-white]="isAppSelected(app.id)"
+                [class.bg-neutral-a3]="!isAppSelected(app.id)"
+                [class.text-neutral-a11]="!isAppSelected(app.id)"
+              >
+                {{ isAppSelected(app.id) ? 'Selecionada' : 'Disponível para teste' }}
+              </span>
+            </div>
+
+            <mat-card-content class="flex flex-1 flex-col pt-3">
+              <div class="text-base font-semibold leading-snug">
+                {{ app.name }}
+              </div>
+              <p class="mt-1 line-clamp-2 text-xs text-neutral-a11">
+                {{ app.description || 'Aplicação disponível no ecossistema Morphus.' }}
+              </p>
+            </mat-card-content>
+
+            <mat-card-footer class="px-4 pb-4 pt-2">
+              <div class="flex items-center justify-between text-xs font-medium text-primary-a11">
+                <span>{{ isAppSelected(app.id) ? 'Vinculada ao workspace' : 'Clique para selecionar' }}</span>
+                <mat-icon
+                  class="size-4"
+                  [svgIcon]="isAppSelected(app.id) ? 'check' : 'arrow-right'"
+                />
+              </div>
+            </mat-card-footer>
+          </mat-card>
+        }
+      </div>
+
+      <div class="mt-6 flex flex-col-reverse items-center justify-between gap-3 sm:flex-row">
+        <button
+          type="button"
+          matButton
+          class="tertiary w-full sm:w-auto"
+          (click)="goToStep(2)"
+          [disabled]="auth.isLoading()"
+        >
+          Voltar
+        </button>
+
+        <div class="flex w-full flex-col gap-2.5 sm:w-auto sm:flex-row">
+          <button
+            type="button"
+            matButton
+            class="secondary large w-full sm:w-auto"
+            (click)="onSkipApps()"
+            [disabled]="auth.isLoading()"
+          >
+            Pular esta etapa
+          </button>
+
+          <button
+            type="button"
+            matButton
+            class="primary large w-full sm:w-auto"
+            (click)="onCompleteOnboarding()"
+            [disabled]="auth.isLoading()"
+          >
+            {{ auth.isLoading() ? 'Finalizando...' : 'Concluir e acessar o Morphus' }}
+            <mat-icon svgIcon="arrow-right" iconPositionEnd />
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

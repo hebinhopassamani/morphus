@@ -159,6 +159,11 @@ export class SigninComponent implements OnInit {
   }
 
   private navigateAfterAuth(): void {
+    if (this.auth.needsOnboarding()) {
+      this.router.navigateByUrl('/security/onboarding');
+      return;
+    }
+
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     const availableCorporations = this.auth.availableCorporations();
 

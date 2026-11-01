@@ -23,6 +23,7 @@ public class UserStatusConfiguration : IEntityTypeConfiguration<UserStatus>
     builder.HasMany(b => b.Users)
            .WithOne(b => b.UserStatus)
            .HasForeignKey(b => b.UserStatusId)
+           .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
   }
 }

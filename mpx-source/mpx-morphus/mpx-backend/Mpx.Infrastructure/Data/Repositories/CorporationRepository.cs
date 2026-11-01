@@ -38,4 +38,16 @@ public class CorporationRepository(MorphusDbContext context) : MorphusRepository
         .Include(c => c.Corporations)
         .FirstOrDefaultAsync(c => c.Id == loggedCorp.CorporationId);
   }
+
+  public async Task<Corporation?> GetOnboardingGraphAsync(Guid corporationId)
+  {
+    return await _context.Corporations
+        .IgnoreQueryFilters()
+        .Include(c => c.Workspaces)
+        .Include(c => c.WorkspaceUsers)
+        .Include(c => c.Applications)
+        .Include(c => c.WorkspaceApplications)
+        .Include(c => c.ApplicationUsers)
+        .FirstOrDefaultAsync(c => c.Id == corporationId);
+  }
 }

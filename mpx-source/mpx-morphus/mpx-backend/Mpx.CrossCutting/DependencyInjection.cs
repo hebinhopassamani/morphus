@@ -78,6 +78,7 @@ public static class DependencyInjection
     builder.Services.AddScoped<ICorporationUserRepository, CorporationUserRepository>();
     builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
     builder.Services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
+    builder.Services.AddScoped<IWorkspaceApplicationRepository, WorkspaceApplicationRepository>();
     builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
     builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
     builder.Services.AddScoped<IMenuRepository, MenuRepository>();
@@ -99,6 +100,7 @@ public static class DependencyInjection
     builder.Services.AddScoped<CorporationUserHandler>();
     builder.Services.AddScoped<WorkspaceHandler>();
     builder.Services.AddScoped<WorkspaceUserHandler>();
+    builder.Services.AddScoped<WorkspaceApplicationHandler>();
     builder.Services.AddScoped<ApplicationHandler>();
     builder.Services.AddScoped<ApplicationUserHandler>();
     builder.Services.AddScoped<MenuHandler>();
@@ -280,6 +282,12 @@ public static class DependencyInjection
     auth.AddPolicy("WORKSPACE_USER_INACTIVATE", p => p.RequireClaim("WORKSPACE_USER", "INACTIVATE"));
     auth.AddPolicy("WORKSPACE_USER_SET_OWNER", p => p.RequireClaim("WORKSPACE_USER", "SET_OWNER"));
     auth.AddPolicy("WORKSPACE_USER_REMOVE_OWNER", p => p.RequireClaim("WORKSPACE_USER", "REMOVE_OWNER"));
+
+    auth.AddPolicy("WORKSPACE_APPLICATION_LIST", p => p.RequireClaim("WORKSPACE_APPLICATION", "LIST"));
+    auth.AddPolicy("WORKSPACE_APPLICATION_ADD", p => p.RequireClaim("WORKSPACE_APPLICATION", "ADD"));
+    auth.AddPolicy("WORKSPACE_APPLICATION_REMOVE", p => p.RequireClaim("WORKSPACE_APPLICATION", "REMOVE"));
+    auth.AddPolicy("WORKSPACE_APPLICATION_ACTIVATE", p => p.RequireClaim("WORKSPACE_APPLICATION", "ACTIVATE"));
+    auth.AddPolicy("WORKSPACE_APPLICATION_INACTIVATE", p => p.RequireClaim("WORKSPACE_APPLICATION", "INACTIVATE"));
 
     // Application & ApplicationUser
     auth.AddPolicy("APPLICATION_GET_BY_ID", p => p.RequireClaim("APPLICATION", "GET_BY_ID"));

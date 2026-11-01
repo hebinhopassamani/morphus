@@ -6,4 +6,5 @@ public interface ICorporationRepository : IMorphusRepository<Corporation>
 {
   Task<List<Corporation>> GetListAsync(Guid activeCorporationId);
   Task<Corporation?> GetParentCorporationAsync(Guid activeCorporationId);
+  Task<Corporation?> GetOnboardingGraphAsync(Guid corporationId);
 }

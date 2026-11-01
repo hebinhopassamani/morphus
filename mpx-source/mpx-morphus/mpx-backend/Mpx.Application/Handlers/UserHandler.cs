@@ -34,14 +34,17 @@ public class UserHandler(
 
     await userRepository.AddAsync(user);
 
-    await corporationUserRepository.AddRelationshipAsync(new CorporationUser
+    if (user.CorporationId is not null && user.CorporationId != Guid.Empty)
     {
-      CorporationId = user.CorporationId,
-      UserId = user.Id,
-      Inactive = false,
-      System = false,
-      IsOwner = false
-    });
+      await corporationUserRepository.AddRelationshipAsync(new CorporationUser
+      {
+        CorporationId = user.CorporationId.Value,
+        UserId = user.Id,
+        Inactive = false,
+        System = false,
+        IsOwner = false
+      });
+    }
 
     await unitOfWork.SaveChangesAsync();
     return user;
