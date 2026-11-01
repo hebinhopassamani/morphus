@@ -6,8 +6,7 @@ volumes:
   n8n_data:
 
 services:
-  # ─── MPX REVERSE PROXY (Caddy - O Porteiro Global) ───
-  caddy:
+  mpx-reverse-proxy:
     image: caddy:latest
     container_name: mpx-reverse-proxy
     restart: unless-stopped
@@ -16,8 +15,8 @@ services:
       - '443:443'
       - '443:443/udp'
     environment:
-      DOMAIN: ${DOMAIN:?Defina DOMAIN no arquivo .env}
-      N8N_DOMAIN: ${N8N_DOMAIN:?Defina N8N_DOMAIN no arquivo .env}
+      MORPHUS_DOMAIN: ${MORPHUS_DOMAIN:?Defina MORPHUS_DOMAIN no arquivo .env}
+      KALUPA_DOMAIN: ${KALUPA_DOMAIN:?Defina KALUPA_DOMAIN no arquivo .env}
     volumes:
       - ./mpx-reverse-proxy/Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
@@ -26,8 +25,7 @@ services:
       - frontend
       - n8n
 
-  # ─── CORE BUSINESS (Morphus App & API) ───
-  frontend:
+  mpx-frontend:
     build:
       context: ./mpx-morphus/mpx-frontend
       dockerfile: Dockerfile
@@ -38,11 +36,11 @@ services:
     depends_on:
       - api
 
-  api:
+  mpx-backend:
     build:
       context: ./mpx-morphus/mpx-backend
       dockerfile: Dockerfile
-    container_name: mpx-api
+    container_name: mpx-backend
     restart: unless-stopped
     depends_on:
       db:
@@ -53,9 +51,9 @@ services:
       ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};
       POSTGRES_DB_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no arquivo .env}
 
-  db:
+  mpx-postgres:
     image: postgres:18-alpine
-    container_name: mpx-db-postgres
+    container_name: mpx-postgres
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER no arquivo .env}
@@ -71,10 +69,9 @@ services:
       timeout: 5s
       retries: 5
 
-  # ─── MPX KALUPA (Sua Central de IA Automática) ───
-  n8n_db:
+  mpx-kalupa-db:
     image: postgres:18-alpine
-    container_name: mpx-kalupa-postgres
+    container_name: mpx-kalupa-db
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${N8N_DB_USER:-kalupa_admin}
@@ -88,9 +85,9 @@ services:
     volumes:
       - n8n_postgres_data:/var/lib/postgresql
 
-  n8n:
+  mpx-kalupa:
     image: docker.io/n8nio/n8n:latest
-    container_name: mpx-kalupa-n8n
+    container_name: mpx-kalupa
     restart: unless-stopped
     depends_on:
       n8n_db:
@@ -103,11 +100,11 @@ services:
       - DB_POSTGRESDB_USER=${N8N_DB_USER:-kalupa_admin}
       - DB_POSTGRESDB_PASSWORD=${N8N_DB_PASSWORD:-MudarSenhaN8n123!}
       - N8N_RESTRICT_FILE_ACCESS_TO=/files
-      - N8N_HOST=${N8N_DOMAIN:?Defina N8N_DOMAIN no arquivo .env}
+      - N8N_HOST=${KALUPA_PUBLIC_DOMAIN:?Defina KALUPA_PUBLIC_DOMAIN no arquivo .env}
       - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - N8N_EDITOR_BASE_URL=https://${N8N_DOMAIN}/
-      - N8N_WEBHOOK_URL=https://${N8N_DOMAIN}/
+      - N8N_EDITOR_BASE_URL=https://${KALUPA_DOMAIN}/
+      - N8N_WEBHOOK_URL=https://${KALUPA_DOMAIN}/
       - NODE_ENV=production
       - GENERIC_TIMEZONE=America/Sao_Paulo
     volumes:

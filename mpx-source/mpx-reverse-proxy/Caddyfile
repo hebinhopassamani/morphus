@@ -1,10 +1,9 @@
 {
 	email hebinhopassamani@gmail.com
-  auto_https off
 }
 
 # Rota do ecossistema principal Morphus
-{$DOMAIN} {
+{$MORPHUS_DOMAIN} {
 	encode zstd gzip
 
 	# Repassa chamadas de API para o container da API .NET
@@ -19,7 +18,7 @@
 }
 
 # Rota camuflada para a central de automação com Inteligência Artificial
-{$N8N_DOMAIN} {
+{$KALUPA_DOMAIN} {
 	encode zstd gzip
 
 	reverse_proxy n8n:5678
