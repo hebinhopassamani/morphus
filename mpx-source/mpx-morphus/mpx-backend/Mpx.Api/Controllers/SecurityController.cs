@@ -49,13 +49,41 @@ public class SecurityController(SecurityHandler securityHandler) : ControllerBas
   {
     try
     {
-      var session = await securityHandler.CreateAccountAndLoginAsync(request);
+      var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.me";
+      var session = await securityHandler.CreateAccountAndLoginAsync(request, origin);
       return Ok(session);
     }
     catch (InvalidOperationException ex)
     {
       return BadRequest(new { message = ex.Message });
     }
+  }
+
+  [AllowAnonymous]
+  [HttpPost("confirm-email")]
+  public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailRequest request)
+  {
+    var success = await securityHandler.ConfirmEmailAsync(request);
+    if (!success)
+      return BadRequest(new { message = "Link de confirmação inválido ou expirado." });
+
+    return Ok(new { message = "E-mail confirmado com sucesso!" });
+  }
+
+  [Authorize]
+  [HttpPost("onboarding/resend-confirmation")]
+  public async Task<IActionResult> ResendConfirmationEmail()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.me";
+    var sent = await securityHandler.ResendConfirmationEmailAsync(userId, origin);
+    if (!sent)
+      return BadRequest(new { message = "Não foi possível reenviar o e-mail de confirmação." });
+
+    return Ok(new { message = "E-mail de confirmação reenviado com sucesso." });
   }
 
   [AllowAnonymous]

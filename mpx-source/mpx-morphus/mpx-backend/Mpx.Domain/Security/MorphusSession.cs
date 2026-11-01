@@ -60,6 +60,7 @@ public class OnboardingStateResponse
   public Guid UserId { get; set; }
   public string? UserName { get; set; }
   public string? UserEmail { get; set; }
+  public bool EmailConfirmed { get; set; }
   public bool OnboardingCompleted { get; set; }
   public Guid? CorporationId { get; set; }
   public string? CorporationName { get; set; }
@@ -67,6 +68,12 @@ public class OnboardingStateResponse
   public string? WorkspaceName { get; set; }
   public List<MorphusApplication> AvailableApplications { get; set; } = [];
   public List<Guid> SelectedApplicationIds { get; set; } = [];
+}
+
+public class ConfirmEmailRequest
+{
+  public required string Email { get; set; }
+  public required string Token { get; set; }
 }
 
 public class OnboardingCorporationStepRequest

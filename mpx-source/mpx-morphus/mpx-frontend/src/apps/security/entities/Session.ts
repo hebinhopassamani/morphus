@@ -72,6 +72,7 @@ export interface OnboardingStateResponse {
   userId: string;
   userName?: string | null;
   userEmail?: string | null;
+  emailConfirmed: boolean;
   onboardingCompleted: boolean;
   corporationId?: string | null;
   corporationName?: string | null;
@@ -79,6 +80,11 @@ export interface OnboardingStateResponse {
   workspaceName?: string | null;
   availableApplications: OnboardingApplicationItem[];
   selectedApplicationIds: string[];
+}
+
+export interface ConfirmEmailRequest {
+  email: string;
+  token: string;
 }
 
 export interface OnboardingCorporationStepRequest {

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using MimeKit;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -19,7 +19,7 @@ public class EmailHandler
   private MimeMessage _emailMessage = new();
   private Email _email = new();
 
-  // 1. Construtor usando Primary Constructor oculto ou injeÃ§Ã£o clÃ¡ssica corrigida
+  // 1. Construtor usando Primary Constructor oculto ou injeção clássica corrigida
   public EmailHandler(IConfiguration configuration,
                       IUnitOfWork unitOfWork,
                       IEmailRepository emailRepository)
@@ -28,7 +28,7 @@ public class EmailHandler
     _unitOfWork = unitOfWork;
     _emailRepository = emailRepository;
 
-    // Inicializa com dados vÃ¡lidos para satisfazer os membros 'required'
+    // Inicializa com dados válidos para satisfazer os membros 'required'
     _email = new Email
     {
       Subject = "Mensagem Sem Assunto",
@@ -43,7 +43,7 @@ public class EmailHandler
 
     foreach (var recurso in recursosEmbutidos)
     {
-      System.Console.WriteLine($"ðŸ‘‰ Recurso encontrado: {recurso}");
+      System.Console.WriteLine($"👉 Recurso encontrado: {recurso}");
     }
 
     MailFrom(_senderEmail, _senderName);
@@ -172,19 +172,19 @@ public class EmailHandler
       fileName += ".html";
     }
 
-    // Path.Combine descobre de forma inteligente onde a API estÃ¡ rodando
-    // e busca a pasta 'EmailTemplates' que foi copiada para lÃ¡ automaticamente
+    // Path.Combine descobre de forma inteligente onde a API está rodando
+    // e busca a pasta 'EmailTemplates' que foi copiada para lá automaticamente
     var caminhoBase = System.AppDomain.CurrentDomain.BaseDirectory;
     var caminhoArquivo = Path.Combine(caminhoBase, "EmailTemplates", fileName);
 
     if (!File.Exists(caminhoArquivo))
     {
       throw new FileNotFoundException(
-          $"O template de e-mail '{fileName}' nÃ£o foi encontrado fisicamente. " +
-          $"Verifique se ele existe na pasta 'EmailTemplates' e se a propriedade CopyToOutputDirectory estÃ¡ ativa.");
+          $"O template de e-mail '{fileName}' não foi encontrado fisicamente. " +
+          $"Verifique se ele existe na pasta 'EmailTemplates' e se a propriedade CopyToOutputDirectory está ativa.");
     }
 
-    // LÃª o conteÃºdo do arquivo texto puro
+    // Lê o conteúdo do arquivo texto puro
     var contentFile = File.ReadAllText(caminhoArquivo);
 
     SetHtmlBody(contentFile);
@@ -198,14 +198,14 @@ public class EmailHandler
     // O '?? ""' garante que se o corpo estiver nulo por algum motivo, ele vire uma string vazia antes do Replace
     var corpoHtmlAtual = _email.HtmlBody ?? "";
 
-    // Executa a substituiÃ§Ã£o da sua variÃ¡vel (ex: "{{Nome}}")
+    // Executa a substituição da sua variável (ex: "{{Nome}}")
     _email.HtmlBody = corpoHtmlAtual.Replace(varName, value ?? "");
 
     // Atualiza o corpo da mensagem real do MailKit com o novo texto modificado
     var bodyBuilder = new BodyBuilder { HtmlBody = _email.HtmlBody };
     _emailMessage.Body = bodyBuilder.ToMessageBody();
 
-    return this; // MantÃ©m a sua Interface Fluente impecÃ¡vel
+    return this; // Mantém a sua Interface Fluente impecável
   }
 
 
@@ -213,12 +213,14 @@ public class EmailHandler
   {
     try
     {
-      // Salva o registro no banco antes de enviar (Outbox Pattern)
-      await _emailRepository.AddAsync(_email);
-      await _unitOfWork.SaveChangesAsync();
+      var hasCorporation = _email.CorporationId != Guid.Empty;
 
-      // Abre a transaÃ§Ã£o atÃ´mica do nosso Unit of Work amarrado ao SSH
-      using var transaction = await _unitOfWork.BeginTransactionAsync();
+      if (hasCorporation)
+      {
+        // Salva o registro no banco antes de enviar (Outbox Pattern)
+        await _emailRepository.AddAsync(_email);
+        await _unitOfWork.SaveChangesAsync();
+      }
 
       using var smtp = new SmtpClient
       {
@@ -235,8 +237,12 @@ public class EmailHandler
       await smtp.DisconnectAsync(true);
 
       _email.MailSent = true;
-      _emailRepository.Update(_email);
-      await transaction.Commit();
+
+      if (hasCorporation)
+      {
+        _emailRepository.Update(_email);
+        await _unitOfWork.SaveChangesAsync();
+      }
 
       return _email;
     }
@@ -256,7 +262,7 @@ public class EmailHandler
     else
       SetHtmlBody(email.TextBody);
 
-    // Corrigido os loops para usarem os nomes certos das propriedades e coleÃ§Ãµes virtuais
+    // Corrigido os loops para usarem os nomes certos das propriedades e coleções virtuais
     foreach (var mailTo in email.EmailTo)
     {
       if (string.IsNullOrEmpty(mailTo.Mail)) continue;

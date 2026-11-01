@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from '@core/auth';
 import { SecurityLayout } from '@security/layout/layout.component';
+import { ConfirmEmailComponent } from '@security/pages/confirm-email/confirm-email.component';
 import { ForgotPasswordComponent } from '@security/pages/forgot-password/forgot-password.component';
 import { OnboardingComponent } from '@security/pages/onboarding/onboarding.component';
 import { ResetPasswordComponent } from '@security/pages/reset-password/reset-password.component';
@@ -20,6 +21,7 @@ export const routes: Routes = [
       { path: 'signout', component: SignoutComponent },
       { path: 'forgot-password', component: ForgotPasswordComponent },
       { path: 'reset-password', component: ResetPasswordComponent },
+      { path: 'confirm-email', component: ConfirmEmailComponent },
       {
         path: 'onboarding',
         canActivate: [authGuard],

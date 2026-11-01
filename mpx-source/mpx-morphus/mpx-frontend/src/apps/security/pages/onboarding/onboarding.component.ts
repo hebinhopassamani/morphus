@@ -1,4 +1,4 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardFooter } from '@angular/material/card';
@@ -27,18 +27,24 @@ import { OnboardingApplicationItem } from '@security/entities/Session';
   ],
   standalone: true,
 })
-export class OnboardingComponent implements OnInit {
+export class OnboardingComponent implements OnInit, OnDestroy {
   protected readonly auth = inject(Auth);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 
   protected readonly isLoadingState = signal(true);
+  protected readonly emailConfirmed = signal(true);
+  protected readonly userEmail = signal<string>('');
+  protected readonly isResendingEmail = signal(false);
+  protected readonly resendSuccessMessage = signal<string | null>(null);
   protected readonly currentStep = signal<1 | 2 | 3>(1);
 
   protected readonly corporationId = signal<string | null>(null);
   protected readonly workspaceId = signal<string | null>(null);
   protected readonly availableApplications = signal<OnboardingApplicationItem[]>([]);
   protected readonly selectedApplicationIds = signal<string[]>([]);
+
+  private emailPollTimer: ReturnType<typeof setInterval> | null = null;
 
   protected readonly optionalApplications = computed(() =>
     this.availableApplications().filter((a) => !a.system),
@@ -72,8 +78,18 @@ export class OnboardingComponent implements OnInit {
     if (currentUser?.name) {
       this.step1Form.patchValue({ userName: currentUser.name });
     }
+    if (currentUser?.email) {
+      this.userEmail.set(currentUser.email);
+    }
+    if (currentUser?.emailConfirmed !== undefined) {
+      this.emailConfirmed.set(currentUser.emailConfirmed);
+    }
 
     this.loadSavedState();
+  }
+
+  ngOnDestroy(): void {
+    this.stopEmailPolling();
   }
 
   private loadSavedState(): void {
@@ -82,8 +98,22 @@ export class OnboardingComponent implements OnInit {
     this.auth.getOnboardingState().subscribe({
       next: (state) => {
         if (state.onboardingCompleted) {
+          this.stopEmailPolling();
           this.router.navigateByUrl('/admin');
           return;
+        }
+
+        if (state.userEmail) {
+          this.userEmail.set(state.userEmail);
+        }
+
+        this.emailConfirmed.set(state.emailConfirmed);
+
+        if (!state.emailConfirmed) {
+          this.startEmailPolling();
+        } else {
+          this.stopEmailPolling();
+          this.auth.markEmailConfirmed();
         }
 
         if (state.userName) {
@@ -116,6 +146,50 @@ export class OnboardingComponent implements OnInit {
       },
       error: () => {
         this.isLoadingState.set(false);
+      },
+    });
+  }
+
+  private startEmailPolling(): void {
+    if (this.emailPollTimer) {
+      return;
+    }
+
+    this.emailPollTimer = setInterval(() => {
+      this.auth.getOnboardingState().subscribe({
+        next: (state) => {
+          if (state.emailConfirmed) {
+            this.stopEmailPolling();
+            this.emailConfirmed.set(true);
+            this.auth.markEmailConfirmed();
+          }
+        },
+      });
+    }, 2500);
+  }
+
+  private stopEmailPolling(): void {
+    if (this.emailPollTimer) {
+      clearInterval(this.emailPollTimer);
+      this.emailPollTimer = null;
+    }
+  }
+
+  protected onResendConfirmationEmail(): void {
+    if (this.isResendingEmail()) {
+      return;
+    }
+
+    this.isResendingEmail.set(true);
+    this.resendSuccessMessage.set(null);
+
+    this.auth.resendConfirmationEmail().subscribe({
+      next: () => {
+        this.isResendingEmail.set(false);
+        this.resendSuccessMessage.set('Novo link enviado! Verifique sua caixa de entrada e spam.');
+      },
+      error: () => {
+        this.isResendingEmail.set(false);
       },
     });
   }
@@ -175,6 +249,9 @@ export class OnboardingComponent implements OnInit {
   }
 
   protected goToStep(step: 1 | 2 | 3): void {
+    if (!this.emailConfirmed()) {
+      return;
+    }
     if (step === 2 && !this.corporationId()) {
       return;
     }

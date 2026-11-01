@@ -44,26 +44,39 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
 
   public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
   {
-    var currentCorporationId = tenantProvider.GetCorporationId();
+    var addedTenantEntries = ChangeTracker.Entries<IMorphusTenant>()
+        .Where(e => e.State == EntityState.Added && e.Entity.CorporationId == Guid.Empty)
+        .ToList();
 
-    if (currentCorporationId != Guid.Empty)
+    if (addedTenantEntries.Count > 0)
     {
-      var addedTenantEntries = ChangeTracker.Entries<IMorphusTenant>()
-          .Where(e => e.State == EntityState.Added && e.Entity.CorporationId == Guid.Empty)
-          .ToList();
+      var currentCorporationId = tenantProvider.GetCorporationId();
 
       foreach (var entry in addedTenantEntries)
       {
         entry.Entity.CorporationId = currentCorporationId;
       }
+    }
 
-      var addedUserEntries = ChangeTracker.Entries<User>()
-          .Where(e => e.State == EntityState.Added && (e.Entity.CorporationId is null || e.Entity.CorporationId == Guid.Empty))
-          .ToList();
+    var addedCompletedUserEntries = ChangeTracker.Entries<User>()
+        .Where(e => e.State == EntityState.Added &&
+                    e.Entity.OnboardingCompleted &&
+                    (e.Entity.CorporationId is null || e.Entity.CorporationId == Guid.Empty))
+        .ToList();
 
-      foreach (var entry in addedUserEntries)
+    if (addedCompletedUserEntries.Count > 0)
+    {
+      try
       {
-        entry.Entity.CorporationId = currentCorporationId;
+        var currentCorporationId = tenantProvider.GetCorporationId();
+        foreach (var entry in addedCompletedUserEntries)
+        {
+          entry.Entity.CorporationId = currentCorporationId;
+        }
+      }
+      catch (UnauthorizedAccessException)
+      {
+        // Ignora caso não haja sessão com corporação ativa no contexto
       }
     }
 

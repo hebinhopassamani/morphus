@@ -1,0 +1,15 @@
+@keyframes mpxTopProgressSlide {
+  0% {
+    transform: translateX(-120%) scaleX(0.6);
+  }
+  50% {
+    transform: translateX(100%) scaleX(1.1);
+  }
+  100% {
+    transform: translateX(330%) scaleX(0.6);
+  }
+}
+
+.mpx-top-progress-bar {
+  animation: mpxTopProgressSlide 1.25s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}

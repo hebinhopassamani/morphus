@@ -6,6 +6,7 @@ import { catchError, finalize, Observable, tap, throwError } from 'rxjs';
 import { LocalStorage } from '@/apps/core/local-storage';
 import { environment } from '@/environments/environment';
 import {
+  ConfirmEmailRequest,
   CreateAccountRequest,
   ForgotPasswordRequest,
   GoogleLoginRequest,
@@ -200,6 +201,40 @@ export class Auth {
 
   getOnboardingState(): Observable<OnboardingStateResponse> {
     return this.http.get<OnboardingStateResponse>(`${this.apiUrl}/onboarding/state`);
+  }
+
+  confirmEmail(request: ConfirmEmailRequest): Observable<{ message: string }> {
+    this.loadingState.set(true);
+    this.errorState.set(null);
+
+    return this.http.post<{ message: string }>(`${this.apiUrl}/confirm-email`, request).pipe(
+      tap(() => this.markEmailConfirmed()),
+      catchError((err: HttpErrorResponse) => {
+        const message = err.error?.message || 'Link de confirmação inválido ou expirado.';
+        this.errorState.set({ message });
+        return throwError(() => err);
+      }),
+      finalize(() => this.loadingState.set(false)),
+    );
+  }
+
+  resendConfirmationEmail(): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/onboarding/resend-confirmation`, {});
+  }
+
+  markEmailConfirmed(): void {
+    const current = this.sessionState();
+    if (!current?.user || current.user.emailConfirmed) {
+      return;
+    }
+
+    this.setSession({
+      ...current,
+      user: {
+        ...current.user,
+        emailConfirmed: true,
+      },
+    });
   }
 
   saveOnboardingCorporationStep(request: OnboardingCorporationStepRequest): Observable<MorphusSession> {

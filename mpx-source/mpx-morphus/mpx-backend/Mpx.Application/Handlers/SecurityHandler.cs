@@ -265,7 +265,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> CreateAccountAndLoginAsync(CreateAccountRequest request)
+  public async Task<MorphusSession?> CreateAccountAndLoginAsync(CreateAccountRequest request, string? frontendBaseUrl = null)
   {
     if (await userRepository.ExistsEmailAsync(request.AdminEmail))
     {
@@ -273,13 +273,17 @@ public class SecurityHandler(
     }
 
     var cleanEmail = request.AdminEmail.Trim().ToLowerInvariant();
+    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.me" : frontendBaseUrl.TrimEnd('/');
 
-    // Fluxo Novo: Cria apenas o User (com OnboardingCompleted = false) para configurar Matriz, Workspace e Apps na tela de Onboarding
+    // Fluxo Novo: Cria apenas o User (com OnboardingCompleted = false e EmailConfirmed = false)
+    // para validar o e-mail em tempo real e configurar Matriz, Workspace e Apps na tela de Onboarding
     if (string.IsNullOrWhiteSpace(request.CorporationName))
     {
       var initialName = string.IsNullOrWhiteSpace(request.AdminName)
           ? cleanEmail.Split('@')[0]
           : request.AdminName.Trim();
+
+      var confirmToken = MorphusSecurity.GenerateSecureToken();
 
       var newUser = new User
       {
@@ -288,9 +292,10 @@ public class SecurityHandler(
         Email = cleanEmail,
         PasswordHash = MorphusSecurity.HashPassword(request.AdminPassword),
         PhoneNumber = request.PhoneNumber,
+        SecurityStamp = confirmToken,
         Inactive = false,
         System = true,
-        EmailConfirmed = true,
+        EmailConfirmed = false,
         TermsConfirmed = true,
         OnboardingCompleted = false,
         CorporationId = null,
@@ -299,6 +304,26 @@ public class SecurityHandler(
 
       await userRepository.AddAsync(newUser);
       await unitOfWork.SaveChangesAsync();
+
+      try
+      {
+        var encodedEmail = Uri.EscapeDataString(cleanEmail);
+        var encodedToken = Uri.EscapeDataString(confirmToken);
+        var confirmLink = $"{baseUrl}/security/confirm-email?email={encodedEmail}&token={encodedToken}";
+
+        await emailHandler
+            .NewEmail()
+            .Subject("Confirme seu e-mail - Morphus")
+            .LoadHtmlFile("confirm-email")
+            .SetVariable("{{Nome}}", initialName)
+            .SetVariable("{{LinkConfirmacao}}", confirmLink)
+            .MailTo(cleanEmail, initialName)
+            .SendEmailAsync();
+      }
+      catch
+      {
+        // Não impede o login caso o servidor SMTP externo esteja temporariamente indisponível
+      }
 
       return await LoginAsync(new LoginRequest
       {
@@ -359,6 +384,7 @@ public class SecurityHandler(
       UserId = user.Id,
       UserName = user.Name,
       UserEmail = user.Email,
+      EmailConfirmed = user.EmailConfirmed,
       OnboardingCompleted = user.OnboardingCompleted
     };
 
@@ -737,6 +763,64 @@ public class SecurityHandler(
     return true;
   }
 
+  public async Task<bool> ConfirmEmailAsync(ConfirmEmailRequest request)
+  {
+    if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Token))
+      return false;
+
+    var user = await userRepository.GetByLoginAsync(request.Email.Trim());
+    if (user is null)
+      return false;
+
+    if (user.EmailConfirmed)
+      return true;
+
+    if (string.IsNullOrWhiteSpace(user.SecurityStamp))
+      return false;
+
+    var expectedBytes = Encoding.UTF8.GetBytes(user.SecurityStamp);
+    var providedBytes = Encoding.UTF8.GetBytes(request.Token);
+
+    if (!CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes))
+      return false;
+
+    user.EmailConfirmed = true;
+    user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+
+    userRepository.Update(user);
+    await unitOfWork.SaveChangesAsync();
+    return true;
+  }
+
+  public async Task<bool> ResendConfirmationEmailAsync(Guid userId, string frontendBaseUrl)
+  {
+    var user = await userRepository.GetByIdWithAccessAsync(userId);
+    if (user is null || string.IsNullOrWhiteSpace(user.Email) || user.EmailConfirmed)
+      return false;
+
+    var confirmToken = MorphusSecurity.GenerateSecureToken();
+    user.SecurityStamp = confirmToken;
+
+    userRepository.Update(user);
+    await unitOfWork.SaveChangesAsync();
+
+    var encodedEmail = Uri.EscapeDataString(user.Email);
+    var encodedToken = Uri.EscapeDataString(confirmToken);
+    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.me" : frontendBaseUrl.TrimEnd('/');
+    var confirmLink = $"{baseUrl}/security/confirm-email?email={encodedEmail}&token={encodedToken}";
+
+    await emailHandler
+        .NewEmail(user.CorporationId)
+        .Subject("Confirme seu e-mail - Morphus")
+        .LoadHtmlFile("confirm-email")
+        .SetVariable("{{Nome}}", user.Name ?? user.Email)
+        .SetVariable("{{LinkConfirmacao}}", confirmLink)
+        .MailTo(user.Email, user.Name)
+        .SendEmailAsync();
+
+    return true;
+  }
+
   public async Task<bool> RevokeAsync(Guid userId)
   {
     var user = await userRepository.GetByIdWithAccessAsync(userId);
@@ -771,7 +855,10 @@ public class SecurityHandler(
     var newRefreshToken = MorphusSecurity.GenerateSecureToken();
     user.RefreshToken = newRefreshToken;
     user.RefreshTokenExpiration = refreshExpiresUtc;
-    user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+    if (user.EmailConfirmed || string.IsNullOrWhiteSpace(user.SecurityStamp))
+    {
+      user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+    }
 
     return new MorphusSession
     {
