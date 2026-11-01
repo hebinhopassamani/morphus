@@ -210,21 +210,26 @@
               }
             </mat-form-field>
 
-            <mat-form-field class="w-full">
-              <mat-label>Nome da Matriz (Corporação)</mat-label>
-              <input
-                type="text"
-                autocomplete="organization"
-                placeholder="Ex: Grupo Morphus, Passamani Holding..."
-                formControlName="corporationName"
-                matInput
-              />
-              @if (step1Form.controls.corporationName.hasError('required')) {
-                <mat-error>Informe o nome da sua Matriz.</mat-error>
-              } @else if (step1Form.controls.corporationName.hasError('minlength')) {
-                <mat-error>O nome da Matriz deve ter pelo menos 2 caracteres.</mat-error>
-              }
-            </mat-form-field>
+            <div class="flex flex-col">
+              <mat-form-field class="w-full">
+                <mat-label>Informe o nome da matriz da sua corporação</mat-label>
+                <input
+                  type="text"
+                  autocomplete="organization"
+                  placeholder="Ex: Grupo Morphus, Passamani Holding..."
+                  formControlName="corporationName"
+                  matInput
+                />
+                @if (step1Form.controls.corporationName.hasError('required')) {
+                  <mat-error>Informe o nome da matriz da sua corporação.</mat-error>
+                } @else if (step1Form.controls.corporationName.hasError('minlength')) {
+                  <mat-error>O nome da matriz deve ter pelo menos 2 caracteres.</mat-error>
+                }
+              </mat-form-field>
+              <span class="-mt-1 px-1 text-[11px] leading-snug text-neutral-a11">
+                (O primeiro cadastro de corporação sempre será sua matriz; caso haja novas corporações, elas serão filiais dessa matriz)
+              </span>
+            </div>
 
             <div class="mt-3 flex items-center justify-between gap-x-3">
               <button
