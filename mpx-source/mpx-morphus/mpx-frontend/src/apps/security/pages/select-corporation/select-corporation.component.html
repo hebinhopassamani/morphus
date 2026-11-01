@@ -1,0 +1,172 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col items-center justify-center py-6">
+  <!-- Header -->
+  <div class="mb-8 flex flex-col items-center text-center">
+    <img src="/logo-vertical-sm.png" alt="Morphus" class="h-16 w-auto object-contain" />
+    <h1 class="mt-4 text-3xl font-semibold tracking-tighter text-neutral-12">
+      Selecione a corporação
+    </h1>
+    <p class="mt-1.5 max-w-md text-neutral-a11 sm:text-base">
+      Escolha o ambiente corporativo em que deseja iniciar sua sessão de trabalho hoje.
+    </p>
+  </div>
+
+  @if (auth.error(); as error) {
+    <div class="mpx-body-small mb-6 w-full max-w-md rounded-xl bg-error-a3 p-3 text-center text-error-a11">
+      {{ error.message }}
+    </div>
+  }
+
+  <!-- Grid de Cards com visual vivo padrão Fuse + Menu de Ações -->
+  <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    @for (corp of corporations(); track corp.id; let idx = $index) {
+      @let accent = accentFor(idx);
+      @let isCurrent = activeCorporationId() === corp.id;
+      @let isSelecting = selectingId() === corp.id;
+
+      <mat-card
+        appearance="filled"
+        class="group relative flex flex-col transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+        [class.ring-2]="isCurrent"
+        [class.ring-primary-8]="isCurrent"
+      >
+        <mat-card-content
+          class="relative flex flex-auto cursor-pointer flex-col gap-y-4 overflow-clip p-5"
+          role="button"
+          tabindex="0"
+          (click)="selectCorporation(corp)"
+          (keydown.enter)="selectCorporation(corp)"
+        >
+          <!-- Faixa decorativa superior em gradiente suave -->
+          <div
+            class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+            [class]="accent.bannerClass"
+          ></div>
+
+          <!-- Topo do Card: Ícone colorido vivo + Badges de Status -->
+          <div class="relative flex items-start justify-between gap-x-3">
+            <div
+              class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs transition-transform duration-200 group-hover:scale-105"
+              [class]="accent.iconBoxClass"
+            >
+              <mat-icon [svgIcon]="corp.icon || 'building-2'" class="size-6" />
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-1.5">
+              @if (isCurrent) {
+                <span class="inline-flex items-center gap-x-1 rounded-lg bg-jade-a3 px-2 py-0.5 text-xs font-medium text-jade-a11">
+                  <span class="size-1.5 rounded-full bg-jade-9"></span>
+                  Ativa
+                </span>
+              }
+
+              <span
+                class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium"
+                [class]="corp.parentCorporationId ? 'bg-neutral-a4 text-neutral-a11' : accent.badgeClass"
+              >
+                {{ corp.parentCorporationId ? 'Filial' : 'Matriz' }}
+              </span>
+
+              @if (corp.isOwner) {
+                <span
+                  class="inline-flex items-center gap-x-1 rounded-lg bg-amber-a3 px-2 py-0.5 text-xs font-medium text-amber-a11"
+                  matTooltip="Proprietário da corporação"
+                >
+                  <mat-icon svgIcon="crown" class="size-3 text-amber-a11" />
+                  Owner
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Nome da Corporação + Estrela de Favorito + Descrição -->
+          <div class="relative mt-1 flex flex-col gap-y-1.5">
+            <div class="flex items-center gap-x-1.5">
+              <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
+                {{ corp.name }}
+              </div>
+              @if (isStarred(corp.id)) {
+                <mat-icon
+                  class="size-4 shrink-0 text-amber-a10"
+                  svgIcon="star"
+                />
+              }
+            </div>
+
+            <p class="line-clamp-2 min-h-10 text-sm text-neutral-a11">
+              {{ corp.description || 'Ambiente corporativo multi-tenant configurado e pronto para operação.' }}
+            </p>
+          </div>
+
+          <!-- Indicador visual de acesso -->
+          <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
+            <span class="inline-flex items-center gap-x-1.5">
+              <mat-icon svgIcon="shield-check" class="size-3.5 text-jade-a11" />
+              Acesso autorizado
+            </span>
+
+            <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11 transition-transform duration-200 group-hover:translate-x-0.5">
+              {{ isSelecting ? 'Entrando...' : 'Entrar' }}
+              <mat-icon svgIcon="arrow-right" class="size-3.5" />
+            </span>
+          </div>
+        </mat-card-content>
+
+        <!-- Rodapé externo do Card Filled (Idêntico ao Files do Fuse com o botão de 3 pontinhos!) -->
+        <mat-card-footer class="flex items-center justify-between px-3 py-1.5">
+          <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11 tabular-nums">
+            {{ corp.parentCorporationId ? 'Unidade vinculada' : 'Sede principal' }} · Morphus Cloud
+          </div>
+
+          <button
+            type="button"
+            matIconButton
+            class="tiny shrink-0"
+            [matMenuTriggerFor]="corpMenu"
+            [matMenuTriggerData]="{ corp: corp }"
+            (click)="$event.stopPropagation()"
+            matTooltip="Opções da corporação"
+          >
+            <mat-icon svgIcon="ellipsis-vertical" />
+          </button>
+        </mat-card-footer>
+      </mat-card>
+    }
+  </div>
+
+  <!-- Menu de Contexto (Idêntico ao Files do Fuse) -->
+  <mat-menu xPosition="before" #corpMenu="matMenu">
+    <ng-template matMenuContent let-corp="corp">
+      <button mat-menu-item (click)="selectCorporation(corp)">
+        <mat-icon svgIcon="log-in" />
+        Acessar ambiente
+      </button>
+      <button mat-menu-item>
+        <mat-icon svgIcon="pencil" />
+        Rename
+      </button>
+      <button mat-menu-item (click)="toggleStar(corp)">
+        <mat-icon [svgIcon]="isStarred(corp.id) ? 'star-off' : 'star'" />
+        {{ isStarred(corp.id) ? 'Unstar' : 'Star' }}
+      </button>
+      <mat-divider />
+      <button mat-menu-item class="text-red-a11 hover:bg-red-a3">
+        <mat-icon class="text-red-a11" svgIcon="trash" />
+        Move to trash
+      </button>
+    </ng-template>
+  </mat-menu>
+
+  <!-- Botão limpo para voltar ao login -->
+  <div class="mt-8 flex items-center justify-center">
+    <button
+      type="button"
+      matButton
+      class="tertiary small"
+      [disabled]="auth.isLoading() || selectingId() !== null"
+      (click)="backToLogin()"
+    >
+      <mat-icon svgIcon="arrow-left" />
+      Voltar para o login com outra conta
+    </button>
+  </div>
+</div>

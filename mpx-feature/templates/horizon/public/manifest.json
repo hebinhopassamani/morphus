@@ -1,0 +1,6 @@
+{
+  "short_name": "Horizon",
+  "name": "Horizon - Angular Admin Template",
+  "start_url": ".",
+  "display": "standalone"
+}

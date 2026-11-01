@@ -1,0 +1,30 @@
+<aside buiSidebar class="w-auto flex-auto lg:-me-2">
+  <!-- Header (Padrão Fuse) -->
+  <div buiSidebarHeader class="flex flex-col gap-y-5 px-5.5 pb-4">
+    <div class="flex items-center justify-between">
+      <a class="inline-flex items-center gap-x-3 rounded-xl" routerLink="/admin">
+        <div class="flex size-9 items-center justify-center rounded-xl border bg-neutral-a3 p-1.5">
+          <img src="/logo-icon-sm.png" alt="Morphus logo" class="size-7 object-contain" />
+        </div>
+        <div class="flex flex-col gap-y-0.5">
+          <div class="text-2xl leading-none font-bold tracking-tighter uppercase">
+            MORPHUS
+          </div>
+          <div class="text-xs leading-none font-medium text-neutral-a10">
+            Do que você precisa hoje?
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Body com o componente reutilizável MpxMenuComponent -->
+  <div buiSidebarBody>
+    <mpx-menu
+      [source]="context.menus()"
+      [loading]="context.isLoadingMenus()"
+    />
+
+    <div buiSidebarSpacer></div>
+  </div>
+</aside>

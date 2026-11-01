@@ -1,0 +1,100 @@
+<mat-card
+  class="w-full max-w-md [--card-border-radius:var(--radius-2xl)] [--card-surface-padding:--spacing(5)] sm:[--card-surface-padding:--spacing(6)] [--form-field-gap-y:0.25rem]">
+  <mat-card-content class="flex flex-col items-center">
+    <img src="/logo-vertical-sm.png" alt="Morphus" class="h-12 w-auto object-contain" />
+    <div class="mpx-headline-small mt-2">Entrar na conta</div>
+    <p class="mpx-body-medium mt-0.5 text-center text-neutral-a11">Informe seu e-mail e senha para acessar o Morphus.</p>
+
+    @if (auth.error(); as error) {
+      <div class="mpx-body-small mt-3 w-full rounded-lg bg-error-a3 p-2.5 text-error-a11">
+        {{ error.message }}
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-3 flex w-full flex-col">
+      <div class="flex flex-col gap-y-1.5">
+        <mat-form-field class="w-full">
+          <mat-label>E-mail</mat-label>
+          <input type="email" autocomplete="username" formControlName="email" matInput />
+          @if (form.controls.email.hasError('required')) {
+            <mat-error>Informe seu endereço de e-mail.</mat-error>
+          } @else if (form.controls.email.hasError('email')) {
+            <mat-error>Informe um endereço de e-mail válido.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Senha</mat-label>
+          <input
+            [type]="hidePassword() ? 'password' : 'text'"
+            autocomplete="current-password"
+            formControlName="password"
+            matInput />
+          <button
+            type="button"
+            matIconButton
+            matSuffix
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="'Mostrar ou ocultar senha'">
+            <mat-icon [svgIcon]="hidePassword() ? 'eye' : 'eye-off'" />
+          </button>
+          @if (form.controls.password.hasError('required')) {
+            <mat-error>Informe sua senha.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <div class="mt-2 flex items-center justify-between gap-2">
+        <mat-checkbox formControlName="rememberMe">Lembrar-me</mat-checkbox>
+        <a
+          class="link text-primary-a11 decoration-primary-a11"
+          matButton
+          routerLink="/security/forgot-password">
+          Esqueceu sua senha?
+        </a>
+      </div>
+
+      <button
+        class="primary large mt-4 w-full"
+        matButton
+        type="submit"
+        [disabled]="auth.isLoading()">
+        <mat-icon svgIcon="log-in" />
+        {{ auth.isLoading() ? 'Entrando...' : 'Entrar' }}
+      </button>
+    </form>
+
+    <div class="mt-3.5 flex w-full items-center gap-x-4">
+      <mat-divider class="flex-auto" />
+      <div class="font-medium text-neutral-a11">ou</div>
+      <mat-divider class="flex-auto" />
+    </div>
+
+    <div class="mt-3.5 flex w-full items-center gap-x-4">
+      <button
+        type="button"
+        class="secondary large flex-auto"
+        matButton
+        [disabled]="auth.isLoading()"
+        (click)="onGoogleLogin()">
+        <svg class="me-2 size-5" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+        </svg>
+        Entrar com o Google
+      </button>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center justify-center gap-x-1 text-center text-neutral-a11">
+      <span>Não tem uma conta ainda?</span>
+      <a
+        class="link text-primary-a11 decoration-primary-a11"
+        matButton
+        routerLink="/security/signup">
+        Clique aqui e se cadastre
+      </a>
+    </div>
+  </mat-card-content>
+</mat-card>

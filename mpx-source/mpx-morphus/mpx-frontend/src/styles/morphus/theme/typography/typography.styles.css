@@ -1,0 +1,8 @@
+/* -------------------------------------------------------------------------- */
+/* Morphus Base Typography Styles                                             */
+/* As 15 classes utilitárias (label-*, body-*, title-*, headline-*, display-*)*/
+/* estão registradas como @utility em typography.utilities.css                */
+/* -------------------------------------------------------------------------- */
+#bui {
+  font-family: var(--mpx-font-family);
+}

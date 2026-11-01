@@ -1,0 +1,146 @@
+#bui {
+  /* ------------------------------------------------------------------------ */
+  /* Font Families & Base Scale                                               */
+  /* ------------------------------------------------------------------------ */
+  --mpx-font-family: 'Roboto', system-ui, sans-serif;
+  --mpx-font-display: 'Google Sans', 'Roboto', system-ui, sans-serif;
+  --mpx-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
+
+  --mpx-font-xSmall: 0.85rem;
+  --mpx-font-small: 1rem;
+  --mpx-font-medium: 1.125rem;
+  --mpx-font-large: 1.25rem;
+  --mpx-font-xLarge: 1.375rem;
+  --mpx-font-larger: 1.42rem;
+  --mpx-font-xLarger: 1.625rem;
+
+  /* ------------------------------------------------------------------------ */
+  /* Font Weights                                                             */
+  /* ------------------------------------------------------------------------ */
+  --mpx-font-light: 300;
+  --mpx-font-regular: 400;
+  --mpx-font-medium-weight: 500;
+  --mpx-font-semibold: 600;
+  --mpx-font-bold: 700;
+
+  /* ------------------------------------------------------------------------ */
+  /* 1. Label (small, medium, large)                                          */
+  /* ------------------------------------------------------------------------ */
+  --mpx-label-small: var(--mpx-font-regular) 0.688rem / 1rem var(--mpx-font-family);
+  --mpx-label-small-font: var(--mpx-font-family);
+  --mpx-label-small-weight: var(--mpx-font-regular);
+  --mpx-label-small-line-height: 1rem;
+  --mpx-label-small-tracking: 0.031rem;
+  --mpx-label-small-size: 0.688rem;
+
+  --mpx-label-medium: var(--mpx-font-semibold) 0.75rem / 1rem var(--mpx-font-family);
+  --mpx-label-medium-font: var(--mpx-font-family);
+  --mpx-label-medium-weight: var(--mpx-font-semibold);
+  --mpx-label-medium-line-height: 1rem;
+  --mpx-label-medium-tracking: 0.031rem;
+  --mpx-label-medium-size: 0.75rem;
+
+  --mpx-label-large: var(--mpx-font-bold) 0.8125rem / 1.25rem var(--mpx-font-family);
+  --mpx-label-large-font: var(--mpx-font-family);
+  --mpx-label-large-weight: var(--mpx-font-bold);
+  --mpx-label-large-line-height: 1.25rem;
+  --mpx-label-large-tracking: 0.006rem;
+  --mpx-label-large-size: 0.8125rem;
+
+  /* ------------------------------------------------------------------------ */
+  /* 2. Body (small, medium, large)                                           */
+  /* ------------------------------------------------------------------------ */
+  --mpx-body-small: var(--mpx-font-regular) 0.75rem / 1rem var(--mpx-font-family);
+  --mpx-body-small-font: var(--mpx-font-family);
+  --mpx-body-small-weight: var(--mpx-font-regular);
+  --mpx-body-small-line-height: 1rem;
+  --mpx-body-small-tracking: 0.025rem;
+  --mpx-body-small-size: 0.75rem;
+
+  --mpx-body-medium: var(--mpx-font-regular) 0.875rem / 1.25rem var(--mpx-font-family);
+  --mpx-body-medium-font: var(--mpx-font-family);
+  --mpx-body-medium-weight: var(--mpx-font-regular);
+  --mpx-body-medium-line-height: 1.25rem;
+  --mpx-body-medium-tracking: 0.016rem;
+  --mpx-body-medium-size: 0.875rem;
+
+  --mpx-body-large: var(--mpx-font-regular) 1rem / 1.5rem var(--mpx-font-family);
+  --mpx-body-large-font: var(--mpx-font-family);
+  --mpx-body-large-weight: var(--mpx-font-regular);
+  --mpx-body-large-line-height: 1.5rem;
+  --mpx-body-large-tracking: 0.031rem;
+  --mpx-body-large-size: 1rem;
+
+  /* ------------------------------------------------------------------------ */
+  /* 3. Title (small, medium, large)                                          */
+  /* ------------------------------------------------------------------------ */
+  --mpx-title-small: var(--mpx-font-regular) 0.8125rem / 1.25rem var(--mpx-font-family);
+  --mpx-title-small-font: var(--mpx-font-family);
+  --mpx-title-small-weight: var(--mpx-font-regular);
+  --mpx-title-small-line-height: 1.25rem;
+  --mpx-title-small-tracking: 0.006rem;
+  --mpx-title-small-size: 0.8125rem;
+
+  --mpx-title-medium: var(--mpx-font-semibold) 1rem / 1.5rem var(--mpx-font-family);
+  --mpx-title-medium-font: var(--mpx-font-family);
+  --mpx-title-medium-weight: var(--mpx-font-semibold);
+  --mpx-title-medium-line-height: 1.5rem;
+  --mpx-title-medium-tracking: 0.009rem;
+  --mpx-title-medium-size: 1rem;
+
+  --mpx-title-large: var(--mpx-font-bold) 1.375rem / 1.75rem var(--mpx-font-family);
+  --mpx-title-large-font: var(--mpx-font-family);
+  --mpx-title-large-weight: var(--mpx-font-bold);
+  --mpx-title-large-line-height: 1.75rem;
+  --mpx-title-large-tracking: 0;
+  --mpx-title-large-size: 1.375rem;
+
+  /* ------------------------------------------------------------------------ */
+  /* 4. Headline (small, medium, large)                                       */
+  /* ------------------------------------------------------------------------ */
+  --mpx-headline-small: var(--mpx-font-regular) 1.5rem / 2rem var(--mpx-font-display);
+  --mpx-headline-small-font: var(--mpx-font-display);
+  --mpx-headline-small-weight: var(--mpx-font-regular);
+  --mpx-headline-small-line-height: 2rem;
+  --mpx-headline-small-tracking: 0;
+  --mpx-headline-small-size: 1.5rem;
+
+  --mpx-headline-medium: var(--mpx-font-medium-weight) 1.75rem / 2.25rem var(--mpx-font-display);
+  --mpx-headline-medium-font: var(--mpx-font-display);
+  --mpx-headline-medium-weight: var(--mpx-font-medium-weight);
+  --mpx-headline-medium-line-height: 2.25rem;
+  --mpx-headline-medium-tracking: 0;
+  --mpx-headline-medium-size: 1.75rem;
+
+  --mpx-headline-large: var(--mpx-font-bold) 2rem / 2.5rem var(--mpx-font-display);
+  --mpx-headline-large-font: var(--mpx-font-display);
+  --mpx-headline-large-weight: var(--mpx-font-bold);
+  --mpx-headline-large-line-height: 2.5rem;
+  --mpx-headline-large-tracking: 0;
+  --mpx-headline-large-size: 2rem;
+
+  /* ------------------------------------------------------------------------ */
+  /* 5. Display (small, medium, large)                                        */
+  /* ------------------------------------------------------------------------ */
+  --mpx-display-small: var(--mpx-font-regular) 2.25rem / 2.75rem var(--mpx-font-display);
+  --mpx-display-small-font: var(--mpx-font-display);
+  --mpx-display-small-weight: var(--mpx-font-regular);
+  --mpx-display-small-line-height: 2.75rem;
+  --mpx-display-small-tracking: 0;
+  --mpx-display-small-size: 2.25rem;
+
+  --mpx-display-medium: var(--mpx-font-medium-weight) 2.812rem / 3.25rem var(--mpx-font-display);
+  --mpx-display-medium-font: var(--mpx-font-display);
+  --mpx-display-medium-weight: var(--mpx-font-medium-weight);
+  --mpx-display-medium-line-height: 3.25rem;
+  --mpx-display-medium-tracking: 0;
+  --mpx-display-medium-size: 2.812rem;
+
+  --mpx-display-large: var(--mpx-font-bold) 3.562rem / 4rem var(--mpx-font-display);
+  --mpx-display-large-font: var(--mpx-font-display);
+  --mpx-display-large-weight: var(--mpx-font-bold);
+  --mpx-display-large-line-height: 4rem;
+  --mpx-display-large-tracking: -0.016rem;
+  --mpx-display-large-size: 3.562rem;
+}
+

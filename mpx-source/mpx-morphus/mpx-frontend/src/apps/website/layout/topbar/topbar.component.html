@@ -1,0 +1,9 @@
+<div class="sticky top-0 z-99 flex items-center gap-x-2 border-b bg-white py-3 ps-4 pe-5 dark:bg-neutral-2">
+  <a routerLink="/" class="flex items-center">
+    <img src="/logo-horizontal-sm.png" alt="Morphus" class="h-8 w-auto object-contain" />
+  </a>
+  <div class="flex-auto"></div>
+  <button matIconButton (click)="toggleScheme()">
+    <mat-icon [svgIcon]="isDark() ? 'sun' : 'moon'" />
+  </button>
+</div>

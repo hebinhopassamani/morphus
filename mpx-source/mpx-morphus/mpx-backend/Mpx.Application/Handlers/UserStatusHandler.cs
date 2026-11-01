@@ -1,0 +1,43 @@
+using mpx.Domain.Interfaces;
+using Mpx.Domain.Entities;
+using Mpx.Domain.Interfaces;
+
+namespace Mpx.Application.Handlers;
+
+public class UserStatusHandler(IUserStatusRepository userStatusRepository, IUnitOfWork unitOfWork)
+{
+  public Task<UserStatus?> GetByIdAsync(Guid id) => userStatusRepository.GetByIdAsync(id);
+
+  public Task<List<UserStatus>> GetListAsync() => userStatusRepository.GetListAsync();
+
+  public async Task<UserStatus> CreateAsync(UserStatus userStatus)
+  {
+    if (userStatus.Id == Guid.Empty)
+      userStatus.Id = Guid.NewGuid();
+
+    await userStatusRepository.AddAsync(userStatus);
+    await unitOfWork.SaveChangesAsync();
+    return userStatus;
+  }
+
+  public async Task<UserStatus> UpdateAsync(UserStatus userStatus)
+  {
+    userStatusRepository.Update(userStatus);
+    await unitOfWork.SaveChangesAsync();
+    return userStatus;
+  }
+
+  public async Task DeleteAsync(Guid id)
+  {
+    var existing = await userStatusRepository.GetByIdAsync(id);
+    if (existing is null)
+      return;
+
+    if (existing.System)
+      throw new InvalidOperationException("Não é permitido excluir um status padrão do sistema.");
+
+    userStatusRepository.Delete(existing);
+    await unitOfWork.SaveChangesAsync();
+  }
+}
+

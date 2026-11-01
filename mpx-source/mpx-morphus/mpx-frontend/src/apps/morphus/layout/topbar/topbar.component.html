@@ -1,0 +1,185 @@
+<div class="sticky top-0 z-99 flex items-center gap-x-1 border-b bg-white py-2.5 ps-4 pe-5 dark:bg-neutral-2">
+  <!-- Toggle da Sidebar -->
+  <button matIconButton (click)="menuToggle.emit()" matTooltip="Alternar menu lateral">
+    <mat-icon svgIcon="panel-left" />
+  </button>
+
+  <div class="mx-1.5 h-4 w-px bg-neutral-a5"></div>
+
+  <!-- Botões rápidos e compactos (Padrão Fuse) para Corporação, Workspace e Aplicação -->
+  <button
+    matIconButton
+    [matTooltip]="'Corporação: ' + (auth.corporation()?.name || 'Selecionar')"
+    [disabled]="auth.availableCorporations().length <= 1"
+    (click)="goToSelectCorporation()"
+  >
+    <mat-icon [svgIcon]="auth.corporation()?.icon || 'building-2'" />
+  </button>
+
+  <button
+    matIconButton
+    [matMenuTriggerFor]="workspaceMenu"
+    [matTooltip]="'Workspace: ' + (context.activeWorkspace()?.name || 'Morphus Workspace')"
+  >
+    <mat-icon [svgIcon]="context.activeWorkspace()?.icon || 'folder'" />
+  </button>
+
+  <button
+    matIconButton
+    [matMenuTriggerFor]="applicationMenu"
+    [matTooltip]="'Aplicação: ' + (context.activeApplication()?.name || 'Morphus')"
+  >
+    <mat-icon [svgIcon]="context.activeApplication()?.icon || 'layout-grid'" />
+  </button>
+
+  <div class="flex-auto"></div>
+
+  <!-- Quick Settings (Pincel do Fuse) -->
+  <mpx-quick-settings />
+
+  <!-- Botão do Avatar do Usuário no canto superior direito (Padrão Fuse compact) -->
+  <button
+    matButton
+    [matMenuTriggerFor]="userMenu"
+    class="tiny tertiary [--button-padding-x:0.25rem] [--button-padding-y:0.25rem]"
+  >
+    @if (auth.user()?.picture; as picture) {
+      <img
+        class="size-6 shrink-0 overflow-hidden rounded-md object-cover"
+        [src]="picture"
+        alt="User Avatar"
+      />
+    } @else {
+      <div
+        class="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary-a3 text-xs font-semibold text-primary-a11"
+      >
+        {{ userInitials() }}
+      </div>
+    }
+  </button>
+
+  <!-- Menus de Workspace e Aplicação -->
+  <mat-menu #workspaceMenu="matMenu">
+    @for (ws of context.workspaces(); track ws.id) {
+      <button mat-menu-item (click)="selectWorkspace(ws)">
+        <mat-pseudo-checkbox
+          appearance="minimal"
+          [state]="context.activeWorkspace()?.id === ws.id ? 'checked' : 'unchecked'"
+        />
+        <span class="ms-1">{{ ws.name }}</span>
+      </button>
+    }
+  </mat-menu>
+
+  <mat-menu #applicationMenu="matMenu">
+    @for (app of context.availableApplications(); track app.id) {
+      <button mat-menu-item (click)="selectApplication(app)">
+        <mat-pseudo-checkbox
+          appearance="minimal"
+          [state]="context.activeApplication()?.id === app.id ? 'checked' : 'unchecked'"
+        />
+        <span class="ms-1">{{ app.name }}</span>
+      </button>
+    }
+  </mat-menu>
+
+  <!-- User Menu (Original do Fuse) -->
+  <mat-menu
+    class="min-w-52"
+    xPosition="before"
+    #userMenu="matMenu"
+  >
+    <button mat-menu-item>
+      @if (auth.user()?.picture; as picture) {
+        <img
+          class="size-9 shrink-0 rounded-lg object-cover"
+          [src]="picture"
+          alt="User avatar"
+        />
+      } @else {
+        <div
+          class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-a4 mpx-title-small text-primary-a11"
+        >
+          {{ userInitials() }}
+        </div>
+      }
+      <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
+        <div class="truncate text-lg font-medium">
+          {{ auth.user()?.name || 'John Builder' }}
+        </div>
+        <div class="truncate text-sm text-neutral-a11">
+          {{ auth.user()?.email || 'john@example.com' }}
+        </div>
+      </div>
+    </button>
+
+    <mat-divider />
+
+    <button mat-menu-item>
+      <mat-icon svgIcon="sparkles" />
+      Upgrade to Pro
+    </button>
+
+    <mat-divider />
+
+    <a
+      mat-menu-item
+      routerLink="/admin/settings/profile"
+    >
+      <mat-icon svgIcon="circle-user" />
+      <span>Account</span>
+    </a>
+
+    <a
+      mat-menu-item
+      routerLink="/admin/settings/notifications"
+    >
+      <mat-icon svgIcon="bell" />
+      <span>Notifications</span>
+    </a>
+
+    <mat-divider />
+
+    <button
+      mat-menu-item
+      [matMenuTriggerFor]="schemeMenu"
+    >
+      <mat-icon svgIcon="sun-moon" />
+      <span>Color scheme</span>
+    </button>
+    <mat-menu #schemeMenu="matMenu">
+      @for (item of schemes; track item.value) {
+        <button
+          mat-menu-item
+          (click)="updateScheme(item.value)"
+        >
+          <mat-pseudo-checkbox
+            appearance="minimal"
+            [state]="
+              theming.scheme() === item.value ? 'checked' : 'unchecked'
+            "
+          />
+          <span class="ms-1">{{ item.label }}</span>
+        </button>
+      }
+    </mat-menu>
+
+    <a
+      mat-menu-item
+      routerLink="/admin/settings/preferences"
+    >
+      <mat-icon svgIcon="sliders-horizontal" />
+      <span>Preferences</span>
+    </a>
+
+    <mat-divider />
+
+    <button
+      mat-menu-item
+      (click)="auth.logout()"
+    >
+      <mat-icon svgIcon="log-out" />
+      <span>Sign out</span>
+    </button>
+  </mat-menu>
+</div>

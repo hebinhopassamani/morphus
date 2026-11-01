@@ -1,0 +1,24 @@
+:root {
+  --mps-sidebar-width: 15rem;
+  --mps-topbar-height: 4.5rem;
+}
+
+.security-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  height: 100vh;
+  width: var(--mps-sidebar-width);
+  background-color: rgb(154, 17, 182);
+}
+
+.security-topbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  align-items: center;
+  height: var(--mps-topbar-height);
+  width: 100%;
+  background-color: rgb(52, 165, 7);
+}

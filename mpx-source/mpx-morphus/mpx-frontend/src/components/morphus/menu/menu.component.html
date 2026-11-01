@@ -1,0 +1,85 @@
+<div buiSidebarSection>
+  <div buiSidebarSectionContent>
+    @if (items().length > 0) {
+      <ul buiSidebarMenu>
+        <ng-container
+          [ngTemplateOutlet]="navigationTemplate"
+          [ngTemplateOutletContext]="{ $implicit: items() }"
+        />
+      </ul>
+    } @else if (!loading()) {
+      <div class="px-2 py-3 mpx-body-small text-neutral-a10">
+        {{ emptyMessage() }}
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Template recursivo de navegação (Seções, Submenus retráteis e Itens) -->
+<ng-template let-nav #navigationTemplate>
+  @let items = asMenuList(nav);
+
+  @for (item of items; track item.id ?? item.label) {
+    @if (isSection(item)) {
+      <!-- Section header -->
+      <li buiSidebarSectionHeader class="mt-3 first:mt-0">
+        <span buiSidebarLabel class="text-xs uppercase">{{ item.label }}</span>
+      </li>
+
+      <!-- Section items -->
+      <ng-container
+        [ngTemplateOutlet]="navigationTemplate"
+        [ngTemplateOutletContext]="{ $implicit: item.subMenus }"
+      />
+    } @else if (item.subMenus && item.subMenus.length > 0) {
+      <!-- Collapsible submenu -->
+      <li
+        buiSidebarMenuItem
+        buiCollapsible
+        [expanded]="expandedByDefault()"
+        #collapsible="buiCollapsible"
+      >
+        <div buiSidebarMenuRow>
+          <button buiSidebarButton buiCollapsibleTrigger>
+            @if (item.icon) {
+              <mat-icon buiSidebarIcon [svgIcon]="item.icon" />
+            }
+            <span buiSidebarLabel>{{ item.label }}</span>
+            <mat-icon
+              buiSidebarIcon
+              svgIcon="chevron-right"
+              class="transition-[rotate]"
+              [class.rotate-90]="collapsible.expanded()"
+            />
+          </button>
+        </div>
+
+        <ng-template buiCollapsiblePanel>
+          <ul buiSidebarMenu buiCollapsibleContent>
+            <ng-container
+              [ngTemplateOutlet]="navigationTemplate"
+              [ngTemplateOutletContext]="{ $implicit: item.subMenus }"
+            />
+          </ul>
+        </ng-template>
+      </li>
+    } @else {
+      <!-- Menu item (Link direto) -->
+      <li buiSidebarMenuItem>
+        <div buiSidebarMenuRow>
+          <a
+            buiSidebarButton
+            [routerLink]="item.url || defaultUrl()"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: false }"
+          >
+            @if (item.icon) {
+              <mat-icon buiSidebarIcon [svgIcon]="item.icon" />
+            }
+            <span buiSidebarLabel>{{ item.label }}</span>
+          </a>
+        </div>
+      </li>
+    }
+  }
+</ng-template>

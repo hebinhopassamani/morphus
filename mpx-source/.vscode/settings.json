@@ -1,0 +1,213 @@
+{
+  "editor.fontFamily": "Fira Code",
+  "editor.fontLigatures": true,
+  "editor.fontSize": 21,
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.tabCompletion": "on",
+  "editor.wrappingIndent": "indent",
+  "editor.wrappingStrategy": "advanced",
+  "editor.cursorBlinking": "expand",
+  "editor.suggest.selectionMode": "never",
+  "editor.renderLineHighlight": "none",
+  "editor.lineNumbers": "off",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.minimap.enabled": false,
+  "editor.codeLens": false,
+  "editor.emptySelectionClipboard": false,
+  "editor.tabSize": 2,
+  "editor.detectIndentation": false,
+  "editor.hover.delay": 800,
+  "editor.stablePeek": true,
+  "editor.colorDecorators": true,
+  "editor.dragAndDrop": false,
+  "editor.guides.indentation": false,
+  "editor.mouseWheelScrollSensitivity": 2,
+  "editor.smoothScrolling": true,
+  "editor.stickyScroll.enabled": false,
+  "editor.wordWrapColumn": 200,
+  "editor.glyphMargin": false,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": false,
+  "editor.formatOnSave": true,
+  "workbench.tree.renderIndentGuides": "none",
+  "workbench.startupEditor": "none",
+  "workbench.iconTheme": "material-icon-theme",
+  "workbench.activityBar.location": "default",
+  "workbench.tree.indent": 20,
+  "workbench.list.horizontalScrolling": true,
+  "workbench.tree.enableStickyScroll": false,
+  "terminal.integrated.defaultProfile.osx": "zsh",
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.cursorStyle": "underline",
+  "terminal.integrated.fontSize": 18,
+  "terminal.integrated.fontFamily": "monospace",
+  "terminal.integrated.stickyScroll.enabled": false,
+  "terminal.integrated.tabs.defaultColor": "terminal.ansiGreen",
+  "terminal.integrated.tabs.defaultIcon": "bookmark",
+  "html.format.wrapAttributes": "auto",
+  "js/ts.preferences.importModuleSpecifier": "non-relative",
+  "js/ts.updateImportsOnFileMove.enabled": "never",
+  "terminal.explorerKind": "both",
+  "prettier.prettierPath": "./node_modules/prettier",
+  "html.format.wrapLineLength": 145,
+  "breadcrumbs.enabled": false,
+  "debug.console.fontSize": 20,
+  "diffEditor.renderSideBySide": false,
+  "diffEditor.renderIndicators": false,
+  "diffEditor.ignoreTrimWhitespace": false,
+  "files.insertFinalNewline": true,
+  "explorer.compactFolders": false,
+  "git.enableSmartCommit": true,
+  "explorer.confirmDragAndDrop": false,
+  "extensions.ignoreRecommendations": true,
+  "prettier.requireConfig": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "material-icon-theme.files.associations": {
+    "*.ts": "regedit",
+    "*.reflected.ts": "database",
+    "*.data.ts": "database",
+    "*.interface.ts": "json",
+    "*.model.ts": "drawio",
+    "*.class.ts": "epub",
+    "*.object.ts": "puppet",
+    "*.service.ts": "esbuild",
+    "*.morphus.ts": "fsharp",
+    "*.config.ts": "settings",
+    "*.filter.ts": "credits",
+    "*.messages.ts": "email",
+    "*.validator.ts": "velite",
+    "*.builder.ts": "apiblueprint",
+    "*.collection.ts": "less",
+    "*.property.ts": "json",
+    "*.types.ts": "tilt",
+    "*.enum.ts": "contributing",
+    "*.function.ts": "ejs",
+    "*.default.ts": "dotjs",
+    "*.empty.ts": "less",
+    "*.reader.ts": "console",
+    "*.guid.ts": "dependencies-update",
+    "*.util.ts": "lib",
+    "*.server.ts": "3d",
+    "*.dto.ts": "regedit",
+    "*.component.ts": "fsharp",
+    "*.models.ts": "json_schema",
+    "*.transloco.ts": "dependencies-update"
+  },
+  "material-icon-theme.folders.associations": {
+    "flowbit": "components",
+    "morphus": "routes",
+    "tailwind": "bloc",
+    "mps-http": "global",
+    "mps-auth": "guard",
+    "mps-help": "event",
+    "mps-file-reader": "archive",
+    "mps-html-emails": "mjml",
+    "mps-email": "mail",
+    "mps-menus": "enum",
+    "mps-filter": "filter",
+    "mps-base": "public",
+    "mps-shared": "shared",
+    "mps-message": "messages",
+    "mps-util": "utils",
+    "mps-validator": "resolver",
+    "mps-empty": "less",
+    "mps-model": "metro",
+    "mps-error": "error",
+    "mps-type": "enum",
+    "mps-styles": "css",
+    "mps-theme": "theme",
+    "mps-icon": "molecule",
+    "mps-interceptor": "interceptor",
+    "MorphusController": "interceptor",
+    "MorphusService": "stack",
+    "MorphusValidator": "class",
+    "IRepositories": "repository",
+    "IRepository": "repository",
+    "Repositories": "repository",
+    "Repository": "repository",
+    "ITransaction": "server",
+    "Transaction": "server",
+    "thipography": "font",
+    "typography": "font",
+    "theme": "theme",
+    "typography": "font",
+    "theme": "theme",
+    "ioc": "ci",
+    "dtos": "element",
+    "features": "webpack",
+    "session": "api",
+    "entities": "src",
+    "not-found": "error",
+    "material": "ui",
+    "header": "resource",
+    "navigation": "resource"
+  },
+  "files.exclude": {
+    ".gitignore": true,
+    ".csharpierrc.json": true,
+    "**/*.spec.ts": true,
+    "**/e2e": true,
+    "**/karma.conf.js": true,
+    "**/package-lock.json": true,
+    "**/test.ts": true,
+    "**/tsconfig.spec.json": true,
+    "**/tslint.json": true,
+    "**/.config": true,
+    "**/obj": true,
+    "**/bin": true
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.inlayHints.enabled": "off"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[tailwindcss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svg]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "github.copilot.enable": {
+    "*": false
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "terminal.integrated.profiles.windows": {
+    "PowerShell": {
+      "path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    },
+    "Git Bash": {
+      "source": "Git Bash",
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "args": ["--login", "-i"]
+    }
+  },
+  "tailwindCSS.experimental.configFile": "mpx-morphus/mpx-frontend/src/styles/styles.css",
+  "dotnet.defaultSolution": "mpx-morphus/mpx-backend/morphus-bkd.slnx"
+}

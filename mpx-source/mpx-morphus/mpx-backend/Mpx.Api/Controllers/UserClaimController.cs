@@ -1,0 +1,49 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Mpx.Application.Handlers;
+using Mpx.Domain.Entities;
+
+namespace Mpx.Api.Controllers;
+
+[Authorize]
+[ApiController]
+[Route("api/v1/user-claim")]
+public class UserClaimController(UserClaimHandler userClaimHandler) : ControllerBase
+{
+  [HttpGet("entities-to-relate")]
+  [Authorize(Policy = "USER_CLAIM_LIST")]
+  public async Task<IActionResult> GetEntitiesToRelate([FromQuery] Guid userId, [FromQuery] Guid? moduleId, [FromQuery] Guid? subModuleId) =>
+      Ok(await userClaimHandler.GetEntitiesToRelateAsync(userId, moduleId, subModuleId));
+
+  [HttpGet("related-entities")]
+  [Authorize(Policy = "USER_CLAIM_LIST")]
+  public async Task<IActionResult> GetRelatedEntities([FromQuery] Guid userId, [FromQuery] Guid? moduleId, [FromQuery] Guid? subModuleId) =>
+      Ok(await userClaimHandler.GetRelatedEntitiesAsync(userId, moduleId, subModuleId));
+
+  [HttpPost("add-relationship")]
+  [Authorize(Policy = "USER_CLAIM_ADD")]
+  public async Task<IActionResult> AddRelationship([FromBody] UserClaim userClaim) =>
+      Ok(await userClaimHandler.AddRelationshipAsync(userClaim));
+
+  [HttpPost("remove-relationship")]
+  [Authorize(Policy = "USER_CLAIM_REMOVE")]
+  public async Task<IActionResult> RemoveRelationship([FromBody] UserClaim userClaim) =>
+      Ok(await userClaimHandler.RemoveRelationshipAsync(userClaim));
+
+  [HttpPost("activate")]
+  [Authorize(Policy = "USER_CLAIM_ACTIVATE")]
+  public async Task<IActionResult> Activate([FromBody] UserClaim userClaim)
+  {
+    await userClaimHandler.ActivateAsync(userClaim);
+    return Ok(true);
+  }
+
+  [HttpPost("deactivate")]
+  [Authorize(Policy = "USER_CLAIM_INACTIVATE")]
+  public async Task<IActionResult> Deactivate([FromBody] UserClaim userClaim)
+  {
+    await userClaimHandler.DeactivateAsync(userClaim);
+    return Ok(true);
+  }
+}
+

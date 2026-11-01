@@ -1,0 +1,6 @@
+{
+  "short_name": "Orbit",
+  "name": "Orbit - Angular Landing Template",
+  "start_url": ".",
+  "display": "standalone"
+}

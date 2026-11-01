@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "builderkit": {
+      "source": "builderkit/builderkit",
+      "sourceType": "github",
+      "skillPath": "skills/builderkit/SKILL.md",
+      "computedHash": "2330c92f415b92c1cf4da0cdc03d2706c7ae5a89054013846f00d6e46910fb72"
+    }
+  }
+}

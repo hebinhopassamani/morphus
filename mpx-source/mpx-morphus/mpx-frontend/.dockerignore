@@ -1,0 +1,11 @@
+.git
+.angular
+.builderkit
+.cursor
+.vscode
+node_modules
+dist
+.env
+Dockerfile
+docker-compose.yml
+db

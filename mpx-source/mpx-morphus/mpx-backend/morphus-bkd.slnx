@@ -1,0 +1,7 @@
+<Solution>  
+  <Project Path="Mpx.Api/Mpx.Api.csproj" />
+  <Project Path="Mpx.Application/Mpx.Application.csproj" />
+  <Project Path="Mpx.CrossCutting/Mpx.CrossCutting.csproj" />
+  <Project Path="Mpx.Domain/Mpx.Domain.csproj" />
+  <Project Path="Mpx.Infrastructure/Mpx.Infrastructure.csproj" />
+</Solution>

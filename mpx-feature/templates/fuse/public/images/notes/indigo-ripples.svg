@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#3e3fa8"/>
+      <stop offset="0.55" stop-color="#5b5bd6"/>
+      <stop offset="1" stop-color="#7c78e0"/>
+    </linearGradient>
+    <radialGradient id="ring" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0.8" stop-color="#9b9ef0" stop-opacity="0"/>
+      <stop offset="1" stop-color="#b9bbf7" stop-opacity="0.3"/>
+    </radialGradient>
+    <linearGradient id="disc" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#f3b6e4"/>
+      <stop offset="0.5" stop-color="#c17ce0"/>
+      <stop offset="1" stop-color="#7a4ed0"/>
+    </linearGradient>
+    <linearGradient id="dot" x1="0.2" y1="0" x2="0.8" y2="1">
+      <stop offset="0" stop-color="#d4d9ff"/>
+      <stop offset="1" stop-color="#8b93ec"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0.7"/>
+      <stop offset="0.5" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip">
+      <circle cx="1050" cy="590" r="225"/>
+    </clipPath>
+    <radialGradient id="shade" cx="0.3" cy="0.25" r="0.9">
+      <stop offset="0.5" stop-color="#3b1f8f" stop-opacity="0"/>
+      <stop offset="1" stop-color="#3b1f8f" stop-opacity="0.35"/>
+    </radialGradient>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+    <filter id="grain" filterUnits="userSpaceOnUse" x="0" y="0" width="1600" height="900">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values="1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 1.6 0 0 0 -0.3 0 0 0 0 0.08"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <ellipse cx="1080" cy="760" rx="420" ry="260" fill="#d6409f" opacity="0.55" filter="url(#soft)"/>
+  <ellipse cx="260" cy="180" rx="320" ry="220" fill="#8da4ef" opacity="0.45" filter="url(#soft)"/>
+  <g fill="url(#ring)">
+    <circle cx="380" cy="980" r="900"/>
+    <circle cx="380" cy="980" r="740"/>
+    <circle cx="380" cy="980" r="590"/>
+    <circle cx="380" cy="980" r="450"/>
+    <circle cx="380" cy="980" r="320"/>
+  </g>
+  <g fill="none" stroke="#d0d2fb" stroke-opacity="0.35" stroke-width="2">
+    <circle cx="380" cy="980" r="900"/>
+    <circle cx="380" cy="980" r="740"/>
+    <circle cx="380" cy="980" r="590"/>
+    <circle cx="380" cy="980" r="450"/>
+    <circle cx="380" cy="980" r="320"/>
+  </g>
+  <circle cx="1050" cy="590" r="225" fill="url(#disc)"/>
+  <circle cx="1050" cy="590" r="225" fill="url(#shade)"/>
+  <path clip-path="url(#clip)" fill="#fff" fill-opacity="0.16" fill-rule="evenodd" d="M-360 980a740 740 0 1 0 1480 0a740 740 0 1 0-1480 0ZM-520 980a900 900 0 1 0 1800 0a900 900 0 1 0-1800 0Z"/>
+  <circle clip-path="url(#clip)" cx="380" cy="980" r="740" fill="none" stroke="#fff" stroke-opacity="0.4" stroke-width="2"/>
+  <circle cx="1050" cy="590" r="224" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <circle cx="690" cy="395" r="74" fill="url(#dot)" opacity="0.9"/>
+  <circle cx="690" cy="395" r="73" fill="none" stroke="url(#rim)" stroke-width="2"/>
+  <rect width="1600" height="900" filter="url(#grain)"/>
+</svg>

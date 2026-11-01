@@ -1,0 +1,32 @@
+@import '@fullcalendar/angular/skeleton.css';
+@import '@fullcalendar/angular/themes/classic/theme.css';
+
+/* Modified classic palette */
+/* Source: '@fullcalendar/angular/themes/classic/palette.css' */
+:root {
+  --fc-classic-event: var(--color-neutral-a4);
+  --fc-classic-event-contrast: var(--color-neutral-a12);
+  --fc-classic-highlight: var(--color-purple-a3);
+  --fc-classic-now: var(--color-red-a9);
+  --fc-classic-border: var(--color-neutral-a4);
+  --fc-classic-strong-border: var(--color-neutral-a4);
+}
+
+/* Entry kinds */
+.calendar-milestone {
+  --fc-classic-event: var(--color-violet-a4);
+  --fc-classic-event-contrast: var(--color-violet-a12);
+  --calendar-dot: var(--color-violet-9);
+}
+
+.calendar-task {
+  --fc-classic-event: var(--color-blue-a4);
+  --fc-classic-event-contrast: var(--color-blue-a12);
+  --calendar-dot: var(--color-blue-9);
+}
+
+.calendar-event {
+  --fc-classic-event: var(--color-jade-a4);
+  --fc-classic-event-contrast: var(--color-jade-a12);
+  --calendar-dot: var(--color-jade-9);
+}
