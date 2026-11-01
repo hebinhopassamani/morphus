@@ -12,8 +12,77 @@
       </div>
     </div>
   </a>
+
   <div class="flex-auto"></div>
+
   <button matIconButton (click)="toggleScheme()">
     <mat-icon [svgIcon]="isDark() ? 'sun' : 'moon'" />
   </button>
+
+  @if (auth.isAuthenticated() && auth.user(); as user) {
+    <button
+      type="button"
+      matButton
+      [matMenuTriggerFor]="secUserMenu"
+      class="tertiary flex items-center gap-x-2.5 rounded-xl border border-neutral-a4 bg-surface-container-low/60 px-2.5 py-1.5 text-start transition hover:bg-neutral-a3"
+    >
+      @if (user.picture; as picture) {
+        <img
+          class="size-7 shrink-0 overflow-hidden rounded-lg object-cover"
+          [src]="picture"
+          alt="Avatar do usuário"
+        />
+      } @else {
+        <div
+          class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary-a3 text-xs font-semibold text-primary-a11"
+        >
+          {{ userInitials() }}
+        </div>
+      }
+
+      <div class="hidden min-w-0 flex-col leading-tight sm:flex">
+        <span class="max-w-44 truncate text-xs font-semibold text-on-surface">
+          {{ user.name || 'Usuário Morphus' }}
+        </span>
+        <span class="max-w-44 truncate text-[11px] text-neutral-a11">
+          {{ user.email }}
+        </span>
+      </div>
+
+      <mat-icon class="size-4! text-neutral-a10" svgIcon="chevron-down" />
+    </button>
+
+    <mat-menu #secUserMenu="matMenu" xPosition="before" class="min-w-56">
+      <div class="flex items-center gap-x-3 px-4 py-2.5 select-none">
+        @if (user.picture; as picture) {
+          <img
+            class="size-9 shrink-0 rounded-lg object-cover"
+            [src]="picture"
+            alt="Avatar do usuário"
+          />
+        } @else {
+          <div
+            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-a4 text-sm font-semibold text-primary-a11"
+          >
+            {{ userInitials() }}
+          </div>
+        }
+        <div class="flex min-w-0 flex-col">
+          <span class="truncate text-sm font-semibold">
+            {{ user.name || 'Usuário Morphus' }}
+          </span>
+          <span class="truncate text-xs text-neutral-a11">
+            {{ user.email }}
+          </span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <button mat-menu-item (click)="auth.logout()">
+        <mat-icon svgIcon="log-out" />
+        <span>Sair / Trocar de conta</span>
+      </button>
+    </mat-menu>
+  }
 </div>

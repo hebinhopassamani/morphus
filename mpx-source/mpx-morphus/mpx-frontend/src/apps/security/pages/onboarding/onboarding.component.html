@@ -181,8 +181,16 @@
             <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
               <mat-icon class="size-6" svgIcon="building-2" />
             </div>
-            <div>
-              <h2 class="text-lg font-semibold leading-snug">Seus dados e sua Matriz</h2>
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h2 class="text-lg font-semibold leading-snug">Seus dados e sua Matriz</h2>
+                @if (userEmail()) {
+                  <span class="inline-flex items-center gap-x-1.5 rounded-full bg-primary-a3 px-2.5 py-0.5 text-xs font-medium text-primary-a11">
+                    <mat-icon class="size-3.5!" svgIcon="mail" />
+                    {{ userEmail() }}
+                  </span>
+                }
+              </div>
               <p class="text-xs text-neutral-a11">
                 Defina como seu nome e sua organização principal aparecerão na plataforma.
               </p>
