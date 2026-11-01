@@ -1,8 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { form, FormField, FormRoot, required } from '@angular/forms/signals';
-import { MatButton } from '@angular/material/button';
 import { MatDivider } from '@angular/material/divider';
-import { MatIcon } from '@angular/material/icon';
 import {
   MatFormField,
   MatInput,
@@ -19,10 +17,8 @@ import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-chang
   imports: [
     FormField,
     FormRoot,
-    MatButton,
     MatDivider,
     MatFormField,
-    MatIcon,
     MatInput,
     MatLabel,
     MatOption,

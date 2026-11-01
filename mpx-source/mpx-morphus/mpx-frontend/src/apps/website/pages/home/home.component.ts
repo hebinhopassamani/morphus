@@ -67,7 +67,7 @@ const CARD_ACCENTS: CardAccent[] = [
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
-  private readonly hostRef = inject(ElementRef<HTMLElement>);
+  private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private observer: IntersectionObserver | null = null;
 
@@ -189,11 +189,12 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    const elements =
-      this.hostRef.nativeElement.querySelectorAll<HTMLElement>('[data-reveal]');
+    const elements = Array.from(
+      this.hostRef.nativeElement.querySelectorAll('[data-reveal]'),
+    ) as HTMLElement[];
 
     if (!('IntersectionObserver' in window)) {
-      elements.forEach((el) => this.revealElement(el));
+      elements.forEach((el: HTMLElement) => this.revealElement(el));
       return;
     }
 
@@ -212,7 +213,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       },
     );
 
-    elements.forEach((el) => this.observer?.observe(el));
+    elements.forEach((el: HTMLElement) => this.observer?.observe(el));
   }
 
   ngOnDestroy(): void {
