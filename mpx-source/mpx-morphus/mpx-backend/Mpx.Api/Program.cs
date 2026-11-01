@@ -9,6 +9,8 @@ builder.Services.AddControllers();
 
 var app = builder.Build();
 
+app.ApplyMorphusMigrations();
+
 // 1. O CORS DEVE SER O PRIMEIRO DE TUDO (Garante que limpe o Preflight/OPTIONS)
 app.UseCors("MorphusCorsPolicy");
 

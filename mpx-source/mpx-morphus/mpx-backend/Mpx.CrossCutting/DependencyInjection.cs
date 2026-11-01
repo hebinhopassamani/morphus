@@ -31,6 +31,14 @@ public static class DependencyInjection
     return builder;
   }
 
+  public static WebApplication ApplyMorphusMigrations(this WebApplication app)
+  {
+    using var scope = app.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<MorphusDbContext>();
+    dbContext.Database.Migrate();
+    return app;
+  }
+
   private static WebApplicationBuilder AddCors(this WebApplicationBuilder builder)
   {
     builder.Services.AddCors(options =>
