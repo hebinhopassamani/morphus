@@ -177,27 +177,29 @@
       <!-- ETAPA 1: Nome Completo e Nome da Matriz -->
       <mat-card class="w-full max-w-xl [--card-border-radius:var(--radius-2xl)] [--card-surface-padding:--spacing(6)]">
         <mat-card-content class="flex flex-col">
-          <div class="flex items-start gap-x-3.5">
+          <div class="flex items-center gap-x-3">
             <div class="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
               <mat-icon class="size-6" svgIcon="building-2" />
             </div>
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h2 class="text-lg font-semibold leading-snug">Seus dados e sua Matriz</h2>
-                @if (userEmail()) {
-                  <span class="inline-flex items-center gap-x-2 rounded-full bg-primary-a3 px-3 py-1 text-xs font-medium text-primary-a11">
-                    <mat-icon class="size-3.5!" svgIcon="mail" />
-                    <span>{{ userEmail() }}</span>
-                  </span>
-                }
-              </div>
-              <p class="mt-1.5 text-xs text-neutral-a11">
+            <div>
+              <h2 class="text-lg font-semibold leading-snug">Seus dados e sua Matriz</h2>
+              <p class="text-xs text-neutral-a11">
                 Defina como seu nome e sua organização principal aparecerão na plataforma.
               </p>
             </div>
           </div>
 
           <form [formGroup]="step1Form" (ngSubmit)="onSaveStep1()" class="mt-5 flex flex-col gap-y-2">
+            <mat-form-field class="w-full">
+              <mat-label>Seu e-mail de acesso</mat-label>
+              <input
+                type="email"
+                [value]="userEmail()"
+                disabled
+                matInput
+              />
+            </mat-form-field>
+
             <mat-form-field class="w-full">
               <mat-label>Seu nome completo</mat-label>
               <input type="text" autocomplete="name" formControlName="userName" matInput />
