@@ -14,6 +14,7 @@ services:
       - '80:80'
       - '443:443'
       - '443:443/udp'
+      - '5678:5678'
     environment:
       MORPHUS_DOMAIN: ${MORPHUS_DOMAIN:?Defina MORPHUS_DOMAIN no arquivo .env}
       KALUPA_DOMAIN: ${KALUPA_DOMAIN:?Defina KALUPA_DOMAIN no arquivo .env}
@@ -102,9 +103,10 @@ services:
       - N8N_RESTRICT_FILE_ACCESS_TO=/files
       - N8N_HOST=${KALUPA_PUBLIC_DOMAIN:?Defina KALUPA_PUBLIC_DOMAIN no arquivo .env}
       - N8N_PORT=5678
-      - N8N_PROTOCOL=https
-      - N8N_EDITOR_BASE_URL=https://${KALUPA_PUBLIC_DOMAIN}/
-      - N8N_WEBHOOK_URL=https://${KALUPA_PUBLIC_DOMAIN}/
+      - N8N_PROTOCOL=${KALUPA_PROTOCOL:-https}
+      - N8N_EDITOR_BASE_URL=${KALUPA_PROTOCOL:-https}://${KALUPA_PUBLIC_DOMAIN}/
+      - N8N_WEBHOOK_URL=${KALUPA_PROTOCOL:-https}://${KALUPA_PUBLIC_DOMAIN}/
+      - N8N_SECURE_COOKIE=${KALUPA_SECURE_COOKIE:-false}
       - NODE_ENV=production
       - GENERIC_TIMEZONE=America/Sao_Paulo
     volumes:
