@@ -4,7 +4,6 @@ volumes:
   postgres_data:
   n8n_postgres_data:
   n8n_data:
-  sandbox_tls:
 
 services:
   mpx-reverse-proxy:
@@ -87,82 +86,13 @@ services:
     volumes:
       - n8n_postgres_data:/var/lib/postgresql
 
-  mpx-kalupa-sandbox-certs:
-    image: ghcr.io/n8n-io/n8n-sandbox-service-api:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-certs
-    user: '0:0'
-    entrypoint: ['sh', '-c']
-    command:
-      - >
-        bootstrap-mtls.sh --out-dir /tls --api-san mpx-kalupa-sandbox-api
-        --control-san-prefix mpx-kalupa-sandbox-runner --world-readable &&
-        chown -R sandbox-api:sandbox-api /tls/api && chmod -R a+rX /tls
-    environment:
-      NUM_RUNNERS: '1'
-    volumes:
-      - sandbox_tls:/tls
-
-  mpx-kalupa-sandbox-api:
-    image: ghcr.io/n8n-io/n8n-sandbox-service-api:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-api
-    restart: unless-stopped
-    depends_on:
-      mpx-kalupa-sandbox-certs:
-        condition: service_completed_successfully
-    env_file: [.env]
-    environment:
-      SANDBOX_API_GRPC_TLS_CERT_FILE: /tls/api/grpc-server.crt
-      SANDBOX_API_GRPC_TLS_KEY_FILE: /tls/api/grpc-server.key
-      SANDBOX_API_GRPC_TLS_CLIENT_CA_FILE: /tls/api/ca.crt
-      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CA_FILE: /tls/api/ca.crt
-      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/api/control-grpc-api-client.crt
-      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/api/control-grpc-api-client.key
-      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_SERVER_NAME: mpx-kalupa-sandbox-runner-1
-    volumes:
-      - sandbox_tls:/tls:ro
-    healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost:8080/healthz']
-      interval: 5s
-      timeout: 3s
-      retries: 5
-      start_period: 10s
-
-  mpx-kalupa-sandbox-runner:
-    image: ghcr.io/n8n-io/n8n-sandbox-service-runner-dind:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-runner
-    restart: unless-stopped
-    privileged: true
-    depends_on:
-      mpx-kalupa-sandbox-api:
-        condition: service_healthy
-    env_file: [.env]
-    environment:
-      SANDBOX_RUNNER_API_GRPC_ADDR: mpx-kalupa-sandbox-api:9090
-      SANDBOX_RUNNER_HTTP_BASE_URL: https://mpx-kalupa-sandbox-runner:8080
-      SANDBOX_RUNNER_CONTROL_GRPC_LISTEN_ADDR: ':9091'
-      SANDBOX_RUNNER_CONTROL_GRPC_ADVERTISE_ADDR: mpx-kalupa-sandbox-runner:9091
-      SANDBOX_RUNNER_ID: runner-1
-      SANDBOX_RUNNER_DOCKER_SANDBOX_IMAGE: ghcr.io/n8n-io/n8n-sandbox-service-sandbox:${N8N_SANDBOX_VERSION:-1.6.0}
-      SANDBOX_RUNNER_REGISTRATION_GRPC_CA_FILE: /tls/runner/ca.crt
-      SANDBOX_RUNNER_REGISTRATION_GRPC_CERT_FILE: /tls/runner/grpc-client.crt
-      SANDBOX_RUNNER_REGISTRATION_GRPC_KEY_FILE: /tls/runner/grpc-client.key
-      SANDBOX_RUNNER_REGISTRATION_GRPC_SERVER_NAME: mpx-kalupa-sandbox-api
-      SANDBOX_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/runner/control-grpc-server.crt
-      SANDBOX_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/runner/control-grpc-server.key
-      SANDBOX_RUNNER_CONTROL_GRPC_TLS_CLIENT_CA_FILE: /tls/runner/ca.crt
-    volumes:
-      - sandbox_tls:/tls:ro
-
   mpx-kalupa:
-    image: docker.io/n8nio/n8n:${N8N_VERSION:-latest}
+    image: docker.io/n8nio/n8n:latest
     container_name: mpx-kalupa
     restart: unless-stopped
     depends_on:
-      mpx-kalupa-sandbox-api:
-        condition: service_healthy
       mpx-kalupa-db:
         condition: service_healthy
-    env_file: [.env]
     environment:
       - DB_TYPE=postgresdb
       - DB_POSTGRESDB_HOST=mpx-kalupa-db
@@ -182,14 +112,3 @@ services:
     volumes:
       - /files/docker-data/n8n:/home/node/.n8n
       - ${PROJECT_ROOT:?Defina PROJECT_ROOT}/mpx-kalupa/data:/files
-
-  mpx-kalupa-runners:
-    image: ghcr.io/n8n-io/runners:${N8N_VERSION:-latest}
-    container_name: mpx-kalupa-runners
-    restart: unless-stopped
-    depends_on:
-      - mpx-kalupa
-    environment:
-      N8N_RUNNERS_AUTH_TOKEN: ${N8N_RUNNERS_AUTH_TOKEN}
-      N8N_RUNNERS_TASK_BROKER_URI: http://mpx-kalupa:5679
-      N8N_RUNNERS_AUTO_SHUTDOWN_TIMEOUT: '15'
