@@ -87,27 +87,27 @@ services:
     volumes:
       - n8n_postgres_data:/var/lib/postgresql
 
-  sandbox-certs:
+  mpx-sandbox-certs:
     image: ghcr.io/n8n-io/n8n-sandbox-service-api:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-certs
+    container_name: mpx-sandbox-certs
     user: '0:0'
     entrypoint: ['sh', '-c']
     command:
       - >
-        bootstrap-mtls.sh --out-dir /tls --api-san sandbox-api
-        --control-san-prefix sandbox-runner --world-readable &&
+        bootstrap-mtls.sh --out-dir /tls --api-san mpx-sandbox-api
+        --control-san-prefix mpx-sandbox-runner --world-readable &&
         chown -R sandbox-api:sandbox-api /tls/api && chmod -R a+rX /tls
     environment:
       NUM_RUNNERS: '1'
     volumes:
       - sandbox_tls:/tls
 
-  sandbox-api:
+  mpx-sandbox-api:
     image: ghcr.io/n8n-io/n8n-sandbox-service-api:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-api
+    container_name: mpx-sandbox-api
     restart: unless-stopped
     depends_on:
-      sandbox-certs:
+      mpx-sandbox-certs:
         condition: service_completed_successfully
     env_file: [.env]
     environment:
@@ -117,7 +117,7 @@ services:
       SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CA_FILE: /tls/api/ca.crt
       SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/api/control-grpc-api-client.crt
       SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/api/control-grpc-api-client.key
-      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_SERVER_NAME: sandbox-runner-1
+      SANDBOX_API_RUNNER_CONTROL_GRPC_TLS_SERVER_NAME: mpx-sandbox-runner-1
     volumes:
       - sandbox_tls:/tls:ro
     healthcheck:
@@ -127,26 +127,26 @@ services:
       retries: 5
       start_period: 10s
 
-  sandbox-runner-1:
+  mpx-sandbox-runner-1:
     image: ghcr.io/n8n-io/n8n-sandbox-service-runner-dind:${N8N_SANDBOX_VERSION:-1.6.0}
-    container_name: mpx-kalupa-sandbox-runner
+    container_name: mpx-sandbox-runner-1
     restart: unless-stopped
     privileged: true
     depends_on:
-      sandbox-api:
+      mpx-sandbox-api:
         condition: service_healthy
     env_file: [.env]
     environment:
-      SANDBOX_RUNNER_API_GRPC_ADDR: sandbox-api:9090
-      SANDBOX_RUNNER_HTTP_BASE_URL: https://sandbox-runner-1:8080
+      SANDBOX_RUNNER_API_GRPC_ADDR: mpx-sandbox-api:9090
+      SANDBOX_RUNNER_HTTP_BASE_URL: https://mpx-sandbox-runner-1:8080
       SANDBOX_RUNNER_CONTROL_GRPC_LISTEN_ADDR: ':9091'
-      SANDBOX_RUNNER_CONTROL_GRPC_ADVERTISE_ADDR: sandbox-runner-1:9091
+      SANDBOX_RUNNER_CONTROL_GRPC_ADVERTISE_ADDR: mpx-sandbox-runner-1:9091
       SANDBOX_RUNNER_ID: runner-1
       SANDBOX_RUNNER_DOCKER_SANDBOX_IMAGE: ghcr.io/n8n-io/n8n-sandbox-service-sandbox:${N8N_SANDBOX_VERSION:-1.6.0}
       SANDBOX_RUNNER_REGISTRATION_GRPC_CA_FILE: /tls/runner/ca.crt
       SANDBOX_RUNNER_REGISTRATION_GRPC_CERT_FILE: /tls/runner/grpc-client.crt
       SANDBOX_RUNNER_REGISTRATION_GRPC_KEY_FILE: /tls/runner/grpc-client.key
-      SANDBOX_RUNNER_REGISTRATION_GRPC_SERVER_NAME: sandbox-api
+      SANDBOX_RUNNER_REGISTRATION_GRPC_SERVER_NAME: mpx-sandbox-api
       SANDBOX_RUNNER_CONTROL_GRPC_TLS_CERT_FILE: /tls/runner/control-grpc-server.crt
       SANDBOX_RUNNER_CONTROL_GRPC_TLS_KEY_FILE: /tls/runner/control-grpc-server.key
       SANDBOX_RUNNER_CONTROL_GRPC_TLS_CLIENT_CA_FILE: /tls/runner/ca.crt
@@ -158,7 +158,7 @@ services:
     container_name: mpx-kalupa
     restart: unless-stopped
     depends_on:
-      sandbox-api:
+      mpx-sandbox-api:
         condition: service_healthy
       mpx-kalupa-db:
         condition: service_healthy
@@ -183,9 +183,9 @@ services:
       - /files/docker-data/n8n:/home/node/.n8n
       - ${PROJECT_ROOT:?Defina PROJECT_ROOT}/mpx-kalupa/data:/files
 
-  runners:
+  mpx-sandbox-runners:
     image: ghcr.io/n8n-io/runners:${N8N_VERSION:-latest}
-    container_name: mpx-kalupa-runners
+    container_name: mpx-sandbox-runners
     restart: unless-stopped
     depends_on:
       - mpx-kalupa
