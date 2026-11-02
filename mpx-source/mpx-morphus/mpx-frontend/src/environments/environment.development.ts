@@ -10,5 +10,5 @@ export const environment = {
     },
   },
   // 🚀 Ambiente Local apontando para a API .NET rodando na sua máquina:
-  apiUrl: 'http://localhost:5248',
+  apiUrl: 'http://localhost:5248/api/v1',
 };

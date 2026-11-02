@@ -1,5 +1,5 @@
 import { MorphusValidator } from '@core/mpx-validators';
-import { Corporation } from '@security/entities/Corporations';
+import { Corporation } from '@security/entities/corporation';
 
 export class CorporationValidator extends MorphusValidator<Corporation> {
   public configure(builder: MorphusValidator<Corporation>): void {

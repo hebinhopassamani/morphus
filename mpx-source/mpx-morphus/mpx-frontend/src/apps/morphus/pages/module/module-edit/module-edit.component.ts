@@ -6,7 +6,7 @@ import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/in
 import { MatOption, MatSelect } from '@angular/material/select';
 import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { IModule } from '@security/entities/Modules';
+import { IModule } from '@security/entities/module';
 import { ModuleValidator } from '../validators/module.validator';
 
 @Component({
@@ -38,52 +38,77 @@ export class ModuleEditComponent
   }
 
   ngOnInit(): void {
-    this.primaryKeys = ['id'];
-
-    const id = this.activatedRoute.snapshot.paramMap.get('id');
-    if (id) {
-      this.title1.set('Editar Módulo');
-      this.title2.set('Atualize os dados e a chave de identificação do módulo.');
-      void this.loadEntity();
-    } else {
-      this.title1.set('Novo Módulo');
-      this.title2.set('Cadastre um novo módulo vinculado a uma aplicação do Workspace.');
-      this.setEntity({
-        name: '',
-        key: '',
-        description: '',
-        applicationId: this.context.activeApplication()?.id ?? '',
-        system: false,
-      });
-    }
+    this.loadPrimaryKey();
+    void this.loadEntity();
   }
 
   ngOnDestroy(): void {
     this.destroySubscriptions();
   }
 
-  async loadEntity(): Promise<void> {
-    const id = this.activatedRoute.snapshot.paramMap.get('id');
-    if (!id) {
-      return;
-    }
+  override loadPrimaryKey(): void {
+    this.addPrimaryKey('id').loadPrimariKey(this.entity);
+  }
 
-    // Exemplo visual de preenchimento ao editar
+  async loadEntity(): Promise<void> {
+    if (this.isNew) {
+      this.newEntity();
+    } else {
+      const currentId = this.entity().id;
+      this.setEntity({
+        id: currentId,
+        name: 'Usuários',
+        key: 'USER',
+        description: 'Gestão de contas de usuários, papéis e permissões',
+        applicationId: this.context.activeApplication()?.id ?? '',
+        system: true,
+      });
+      this.editEntity();
+    }
+  }
+
+  newEntity(): void {
+    this.title1.set('Novo Módulo');
+    this.title2.set('Cadastre um novo módulo vinculado a uma aplicação do Workspace.');
     this.setEntity({
-      id,
-      name: 'Usuários',
-      key: 'USER',
-      description: 'Gestão de contas de usuários, papéis e permissões',
+      name: '',
+      key: '',
+      description: '',
       applicationId: this.context.activeApplication()?.id ?? '',
-      system: true,
+      system: false,
     });
   }
 
-  async onSave(): Promise<void> {
+  editEntity(): void {
+    this.title1.set('Editar Módulo');
+    this.title2.set('Atualize os dados e a chave de identificação do módulo.');
+  }
+
+  async submitForm(): Promise<void> {
+    if (this.isNew) {
+      await this.create();
+    } else {
+      await this.update();
+    }
+  }
+
+  async create(): Promise<void> {
+    this.back();
+  }
+
+  async update(): Promise<void> {
+    this.back();
+  }
+
+  back(): void {
     void this.router.navigate(['/admin/module']);
   }
 
+  async onSave(): Promise<void> {
+    await this.submitForm();
+  }
+
   onCancel(): void {
-    void this.router.navigate(['/admin/module']);
+    this.back();
   }
 }

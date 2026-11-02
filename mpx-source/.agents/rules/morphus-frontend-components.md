@@ -4,8 +4,8 @@
    - Componentes reutilizáveis do ecossistema (usados por `morphus`, `security`, `website` e pelas futuras aplicações criadas pelos usuários) devem ficar em `mpx-frontend/src/components/morphus/<nome-do-componente>/`, no mesmo nível (sem subpastas intermediárias desnecessárias como `/layout`), lado a lado com `src/components/builder-kit/`.
    - Os componentes devem ser desacoplados e orientados a parâmetros (`input()` / `output()`), como `[source]`, para que qualquer aplicação apenas passe os dados e o componente monte seu próprio HTML.
 
-2. **Regra de Ouro: Apenas 1 Componente/Classe por Arquivo + Tríade Obrigatória (`.ts`, `.html`, `.css`)**:
-   - **JAMAIS** colocar mais de um componente ou diretiva dentro do mesmo arquivo `.ts` (aquela bagunça de várias classes num único arquivo gigante como no `builder-kit` é expressamente proibida).
+2. **Regra de Ouro: Apenas 1 Componente/Classe/Interface por Arquivo + Tríade Obrigatória (`.ts`, `.html`, `.css`)**:
+   - **JAMAIS** colocar mais de um componente, diretiva, classe ou interface dentro do mesmo arquivo `.ts` (aquela bagunça de várias classes/interfaces num único arquivo como no `builder-kit` é expressamente proibida; toda interface de entidade ou modelo deve ter seu próprio arquivo exclusivo).
    - **Tríade obrigatória**: Todo componente ou subcomponente criado (seja em `src/components/morphus/` ou nas páginas das aplicações) **DEVE SEMPRE** possuir os 3 arquivos separados e vinculados no `@Component`:
      - `<nome>.component.ts`
      - `<nome>.component.html` (`templateUrl: './<nome>.component.html'`)
@@ -16,28 +16,32 @@
    - Toda pasta raiz de componente deve possuir um arquivo `index.ts` exportando o componente e todos os seus subcomponentes (`export * from './...'`).
    - Isso garante que os `imports` nos consumidores fiquem limpos, na mesma linha e sem extensão/sufixo de arquivo (ex: `import { MpxMenuComponent } from '@src/components/morphus/menu';`).
 
-4. **Arquitetura dos 4 Componentes Base de Páginas e 4 Interfaces em `src/apps/core/mpx-base/` (`@core/mpx-base`)**:
-   - Todas as classes abstratas base e interfaces ficam centralizadas em `mpx-frontend/src/apps/core/mpx-base/` (importadas via `@core/mpx-base`).
+4. **Arquitetura dos 4 Componentes Base de Páginas e 4 Interfaces em `src/core/mpx-base/` (`@core/mpx-base`) e Entidades Base em `src/core/mpx-entities/` (`@core/mpx-entities`)**:
+   - O `core` fica na raiz de `src/core/` (fora de `src/apps/`, deixando `src/apps/` exclusivamente para as 3 aplicações: `morphus`, `security` e `website`), com todas as subpastas e arquivos prefixados por `mpx-`.
+   - Todas as classes abstratas base e interfaces de componentes ficam centralizadas em `mpx-frontend/src/core/mpx-base/` (importadas via `@core/mpx-base`).
    - Cada interface tem exatamente o mesmo nome da classe abstrata com `I` na frente (`IMorphusComponent`, `IMorphusListComponent`, `IMorphusEditComponent`, `IMorphusNxNComponent`).
-   - As entidades de domínio não precisam herdar de uma interface `IMorphusModel` (o genérico `<T>` é livre, suportando tanto entidades com `id` quanto entidades associativas de chave composta):
-     1. **`MorphusComponent<T>` + `IMorphusComponent` (Pai de todos os componentes de página)**:
+   - Todas as entidades do Morphus herdam obrigatoriamente de uma das duas interfaces base exportadas em `@core/mpx-entities` (`src/core/mpx-entities/`):
+     - **`IMorphusEntity`**: para entidades padrão com chave primária `id: string` (sem repetir `id: string` na interface filha).
+     - **`IMorphusRelatedEntity`**: para entidades associativas `N:N` sem `id`, que possuem chaves compostas (`corporationId?: string`, `system?: boolean`, `inactive?: boolean`).
+   - Os componentes base restringem o genérico `<T extends IMorphusEntity | IMorphusRelatedEntity = IMorphusEntity>`:
+     1. **`MorphusComponent<T extends IMorphusEntity | IMorphusRelatedEntity = IMorphusEntity>` + `IMorphusComponent` (Pai de todos os componentes de página)**:
         - `IMorphusComponent` obriga `OnInit` e `OnDestroy` (`ngOnInit` e `ngOnDestroy`).
         - Injeta `Router` e `ActivatedRoute` na base para navegação padronizada.
         - Expõe signals de títulos prontos para o template (`title1`, `title2`, `title3` como `signal<string>('')`).
         - Gerencia inscrições RxJS (`sub1`, `sub2`, `sub3`, `sub4`) com limpeza no `ngOnDestroy`.
-        - Define `primaryKeys` (suportando chave simples como `['id']` ou chave composta como `['userId', 'roleId']`), permitindo identificar automaticamente se uma operação é criação ou atualização.
+        - Define `primaryKeys: (keyof T)[] = ['id' as keyof T]` por padrão e oferece Fluent API `.addPk('<chave>')`, além dos métodos `itsNew(entity)` (checando inclusive `MORPHUS_EMPTY_GUID`), `compareByPk(a, b)`, `getPkAsRoute(entity)` e `getPkFromRoute()`.
         - Controla **2 níveis de Loading**:
           - **Loading Global** (`loading` signal + métodos de iniciar/parar) para carregamento de página/seção.
           - **Loading por Entidade** (vinculado à instância `T` da linha) para que ações em tabelas (ex: excluir/ativar uma linha) girem o spinner apenas no registro clicado, sem afetar as demais linhas.
-     2. **`MorphusListComponent<T>` + `IMorphusListComponent` (Telas de Listagem)**:
+     2. **`MorphusListComponent<T extends IMorphusEntity | IMorphusRelatedEntity = IMorphusEntity>` + `IMorphusListComponent` (Telas de Listagem)**:
         - Herda de `MorphusComponent<T>`.
         - Possui `list = signal<T[]>([])`, `setList(entities: T[])` e `clearList()`.
         - `IMorphusListComponent` obriga os métodos: `loadList(filter?: MorphusFilter): Promise<void>`, `newEntity(): void`, `openFilter(): void`, `onFilter(): Promise<void>`, `onFilterClear(): Promise<void>`, `onFilterClose(): void`.
-     3. **`MorphusEditComponent<T, V extends MorphusValidator<T>>` + `IMorphusEditComponent` (Telas de Criação/Edição)**:
+     3. **`MorphusEditComponent<T extends IMorphusEntity | IMorphusRelatedEntity = IMorphusEntity, V extends MorphusValidator<T> = MorphusValidator<T>>` + `IMorphusEditComponent` (Telas de Criação/Edição)**:
         - Herda de `MorphusComponent<T>`, recebendo a entidade `T` e seu validador específico `V`.
         - Gerencia a entidade em edição, o formulário, o validador Fluent API e o estado de salvamento/atualização via `primaryKeys`.
-     4. **`MorphusNxNComponent<...>` + `IMorphusNxNComponent` (Telas de Relacionamento Muitos-para-Muitos)**:
-        - Herda de `MorphusComponent<T>`, padronizando telas associativas (`UserRole`, `UserClaim`, `RoleClaim`, `CorporationUser`, `WorkspaceUser`, `ApplicationUser`).
+     4. **`MorphusNxNComponent<T extends IMorphusRelatedEntity = IMorphusRelatedEntity>` + `IMorphusNxNComponent` (Telas de Relacionamento Muitos-para-Muitos)**:
+        - Herda de `MorphusComponent<T>`, padronizando telas associativas (`UserRole`, `UserClaim`, `RoleClaim`, `CorporationUser`, `WorkspaceUser`, `WorkspaceApplication`, `ApplicationUser`).
 
 5. **Estrutura Padrão de Pastas para Páginas de CRUD (`pages/<entidade>/`)**:
    - Cada CRUD dentro de `pages/<entidade>/` deve seguir exatamente a estrutura:
@@ -69,3 +73,8 @@
        <span class="morphus-mat-error-label">{{ validator.showErros(fieldRef) }}</span>
      </mat-error>
      ```
+
+
+7. **Tom de Voz e UX Writing (Comunicação com o Usuário)**:
+   - A parte mais importante de um sistema é saber conversar com o seu usuário.
+   - Todos os textos de interface (títulos, subtítulos, mensagens de boas-vindas, avisos, estados vazios e feedbacks) devem ser **muito amigáveis, acolhedores e descontraídos**, conversando de forma próxima e humana com o usuário em vez de jargões técnicos ou frases frias/burocráticas.

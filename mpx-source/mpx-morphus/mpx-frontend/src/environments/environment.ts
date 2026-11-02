@@ -10,5 +10,5 @@ export const environment = {
     },
   },
   // 🚀 Ambiente de Produção apontando para o mesmo domínio (roteado via Caddy /api/*):
-  apiUrl: 'https://morphus.me',
+  apiUrl: 'https://morphus.me/api/v1',
 };

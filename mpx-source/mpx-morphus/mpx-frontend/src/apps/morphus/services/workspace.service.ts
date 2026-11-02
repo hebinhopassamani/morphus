@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '@/environments/environment';
 import { Workspace } from '@morphus/entities/workspace';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class WorkspaceService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/workspace`;
+  private readonly apiUrl = `${environment.apiUrl}/workspace`;
 
   getById(id: string): Observable<Workspace> {
     return this.http.get<Workspace>(`${this.apiUrl}/${id}`);

@@ -4,8 +4,8 @@ import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@/apps/core/auth';
-import { Theming } from '@/apps/core/theming';
+import { Auth } from '@core/mpx-auth';
+import { Theming } from '@core/mpx-theming';
 
 @Component({
   imports: [

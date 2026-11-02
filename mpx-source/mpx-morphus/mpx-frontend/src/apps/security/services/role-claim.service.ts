@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { RoleClaim } from '@security/entities/RoleClaims';
+import { RoleClaim } from '@security/entities/role-claim';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { environment } from '@src/environments/environment';
 })
 export class RoleClaimService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/roleclaim`;
+  private readonly apiUrl = `${environment.apiUrl}/roleclaim`;
 
   getAll(): Observable<RoleClaim[]> {
     return this.http.get<RoleClaim[]>(this.apiUrl);

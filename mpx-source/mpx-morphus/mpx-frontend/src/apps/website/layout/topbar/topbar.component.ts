@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Theming } from '@/apps/core/theming';
+import { Theming } from '@core/mpx-theming';
 
 @Component({
   imports: [MatButton, MatIconButton, MatIcon, RouterLink],

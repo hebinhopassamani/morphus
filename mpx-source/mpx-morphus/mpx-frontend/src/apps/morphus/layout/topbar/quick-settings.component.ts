@@ -10,7 +10,7 @@ import {
 } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Theming } from '@/apps/core/theming';
+import { Theming } from '@core/mpx-theming';
 import {
   BuiPopover,
   BuiPopoverClose,

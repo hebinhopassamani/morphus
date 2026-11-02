@@ -7,7 +7,7 @@ import {
   inject,
   input,
   model,
-  Service,
+  Injectable,
   signal,
   untracked,
 } from '@angular/core';
@@ -25,8 +25,8 @@ import {
 } from '@angular/material/input';
 import { ClassValue } from 'cn';
 import Color from 'colorjs.io';
-import { LocalStorage } from '@/apps/core/local-storage';
-import { WINDOW } from '@/apps/core/window';
+import { LocalStorage } from '@core/mpx-local-storage';
+import { WINDOW } from '@core/mpx-window';
 import { bui } from '../utils';
 
 // -----------------------------------------------------------------------------
@@ -53,7 +53,9 @@ const RECENT_COLORS_LIMIT = 10;
 // -----------------------------------------------------------------------------
 // Recent Colors
 // -----------------------------------------------------------------------------
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class BuiRecentColors {
   // Dependencies
   private readonly localStorage = inject(LocalStorage);

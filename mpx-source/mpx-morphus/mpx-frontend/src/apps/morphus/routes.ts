@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/auth';
+import { authGuard } from '@core/mpx-auth';
 import { MorphusLayout } from '@morphus/layout/layout.component';
 
 export const routes: Routes = [

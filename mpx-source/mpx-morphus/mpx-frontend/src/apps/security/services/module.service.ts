@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Module } from '@security/entities/Modules';
+import { Module } from '@security/entities/module';
 import { environment } from '@src/environments/environment';
 
 export type ModuleResponse = Module;
@@ -11,7 +11,7 @@ export type ModuleResponse = Module;
 })
 export class ModuleService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/module`;
+  private readonly apiUrl = `${environment.apiUrl}/module`;
 
   getModules(): Observable<Module[]> {
     return this.http.get<Module[]>(this.apiUrl);

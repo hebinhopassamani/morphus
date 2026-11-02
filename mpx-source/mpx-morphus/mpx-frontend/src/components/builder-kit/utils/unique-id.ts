@@ -1,8 +1,10 @@
-import { Service } from '@angular/core';
+import { Injectable } from '@angular/core';
 
 const counters = new Map<string, number>();
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class UniqueId {
   private static infix = `bui${Math.floor(Math.random() * 100000).toString()}`;
 

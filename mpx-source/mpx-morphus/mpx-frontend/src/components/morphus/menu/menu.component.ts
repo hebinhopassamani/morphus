@@ -19,7 +19,7 @@ import {
   BuiSidebarSectionContent,
   BuiSidebarSectionHeader,
 } from '@builder-kit/sidebar';
-import { Menu } from '@security/entities/Menu';
+import { Menu } from '@security/entities/menu';
 
 @Component({
   selector: 'mpx-menu',

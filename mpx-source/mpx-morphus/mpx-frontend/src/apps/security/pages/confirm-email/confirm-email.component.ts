@@ -3,7 +3,7 @@ import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Auth } from '@core/auth';
+import { Auth } from '@core/mpx-auth';
 
 @Component({
   selector: 'sec-confirm-email',

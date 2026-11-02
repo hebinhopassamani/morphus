@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UserClaim } from '@security/entities/UserClaims';
+import { UserClaim } from '@security/entities/user-claim';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { environment } from '@src/environments/environment';
 })
 export class UserClaimService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/userclaim`;
+  private readonly apiUrl = `${environment.apiUrl}/userclaim`;
 
   getAll(): Observable<UserClaim[]> {
     return this.http.get<UserClaim[]>(this.apiUrl);

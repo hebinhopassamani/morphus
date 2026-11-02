@@ -7,10 +7,11 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { Auth } from '@core/auth';
+import { Auth } from '@core/mpx-auth';
+import { MpxMessageComponent } from '@/components/morphus/message';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, MpxMessageComponent],
   selector: 'mpx-root',
   host: {
     class: 'flex min-h-full w-full flex-auto flex-col',

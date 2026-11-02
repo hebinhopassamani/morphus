@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '@/environments/environment';
-import { Menu } from '@security/entities/Menu';
+import { Menu } from '@security/entities/menu';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class MenuService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/menu`;
+  private readonly apiUrl = `${environment.apiUrl}/menu`;
 
   getById(id: string): Observable<Menu> {
     return this.http.get<Menu>(`${this.apiUrl}/${id}`);

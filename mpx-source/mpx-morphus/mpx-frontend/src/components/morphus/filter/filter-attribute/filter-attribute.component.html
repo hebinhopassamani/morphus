@@ -1,0 +1,183 @@
+<div class="flex w-full flex-col gap-2 rounded-lg border border-neutral-a4 bg-neutral-a2 p-2.5 md:flex-row md:items-center md:gap-1.5">
+  <!-- Abre Parênteses "(" + Seleção da Coluna -->
+  <div class="flex w-full items-center gap-1.5 md:w-56">
+    <button
+      matButton
+      type="button"
+      class="min-w-8! shrink-0 px-1.5! font-mono text-lg font-bold"
+      [class.bg-primary-a4]="filterRow.openParenthesis"
+      [class.text-primary-11]="filterRow.openParenthesis"
+      matTooltip="Abrir parênteses nesta condição"
+      (click)="toggleOpenParenthesis()"
+    >
+      {{ filterRow.openParenthesis ? '(' : '·' }}
+    </button>
+
+    <mat-form-field class="small min-w-0 flex-1" subscriptSizing="dynamic">
+      <mat-select
+        placeholder="Coluna"
+        [compareWith]="compareColumns"
+        [(ngModel)]="filterRow.column"
+        (ngModelChange)="onColumnSelected($event)"
+      >
+        @for (col of columns(); track col.name ?? col.label) {
+          <mat-option [value]="col">{{ col.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Seleção do Operador -->
+  <div class="w-full md:w-44">
+    <mat-form-field class="small w-full" subscriptSizing="dynamic">
+      <mat-select
+        placeholder="Operador"
+        [compareWith]="compareOperators"
+        [(ngModel)]="filterRow.operator"
+        (ngModelChange)="onOperatorSelected($event)"
+      >
+        @for (op of filterRow.column.operators ?? []; track op.label) {
+          <mat-option [value]="op">{{ op.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Valor dinâmico conforme o dataType da Coluna -->
+  <div class="w-full min-w-0 flex-1">
+    @switch (filterRow.column.dataType) {
+      @case ('int') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="number"
+            step="1"
+            placeholder="Informe um número inteiro..."
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+        </mat-form-field>
+      }
+      @case ('decimal') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="number"
+            step="0.01"
+            placeholder="0,00"
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+        </mat-form-field>
+      }
+      @case ('boolean') {
+        <div class="flex h-9 items-center gap-3 rounded-md border border-neutral-a5 bg-surface px-3">
+          <mat-slide-toggle
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+          <span class="mpx-body-small font-medium text-neutral-12">
+            O valor é {{ filterRow.value ? 'Verdadeiro' : 'Falso' }}
+          </span>
+        </div>
+      }
+      @case ('date') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="date"
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+        </mat-form-field>
+      }
+      @case ('datetime') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="datetime-local"
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+        </mat-form-field>
+      }
+      @case ('select_list') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <mat-select
+            placeholder="Selecione uma opção..."
+            [compareWith]="compareOptions"
+            [(ngModel)]="selectedOptionItem"
+            (ngModelChange)="onOptionSelect($event)"
+          >
+            @for (item of filterRow.column.optionsList ?? []; track $index) {
+              <mat-option [value]="item">{{ getOptionLabel(item) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+      @case ('guid')
+      @case ('text')
+      @case ('email')
+      @case ('cpf')
+      @case ('cnpj') {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="text"
+            placeholder="Digite o valor..."
+            [(ngModel)]="filterRow.value"
+            (ngModelChange)="onValueChange($event)"
+          />
+        </mat-form-field>
+      }
+      @default {
+        <mat-form-field class="small w-full" subscriptSizing="dynamic">
+          <input
+            matInput
+            type="text"
+            placeholder="Selecione uma coluna primeiro..."
+            [disabled]="true"
+          />
+        </mat-form-field>
+      }
+    }
+  </div>
+
+  <!-- Fecha Parênteses ")" + Condicional And/Or + Excluir Linha -->
+  <div class="flex w-full items-center gap-1.5 md:w-40">
+    <button
+      matButton
+      type="button"
+      class="min-w-8! shrink-0 px-1.5! font-mono text-lg font-bold"
+      [class.bg-primary-a4]="filterRow.closeParenthesis"
+      [class.text-primary-11]="filterRow.closeParenthesis"
+      matTooltip="Fechar parênteses nesta condição"
+      (click)="toggleCloseParenthesis()"
+    >
+      {{ filterRow.closeParenthesis ? ')' : '·' }}
+    </button>
+
+    <mat-form-field class="small min-w-0 flex-1" subscriptSizing="dynamic">
+      <mat-select
+        placeholder="..."
+        [disabled]="rowInvalid()"
+        [(ngModel)]="filterRow.andOr"
+        (ngModelChange)="onAndOrSelected($event)"
+      >
+        @for (opt of andOrOptions(); track opt.label) {
+          <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      matIconButton
+      type="button"
+      class="small shrink-0 text-red-a11 hover:bg-red-a3"
+      matTooltip="Excluir esta linha"
+      (click)="deleteRowClick()"
+    >
+      <mat-icon svgIcon="trash" />
+    </button>
+  </div>
+</div>

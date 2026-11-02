@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Claim } from '@security/entities/Claims';
+import { Claim } from '@security/entities/claim';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { environment } from '@src/environments/environment';
 })
 export class ClaimService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/claim`;
+  private readonly apiUrl = `${environment.apiUrl}/claim`;
 
   getAll(): Observable<Claim[]> {
     return this.http.get<Claim[]>(this.apiUrl);

@@ -1,5 +1,5 @@
 import { MorphusValidator } from '@core/mpx-validators';
-import { IModule } from '@security/entities/Modules';
+import { IModule } from '@security/entities/module';
 
 export class ModuleValidator extends MorphusValidator<IModule> {
   public configure(builder: MorphusValidator<IModule>): void {

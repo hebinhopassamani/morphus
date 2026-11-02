@@ -17,7 +17,7 @@
       "@morphus/*": ["./src/apps/morphus/*"],
       "@website/*": ["./src/apps/website/*"],
       "@security/*": ["./src/apps/security/*"],
-      "@core/*": ["./src/apps/core/*"],
+      "@core/*": ["./src/core/*"],
       "@src/*": ["./src/*"],
       "@/*": ["./src/*"],
       "@builder-kit/*": ["./src/components/builder-kit/*"]

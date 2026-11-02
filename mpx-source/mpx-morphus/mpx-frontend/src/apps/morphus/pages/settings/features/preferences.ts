@@ -10,7 +10,7 @@ import {
   MatSelectTrigger,
 } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { Scheme, Theming } from '@/apps/core/theming';
+import { Scheme, Theming } from '@core/mpx-theming';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
 import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-changes';
 

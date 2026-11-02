@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Auth } from '@/apps/core/auth';
+import { Auth } from '@core/mpx-auth';
 
 @Component({
   selector: 'sec-signout',

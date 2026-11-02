@@ -1,11 +1,11 @@
-import { computed, effect, inject, Service, signal, untracked } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth } from '@/apps/core/auth';
-import { LocalStorage } from '@/apps/core/local-storage';
+import { Auth } from '@core/mpx-auth';
+import { LocalStorage } from '@core/mpx-local-storage';
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
-import { Menu } from '@security/entities/Menu';
-import { CorporationSummary } from '@security/entities/Session';
+import { Menu } from '@security/entities/menu';
+import { CorporationSummary } from '@security/entities/session';
 import { MenuService } from './menu.service';
 import { WorkspaceService } from './workspace.service';
 
@@ -13,7 +13,9 @@ const ACTIVE_WORKSPACE_STORAGE_KEY = 'morphus:activeWorkspaceId';
 const ACTIVE_APPLICATION_STORAGE_KEY = 'morphus:activeApplicationId';
 const INVISIBLE_APPLICATION_KEYS = new Set(['SECURITY', 'WEBSITE']);
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class MorphusContextService {
   private readonly auth = inject(Auth);
   private readonly router = inject(Router);

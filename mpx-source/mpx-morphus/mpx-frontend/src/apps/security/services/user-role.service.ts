@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { UserRole } from '@security/entities/UserRoles';
+import { UserRole } from '@security/entities/user-role';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { environment } from '@src/environments/environment';
 })
 export class UserRoleService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/userrole`;
+  private readonly apiUrl = `${environment.apiUrl}/userrole`;
 
   getAll(): Observable<UserRole[]> {
     return this.http.get<UserRole[]>(this.apiUrl);

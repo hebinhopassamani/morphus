@@ -1,13 +1,15 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Service } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '@/environments/environment';
 import { MorphusApplication } from '@morphus/entities/application';
 
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class ApplicationService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/application`;
+  private readonly apiUrl = `${environment.apiUrl}/application`;
 
   getById(id: string): Observable<MorphusApplication> {
     return this.http.get<MorphusApplication>(`${this.apiUrl}/${id}`);

@@ -10,7 +10,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '@/environments/environment';
-import { Auth } from '@core/auth';
+import { Auth } from '@core/mpx-auth';
 
 declare global {
   interface Window {

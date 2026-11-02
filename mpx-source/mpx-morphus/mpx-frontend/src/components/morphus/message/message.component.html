@@ -1,0 +1,233 @@
+<div
+  buiDialog
+  class="w-full max-w-lg"
+  [(open)]="messageService.opened"
+  [disableClose]="!!messageService.message().disableClose"
+  [autoFocus]="undefined"
+>
+  <ng-template buiDialogPortal>
+    <div buiDialogBackdrop></div>
+
+    @if (syncIfNewMessage(); as _synced) {
+      @let msg = messageService.message();
+
+      <div
+        buiDialogContent
+        class="max-w-none gap-y-0 overflow-hidden border p-0"
+        [class.border-green-a6]="msg.severity === 'success'"
+        [class.border-blue-a6]="msg.severity === 'info'"
+        [class.border-amber-a6]="msg.severity === 'warn'"
+        [class.border-error-a6]="msg.severity === 'error'"
+      >
+        <!-- Cabeçalho sutilmente mais forte no topo -->
+        <div
+          buiDialogHeader
+          class="flex flex-row items-center justify-between gap-x-4 border-b px-5 py-4 sm:px-6"
+          [class.border-green-a5]="msg.severity === 'success'"
+          [class.bg-green-a4]="msg.severity === 'success'"
+          [class.border-blue-a5]="msg.severity === 'info'"
+          [class.bg-blue-a4]="msg.severity === 'info'"
+          [class.border-amber-a5]="msg.severity === 'warn'"
+          [class.bg-amber-a4]="msg.severity === 'warn'"
+          [class.border-error-a5]="msg.severity === 'error'"
+          [class.bg-error-a4]="msg.severity === 'error'"
+        >
+          <div class="flex items-center gap-x-3">
+            <div
+              class="flex size-9 shrink-0 items-center justify-center rounded-lg"
+              [class.bg-green-a5]="msg.severity === 'success'"
+              [class.text-green-11]="msg.severity === 'success'"
+              [class.bg-blue-a5]="msg.severity === 'info'"
+              [class.text-blue-11]="msg.severity === 'info'"
+              [class.bg-amber-a5]="msg.severity === 'warn'"
+              [class.text-amber-11]="msg.severity === 'warn'"
+              [class.bg-error-a5]="msg.severity === 'error'"
+              [class.text-error-11]="msg.severity === 'error'"
+            >
+              <mat-icon class="size-5" [svgIcon]="msg.icon || 'info'" />
+            </div>
+
+            <div
+              buiDialogTitle
+              class="mpx-title-large"
+              [class.text-green-11]="msg.severity === 'success'"
+              [class.text-blue-11]="msg.severity === 'info'"
+              [class.text-amber-11]="msg.severity === 'warn'"
+              [class.text-error-11]="msg.severity === 'error'"
+            >
+              {{ msg.title }}
+              @if (msg.titleLink?.visible && msg.titleLink?.text) {
+                <a
+                  [href]="msg.titleLink?.url || '#'"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="ms-1.5 underline hover:opacity-80"
+                >
+                  {{ msg.titleLink?.text }}
+                </a>
+              }
+            </div>
+          </div>
+
+          @if (msg.closable !== false) {
+            <button
+              matIconButton
+              type="button"
+              class="tiny -mr-1 text-neutral-a11 hover:text-neutral-12"
+              buiDialogClose
+              matTooltip="Fechar"
+              (click)="cancelClick()"
+            >
+              <mat-icon svgIcon="x" />
+            </button>
+          }
+        </div>
+
+        <!-- Corpo principal do Popup TODO colorido na cor da severidade (sem rolagem, cresce livremente) -->
+        <div
+          buiDialogBody
+          class="flex flex-col gap-y-4 px-5 py-5 sm:px-6"
+          [class.bg-green-a3]="msg.severity === 'success'"
+          [class.bg-blue-a3]="msg.severity === 'info'"
+          [class.bg-amber-a3]="msg.severity === 'warn'"
+          [class.bg-error-a3]="msg.severity === 'error'"
+        >
+          <div buiDialogDescription class="mpx-body-large break-words whitespace-pre-line text-neutral-12">
+            {{ msg.detail }}
+            @if (msg.detailLink?.visible && msg.detailLink?.text) {
+              <a
+                [href]="msg.detailLink?.url || '#'"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="ms-1.5 underline hover:opacity-80"
+              >
+                {{ msg.detailLink?.text }}
+              </a>
+            }
+          </div>
+
+          <!-- Dupla Checagem por Checkbox (doubleCheck: true) -->
+          @if (msg.doubleCheck) {
+            <div
+              class="flex items-center rounded-lg border px-3 py-2"
+              [class.border-green-a5]="msg.severity === 'success'"
+              [class.bg-green-a2]="msg.severity === 'success'"
+              [class.border-blue-a5]="msg.severity === 'info'"
+              [class.bg-blue-a2]="msg.severity === 'info'"
+              [class.border-amber-a5]="msg.severity === 'warn'"
+              [class.bg-amber-a2]="msg.severity === 'warn'"
+              [class.border-error-a5]="msg.severity === 'error'"
+              [class.bg-error-a2]="msg.severity === 'error'"
+            >
+              <mat-checkbox [(ngModel)]="doubleCheckChecked">
+                <span class="mpx-body-small font-medium text-neutral-12">
+                  {{ msg.doubleCheckLabel || 'Estou ciente e confirmo esta operação.' }}
+                </span>
+              </mat-checkbox>
+            </div>
+          }
+
+          <!-- Dupla Checagem estilo GitHub por Texto (doubleCheckText: '...') -->
+          @if (msg.doubleCheckText) {
+            <div
+              class="flex flex-col gap-y-2 rounded-lg border p-3"
+              [class.border-green-a5]="msg.severity === 'success'"
+              [class.bg-green-a2]="msg.severity === 'success'"
+              [class.border-blue-a5]="msg.severity === 'info'"
+              [class.bg-blue-a2]="msg.severity === 'info'"
+              [class.border-amber-a5]="msg.severity === 'warn'"
+              [class.bg-amber-a2]="msg.severity === 'warn'"
+              [class.border-error-a5]="msg.severity === 'error'"
+              [class.bg-error-a2]="msg.severity === 'error'"
+            >
+              <span class="mpx-body-small text-neutral-11">
+                Para confirmar, digite
+                <code class="mx-1 rounded bg-neutral-a4 px-1.5 py-0.5 font-mono font-bold text-neutral-12">{{ msg.doubleCheckText }}</code>
+                abaixo:
+              </span>
+
+              <mat-form-field class="small w-full" subscriptSizing="dynamic">
+                <input
+                  matInput
+                  type="text"
+                  autocomplete="off"
+                  [placeholder]="msg.doubleCheckPlaceholder || msg.doubleCheckText"
+                  [(ngModel)]="doubleCheckInput"
+                />
+              </mat-form-field>
+            </div>
+          }
+
+          <!-- Detalhes técnicos do erro (quando msg.error existir) -->
+          @if (msg.error) {
+            <div class="flex flex-col gap-y-2">
+              <div class="flex items-center justify-between">
+                <button
+                  matButton
+                  type="button"
+                  class="small"
+                  (click)="messageService.toggleTechnicalError()"
+                >
+                  <mat-icon [svgIcon]="messageService.showTechnicalError() ? 'chevron-up' : 'bug'" />
+                  {{ messageService.showTechnicalError() ? 'Ocultar detalhes do erro' : 'Detalhes do erro' }}
+                </button>
+              </div>
+
+              @if (messageService.showTechnicalError()) {
+                <pre class="max-h-48 overflow-auto rounded-lg border border-error-a5 bg-error-a2 p-3 font-mono text-xs whitespace-pre-wrap text-error-11">{{ formatTechnicalError(msg.error) }}</pre>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Rodapé sem linha divisória -->
+        <div
+          buiDialogFooter
+          class="flex w-full items-center justify-end gap-x-2.5 px-5 pt-1 pb-4 sm:px-6"
+          [class.bg-green-a3]="msg.severity === 'success'"
+          [class.bg-blue-a3]="msg.severity === 'info'"
+          [class.bg-amber-a3]="msg.severity === 'warn'"
+          [class.bg-error-a3]="msg.severity === 'error'"
+        >
+          @if (msg.showCancelButton || msg.isConfirmation) {
+            <button
+              matButton
+              type="button"
+              (click)="cancelClick()"
+            >
+              @if (msg.cancelButtonIcon) {
+                <mat-icon [svgIcon]="msg.cancelButtonIcon" />
+              }
+              {{ msg.cancelButtonText || 'Cancelar' }}
+            </button>
+          }
+
+          <button
+            matButton
+            type="button"
+            class="border"
+            [disabled]="isConfirmDisabled()"
+            [class.border-green-a6!]="msg.severity === 'success' && !isConfirmDisabled()"
+            [class.bg-green-a4!]="msg.severity === 'success' && !isConfirmDisabled()"
+            [class.text-green-11!]="msg.severity === 'success' && !isConfirmDisabled()"
+            [class.border-blue-a6!]="msg.severity === 'info' && !isConfirmDisabled()"
+            [class.bg-blue-a4!]="msg.severity === 'info' && !isConfirmDisabled()"
+            [class.text-blue-11!]="msg.severity === 'info' && !isConfirmDisabled()"
+            [class.border-amber-a6!]="msg.severity === 'warn' && !isConfirmDisabled()"
+            [class.bg-amber-a4!]="msg.severity === 'warn' && !isConfirmDisabled()"
+            [class.text-amber-11!]="msg.severity === 'warn' && !isConfirmDisabled()"
+            [class.border-error-a6!]="msg.severity === 'error' && !isConfirmDisabled()"
+            [class.bg-error-a4!]="msg.severity === 'error' && !isConfirmDisabled()"
+            [class.text-error-11!]="msg.severity === 'error' && !isConfirmDisabled()"
+            (click)="confirmClick()"
+          >
+            @if (msg.confirmButtonIcon) {
+              <mat-icon [svgIcon]="msg.confirmButtonIcon" />
+            }
+            {{ msg.confirmButtonText || 'OK' }}
+          </button>
+        </div>
+      </div>
+    }
+  </ng-template>
+</div>

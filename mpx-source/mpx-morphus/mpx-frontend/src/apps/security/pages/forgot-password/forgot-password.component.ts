@@ -5,7 +5,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@core/auth';
+import { Auth } from '@core/mpx-auth';
 
 @Component({
   selector: 'sec-forgot-password',

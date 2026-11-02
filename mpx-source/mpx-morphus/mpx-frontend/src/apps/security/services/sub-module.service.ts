@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { SubModule } from '@security/entities/SubModules';
+import { SubModule } from '@security/entities/sub-module';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -9,7 +9,7 @@ import { environment } from '@src/environments/environment';
 })
 export class SubModuleService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/submodule`;
+  private readonly apiUrl = `${environment.apiUrl}/submodule`;
 
   getAll(): Observable<SubModule[]> {
     return this.http.get<SubModule[]>(this.apiUrl);

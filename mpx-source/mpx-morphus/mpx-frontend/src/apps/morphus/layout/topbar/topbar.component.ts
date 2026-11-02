@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@/apps/core/auth';
-import { Scheme, Theming } from '@/apps/core/theming';
+import { Auth } from '@core/mpx-auth';
+import { Scheme, Theming } from '@core/mpx-theming';
 import { MpxQuickSettingsComponent } from '@morphus/layout/topbar/quick-settings.component';
 
 @Component({

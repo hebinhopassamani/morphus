@@ -142,4 +142,6 @@ iv. Jamais coloque o html debtro do .ts na tag template, isso dificulta imensame
 
 2. Dentro de uma pasta voê irá encontra varias subpastas, ou varios arquivos, jamais misture subpasta e arquivos dentro de uma pasta, mesmo que seja um unico arquivo crie uma subpasta para ele. Isso porque futuramente podem aparecer novos arquivos irãos daquele que ficaria sozinha ai vc teria que criar a sub pasta para colocar os dois irmão juntos e quebraria o codigo todo.
 
-As regras acima são para aplicação no frontend. Isso porque no backend a cleanarchitecture resolve muito a respeito de pasroes de desenvolvimento.</nom-do-componente></nom-do-componente>
+3. **Tom de Voz Amigável e Descontraído (UX Writing)**: A parte mais importante de um sistema é saber conversar com o seu usuário. Todos os textos das telas do Morphus (títulos, descrições, instruções, mensagens de espera e feedbacks) devem ser muito amigáveis, leves, acolhedores e descontraídos.
+
+As regras acima são para aplicação no frontend. Isso porque no backend a cleanarchitecture resolve muito a respeito de pasroes de desenvolvimento.

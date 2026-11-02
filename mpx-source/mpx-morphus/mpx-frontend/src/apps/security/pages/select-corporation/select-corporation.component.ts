@@ -11,8 +11,8 @@ import {
 } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Auth } from '@core/auth';
-import { CorporationSummary } from '@security/entities/Session';
+import { Auth } from '@core/mpx-auth';
+import { CorporationSummary } from '@security/entities/session';
 
 type CardAccent = {
   bannerClass: string;

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
-import { Corporation } from '@security/entities/Corporations';
+import { Corporation } from '@security/entities/corporation';
 
 @Component({
   selector: 'mpx-corporation-list',

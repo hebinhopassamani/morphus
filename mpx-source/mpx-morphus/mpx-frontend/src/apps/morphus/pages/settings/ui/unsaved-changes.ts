@@ -1,7 +1,7 @@
 import { Component, inject, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Theming } from '@/apps/core/theming';
+import { Theming } from '@core/mpx-theming';
 
 @Component({
   selector: 'settings-unsaved-changes',

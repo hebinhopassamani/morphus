@@ -15,7 +15,7 @@ import {
   MatInput,
   MatLabel,
 } from '@angular/material/input';
-import { Auth } from '@/apps/core/auth';
+import { Auth } from '@core/mpx-auth';
 import {
   BuiDialog,
   BuiDialogBackdrop,

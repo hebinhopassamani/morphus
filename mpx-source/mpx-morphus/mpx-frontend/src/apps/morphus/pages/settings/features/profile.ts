@@ -18,7 +18,7 @@ import {
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Auth } from '@/apps/core/auth';
+import { Auth } from '@core/mpx-auth';
 import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-changes';
 import { SettingsUpdateEmail } from '@morphus/pages/settings/ui/update-email';
 

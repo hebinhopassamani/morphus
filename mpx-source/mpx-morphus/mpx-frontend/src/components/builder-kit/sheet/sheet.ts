@@ -17,7 +17,7 @@ import {
   input,
   model,
   output,
-  Service,
+  Injectable,
   signal,
   TemplateRef,
   untracked,
@@ -27,9 +27,11 @@ import { filter } from 'rxjs';
 import { bui, UniqueId } from '../utils';
 
 // -----------------------------------------------------------------------------
-// Sheet Service
+// Sheet Injectable
 // -----------------------------------------------------------------------------
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class BuiSheetService {
   // State
   readonly openSheetsCount = signal(0);
@@ -100,7 +102,7 @@ export class BuiSheet {
   );
 
   readonly depth = computed(() => {
-    // Get total number of open dialogs from the service
+    // Get total number of open dialogs from the Injectable
     const totalCount = this.sheetService.openSheetsCount();
 
     // Bail if this specific dialog isn't open yet
@@ -237,7 +239,7 @@ export class BuiSheet {
         .centerVertically(),
     });
 
-    // Update the open sheets count in the service
+    // Update the open sheets count in the Injectable
     this.sheetService.openSheetsCount.set(this.dialog.openDialogs.length);
 
     // Emit opened event

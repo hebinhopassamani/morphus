@@ -5,8 +5,8 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@/apps/core/auth';
-import { Theming } from '@/apps/core/theming';
+import { Auth } from '@core/mpx-auth';
+import { Theming } from '@core/mpx-theming';
 import {
   BuiSidebar,
   BuiSidebarBody,
@@ -17,7 +17,7 @@ import {
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { CorporationSummary } from '@security/entities/Session';
+import { CorporationSummary } from '@security/entities/session';
 import { MpxMenuComponent } from '@src/components/morphus/menu';
 
 @Component({

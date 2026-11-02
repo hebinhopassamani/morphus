@@ -18,7 +18,7 @@ import {
   input,
   model,
   output,
-  Service,
+  Injectable,
   signal,
   TemplateRef,
   untracked,
@@ -28,9 +28,11 @@ import { filter } from 'rxjs';
 import { bui, UniqueId } from '../utils';
 
 // -----------------------------------------------------------------------------
-// Dialog Service
+// Dialog Injectable
 // -----------------------------------------------------------------------------
-@Service()
+@Injectable({
+  providedIn: 'root',
+})
 export class BuiDialogService {
   // State
   readonly openDialogsCount = signal(0);
@@ -102,7 +104,7 @@ export class BuiDialog {
     )
   );
   readonly depth = computed(() => {
-    // Get total number of open dialogs from the service
+    // Get total number of open dialogs from the Injectable
     const totalCount = this.dialogService.openDialogsCount();
 
     // Bail if this specific dialog isn't open yet
@@ -241,7 +243,7 @@ export class BuiDialog {
         .centerVertically(),
     });
 
-    // Update the open dialogs count in the service
+    // Update the open dialogs count in the Injectable
     this.dialogService.openDialogsCount.set(this.dialog.openDialogs.length);
 
     // Emit opened event

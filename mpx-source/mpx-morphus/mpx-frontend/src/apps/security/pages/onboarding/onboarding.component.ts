@@ -6,8 +6,8 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Auth } from '@core/auth';
-import { OnboardingApplicationItem } from '@security/entities/Session';
+import { Auth } from '@core/mpx-auth';
+import { OnboardingApplicationItem } from '@security/entities/session';
 
 @Component({
   selector: 'sec-onboarding',

@@ -1,0 +1,35 @@
+import { IMorphusMessage } from './morphus-message.interface';
+
+export const DefaultMorphusMessage: IMorphusMessage = {
+  id: undefined,
+  severity: 'info',
+  title: 'Informação',
+  detail: '',
+  icon: 'info',
+  titleLink: {
+    text: undefined,
+    url: undefined,
+    visible: false,
+  },
+  detailLink: {
+    text: undefined,
+    url: undefined,
+    visible: false,
+  },
+  isConfirmation: false,
+  confirmButtonText: 'OK',
+  confirmButtonIcon: 'check',
+  cancelButtonText: 'Cancelar',
+  cancelButtonIcon: 'x',
+  showCancelButton: false,
+  closable: true,
+  disableClose: false,
+  doubleCheck: false,
+  doubleCheckLabel: 'Estou ciente e confirmo esta operação.',
+  doubleCheckText: undefined,
+  doubleCheckPlaceholder: 'Digite exatamente o texto acima...',
+  error: undefined,
+  data: undefined,
+  onConfirm: undefined,
+  onCancel: undefined,
+};

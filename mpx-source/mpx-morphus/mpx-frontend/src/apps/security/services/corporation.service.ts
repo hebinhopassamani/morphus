@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Corporation } from '@security/entities/Corporations';
-import { CorporationUser } from '@security/entities/CorporationUsers';
+import { Corporation } from '@security/entities/corporation';
+import { CorporationUser } from '@security/entities/corporation-user';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -10,8 +10,8 @@ import { environment } from '@src/environments/environment';
 })
 export class CorporationService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/api/v1/corporation`;
-  private readonly corpUserUrl = `${environment.apiUrl}/api/v1/corporationuser`;
+  private readonly apiUrl = `${environment.apiUrl}/corporation`;
+  private readonly corpUserUrl = `${environment.apiUrl}/corporationuser`;
 
   getAll(): Observable<Corporation[]> {
     return this.http.get<Corporation[]>(this.apiUrl);
