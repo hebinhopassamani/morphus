@@ -20,10 +20,10 @@ namespace Mpx.CrossCutting;
 
 public static class DependencyInjection
 {
-  public static WebApplicationBuilder AddMorphusDependecyInjection(this WebApplicationBuilder builder)
+  public static WebApplicationBuilder AddMorphusDependencyInjection(this WebApplicationBuilder builder)
   {
     AddCors(builder);
-    AddMorhusDbContext(builder);
+    AddMorphusDbContext(builder);
     AddDependencyInjection(builder);
     AddJsonSettings(builder);
     AddMorphusJwtAuthentication(builder);
@@ -183,7 +183,7 @@ public static class DependencyInjection
     return builder;
   }
 
-  private static WebApplicationBuilder AddMorhusDbContext(this WebApplicationBuilder builder)
+  private static WebApplicationBuilder AddMorphusDbContext(this WebApplicationBuilder builder)
   {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

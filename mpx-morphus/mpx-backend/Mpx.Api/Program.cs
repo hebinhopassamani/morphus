@@ -2,7 +2,7 @@ using Mpx.CrossCutting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddMorphusDependecyInjection();
+builder.AddMorphusDependencyInjection();
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();

@@ -1,0 +1,150 @@
+{
+  "files": {
+    "associations": {
+      "index.ts": "gemini",
+      "*.css": "codecov",
+      "*.ts": "react_ts",
+      "*.tsx": "react",
+      "*.morphus.ts": "fsharp",
+      "*.class.ts": "epub",
+      "*.object.ts": "puppet",
+      "*.reflected.ts": "database",
+      "*.entity.ts": "database",
+      "*.interface.ts": "json",
+      "*.model.ts": "log",
+      "*.type.ts": "tilt",
+      "*.types.ts": "tilt",
+      "*.props.ts": "less",
+      "*.property.ts": "json",
+      "*.default.ts": "dotjs",
+      "*.initial.ts": "raml",
+      "*.empty.ts": "raml",
+      "*.dto.ts": "regedit",
+      "*.data.ts": "database",
+      "*.util.ts": "lib",
+      "*.enum.ts": "contributing",
+      "*.enums.ts": "contributing",
+      "*.function.ts": "ejs",
+      "*.collection.ts": "julia",
+      "*.service.ts": "esbuild",
+      "*.validator.ts": "velite",
+      "*.config.ts": "settings",
+      "*.filter.ts": "credits",
+      "*.messages.ts": "email",
+      "*.builder.ts": "apiblueprint",
+      "*.reader.ts": "console",
+      "*.guid.ts": "dependencies-update",
+      "*.server.ts": "3d",
+      "*.component.ts": "fsharp",
+      "*.transloco.ts": "dependencies-update",
+      "*.context.ts": "tree",
+      "*.provider.ts": "drawio",
+      "*.hook.ts": "dependencies-update",
+      "*.auth.ts": "lock"
+    }
+  },
+  "folders": {
+    "associations": {
+      "flowbit": "components",
+      "morphus": "routes",
+      "tailwind": "bloc",
+      "mps-http": "global",
+      "mps-auth": "guard",
+      "mps-help": "event",
+      "mps-file-reader": "archive",
+      "mps-html-emails": "mjml",
+      "mps-email": "mail",
+      "mps-menus": "enum",
+      "mps-filter": "filter",
+      "mps-base": "public",
+      "mps-shared": "shared",
+      "mps-message": "messages",
+      "mps-util": "utils",
+      "mps-validator": "resolver",
+      "mps-empty": "less",
+      "mps-model": "metro",
+      "mps-error": "error",
+      "mps-type": "enum",
+      "mps-styles": "css",
+      "mps-theme": "theme",
+      "mps-icon": "molecule",
+      "mps-interceptor": "interceptor",
+      "MorphusController": "interceptor",
+      "MorphusService": "stack",
+      "MorphusValidator": "class",
+      "IRepositories": "repository",
+      "IRepository": "repository",
+      "Repositories": "repository",
+      "Repository": "repository",
+      "ITransaction": "server",
+      "Transaction": "server",
+      "thipography": "font",
+      "ioc": "ci",
+      "dtos": "element",
+      "features": "webpack",
+      "entities": "src",
+      "not-found": "error",
+      "contexts": "context",
+      "material": "ui",
+      "user": "json"
+    },
+    "customClones": [
+      {
+        "name": "mpslayout",
+        "base": "resource",
+        "color": "light-blue-700",
+        "lightColor": "blue-700",
+        "folderNames": [
+          "Topbar",
+          "Navigation",
+          "Content",
+          "Header",
+          "topbar",
+          "navigation",
+          "content",
+          "header",
+          "sidebar"
+        ]
+      },
+      {
+        "name": "mpsCore",
+        "base": "node",
+        "color": "light-blue-700",
+        "lightColor": "blue-700",
+        "folderNames": [
+          "mpx-auth",
+          "mpx-base",
+          "mpx-email",
+          "mpx-entities",
+          "mpx-http",
+          "mpx-icons",
+          "mpx-local-storage",
+          "mpx-media",
+          "mpx-mock-server",
+          "mpx-theming",
+          "mpx-validators",
+          "mpx-viewport-scroller",
+          "mpx-window"
+        ]
+      },
+      {
+        "name": "mpsentities",
+        "base": "database",
+        "color": "light-green-800",
+        "lightColor": "green-800",
+        "folderNames": [
+          "user"
+        ]
+      },
+      {
+        "name": "mpsmodels",
+        "base": "element",
+        "color": "red-800",
+        "lightColor": "green-800",
+        "folderNames": [
+          "session"
+        ]
+      }
+    ]
+  }
+}

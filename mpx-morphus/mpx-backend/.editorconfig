@@ -1,0 +1,25 @@
+# Indica que este arquivo aplica regras para os arquivos deste diretório e subdiretórios
+root = true
+
+# Configurações globais para todos os arquivos do backend
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Configurações específicas para código C# (.NET Core)
+[*.cs]
+# Organização de Usings
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = true
+
+# Estilo de chaves (Padrão C# Allman - chaves na nova linha)
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+
+# Preferências de codificação (Var vs Tipo explícito)
+csharp_style_var_for_built_in_types = true:suggestion
+csharp_style_var_when_type_is_apparent = true:suggestion

@@ -1,101 +1,52 @@
-## NET CORE IGNORES
+# ==========================================
+# 1. DEPENDÊNCIAS E BUILDS DO FRONTEND (Angular)
+# ==========================================
+**/node_modules/
+**/.angular/
+**/dist/
+**/tmp/
+**/out-tsc/
+**/.sass-cache/
 
-## Core de CompilaÃ§Ã£o do .NET (.NET 11 / C# 15)
-# Ignora todas as pastas de binÃ¡rios e objetos gerados pelo build
-[Bb]in/
-[Oo]bj/
-# Ignora arquivos de publicaÃ§Ã£o locais
-[Log]s/
-publish/
-*.azurePubxml
+# ==========================================
+# 2. COMPILAÇÃO E ARTEFATOS DO BACKEND (.NET Core)
+# ==========================================
+**/bin/
+**/obj/
+**/.vs/
+**/*.user
+**/*.userosscache
+**/*.suo
+**/*.userprefs
 
-## Banco de Dados e Migrations
-# Ignora o cache local do Entity Framework Core
-.dbcontext-cache/
-# NOTA: Os arquivos na pasta Data/Migrations NÃƒO sÃ£o ignorados, pois sÃ£o o histÃ³rico do banco!
+# ==========================================
+# 3. CONFIGURAÇÕES E AMBIENTES (Morphus Globais)
+# ==========================================
+**/.env
+**/.env.*
+**/appsettings.local.json
 
-## IDEs e Editores de CÃ³digo (Visual Studio / Cursor / VS Code)
-# Ferramentas de design do Visual Studio
-.vs/
-*.user
-*.userosscache
-*.suo
-*.userprefs
-
-# ConfiguraÃ§Ãµes locais do Cursor / VS Code
-# .vscode/*
-# EXCEÃ‡ÃƒO: Permite versionar as extensÃµes recomendadas para o time trabalhar igual
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/tasks.json
-!.vscode/launch.json
-
-# Ferramentas especÃ­ficas do ecossistema .NET (C# Dev Kit)
-.csdevkit/
-
-## Arquivos de ConfiguraÃ§Ã£o de Ambiente e Senhas
-# NUNCA envie suas credenciais reais da VPS ou chaves de produÃ§Ã£o
-appsettings.Production.json
-appsettings.staging.json
-
-# Se vocÃª costuma colocar senhas locais no Development, descomente a linha abaixo:
-# appsettings.Development.json
-
-## Sistemas Operacionais
-# Arquivos de miniaturas e configuraÃ§Ãµes de pastas do SO
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-.DS_Store
-
-## ANGULAR IGNORES 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
-
-# IDEs and editors
-.idea/
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# Visual Studio Code
-# .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/mcp.json
-.history/*
-
-# Miscellaneous
-.env
-/.builderkit
-/.angular/cache
+# ==========================================
+# 4. SISTEMA OPERACIONAL E LOGS
+# ==========================================
 .sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
+.env
 testem.log
-/typings
-__screenshots__/
+**/.DS_Store
+**/Thumbs.db
+**/*.log
+**/*.bak
+**/.builderkit
+**/.angular/cache
+**/connect.lock
+**/coverage
+**/libpeerconnection.log
+**/typings
 
-# System files
-.DS_Store
-Thumbs.db
-
-
-## MPX KALUPA (Ignora arquivos de dados/PDFs baixados pelo n8n, mas mantém a pasta criada no Git)
-mpx-kalupa/data/*
-!mpx-kalupa/data/.gitkeep
+# ==========================================
+# 5. REGRAS DO EDITOR (Seu Setup Limpo)
+# ==========================================
+# Oculta arquivos locais do VS Code/Cursor da equipe, 
+# mas permite compartilhar extensões se necessário
+.vscode/*
+!.vscode/extensions.json
