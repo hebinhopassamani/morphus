@@ -1,0 +1,5 @@
+@if (gIcon()) {
+  <svg [innerHTML]="getSafeIconHtml()" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"></svg>
+} @else {
+  <span class="mpx-icon-wrapper" [innerHTML]="getSafeIconHtml()"></span>
+}

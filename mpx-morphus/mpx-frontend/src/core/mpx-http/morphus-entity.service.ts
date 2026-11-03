@@ -8,7 +8,7 @@ import {
   IMorphusRelatedEntity,
   MORPHUS_EMPTY_GUID,
 } from '@core/mpx-entities';
-import { HTTP_ERROR_CODE } from './http-error-code.enum';
+import { HTTP_ERROR_CODE } from '@core/mpx-enums';
 import { MorphusHttpErrorService } from './morphus-http-error.service';
 import { MORPHUS_INSTABILITY_MESSAGE } from './morphus-http.messages';
 import { MorphusHttpService } from './morphus-http.service';

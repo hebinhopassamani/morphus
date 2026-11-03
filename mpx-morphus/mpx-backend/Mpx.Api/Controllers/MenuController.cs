@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -8,7 +9,10 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/menu")]
-public class MenuController(MenuHandler menuHandler) : ControllerBase
+public class MenuController(
+    MenuHandler menuHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<Menu>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "MENU_GET_BY_ID")]
@@ -34,9 +38,15 @@ public class MenuController(MenuHandler menuHandler) : ControllerBase
       Ok(await menuHandler.CreateAsync(menu));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "MENU_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] Menu menu) =>
-      Ok(await menuHandler.UpdateAsync(menu));
+  public async Task<IActionResult> Update([FromBody] Menu menu, Guid? id = null)
+  {
+    if (id.HasValue && menu.Id == Guid.Empty)
+      menu.Id = id.Value;
+
+    return Ok(await menuHandler.UpdateAsync(menu));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "MENU_DELETE")]

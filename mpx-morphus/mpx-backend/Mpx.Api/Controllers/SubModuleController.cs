@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -8,7 +9,10 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/sub-module")]
-public class SubModuleController(SubModuleHandler subModuleHandler) : ControllerBase
+public class SubModuleController(
+    SubModuleHandler subModuleHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<SubModule>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "SUB_MODULE_GET_BY_ID")]
@@ -26,9 +30,15 @@ public class SubModuleController(SubModuleHandler subModuleHandler) : Controller
       Ok(await subModuleHandler.CreateAsync(subModule));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "SUB_MODULE_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] SubModule subModule) =>
-      Ok(await subModuleHandler.UpdateAsync(subModule));
+  public async Task<IActionResult> Update([FromBody] SubModule subModule, Guid? id = null)
+  {
+    if (id.HasValue && subModule.Id == Guid.Empty)
+      subModule.Id = id.Value;
+
+    return Ok(await subModuleHandler.UpdateAsync(subModule));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "SUB_MODULE_DELETE")]
@@ -38,4 +48,3 @@ public class SubModuleController(SubModuleHandler subModuleHandler) : Controller
     return NoContent();
   }
 }
-

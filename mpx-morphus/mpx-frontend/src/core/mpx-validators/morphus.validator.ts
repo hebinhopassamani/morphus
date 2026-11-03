@@ -3,6 +3,9 @@ import { AbstractControl, NgModel } from '@angular/forms';
 export type StandardValidationError =
   | 'required'
   | 'email'
+  | 'invalid_email'
+  | 'invalid_cpf'
+  | 'invalid_cnpj'
   | 'minlength'
   | 'maxlength'
   | 'min'

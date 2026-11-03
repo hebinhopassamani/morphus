@@ -1,4 +1,4 @@
-import { AndOrCondicionalType, MFILTER_OPERATOR_TYPE } from './filter-operator.enum';
+import { AndOrCondicionalType, MFILTER_OPERATOR_TYPE } from '@core/mpx-types';
 
 export interface FilterOperator {
   key?: MFILTER_OPERATOR_TYPE;

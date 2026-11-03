@@ -12,19 +12,28 @@ public static class MorphusAccountSeed
       string? icon = "building-2",
       string? description = null,
       string? fullName = null,
-      bool isSystem = true)
+      bool isSystem = true,
+      string? key = null,
+      string personType = "PJ",
+      string? cpfCnpj = null)
   {
     var corporationId = Guid.NewGuid();
     var cleanName = corporationName.Trim();
+    var cleanPersonType = string.Equals(personType?.Trim(), "PF", StringComparison.OrdinalIgnoreCase) ? "PF" : "PJ";
+    var cleanCpfCnpj = string.IsNullOrWhiteSpace(cpfCnpj)
+        ? null
+        : new string(cpfCnpj.Where(char.IsDigit).Take(14).ToArray());
 
     var corporation = new Corporation
     {
       Id = corporationId,
       Name = cleanName,
       FullName = string.IsNullOrWhiteSpace(fullName) ? cleanName : fullName.Trim(),
+      PersonType = cleanPersonType,
+      CpfCnpj = cleanCpfCnpj,
       Icon = string.IsNullOrWhiteSpace(icon) ? "building-2" : icon.Trim(),
       Email = corporationEmail.Trim().ToLowerInvariant(),
-      Key = cleanName.ToUpperInvariant().Replace(" ", "_"),
+      Key = string.IsNullOrWhiteSpace(key) ? MorphusEntity.GenerateKey() : key.Trim().ToUpperInvariant(),
       System = isSystem,
       Description = description,
       CorporationId = parentCorporationId
@@ -36,7 +45,6 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Morphus",
-      Key = "MORPHUS",
       Icon = "boxes",
       System = true,
       Inactive = false,
@@ -48,7 +56,6 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Segurança",
-      Key = "SECURITY",
       Icon = "shield",
       System = true,
       Inactive = false,
@@ -60,7 +67,6 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Website",
-      Key = "WEBSITE",
       Icon = "globe",
       System = true,
       Inactive = false,
@@ -72,9 +78,8 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Kalupa Automação",
-      Key = "KALUPA",
       Icon = "workflow",
-      System = false,
+      System = true,
       Inactive = false,
       Description = "Orquestração de fluxos, webhooks e integrações inteligentes em segundo plano"
     };
@@ -84,9 +89,8 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Morphus CRM",
-      Key = "CRM",
       Icon = "users",
-      System = false,
+      System = true,
       Inactive = false,
       Description = "Gestão de funil comercial, clientes, propostas e relacionamento"
     };
@@ -96,9 +100,8 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Morphus Financeiro",
-      Key = "FINANCE",
       Icon = "wallet",
-      System = false,
+      System = true,
       Inactive = false,
       Description = "Contas a pagar e receber, fluxo de caixa, centros de custo e faturamento"
     };
@@ -116,7 +119,6 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Ativo",
-      Key = "ACTIVE",
       System = true,
       Description = "Este status ativa o usuário"
     };
@@ -126,7 +128,6 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       Name = "Inativo",
-      Key = "INACTIVE",
       System = true,
       Description = "Este status inativa o usuário"
     };
@@ -184,7 +185,6 @@ public static class MorphusAccountSeed
         CorporationId = corporationId,
         ApplicationId = def.AppId,
         Name = def.Name,
-        Key = def.Key,
         System = true,
         Description = def.Description
       };
@@ -197,7 +197,6 @@ public static class MorphusAccountSeed
           CorporationId = corporationId,
           ModuleId = mod.Id,
           Name = subDef.SubName,
-          Key = subDef.SubKey,
           System = true,
           Description = subDef.SubDesc
         };
@@ -219,7 +218,6 @@ public static class MorphusAccountSeed
       ModuleId = roleMod.Id,
       SubModuleId = roleSub.Id,
       Name = "Administrator",
-      Key = "ADMINISTRATOR",
       System = true,
       Description = "Perfil que tem acesso a todas as funcionalidades do sistema"
     };
@@ -279,6 +277,8 @@ public static class MorphusAccountSeed
     }
 
     // 6. Menus Iniciais no Banco apontando para ApplicationId
+    var (corpMod, corpSub) = subModuleLookup[("CORPORATION", "REGISTER")];
+    var (wsMod, wsSub) = subModuleLookup[("WORKSPACE", "REGISTER")];
     var (moduleMod, moduleSub) = subModuleLookup[("MODULE", "REGISTER")];
     var (menuMod, menuSub) = subModuleLookup[("MENU", "REGISTER")];
 
@@ -293,6 +293,38 @@ public static class MorphusAccountSeed
       Description = "Seção principal de administração e segurança"
     };
 
+    var corporationsMenuItem = new Menu
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporationId,
+      ApplicationId = morphusApp.Id,
+      MenuId = adminSectionMenu.Id,
+      ModuleId = corpMod.Id,
+      SubModuleId = corpSub.Id,
+      Label = "Corporações",
+      Url = "/admin/corporation",
+      Icon = "building-2",
+      Order = 1,
+      System = true,
+      Description = "Gerenciamento de corporações e filiais do sistema"
+    };
+
+    var workspacesMenuItem = new Menu
+    {
+      Id = Guid.NewGuid(),
+      CorporationId = corporationId,
+      ApplicationId = morphusApp.Id,
+      MenuId = adminSectionMenu.Id,
+      ModuleId = wsMod.Id,
+      SubModuleId = wsSub.Id,
+      Label = "Workspaces",
+      Url = "/admin/workspace",
+      Icon = "layout-grid",
+      Order = 2,
+      System = true,
+      Description = "Gerenciamento dos ambientes de trabalho (workspaces) da corporação"
+    };
+
     var modulesMenuItem = new Menu
     {
       Id = Guid.NewGuid(),
@@ -304,7 +336,7 @@ public static class MorphusAccountSeed
       Label = "Módulos",
       Url = "/admin/module",
       Icon = "boxes",
-      Order = 1,
+      Order = 3,
       System = true,
       Description = "Gerenciamento de módulos do sistema"
     };
@@ -320,12 +352,14 @@ public static class MorphusAccountSeed
       Label = "Menus",
       Url = "/admin/menu",
       Icon = "list-tree",
-      Order = 2,
+      Order = 4,
       System = true,
       Description = "Gerenciamento da árvore de menus da plataforma"
     };
 
     corporation.Menus.Add(adminSectionMenu);
+    corporation.Menus.Add(corporationsMenuItem);
+    corporation.Menus.Add(workspacesMenuItem);
     corporation.Menus.Add(modulesMenuItem);
     corporation.Menus.Add(menusMenuItem);
 
@@ -392,8 +426,8 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporation.Id,
       Name = "Morphus Workspace",
-      Key = "MORPHUS_WORKSPACE",
       Icon = "layout-grid",
+      Default = true,
       System = true,
       Inactive = false,
       Description = "Workspace padrão do ecossistema Morphus"
@@ -451,7 +485,10 @@ public static class MorphusAccountSeed
       string? icon = "building-2",
       string? description = null,
       string? fullName = null,
-      bool isSystem = false)
+      bool isSystem = false,
+      string? key = null,
+      string personType = "PJ",
+      string? cpfCnpj = null)
   {
     var (corporation, _) = CreateCorporationBaseForOnboarding(
         name,
@@ -461,15 +498,18 @@ public static class MorphusAccountSeed
         icon,
         description,
         fullName,
-        isSystem);
+        isSystem,
+        key,
+        personType,
+        cpfCnpj);
 
     var defaultWorkspace = new Workspace
     {
       Id = Guid.NewGuid(),
       CorporationId = corporation.Id,
       Name = "Morphus Workspace",
-      Key = "MORPHUS_WORKSPACE",
       Icon = "layout-grid",
+      Default = true,
       System = true,
       Inactive = false,
       Description = "Workspace padrão do ecossistema Morphus"

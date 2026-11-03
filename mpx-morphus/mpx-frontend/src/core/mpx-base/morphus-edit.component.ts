@@ -1,6 +1,6 @@
 import { computed, Directive, signal, WritableSignal } from '@angular/core';
 import { ParamMap } from '@angular/router';
-import { IMorphusEntity, IMorphusRelatedEntity } from '@core/mpx-entities';
+import { IMorphusEntity } from '@core/mpx-entities';
 import { MorphusValidator } from '@core/mpx-validators';
 import { MorphusComponent } from './morphus.component';
 
@@ -20,6 +20,11 @@ export abstract class MorphusEditComponent<
   constructor(validatorClass: new () => V) {
     super();
     this.validator = new validatorClass();
+  }
+
+  public override copyKey(keyValue?: string): void {
+    const key = keyValue ?? (this.entity() as Partial<IMorphusEntity>).key;
+    super.copyKey(key);
   }
 
   public loadPrimaryKey(

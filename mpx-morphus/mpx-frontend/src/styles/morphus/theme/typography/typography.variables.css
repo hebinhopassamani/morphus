@@ -2,8 +2,8 @@
   /* ------------------------------------------------------------------------ */
   /* Font Families & Base Scale                                               */
   /* ------------------------------------------------------------------------ */
-  --mpx-font-family: 'Roboto', system-ui, sans-serif;
-  --mpx-font-display: 'Google Sans', 'Roboto', system-ui, sans-serif;
+  --mpx-font-family: 'Plus Jakarta Sans', 'Inter', 'Roboto', system-ui, sans-serif;
+  --mpx-font-display: 'Outfit', 'Google Sans', 'Plus Jakarta Sans', system-ui, sans-serif;
   --mpx-font-mono: 'Fira Code', 'JetBrains Mono', monospace;
 
   --mpx-font-xSmall: 0.85rem;

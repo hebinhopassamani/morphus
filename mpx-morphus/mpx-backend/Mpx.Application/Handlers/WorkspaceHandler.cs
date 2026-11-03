@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -7,7 +9,9 @@ namespace Mpx.Application.Handlers;
 public class WorkspaceHandler(
     IWorkspaceRepository workspaceRepository,
     IWorkspaceUserRepository workspaceUserRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<Workspace>(httpContext)
 {
   public Task<Workspace?> GetByIdAsync(Guid id) => workspaceRepository.GetByIdAsync(id);
 
@@ -15,32 +19,48 @@ public class WorkspaceHandler(
 
   public Task<Workspace?> GetByKeyAsync(string key) => workspaceRepository.GetByKeyAsync(key);
 
-  public async Task<Workspace> CreateAsync(Workspace workspace, Guid creatorUserId)
+  public async Task<Workspace> CreateAsync(Workspace workspace, Guid? creatorUserId = null)
   {
     if (workspace.Id == Guid.Empty)
       workspace.Id = Guid.NewGuid();
 
+    if (workspace.Default)
+    {
+      await workspaceRepository.ClearDefaultsExceptAsync(workspace.Id);
+    }
+
     await workspaceRepository.AddAsync(workspace);
 
-    if (creatorUserId != Guid.Empty)
+    var ownerId = creatorUserId is not null && creatorUserId != Guid.Empty
+        ? creatorUserId.Value
+        : (UserId ?? Guid.Empty);
+
+    if (ownerId != Guid.Empty)
     {
       await workspaceUserRepository.AddRelationshipAsync(new WorkspaceUser
       {
         WorkspaceId = workspace.Id,
-        UserId = creatorUserId,
+        UserId = ownerId,
         IsOwner = true,
         System = false
       });
     }
 
     await unitOfWork.SaveChangesAsync();
+    await workspaceRepository.EnsureDefaultWorkspaceExistsAsync(workspace.Id);
     return workspace;
   }
 
   public async Task<Workspace> UpdateAsync(Workspace workspace)
   {
-    workspaceRepository.Update(workspace);
+    if (workspace.Default)
+    {
+      await workspaceRepository.ClearDefaultsExceptAsync(workspace.Id);
+    }
+
+    await workspaceRepository.UpdateNotNull(workspace, updateCorporationId: false);
     await unitOfWork.SaveChangesAsync();
+    await workspaceRepository.EnsureDefaultWorkspaceExistsAsync(workspace.Id);
     return workspace;
   }
 
@@ -50,10 +70,8 @@ public class WorkspaceHandler(
     if (existing is null)
       return;
 
-    if (existing.System)
-      throw new InvalidOperationException("Não é permitido excluir o workspace padrão do sistema.");
-
     workspaceRepository.Delete(existing);
     await unitOfWork.SaveChangesAsync();
+    await workspaceRepository.EnsureDefaultWorkspaceExistsAsync();
   }
 }

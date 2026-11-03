@@ -1,4 +1,4 @@
-import { DataBaseType, FilterColumnType } from './filter-operator.enum';
+import { DataBaseType, FilterColumnType } from '@core/mpx-types';
 import { FilterOperator } from './filter-operator.interface';
 
 export interface MorphusMask {

@@ -336,7 +336,7 @@ export class BuiSidebarButton {
       'group-hover/bui-sidebar-section-header:before:flex',
 
       // Highlight button when active
-      '[&.active]:before:flex',
+      '[&.active]:before:flex [&.active]:before:bg-primary-a3 [&.active]:text-primary-a11 [&.active]:font-medium',
 
       // Focus ring adjustments
       '-outline-offset-2',
@@ -417,7 +417,7 @@ export class BuiSidebarIcon {
 
       // When inside a "buiSidebarButton"
       this.buiSidebarButton &&
-        'group-[.active]/bui-sidebar-button:text-neutral-12',
+        'group-[.active]/bui-sidebar-button:text-primary-a11',
 
       // User classes
       this.userClass()
@@ -455,7 +455,7 @@ export class BuiSidebarLabel {
       'truncate text-start',
 
       // When inside a "buiSidebarSectionHeader"
-      this.buiSidebarSectionHeader && 'text-sm font-medium text-neutral-a11',
+      this.buiSidebarSectionHeader && 'text-sm font-medium text-primary-a11',
 
       // User classes
       this.userClass()

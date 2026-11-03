@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-public class ClaimHandler(IClaimRepository claimRepository, IUnitOfWork unitOfWork)
+public class ClaimHandler(
+    IClaimRepository claimRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<Claim>(httpContext)
 {
   public Task<Claim?> GetByIdAsync(Guid id) => claimRepository.GetByIdAsync(id);
 
@@ -22,7 +28,7 @@ public class ClaimHandler(IClaimRepository claimRepository, IUnitOfWork unitOfWo
 
   public async Task<Claim> UpdateAsync(Claim claim)
   {
-    claimRepository.Update(claim);
+    await claimRepository.UpdateNotNull(claim, updateCorporationId: false);
     await unitOfWork.SaveChangesAsync();
     return claim;
   }
@@ -40,4 +46,3 @@ public class ClaimHandler(IClaimRepository claimRepository, IUnitOfWork unitOfWo
     await unitOfWork.SaveChangesAsync();
   }
 }
-

@@ -1,9 +1,6 @@
 import { signal } from '@angular/core';
-import {
-  MFILTER_OPERATOR_ENUM,
-  MFILTER_OPERATOR_TYPE,
-  MFILTER_OPERATOR_VALUE,
-} from './filter-operator.enum';
+import { MFILTER_OPERATOR_ENUM, MFILTER_OPERATOR_VALUE } from '@core/mpx-enums';
+import { MFILTER_OPERATOR_TYPE } from '@core/mpx-types';
 import { FilterAndOr, FilterOperator } from './filter-operator.interface';
 
 export const DefaultFilterOperator: FilterOperator = {

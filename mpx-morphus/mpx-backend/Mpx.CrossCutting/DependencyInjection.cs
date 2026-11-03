@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using mpx.Domain.Interfaces;
 using Mpx.Application.Handlers;
+using Mpx.Application.Validators;
 using Mpx.Domain.Interfaces;
 using Mpx.Infrastructure.Data;
 using Mpx.Infrastructure.Data.Repositories;
@@ -36,6 +37,67 @@ public static class DependencyInjection
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<MorphusDbContext>();
     dbContext.Database.Migrate();
+
+    dbContext.Database.ExecuteSqlRaw("""
+        UPDATE users SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
+        UPDATE menus SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
+        UPDATE claims SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
+
+        INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
+        SELECT
+            gen_random_uuid(),
+            UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)),
+            true,
+            false,
+            'Corporações',
+            parent.application_id,
+            parent.id,
+            mod.id,
+            sub.id,
+            0,
+            parent.corporation_id,
+            '/admin/corporation',
+            'building-2',
+            'Gerenciamento de corporações e filiais do sistema'
+        FROM menus parent
+        LEFT JOIN modules mod ON mod.corporation_id = parent.corporation_id AND mod.key = 'CORPORATION'
+        LEFT JOIN sub_modules sub ON sub.module_id = mod.id AND sub.key = 'REGISTER'
+        WHERE parent.menu_id IS NULL
+          AND parent.label = 'Administração e Segurança'
+          AND NOT EXISTS (
+              SELECT 1 FROM menus m
+              WHERE m.corporation_id = parent.corporation_id
+                AND m.url = '/admin/corporation'
+          );
+
+        INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
+        SELECT
+            gen_random_uuid(),
+            UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)),
+            true,
+            false,
+            'Workspaces',
+            parent.application_id,
+            parent.id,
+            mod.id,
+            sub.id,
+            2,
+            parent.corporation_id,
+            '/admin/workspace',
+            'layout-grid',
+            'Gerenciamento dos ambientes de trabalho (workspaces) da corporação'
+        FROM menus parent
+        LEFT JOIN modules mod ON mod.corporation_id = parent.corporation_id AND mod.key = 'WORKSPACE'
+        LEFT JOIN sub_modules sub ON sub.module_id = mod.id AND sub.key = 'REGISTER'
+        WHERE parent.menu_id IS NULL
+          AND parent.label = 'Administração e Segurança'
+          AND NOT EXISTS (
+              SELECT 1 FROM menus m
+              WHERE m.corporation_id = parent.corporation_id
+                AND m.url = '/admin/workspace'
+          );
+        """);
+
     return app;
   }
 
@@ -93,6 +155,10 @@ public static class DependencyInjection
     builder.Services.AddScoped<IUserClaimRepository, UserClaimRepository>();
     builder.Services.AddScoped<IEmailRepository, EmailRepository>();
 
+    // Validators da Camada Application
+    builder.Services.AddScoped<ICorporationValidator, CorporationValidator>();
+    builder.Services.AddScoped<IWorkspaceValidator, WorkspaceValidator>();
+
     // Handlers da Camada Application
     builder.Services.AddScoped<SecurityHandler>();
     builder.Services.AddScoped<EmailHandler>();
@@ -143,6 +209,7 @@ public static class DependencyInjection
             {
               options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
               options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+              options.JsonSerializerOptions.MaxDepth = 128;
             });
 
     return builder;

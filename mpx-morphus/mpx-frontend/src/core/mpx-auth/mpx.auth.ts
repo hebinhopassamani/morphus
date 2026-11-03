@@ -48,6 +48,8 @@ export class MpxAuth {
   private readonly loadingState = signal<boolean>(false);
   private readonly errorState = signal<{ message: string } | null>(null);
   private readonly expirationTimerState = signal<string>('');
+  readonly autoRefresh = signal<boolean>(true);
+  private readonly refreshThresholdSeconds = 180;
 
   // Semáforo e fila reativa para renovação automática de token (inspirado no MorphusAuthService original)
   private refreshingTokenInProgress = false;
@@ -212,15 +214,23 @@ export class MpxAuth {
     }
     this.stopExpirationInterval();
 
-    this.intervalSubscription = interval(1000).subscribe(() => {
-      const seconds = Math.max(0, this.expiresIn());
-      const formatted = new Date(seconds * 1000).toISOString().substring(14, 19);
+    const tick = (): void => {
+      const accessSeconds = Math.max(0, this.accessTokenExpiresIn());
+      const formatted = new Date(accessSeconds * 1000).toISOString().substring(14, 19);
       this.expirationTimerState.set(formatted);
 
-      if (this.expired()) {
+      if (this.autoRefresh() && accessSeconds <= this.refreshThresholdSeconds && this.expiresIn() > 0) {
+        this.triggerRefreshToken();
+        return;
+      }
+
+      if (accessSeconds <= 0) {
         this.logout();
       }
-    });
+    };
+
+    tick();
+    this.intervalSubscription = interval(1000).subscribe(() => tick());
   }
 
   private stopExpirationInterval(): void {

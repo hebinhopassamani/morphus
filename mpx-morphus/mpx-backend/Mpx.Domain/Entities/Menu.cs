@@ -2,14 +2,12 @@ using Mpx.Domain.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class Menu : IMorphusTenant
+public class Menu : MorphusEntity, IMorphusTenant
 {
-  public Guid Id { get; set; }
   public required string Label { get; set; }
   public Guid ApplicationId { get; set; }
   public Guid? ModuleId { get; set; }
   public Guid? SubModuleId { get; set; }
-  public bool System { get; set; }
   public int Order { get; set; }
   public Guid CorporationId { get; set; }
   public string? Url { get; set; }

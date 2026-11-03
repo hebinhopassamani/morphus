@@ -1,0 +1,50 @@
+@reference "tailwindcss";
+
+:host {
+  @apply block w-full;
+}
+
+.mpx-icon-field {
+  @apply w-full cursor-pointer;
+}
+
+.mpx-icon-input {
+  @apply cursor-pointer font-mono select-none;
+}
+
+.mpx-icon-panel {
+  @apply box-border flex flex-col overflow-x-hidden p-2.5;
+}
+
+.mpx-icon-search-box {
+  @apply mb-2.5 flex items-center gap-x-2 rounded-lg border border-neutral-300 bg-neutral-100 px-2.5 py-2 dark:border-neutral-700 dark:bg-neutral-800;
+}
+
+.mpx-icon-search-input {
+  @apply w-full bg-transparent text-xs outline-none;
+}
+
+.mpx-icon-colors {
+  @apply mb-2.5 flex items-center justify-between gap-x-1 rounded-lg border border-neutral-200 bg-neutral-50 px-2 py-1.5 dark:border-neutral-800 dark:bg-neutral-900;
+}
+
+.mpx-icon-color-dot {
+  @apply flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 border-transparent transition-transform hover:scale-110;
+}
+
+.mpx-icon-color-dot-active {
+  @apply scale-110 ring-2 ring-neutral-900 dark:ring-white;
+}
+
+.mpx-icon-grid {
+  @apply grid max-h-56 gap-1.5 overflow-x-hidden overflow-y-auto pt-1 pr-1;
+  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
+}
+
+.mpx-icon-item {
+  @apply flex h-9 w-full items-center justify-center rounded-lg border border-transparent transition-colors hover:bg-neutral-200 dark:hover:bg-neutral-700;
+}
+
+.mpx-icon-item-active {
+  @apply border-blue-500/40 bg-blue-500/15 text-blue-600 dark:text-blue-400;
+}

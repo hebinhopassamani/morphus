@@ -2,17 +2,14 @@ using System.Text.Json.Serialization;
 
 namespace Mpx.Domain.Entities;
 
-public class User
+public class User : MorphusEntity
 {
-  public Guid Id { get; set; }
   public required string? Name { get; set; }
   public required string? Email { get; set; }
-  public bool Inactive { get; set; }
   public bool EmailConfirmed { get; set; }
   public bool PhoneConfirmed { get; set; }
   public bool TermsConfirmed { get; set; }
   public bool OnboardingCompleted { get; set; }
-  public bool System { get; set; }
   public Guid? UserStatusId { get; set; }
   public Guid? CorporationId { get; set; }
 

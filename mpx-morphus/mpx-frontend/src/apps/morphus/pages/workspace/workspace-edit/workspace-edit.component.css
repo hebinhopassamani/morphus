@@ -1,0 +1,10 @@
+.mpx-workspace-default-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-neutral-a4);
+  background-color: var(--color-neutral-a2);
+  padding: 0.875rem 1rem;
+}

@@ -1,5 +1,5 @@
 import { FilterColumn } from './filter-column.interface';
-import { AndOrCondicionalType } from './filter-operator.enum';
+import { AndOrCondicionalType } from '@core/mpx-types';
 import { FilterOperator } from './filter-operator.interface';
 
 export interface FilterRow {

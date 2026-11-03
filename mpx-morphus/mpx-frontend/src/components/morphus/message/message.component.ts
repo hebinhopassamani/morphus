@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatInput } from '@angular/material/input';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -19,6 +18,7 @@ import {
   BuiDialogTitle,
 } from '@builder-kit/dialog';
 import { MorphusMessageService } from '@core/mpx-message';
+import { MorphusMessageSeverity } from '@core/mpx-types';
 
 @Component({
   selector: 'mpx-message',
@@ -29,7 +29,6 @@ import { MorphusMessageService } from '@core/mpx-message';
     MatButton,
     MatIconButton,
     MatCheckbox,
-    MatDivider,
     MatIcon,
     MatFormField,
     MatInput,
@@ -65,6 +64,17 @@ export class MpxMessageComponent {
     return true;
   }
 
+  protected isPrimaryLike(severity?: MorphusMessageSeverity): boolean {
+    return (
+      severity === 'primary' ||
+      severity === 'secondary' ||
+      severity === 'tertiary' ||
+      severity === 'surface' ||
+      severity === 'help' ||
+      severity === 'contrast'
+    );
+  }
+
   protected isConfirmDisabled(): boolean {
     this.syncIfNewMessage();
 
@@ -74,14 +84,11 @@ export class MpxMessageComponent {
 
     const msg = this.messageService.message();
 
-    if (msg.doubleCheck && !this.doubleCheckChecked) {
-      return true;
+    if (msg.doubleCheckText) {
+      return this.doubleCheckInput.trim() !== msg.doubleCheckText.trim();
     }
 
-    if (
-      msg.doubleCheckText &&
-      this.doubleCheckInput.trim() !== msg.doubleCheckText.trim()
-    ) {
+    if ((msg.doubleCheck || msg.dobbleConfirmation) && !this.doubleCheckChecked) {
       return true;
     }
 
@@ -92,17 +99,47 @@ export class MpxMessageComponent {
     if (!error) {
       return '';
     }
-    if (error instanceof Error) {
-      return `${error.name}: ${error.message}\n${error.stack ?? ''}`.trim();
-    }
     if (typeof error === 'string') {
       return error;
     }
-    try {
-      return JSON.stringify(error, null, 2);
-    } catch {
-      return String(error);
+
+    if (typeof error === 'object' && error !== null) {
+      const httpErr = error as {
+        status?: number;
+        error?: { message?: string; detail?: string; title?: string } | string;
+        message?: string;
+      };
+
+      if (typeof httpErr.error === 'object' && httpErr.error !== null) {
+        const apiMessage = httpErr.error.message || httpErr.error.detail || httpErr.error.title;
+        if (apiMessage && typeof apiMessage === 'string') {
+          return apiMessage;
+        }
+      } else if (typeof httpErr.error === 'string' && httpErr.error.trim().length > 0) {
+        return httpErr.error.trim();
+      }
+
+      if (typeof httpErr.status === 'number') {
+        switch (httpErr.status) {
+          case 0:
+            return 'Não foi possível estabelecer conexão com o servidor do Morphus no momento. Verifique se o serviço está ativo ou confira sua conexão com a internet.';
+          case 400:
+            return 'Alguns dados informados não são válidos ou estão incompletos. Revise os campos preenchidos e tente novamente.';
+          case 401:
+            return 'Sua sessão expirou por segurança. Faça login novamente para continuar.';
+          case 403:
+            return 'Seu perfil de acesso atual não possui permissão para realizar esta operação.';
+          case 404:
+            return 'O registro solicitado não foi encontrado ou já foi removido do sistema.';
+          case 409:
+            return 'Já existe um registro cadastrado com esses mesmos dados (como nome, documento, e-mail ou chave única).';
+          default:
+            return 'Ocorreu uma instabilidade temporária ao processar esta solicitação no servidor. Por favor, tente novamente em instantes.';
+        }
+      }
     }
+
+    return 'Não foi possível concluir a operação no momento. Verifique os dados informados e tente novamente.';
   }
 
   protected cancelClick(): void {
@@ -110,7 +147,7 @@ export class MpxMessageComponent {
     this.doubleCheckChecked = false;
     this.doubleCheckInput = '';
     msg.onCancel?.();
-    this.messageService.close();
+    this.messageService.close('CLOSE');
   }
 
   protected async confirmClick(): Promise<void> {
@@ -121,10 +158,10 @@ export class MpxMessageComponent {
     const msg = this.messageService.message();
     try {
       this.messageService.loading.set(true);
-      await msg.onConfirm?.();
+      await msg.onConfirm?.(msg.data);
       this.doubleCheckChecked = false;
       this.doubleCheckInput = '';
-      this.messageService.close();
+      this.messageService.close('CONFIRM');
     } finally {
       this.messageService.loading.set(false);
     }

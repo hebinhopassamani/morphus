@@ -1,4 +1,6 @@
 export * from '@core/mpx-entities';
+export * from '@core/mpx-enums';
+export * from '@core/mpx-types';
 export * from '@core/mpx-message';
 export * from './morphus-filter.interface';
 export * from './morphus.interface';

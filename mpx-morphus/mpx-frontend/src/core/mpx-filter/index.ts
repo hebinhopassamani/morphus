@@ -1,4 +1,5 @@
-export * from './filter-operator.enum';
+export * from '@core/mpx-enums/filter-operator.enum';
+export * from '@core/mpx-types/morphus-filter.types';
 export * from './filter-operator.interface';
 export * from './filter-operator.default';
 export * from './filter-parameter.interface';

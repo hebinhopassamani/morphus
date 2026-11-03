@@ -1,7 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
+using Mpx.Application.Validators;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -9,8 +10,14 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/corporation")]
-public class CorporationController(CorporationHandler corporationHandler) : ControllerBase
+public class CorporationController(
+    ICorporationValidator mpsValidator,
+    CorporationHandler corporationHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<Corporation>(httpContext)
 {
+  private readonly ICorporationValidator validator = mpsValidator;
+
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "CORPORATION_GET_BY_ID")]
   public async Task<IActionResult> GetById(Guid id) =>
@@ -20,38 +27,61 @@ public class CorporationController(CorporationHandler corporationHandler) : Cont
   [Authorize(Policy = "CORPORATION_LIST")]
   public async Task<IActionResult> GetList()
   {
-    var corpIdClaim = User.FindFirst("corporation_id")?.Value;
-    if (!Guid.TryParse(corpIdClaim, out var corporationId))
+    if (CorporationId is null || CorporationId == Guid.Empty)
       return Unauthorized();
 
-    return Ok(await corporationHandler.GetListAsync(corporationId));
+    return Ok(await corporationHandler.GetListAsync(CorporationId.Value));
   }
 
   [HttpPost]
   [Authorize(Policy = "CORPORATION_CREATE")]
   public async Task<IActionResult> Create([FromBody] Corporation corporation)
   {
-    var corpIdClaim = User.FindFirst("corporation_id")?.Value;
-    if (!Guid.TryParse(corpIdClaim, out var corporationId))
+    if (CorporationId is null || CorporationId == Guid.Empty)
       return Unauthorized();
 
-    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    Guid? creatorUserId = Guid.TryParse(userIdClaim, out var parsedUserId) ? parsedUserId : null;
+    await validator.ValidateCorporation(corporation);
 
-    return Ok(await corporationHandler.CreateBranchAsync(corporation, corporationId, creatorUserId));
+    if (validator.IsValid())
+    {
+      var result = await corporationHandler.CreateBranchAsync(corporation, CorporationId.Value, UserId);
+      return Ok(result);
+    }
+
+    return MorphusErrorMessage(validator.ErrorMessage);
   }
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "CORPORATION_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] Corporation corporation) =>
-      Ok(await corporationHandler.UpdateAsync(corporation));
+  public async Task<IActionResult> Update([FromBody] Corporation corporation, Guid? id = null)
+  {
+    if (id.HasValue && corporation.Id == Guid.Empty)
+      corporation.Id = id.Value;
+
+    await validator.ValidateCorporation(corporation);
+
+    if (validator.IsValid())
+    {
+      var result = await corporationHandler.UpdateAsync(corporation);
+      return Ok(result);
+    }
+
+    return MorphusErrorMessage(validator.ErrorMessage);
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "CORPORATION_DELETE")]
   public async Task<IActionResult> Delete(Guid id)
   {
-    await corporationHandler.DeleteAsync(id);
-    return NoContent();
+    await validator.ValidateDeleteCorporation(id);
+
+    if (validator.IsValid())
+    {
+      await corporationHandler.DeleteAsync(id);
+      return NoContent();
+    }
+
+    return MorphusErrorMessage(validator.ErrorMessage);
   }
 }
-

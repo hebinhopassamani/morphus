@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-public class UserStatusHandler(IUserStatusRepository userStatusRepository, IUnitOfWork unitOfWork)
+public class UserStatusHandler(
+    IUserStatusRepository userStatusRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<UserStatus>(httpContext)
 {
   public Task<UserStatus?> GetByIdAsync(Guid id) => userStatusRepository.GetByIdAsync(id);
 
@@ -22,7 +28,7 @@ public class UserStatusHandler(IUserStatusRepository userStatusRepository, IUnit
 
   public async Task<UserStatus> UpdateAsync(UserStatus userStatus)
   {
-    userStatusRepository.Update(userStatus);
+    await userStatusRepository.UpdateNotNull(userStatus, updateCorporationId: false);
     await unitOfWork.SaveChangesAsync();
     return userStatus;
   }
@@ -40,4 +46,3 @@ public class UserStatusHandler(IUserStatusRepository userStatusRepository, IUnit
     await unitOfWork.SaveChangesAsync();
   }
 }
-

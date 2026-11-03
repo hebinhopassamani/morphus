@@ -12,6 +12,11 @@ export const routes: Routes = [
     loadChildren: () => import('@security/routes').then((m) => m.routes),
   },
   {
+    path: 'notfound',
+    loadComponent: () =>
+      import('@website/pages/not-found/not-found.component').then((m) => m.NotFoundComponent),
+  },
+  {
     // Kept so the URLs already registered in Google (home page and privacy policy) keep working.
     path: 'home',
     loadChildren: () => import('@website/routes').then((m) => m.routes),
@@ -19,5 +24,9 @@ export const routes: Routes = [
   {
     path: '',
     loadChildren: () => import('@website/routes').then((m) => m.routes),
+  },
+  {
+    path: '**',
+    redirectTo: 'notfound',
   },
 ];

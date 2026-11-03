@@ -126,7 +126,14 @@
       (click)="auth.logout()"
     >
       <mat-icon svgIcon="log-out" />
-      <span>Sign out</span>
+      <span class="flex w-full items-center justify-between gap-x-4">
+        <span>Sign out</span>
+        @if (auth.expirationTimer()) {
+          <span class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs text-neutral-a11">
+            {{ auth.expirationTimer() }}
+          </span>
+        }
+      </span>
     </button>
   </mat-menu>
 </div>

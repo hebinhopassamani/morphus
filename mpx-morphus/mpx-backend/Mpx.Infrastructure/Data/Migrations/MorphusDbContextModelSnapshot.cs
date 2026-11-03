@@ -16,7 +16,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261101201946_AdicionarOnboardingEWorkspaceApplications";
+    public override string LastMigrationId => "20261102220119_AdicionarCpfCnpjPersonTypeEmCorporation";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -101,6 +101,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("description");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
                 b.Property<Guid>("ModuleId")
                     .HasColumnType("uuid")
                     .HasColumnName("module_id");
@@ -120,6 +134,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_claims_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_claims_key");
 
                 b.HasIndex("ModuleId")
                     .HasDatabaseName("ix_claims_module_id");
@@ -141,6 +159,11 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<string>("CpfCnpj")
+                    .HasMaxLength(14)
+                    .HasColumnType("character varying(14)")
+                    .HasColumnName("cpf_cnpj");
+
                 b.Property<string>("Description")
                     .HasColumnType("text")
                     .HasColumnName("description");
@@ -160,10 +183,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("icon");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<string>("Name")
@@ -171,6 +202,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(150)
                     .HasColumnType("character varying(150)")
                     .HasColumnName("name");
+
+                b.Property<string>("PersonType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(2)
+                    .HasColumnType("character varying(2)")
+                    .HasDefaultValue("PJ")
+                    .HasColumnName("person_type");
 
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
@@ -183,6 +222,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_corporations_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_corporations_key");
 
                 b.ToTable("corporations");
             });
@@ -239,9 +282,23 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("html_body");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<bool>("IsHtmlBody")
                     .HasColumnType("boolean")
                     .HasColumnName("is_html_body");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
 
                 b.Property<bool>("MailSent")
                     .HasColumnType("boolean")
@@ -252,6 +309,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(250)")
                     .HasColumnName("subject");
 
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
                 b.Property<string>("TextBody")
                     .HasColumnType("text")
                     .HasColumnName("text_body");
@@ -261,6 +324,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_emails_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_emails_key");
 
                 b.ToTable("emails");
             });
@@ -280,6 +347,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
                 b.Property<string>("Mail")
                     .IsRequired()
                     .HasMaxLength(150)
@@ -291,6 +372,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("name");
 
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
                 b.HasKey("Id")
                     .HasName("pk_emails_bcc");
 
@@ -299,6 +386,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("EmailId")
                     .HasDatabaseName("ix_emails_bcc_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_emails_bcc_key");
 
                 b.ToTable("emails_bcc");
             });
@@ -318,6 +409,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
                 b.Property<string>("Mail")
                     .IsRequired()
                     .HasMaxLength(150)
@@ -329,6 +434,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("name");
 
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
                 b.HasKey("Id")
                     .HasName("pk_emails_cc");
 
@@ -337,6 +448,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("EmailId")
                     .HasDatabaseName("ix_emails_cc_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_emails_cc_key");
 
                 b.ToTable("emails_cc");
             });
@@ -356,6 +471,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
                 b.Property<string>("Mail")
                     .IsRequired()
                     .HasMaxLength(150)
@@ -367,6 +496,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("name");
 
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
                 b.HasKey("Id")
                     .HasName("pk_emails_from");
 
@@ -375,6 +510,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("EmailId")
                     .HasDatabaseName("ix_emails_from_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_emails_from_key");
 
                 b.ToTable("emails_from");
             });
@@ -394,6 +533,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
                 b.Property<string>("Mail")
                     .IsRequired()
                     .HasMaxLength(150)
@@ -405,6 +558,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("name");
 
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
                 b.HasKey("Id")
                     .HasName("pk_emails_to");
 
@@ -413,6 +572,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("EmailId")
                     .HasDatabaseName("ix_emails_to_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_emails_to_key");
 
                 b.ToTable("emails_to");
             });
@@ -440,6 +603,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
                     .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
 
                 b.Property<string>("Label")
                     .IsRequired()
@@ -485,6 +662,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_menus_corporation_id");
 
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_menus_key");
+
                 b.HasIndex("MenuId")
                     .HasDatabaseName("ix_menus_menu_id");
 
@@ -516,10 +697,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("description");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<string>("Name")
@@ -542,6 +731,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_modules_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_modules_key");
 
                 b.ToTable("modules");
             });
@@ -574,8 +767,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<string>("Name")
@@ -596,6 +791,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_applications_corporation_id");
 
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_applications_key");
+
                 b.ToTable("applications");
             });
 
@@ -614,10 +813,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("description");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<Guid>("ModuleId")
@@ -645,6 +852,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_roles_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_roles_key");
 
                 b.HasIndex("ModuleId")
                     .HasDatabaseName("ix_roles_module_id");
@@ -708,10 +919,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("description");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<Guid>("ModuleId")
@@ -735,6 +954,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_sub_modules_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_sub_modules_key");
 
                 b.HasIndex("ModuleId")
                     .HasDatabaseName("ix_sub_modules_module_id");
@@ -779,6 +1002,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
 
                 b.Property<string>("Name")
                     .IsRequired()
@@ -862,6 +1093,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("Email")
                     .IsUnique()
                     .HasDatabaseName("ix_users_email");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_users_key");
 
                 b.HasIndex("UserStatusId")
                     .HasDatabaseName("ix_users_user_status_id");
@@ -960,10 +1195,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("description");
 
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
                 b.Property<string>("Key")
                     .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<string>("Name")
@@ -984,6 +1227,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_user_status_corporation_id");
 
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_user_status_key");
+
                 b.ToTable("user_status");
             });
 
@@ -997,6 +1244,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<bool>("Default")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("default");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -1015,8 +1268,10 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<string>("Key")
                     .IsRequired()
+                    .ValueGeneratedOnAdd()
                     .HasMaxLength(100)
                     .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
                     .HasColumnName("key");
 
                 b.Property<string>("Name")
@@ -1035,7 +1290,13 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasName("pk_workspaces");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_workspaces_corporation_id");
+                    .IsUnique()
+                    .HasDatabaseName("ix_workspaces_corporation_id")
+                    .HasFilter("\"default\" = true");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_workspaces_key");
 
                 b.ToTable("workspaces");
             });

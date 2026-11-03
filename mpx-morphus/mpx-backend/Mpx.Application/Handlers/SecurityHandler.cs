@@ -413,6 +413,8 @@ public class SecurityHandler(
 
         state.AvailableApplications = corpGraph.Applications
             .Where(a => !a.Inactive &&
+                        !string.Equals(a.Name, "Segurança", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(a.Name, "Website", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(a.Key, "SECURITY", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(a.Key, "WEBSITE", StringComparison.OrdinalIgnoreCase))
             .OrderBy(a => a.System ? 0 : 1)
@@ -504,7 +506,10 @@ public class SecurityHandler(
       {
         corpGraph.Name = cleanCorpName;
         corpGraph.FullName = cleanCorpName;
-        corpGraph.Key = cleanCorpName.ToUpperInvariant().Replace(" ", "_");
+        if (string.IsNullOrWhiteSpace(corpGraph.Key))
+        {
+          corpGraph.Key = MorphusEntity.GenerateKey();
+        }
         corporationRepository.Update(corpGraph);
       }
 
@@ -552,7 +557,6 @@ public class SecurityHandler(
         ?? throw new InvalidOperationException("Corporação não encontrada.");
 
     var cleanWorkspaceName = request.WorkspaceName.Trim();
-    var cleanWorkspaceKey = cleanWorkspaceName.ToUpperInvariant().Replace(" ", "_");
 
     var existingWorkspace = corpGraph.Workspaces.FirstOrDefault(w => !w.Inactive);
     if (existingWorkspace is null)
@@ -562,7 +566,6 @@ public class SecurityHandler(
         Id = Guid.NewGuid(),
         CorporationId = corpGraph.Id,
         Name = cleanWorkspaceName,
-        Key = cleanWorkspaceKey,
         Icon = "layout-grid",
         System = true,
         Inactive = false,
@@ -597,7 +600,10 @@ public class SecurityHandler(
     else
     {
       existingWorkspace.Name = cleanWorkspaceName;
-      existingWorkspace.Key = cleanWorkspaceKey;
+      if (string.IsNullOrWhiteSpace(existingWorkspace.Key))
+      {
+        existingWorkspace.Key = MorphusEntity.GenerateKey();
+      }
       workspaceRepository.Update(existingWorkspace);
     }
 
@@ -987,11 +993,12 @@ public class SecurityHandler(
     // 2. Roles e Claims herdadas dos Perfis (Roles) na Corporação/Filial ativa
     foreach (var ur in user.UserRoles.Where(ur => !ur.Inactive && ur.CorporationId == activeCorporation.Id))
     {
-      if (ur.Role is not null && !string.IsNullOrWhiteSpace(ur.Role.Key))
+      if (ur.Role is not null && !string.IsNullOrWhiteSpace(ur.Role.Name))
       {
-        if (!authClaims.Any(c => c.Type == ClaimTypes.Role && c.Value == ur.Role.Key))
+        var roleName = ur.Role.Name.Trim().ToUpperInvariant();
+        if (!authClaims.Any(c => c.Type == ClaimTypes.Role && c.Value == roleName))
         {
-          authClaims.Add(new(ClaimTypes.Role, ur.Role.Key));
+          authClaims.Add(new(ClaimTypes.Role, roleName));
         }
 
         foreach (var rc in ur.Role.RoleClaims.Where(rc => !rc.Inactive && rc.CorporationId == activeCorporation.Id))

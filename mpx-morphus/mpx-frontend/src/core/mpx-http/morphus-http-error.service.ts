@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
-import { HTTP_ERROR_CODE } from './http-error-code.enum';
+import { HTTP_ERROR_CODE } from '@core/mpx-enums';
 import { MorphusHttpError } from './morphus-http-error.interface';
 
 @Injectable({

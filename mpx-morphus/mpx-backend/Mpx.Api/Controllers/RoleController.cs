@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -8,7 +9,10 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/role")]
-public class RoleController(RoleHandler roleHandler) : ControllerBase
+public class RoleController(
+    RoleHandler roleHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<Role>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "ROLE_GET_BY_ID")]
@@ -26,9 +30,15 @@ public class RoleController(RoleHandler roleHandler) : ControllerBase
       Ok(await roleHandler.CreateAsync(role));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "ROLE_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] Role role) =>
-      Ok(await roleHandler.UpdateAsync(role));
+  public async Task<IActionResult> Update([FromBody] Role role, Guid? id = null)
+  {
+    if (id.HasValue && role.Id == Guid.Empty)
+      role.Id = id.Value;
+
+    return Ok(await roleHandler.UpdateAsync(role));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "ROLE_DELETE")]
@@ -38,4 +48,3 @@ public class RoleController(RoleHandler roleHandler) : ControllerBase
     return NoContent();
   }
 }
-

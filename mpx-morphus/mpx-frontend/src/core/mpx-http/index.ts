@@ -1,4 +1,4 @@
-export * from './http-error-code.enum';
+export * from '@core/mpx-enums/http-error-code.enum';
 export * from './request-options.interface';
 export * from './request-full-options.interface';
 export * from './morphus-http.messages';

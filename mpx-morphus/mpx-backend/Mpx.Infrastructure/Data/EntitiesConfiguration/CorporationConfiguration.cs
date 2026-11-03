@@ -12,6 +12,8 @@ public class CorporationConfiguration : IEntityTypeConfiguration<Corporation>
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
     builder.Property(b => b.Key).IsRequired().HasMaxLength(100);
     builder.Property(b => b.Email).IsRequired().HasMaxLength(150);
+    builder.Property(b => b.PersonType).IsRequired().HasMaxLength(2).HasDefaultValue("PJ");
+    builder.Property(b => b.CpfCnpj).IsRequired(false).HasMaxLength(14);
     builder.Property(b => b.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(b => b.System).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.Description).IsRequired(false).HasColumnType("text");

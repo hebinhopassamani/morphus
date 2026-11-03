@@ -179,7 +179,6 @@ export class ModuleListComponent
       },
       {
         doubleCheck: true,
-        doubleCheckText: entity.key,
       },
     );
   }

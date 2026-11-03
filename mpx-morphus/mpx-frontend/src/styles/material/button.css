@@ -142,11 +142,8 @@
       /* Disabled */
       &:disabled,
       &.mat-mdc-button-disabled {
-        border: none;
         color: var(--button-text-color-disabled);
         background: var(--button-bg-color-disabled);
-        padding-inline: var(--button-padding-x);
-        padding-block: var(--button-padding-y);
 
         &:before,
         &:after {

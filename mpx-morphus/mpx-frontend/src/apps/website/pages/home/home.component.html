@@ -1,64 +1,105 @@
-<!-- Hero Section -->
+<!-- Hero Section com Estética Cristal + Gradiente Oficial (#00E5FF -> #FF007A) adaptável ao Modo Claro e Escuro -->
 <section
   data-reveal
-  class="relative flex flex-col items-center overflow-hidden rounded-3xl border border-neutral-a4 bg-gradient-to-b from-primary-a2 via-transparent to-transparent px-6 py-14 text-center transition-all duration-700 ease-out sm:px-12 lg:py-20"
+  class="relative flex flex-col items-center overflow-hidden rounded-3xl border border-neutral-a4 bg-white px-6 py-16 text-center text-neutral-12 shadow-xl transition-all duration-700 ease-out sm:px-12 lg:py-24 dark:bg-[#0D061A] dark:text-white"
 >
-  <div class="inline-flex items-center gap-x-2 rounded-full border border-primary-a5 bg-primary-a3 px-3.5 py-1 text-xs font-semibold text-primary-a11">
-    <mat-icon svgIcon="sparkles" class="size-3.5" />
+  <!-- Background Cristal Wave Light Mode -->
+  <img
+    src="/brand/bg-crystal-wave-light.jpg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-75 dark:hidden"
+  />
+  <!-- Background Cristal Wave Dark Mode -->
+  <img
+    src="/brand/bg-crystal-wave.jpg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-50 mix-blend-screen dark:block"
+  />
+  <div
+    class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/35 via-white/55 to-white/85 dark:from-[#0D061A]/55 dark:via-[#0D061A]/75 dark:to-[#0D061A]"
+  ></div>
+
+  <!-- Ícone Cristal Oficial Flutuante -->
+  <div class="relative mb-5 flex items-center justify-center">
+    <img
+      src="/brand/app-icon-crystal.jpg"
+      alt="Morphus Crystal Icon"
+      class="size-20 rounded-2xl border border-[#00E5FF]/35 object-cover shadow-2xl"
+    />
+  </div>
+
+  <div class="relative inline-flex items-center gap-x-2 rounded-full border border-[#00E5FF]/45 bg-[#00E5FF]/10 px-4 py-1 text-xs font-semibold tracking-wider uppercase text-[#0088A8] dark:text-cyan-300">
+    <mat-icon svgIcon="sparkles" class="size-3.5 text-[#0088A8]! dark:text-cyan-300!" />
     <span>ERP Multi-Tenant · Matriz, Filiais e Workspaces</span>
   </div>
 
-  <h1 class="mt-6 max-w-4xl text-4xl font-bold tracking-tight text-neutral-12 sm:text-5xl lg:text-6xl">
-    Sistema de gestão empresarial que se adapta à sua organização
+  <h1
+    class="relative mt-6 max-w-4xl text-4xl font-extrabold tracking-tight text-neutral-12 sm:text-5xl lg:text-6xl dark:text-white"
+    style="font-family: var(--mpx-font-display);"
+  >
+    Sistema de gestão empresarial que
+    <span class="bg-gradient-to-r from-[#00B8D9] via-[#A855F7] to-[#FF007A] bg-clip-text text-transparent dark:from-[#00E5FF] dark:via-[#B558FF] dark:to-[#FF007A]">
+      se adapta à sua organização
+    </span>
   </h1>
 
-  <p class="mt-5 max-w-2xl text-lg text-neutral-a11 sm:text-xl">
-    Do que você precisa hoje? O Morphus reúne controle de corporações, filiais, notas fiscais, finanças, conciliação bancária, frota e patrimônio em um ambiente único, veloz e modular.
+  <p class="relative mt-5 max-w-2xl text-base leading-relaxed text-neutral-11 sm:text-lg dark:text-[#E2E8F0]">
+    Do que você precisa hoje? O Morphus reúne controle de corporações, filiais, workspaces, notas fiscais, finanças, conciliação bancária, frota e patrimônio em um ambiente único, veloz e modular.
   </p>
 
-  <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
-    <a matButton class="primary large" routerLink="/security/signup">
+  <div class="relative mt-8 flex flex-wrap items-center justify-center gap-4">
+    <a
+      matButton
+      class="primary large font-semibold tracking-wider uppercase"
+      routerLink="/security/signup"
+    >
       Teste grátis
       <mat-icon svgIcon="arrow-right" iconPositionEnd />
     </a>
-    <a matButton class="tertiary large" routerLink="/security/signin">
+    <a
+      matButton
+      class="tertiary large border border-white/20 bg-white/10 font-semibold tracking-wider uppercase text-white! hover:bg-white/20"
+      routerLink="/security/signin"
+    >
       Entrar na plataforma
     </a>
   </div>
 
   <!-- Mini vitrine visual da arquitetura Morphus -->
-  <div class="mt-12 grid w-full max-w-4xl grid-cols-1 gap-4 text-start sm:grid-cols-3">
-    <div class="flex items-start gap-x-3.5 rounded-2xl border border-neutral-a4 bg-white/80 p-4 shadow-2xs backdrop-blur-xs dark:bg-neutral-2/80">
-      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-a3 text-violet-a11 ring-1 ring-violet-a5">
-        <mat-icon svgIcon="building-2" class="size-5" />
+  <div class="relative mt-12 grid w-full max-w-4xl grid-cols-1 gap-4 text-start sm:grid-cols-3">
+    <div class="flex items-start gap-x-3.5 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/20 text-violet-300 ring-1 ring-violet-400/30">
+        <mat-icon svgIcon="building-2" class="size-5 text-violet-300!" />
       </div>
       <div>
-        <div class="text-sm font-semibold text-neutral-12">Multi-Corporação</div>
-        <div class="mt-0.5 text-xs text-neutral-a11">
+        <div class="text-sm font-semibold text-white">Multi-Corporação</div>
+        <div class="mt-0.5 text-xs text-[#E2E8F0]/80">
           Gerencie matriz e filiais com isolamento total de dados por tenant.
         </div>
       </div>
     </div>
 
-    <div class="flex items-start gap-x-3.5 rounded-2xl border border-neutral-a4 bg-white/80 p-4 shadow-2xs backdrop-blur-xs dark:bg-neutral-2/80">
-      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-indigo-a3 text-indigo-a11 ring-1 ring-indigo-a5">
-        <mat-icon svgIcon="layout-grid" class="size-5" />
+    <div class="flex items-start gap-x-3.5 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300 ring-1 ring-cyan-400/30">
+        <mat-icon svgIcon="layout-grid" class="size-5 text-cyan-300!" />
       </div>
       <div>
-        <div class="text-sm font-semibold text-neutral-12">Workspaces & Apps</div>
-        <div class="mt-0.5 text-xs text-neutral-a11">
+        <div class="text-sm font-semibold text-white">Workspaces & Apps</div>
+        <div class="mt-0.5 text-xs text-[#E2E8F0]/80">
           Ambientes e menus dinâmicos montados conforme as permissões do usuário.
         </div>
       </div>
     </div>
 
-    <div class="flex items-start gap-x-3.5 rounded-2xl border border-neutral-a4 bg-white/80 p-4 shadow-2xs backdrop-blur-xs dark:bg-neutral-2/80">
-      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-jade-a3 text-jade-a11 ring-1 ring-jade-a5">
-        <mat-icon svgIcon="shield-check" class="size-5" />
+    <div class="flex items-start gap-x-3.5 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md">
+      <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-400/30">
+        <mat-icon svgIcon="shield-check" class="size-5 text-emerald-300!" />
       </div>
       <div>
-        <div class="text-sm font-semibold text-neutral-12">Segurança Blindada</div>
-        <div class="mt-0.5 text-xs text-neutral-a11">
+        <div class="text-sm font-semibold text-white">Segurança Blindada</div>
+        <div class="mt-0.5 text-xs text-[#E2E8F0]/80">
           Autenticação moderna com JWT, controle de Claims e Login com Google.
         </div>
       </div>
@@ -291,8 +332,8 @@
 <footer class="mt-auto border-t border-neutral-a4 pt-8 text-sm text-neutral-a11">
   <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
     <div class="flex items-center gap-x-2">
-      <img src="/logo-icon-sm.png" alt="Morphus" class="size-5 object-contain" />
-      <span class="font-semibold text-neutral-12">Morphus</span>
+      <img src="/brand/app-icon-crystal.jpg" alt="Morphus" class="size-6 rounded-md object-cover" />
+      <span class="bg-gradient-to-r from-[#00E5FF] via-[#A855F7] to-[#FF007A] bg-clip-text font-extrabold uppercase text-transparent">Morphus</span>
       <span>&copy; 2026 Todos os direitos reservados.</span>
     </div>
 

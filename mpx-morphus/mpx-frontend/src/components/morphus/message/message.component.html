@@ -1,6 +1,6 @@
 <div
   buiDialog
-  class="w-full max-w-lg"
+  class="w-full max-w-xl"
   [(open)]="messageService.opened"
   [disableClose]="!!messageService.message().disableClose"
   [autoFocus]="undefined"
@@ -10,39 +10,52 @@
 
     @if (syncIfNewMessage(); as _synced) {
       @let msg = messageService.message();
+      @let confirmSev = msg.confirmSeverity || msg.severity;
+      @let closeSev = msg.closeSeverity;
 
       <div
         buiDialogContent
-        class="max-w-none gap-y-0 overflow-hidden border p-0"
+        class="flex min-h-64 max-w-none flex-col justify-between gap-y-0 overflow-hidden border p-0"
         [class.border-green-a6]="msg.severity === 'success'"
         [class.border-blue-a6]="msg.severity === 'info'"
         [class.border-amber-a6]="msg.severity === 'warn'"
+        [class.border-orange-a6]="msg.severity === 'alert'"
         [class.border-error-a6]="msg.severity === 'error'"
+        [class.border-primary-a6]="isPrimaryLike(msg.severity)"
       >
         <!-- Cabeçalho sutilmente mais forte no topo -->
         <div
           buiDialogHeader
-          class="flex flex-row items-center justify-between gap-x-4 border-b px-5 py-4 sm:px-6"
+          class="flex flex-row items-center justify-between gap-x-4 border-b px-5 py-3 sm:px-6"
           [class.border-green-a5]="msg.severity === 'success'"
           [class.bg-green-a4]="msg.severity === 'success'"
           [class.border-blue-a5]="msg.severity === 'info'"
           [class.bg-blue-a4]="msg.severity === 'info'"
           [class.border-amber-a5]="msg.severity === 'warn'"
           [class.bg-amber-a4]="msg.severity === 'warn'"
+          [class.border-orange-a5]="msg.severity === 'alert'"
+          [class.bg-orange-a4]="msg.severity === 'alert'"
           [class.border-error-a5]="msg.severity === 'error'"
           [class.bg-error-a4]="msg.severity === 'error'"
+          [class.border-primary-a5]="isPrimaryLike(msg.severity)"
+          [class.bg-primary-a4]="isPrimaryLike(msg.severity)"
         >
           <div class="flex items-center gap-x-3">
             <div
               class="flex size-9 shrink-0 items-center justify-center rounded-lg"
+              [style.color]="msg.iconColor || null"
               [class.bg-green-a5]="msg.severity === 'success'"
-              [class.text-green-11]="msg.severity === 'success'"
+              [class.text-green-11]="msg.severity === 'success' && !msg.iconColor"
               [class.bg-blue-a5]="msg.severity === 'info'"
-              [class.text-blue-11]="msg.severity === 'info'"
+              [class.text-blue-11]="msg.severity === 'info' && !msg.iconColor"
               [class.bg-amber-a5]="msg.severity === 'warn'"
-              [class.text-amber-11]="msg.severity === 'warn'"
+              [class.text-amber-11]="msg.severity === 'warn' && !msg.iconColor"
+              [class.bg-orange-a5]="msg.severity === 'alert'"
+              [class.text-orange-11]="msg.severity === 'alert' && !msg.iconColor"
               [class.bg-error-a5]="msg.severity === 'error'"
-              [class.text-error-11]="msg.severity === 'error'"
+              [class.text-error-11]="msg.severity === 'error' && !msg.iconColor"
+              [class.bg-primary-a5]="isPrimaryLike(msg.severity)"
+              [class.text-primary-11]="isPrimaryLike(msg.severity) && !msg.iconColor"
             >
               <mat-icon class="size-5" [svgIcon]="msg.icon || 'info'" />
             </div>
@@ -53,7 +66,9 @@
               [class.text-green-11]="msg.severity === 'success'"
               [class.text-blue-11]="msg.severity === 'info'"
               [class.text-amber-11]="msg.severity === 'warn'"
+              [class.text-orange-11]="msg.severity === 'alert'"
               [class.text-error-11]="msg.severity === 'error'"
+              [class.text-primary-11]="isPrimaryLike(msg.severity)"
             >
               {{ msg.title }}
               @if (msg.titleLink?.visible && msg.titleLink?.text) {
@@ -86,14 +101,16 @@
         <!-- Corpo principal do Popup TODO colorido na cor da severidade (sem rolagem, cresce livremente) -->
         <div
           buiDialogBody
-          class="flex flex-col gap-y-4 px-5 py-5 sm:px-6"
+          class="flex flex-1 flex-col justify-between gap-y-4 px-5 pt-5 pb-2 sm:px-6"
           [class.bg-green-a3]="msg.severity === 'success'"
           [class.bg-blue-a3]="msg.severity === 'info'"
           [class.bg-amber-a3]="msg.severity === 'warn'"
+          [class.bg-orange-a3]="msg.severity === 'alert'"
           [class.bg-error-a3]="msg.severity === 'error'"
+          [class.bg-primary-a3]="isPrimaryLike(msg.severity)"
         >
           <div buiDialogDescription class="mpx-body-large break-words whitespace-pre-line text-neutral-12">
-            {{ msg.detail }}
+            {{ msg.detail || msg.message }}
             @if (msg.detailLink?.visible && msg.detailLink?.text) {
               <a
                 [href]="msg.detailLink?.url || '#'"
@@ -106,27 +123,6 @@
             }
           </div>
 
-          <!-- Dupla Checagem por Checkbox (doubleCheck: true) -->
-          @if (msg.doubleCheck) {
-            <div
-              class="flex items-center rounded-lg border px-3 py-2"
-              [class.border-green-a5]="msg.severity === 'success'"
-              [class.bg-green-a2]="msg.severity === 'success'"
-              [class.border-blue-a5]="msg.severity === 'info'"
-              [class.bg-blue-a2]="msg.severity === 'info'"
-              [class.border-amber-a5]="msg.severity === 'warn'"
-              [class.bg-amber-a2]="msg.severity === 'warn'"
-              [class.border-error-a5]="msg.severity === 'error'"
-              [class.bg-error-a2]="msg.severity === 'error'"
-            >
-              <mat-checkbox [(ngModel)]="doubleCheckChecked">
-                <span class="mpx-body-small font-medium text-neutral-12">
-                  {{ msg.doubleCheckLabel || 'Estou ciente e confirmo esta operação.' }}
-                </span>
-              </mat-checkbox>
-            </div>
-          }
-
           <!-- Dupla Checagem estilo GitHub por Texto (doubleCheckText: '...') -->
           @if (msg.doubleCheckText) {
             <div
@@ -137,8 +133,12 @@
               [class.bg-blue-a2]="msg.severity === 'info'"
               [class.border-amber-a5]="msg.severity === 'warn'"
               [class.bg-amber-a2]="msg.severity === 'warn'"
+              [class.border-orange-a5]="msg.severity === 'alert'"
+              [class.bg-orange-a2]="msg.severity === 'alert'"
               [class.border-error-a5]="msg.severity === 'error'"
               [class.bg-error-a2]="msg.severity === 'error'"
+              [class.border-primary-a5]="isPrimaryLike(msg.severity)"
+              [class.bg-primary-a2]="isPrimaryLike(msg.severity)"
             >
               <span class="mpx-body-small text-neutral-11">
                 Para confirmar, digite
@@ -174,58 +174,96 @@
               </div>
 
               @if (messageService.showTechnicalError()) {
-                <pre class="max-h-48 overflow-auto rounded-lg border border-error-a5 bg-error-a2 p-3 font-mono text-xs whitespace-pre-wrap text-error-11">{{ formatTechnicalError(msg.error) }}</pre>
+                <div class="rounded-lg border border-error-a5 bg-error-a2 p-3 mpx-body-small whitespace-pre-wrap text-error-11">{{ formatTechnicalError(msg.error) }}</div>
               }
             </div>
           }
         </div>
 
-        <!-- Rodapé sem linha divisória -->
+        <!-- Rodapé sem linha divisória: Na Web lado a lado (checkbox à esquerda + botões à direita), no Mobile empilhado sem quebrar -->
         <div
           buiDialogFooter
-          class="flex w-full items-center justify-end gap-x-2.5 px-5 pt-1 pb-4 sm:px-6"
+          class="flex w-full flex-col items-start gap-3 px-5 pt-2 pb-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
           [class.bg-green-a3]="msg.severity === 'success'"
           [class.bg-blue-a3]="msg.severity === 'info'"
           [class.bg-amber-a3]="msg.severity === 'warn'"
+          [class.bg-orange-a3]="msg.severity === 'alert'"
           [class.bg-error-a3]="msg.severity === 'error'"
+          [class.bg-primary-a3]="isPrimaryLike(msg.severity)"
         >
-          @if (msg.showCancelButton || msg.isConfirmation) {
-            <button
-              matButton
-              type="button"
-              (click)="cancelClick()"
-            >
-              @if (msg.cancelButtonIcon) {
-                <mat-icon [svgIcon]="msg.cancelButtonIcon" />
-              }
-              {{ msg.cancelButtonText || 'Cancelar' }}
-            </button>
+          @if (!msg.doubleCheckText && (msg.doubleCheck || msg.dobbleConfirmation)) {
+            <div class="-ml-2 flex w-full items-center justify-start sm:w-auto">
+              <mat-checkbox [(ngModel)]="doubleCheckChecked">
+                <span class="text-left text-xs leading-snug text-neutral-11 sm:whitespace-nowrap">
+                  {{ msg.doubleCheckLabel || msg.dobbleConfirmationMessage || 'Estou ciente que não haverá como reverter esta ação!' }}
+                </span>
+              </mat-checkbox>
+            </div>
           }
 
-          <button
-            matButton
-            type="button"
-            class="border"
-            [disabled]="isConfirmDisabled()"
-            [class.border-green-a6!]="msg.severity === 'success' && !isConfirmDisabled()"
-            [class.bg-green-a4!]="msg.severity === 'success' && !isConfirmDisabled()"
-            [class.text-green-11!]="msg.severity === 'success' && !isConfirmDisabled()"
-            [class.border-blue-a6!]="msg.severity === 'info' && !isConfirmDisabled()"
-            [class.bg-blue-a4!]="msg.severity === 'info' && !isConfirmDisabled()"
-            [class.text-blue-11!]="msg.severity === 'info' && !isConfirmDisabled()"
-            [class.border-amber-a6!]="msg.severity === 'warn' && !isConfirmDisabled()"
-            [class.bg-amber-a4!]="msg.severity === 'warn' && !isConfirmDisabled()"
-            [class.text-amber-11!]="msg.severity === 'warn' && !isConfirmDisabled()"
-            [class.border-error-a6!]="msg.severity === 'error' && !isConfirmDisabled()"
-            [class.bg-error-a4!]="msg.severity === 'error' && !isConfirmDisabled()"
-            [class.text-error-11!]="msg.severity === 'error' && !isConfirmDisabled()"
-            (click)="confirmClick()"
-          >
-            @if (msg.confirmButtonIcon) {
-              <mat-icon [svgIcon]="msg.confirmButtonIcon" />
+          <div class="ms-auto flex w-full shrink-0 items-center justify-end gap-x-2.5 sm:w-auto">
+            @if (msg.showCancelButton || msg.closeButton || msg.isConfirmation) {
+              <button
+                matButton
+                type="button"
+                [class.border]="!!closeSev"
+                [class.border-green-a6!]="closeSev === 'success'"
+                [class.bg-green-a4!]="closeSev === 'success'"
+                [class.text-green-11!]="closeSev === 'success'"
+                [class.border-blue-a6!]="closeSev === 'info'"
+                [class.bg-blue-a4!]="closeSev === 'info'"
+                [class.text-blue-11!]="closeSev === 'info'"
+                [class.border-amber-a6!]="closeSev === 'warn'"
+                [class.bg-amber-a4!]="closeSev === 'warn'"
+                [class.text-amber-11!]="closeSev === 'warn'"
+                [class.border-orange-a6!]="closeSev === 'alert'"
+                [class.bg-orange-a4!]="closeSev === 'alert'"
+                [class.text-orange-11!]="closeSev === 'alert'"
+                [class.border-error-a6!]="closeSev === 'error'"
+                [class.bg-error-a4!]="closeSev === 'error'"
+                [class.text-error-11!]="closeSev === 'error'"
+                (click)="cancelClick()"
+              >
+                @if (msg.cancelButtonIcon || msg.closeIcon) {
+                  <mat-icon [svgIcon]="msg.cancelButtonIcon || msg.closeIcon || 'arrow-left'" />
+                }
+                {{ msg.cancelButtonText || msg.closeText || 'Cancelar' }}
+              </button>
             }
-            {{ msg.confirmButtonText || 'OK' }}
-          </button>
+
+            @if (msg.confirmButton !== false) {
+              <button
+                matButton
+                type="button"
+                class="border! border-solid! px-[calc(var(--button-padding-x)-1px)]! py-[calc(var(--button-padding-y)-1px)]! transition-opacity disabled:pointer-events-none disabled:opacity-45"
+                [disabled]="isConfirmDisabled()"
+                [class.border-green-a6!]="confirmSev === 'success'"
+                [class.bg-green-a4!]="confirmSev === 'success'"
+                [class.text-green-11!]="confirmSev === 'success'"
+                [class.border-blue-a6!]="confirmSev === 'info'"
+                [class.bg-blue-a4!]="confirmSev === 'info'"
+                [class.text-blue-11!]="confirmSev === 'info'"
+                [class.border-amber-a6!]="confirmSev === 'warn'"
+                [class.bg-amber-a4!]="confirmSev === 'warn'"
+                [class.text-amber-11!]="confirmSev === 'warn'"
+                [class.border-orange-a6!]="confirmSev === 'alert'"
+                [class.bg-orange-a4!]="confirmSev === 'alert'"
+                [class.text-orange-11!]="confirmSev === 'alert'"
+                [class.border-error-a6!]="confirmSev === 'error'"
+                [class.bg-error-a4!]="confirmSev === 'error'"
+                [class.text-error-11!]="confirmSev === 'error'"
+                [class.border-primary-a6!]="isPrimaryLike(confirmSev)"
+                [class.bg-primary-a4!]="isPrimaryLike(confirmSev)"
+                [class.text-primary-11!]="isPrimaryLike(confirmSev)"
+                (click)="confirmClick()"
+              >
+                @if (msg.confirmButtonIcon || msg.confirmIcon) {
+                  <mat-icon [svgIcon]="msg.confirmButtonIcon || msg.confirmIcon || 'check'" />
+                }
+              {{ msg.confirmButtonText || msg.confirmText || 'Fechar' }}
+              </button>
+            }
+          </div>
         </div>
       </div>
     }

@@ -11,7 +11,7 @@ import {
   DEFAULT_START_WITH,
   DefaultFilterOperator,
 } from './filter-operator.default';
-import { MFILTER_OPERATOR_TYPE } from './filter-operator.enum';
+import { MFILTER_OPERATOR_TYPE } from '@core/mpx-types';
 import { FilterOperator } from './filter-operator.interface';
 import { DefaultFilterRow } from './filter-row.default';
 import { FilterRow } from './filter-row.interface';

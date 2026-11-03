@@ -1,12 +1,11 @@
 namespace Mpx.Domain.Entities;
 
-public class Corporation
+public class Corporation : MorphusEntity
 {
-  public Guid Id { get; set; }
   public required string Name { get; set; }
-  public required string Key { get; set; }
   public required string Email { get; set; }
-  public bool System { get; set; }
+  public string PersonType { get; set; } = "PJ";
+  public string? CpfCnpj { get; set; }
   public string? FullName { get; set; }
   public string? Icon { get; set; }
   public string? Description { get; set; }

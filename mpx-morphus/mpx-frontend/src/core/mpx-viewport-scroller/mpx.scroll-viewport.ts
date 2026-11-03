@@ -2,7 +2,7 @@ import { DestroyRef, Directive, ElementRef, inject } from '@angular/core';
 import { MpxViewportScroller } from './mpx.viewport-scroller';
 
 @Directive({
-  selector: '[MpxScrollViewport]',
+  selector: '[mpxScrollViewport], [MpxScrollViewport]',
 })
 export class MpxScrollViewport {
   // Dependencies

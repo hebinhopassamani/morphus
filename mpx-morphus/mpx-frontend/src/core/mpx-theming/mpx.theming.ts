@@ -78,6 +78,7 @@ export class MpxTheming {
       // Add the 'dark' or 'light' class to the HTML element
       this.rootEl.classList.toggle('scheme-dark', isDark);
       this.rootEl.classList.toggle('scheme-light', !isDark);
+      this.sidebarScheme.set(isDark ? 'dark' : 'light');
 
       // Store the scheme in local storage
       this.MpxLocalStorage.setItem('scheme', scheme);

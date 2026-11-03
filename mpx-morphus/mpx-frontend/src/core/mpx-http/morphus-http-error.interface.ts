@@ -1,4 +1,4 @@
-import { HTTP_ERROR_CODE } from './http-error-code.enum';
+import { HTTP_ERROR_CODE } from '@core/mpx-enums';
 
 export interface MorphusHttpError {
   status: number;

@@ -2,9 +2,8 @@ using Mpx.Domain.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class Email : IMorphusTenant
+public class Email : MorphusEntity, IMorphusTenant
 {
-  public Guid Id { get; set; }
   public string? Subject { get; set; }
   public string? HtmlBody { get; set; }
   public string? TextBody { get; set; }

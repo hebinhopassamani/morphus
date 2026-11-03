@@ -7,7 +7,7 @@ import {
   DataBaseType,
   FilterColumnType,
   MFILTER_OPERATOR_TYPE,
-} from './filter-operator.enum';
+} from '@core/mpx-types';
 import { FilterParameter } from './filter-parameter.interface';
 import { FilterRow } from './filter-row.interface';
 import { MorphusFilterBuilder } from './morphus-filter.builder';

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -8,7 +9,11 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/[controller]")]
-public class ModuleController(ModuleHandler moduleHandler, EmailHandler emailHandler) : ControllerBase
+public class ModuleController(
+    ModuleHandler moduleHandler,
+    EmailHandler emailHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<Module>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "MODULE_GET_BY_ID")]
@@ -41,9 +46,15 @@ public class ModuleController(ModuleHandler moduleHandler, EmailHandler emailHan
       Ok(await moduleHandler.CreateAsync(module));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "MODULE_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] Module module) =>
-      Ok(await moduleHandler.UpdateAsync(module));
+  public async Task<IActionResult> Update([FromBody] Module module, Guid? id = null)
+  {
+    if (id.HasValue && module.Id == Guid.Empty)
+      module.Id = id.Value;
+
+    return Ok(await moduleHandler.UpdateAsync(module));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "MODULE_DELETE")]
@@ -56,22 +67,15 @@ public class ModuleController(ModuleHandler moduleHandler, EmailHandler emailHan
   [HttpPost("verify")]
   public async Task<IActionResult> VerifySystemModules()
   {
-    try
-    {
-      await emailHandler
-          .NewEmail()
-          .Subject("Auditoria de Módulos - Morphus Workspace")
-          .LoadHtmlFile("welcome")
-          .SetVariable("{{Nome}}", "Antônio Heber")
-          .SetVariable("{{Empresa}}", "Morphus Enterprise Suite")
-          .MailTo("hebinhopassamani@gmail.com", "Antônio Heber")
-          .SendEmailAsync();
+    await emailHandler
+        .NewEmail()
+        .Subject("Auditoria de Módulos - Morphus Workspace")
+        .LoadHtmlFile("welcome")
+        .SetVariable("{{Nome}}", "Antônio Heber")
+        .SetVariable("{{Empresa}}", "Morphus Enterprise Suite")
+        .MailTo("hebinhopassamani@gmail.com", "Antônio Heber")
+        .SendEmailAsync();
 
-      return Ok(new { message = "Auditoria disparada com sucesso! O motor de e-mails processou a fila no PostgreSQL." });
-    }
-    catch (Exception ex)
-    {
-      return BadRequest(new { message = $"Falha ao executar auditoria: {ex.Message}" });
-    }
+    return Ok(new { message = "Auditoria disparada com sucesso! O motor de e-mails processou a fila no PostgreSQL." });
   }
 }

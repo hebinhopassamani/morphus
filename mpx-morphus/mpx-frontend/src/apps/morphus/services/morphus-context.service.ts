@@ -11,7 +11,7 @@ import { WorkspaceService } from './workspace.service';
 
 const ACTIVE_WORKSPACE_STORAGE_KEY = 'morphus:activeWorkspaceId';
 const ACTIVE_APPLICATION_STORAGE_KEY = 'morphus:activeApplicationId';
-const INVISIBLE_APPLICATION_KEYS = new Set(['SECURITY', 'WEBSITE']);
+const INVISIBLE_APPLICATION_NAMES = new Set(['SEGURANÇA', 'SEGURANCA', 'SECURITY', 'WEBSITE']);
 
 @Injectable({
   providedIn: 'root',
@@ -49,7 +49,8 @@ export class MorphusContextService {
     const savedId = this.activeWorkspaceIdState();
     return (
       list.find((w) => w.id === savedId) ??
-      list.find((w) => w.key === 'MORPHUS_WORKSPACE') ??
+      list.find((w) => w.default) ??
+      list.find((w) => w.system) ??
       list[0]
     );
   });
@@ -59,7 +60,8 @@ export class MorphusContextService {
     return apps.filter(
       (app) =>
         !app.inactive &&
-        !INVISIBLE_APPLICATION_KEYS.has((app.key ?? '').trim().toUpperCase()),
+        !INVISIBLE_APPLICATION_NAMES.has((app.name ?? '').trim().toUpperCase()) &&
+        !INVISIBLE_APPLICATION_NAMES.has((app.key ?? '').trim().toUpperCase()),
     );
   });
 
@@ -71,7 +73,7 @@ export class MorphusContextService {
     const savedId = this.activeApplicationIdState();
     return (
       apps.find((a) => a.id === savedId) ??
-      apps.find((a) => a.key === 'MORPHUS') ??
+      apps.find((a) => a.name?.trim().toUpperCase() === 'MORPHUS') ??
       apps[0]
     );
   });
@@ -165,10 +167,11 @@ export class MorphusContextService {
     const visibleApps = this.extractWorkspaceApplications(workspace).filter(
       (app) =>
         !app.inactive &&
-        !INVISIBLE_APPLICATION_KEYS.has((app.key ?? '').trim().toUpperCase()),
+        !INVISIBLE_APPLICATION_NAMES.has((app.name ?? '').trim().toUpperCase()) &&
+        !INVISIBLE_APPLICATION_NAMES.has((app.key ?? '').trim().toUpperCase()),
     );
     const defaultApp =
-      visibleApps.find((a) => a.key === 'MORPHUS') ?? visibleApps[0];
+      visibleApps.find((a) => a.name?.trim().toUpperCase() === 'MORPHUS') ?? visibleApps[0];
 
     if (defaultApp?.id) {
       this.activeApplicationIdState.set(defaultApp.id);

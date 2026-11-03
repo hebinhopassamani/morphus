@@ -20,6 +20,7 @@ export abstract class MorphusComponent<
   public readonly title1 = signal<string>('');
   public readonly title2 = signal<string>('');
   public readonly title3 = signal<string>('');
+  public readonly keyCopied = signal<boolean>(false);
 
   public sub1?: Subscription;
   public sub2?: Subscription;
@@ -190,6 +191,25 @@ export abstract class MorphusComponent<
     });
 
     return pkObject;
+  }
+
+  public generateKey(): string {
+    return crypto.randomUUID().replace(/-/g, '').substring(0, 12).toUpperCase();
+  }
+
+  public copyKey(keyValue?: string): void {
+    if (!keyValue) {
+      return;
+    }
+    void navigator.clipboard.writeText(keyValue);
+    this.keyCopied.set(true);
+    this.messageService.showInfo(
+      `A chave "${keyValue}" foi copiada para a área de transferência!`,
+      'Chave Copiada',
+    );
+    setTimeout(() => {
+      this.keyCopied.set(false);
+    }, 1800);
   }
 
   public destroySubscriptions(): void {

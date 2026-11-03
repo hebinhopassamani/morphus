@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-public class RoleHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
+public class RoleHandler(
+    IRoleRepository roleRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<Role>(httpContext)
 {
   public Task<Role?> GetByIdAsync(Guid id) => roleRepository.GetByIdAsync(id);
 
@@ -22,7 +28,7 @@ public class RoleHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
 
   public async Task<Role> UpdateAsync(Role role)
   {
-    roleRepository.Update(role);
+    await roleRepository.UpdateNotNull(role, updateCorporationId: false);
     await unitOfWork.SaveChangesAsync();
     return role;
   }
@@ -40,4 +46,3 @@ public class RoleHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork)
     await unitOfWork.SaveChangesAsync();
   }
 }
-

@@ -1,4 +1,5 @@
-import { provideAuth } from '@core/mpx-auth';
+import { authInterceptor, provideAuth } from '@core/mpx-auth';
+import { mpxErrorHttpInterceptor, provideError } from '@core/mpx-error';
 import { provideIcons } from '@core/mpx-icons';
 import { provideLocalStorage } from '@core/mpx-local-storage';
 import { provideMedia } from '@core/mpx-media';
@@ -14,17 +15,16 @@ import { MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS } from '@angular/material/progress
 import { MAT_TABS_CONFIG } from '@angular/material/tabs';
 import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { PreloadAllModules, provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading } from '@angular/router';
-import { authInterceptor } from '@core/mpx-auth';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideError(),
     provideRouter(routes, withComponentInputBinding(), withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }), withPreloading(PreloadAllModules)),
     provideClientHydration(withEventReplay()),
 
-    // 🧙‍♂️ AJUSTE AQUI: Cliente HTTP ativado com o seu interceptor e SEM o withFetch() depreciado
-    provideHttpClient(withInterceptors([authInterceptor])),
+    provideHttpClient(withInterceptors([authInterceptor, mpxErrorHttpInterceptor])),
 
     { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { subscriptSizing: 'dynamic' } },
     { provide: MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS, useValue: { diameter: 32 } },

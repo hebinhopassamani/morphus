@@ -1,28 +1,41 @@
+import { IconName, MorphusMessageSeverity } from '@core/mpx-types';
 import { IMorphusMessageLink } from './message-link.interface';
-import { MorphusMessageSeverity } from './message-severity.enum';
 
-export interface IMorphusMessage {
+export interface IMorphusMessage<T = unknown> {
   id?: string;
   severity?: MorphusMessageSeverity;
   title?: string;
   detail?: string;
-  icon?: string;
+  message?: string;
+  icon?: IconName;
+  iconColor?: string;
   titleLink?: IMorphusMessageLink;
   detailLink?: IMorphusMessageLink;
   isConfirmation?: boolean;
+  confirmButton?: boolean;
+  confirmSeverity?: MorphusMessageSeverity;
   confirmButtonText?: string;
-  confirmButtonIcon?: string;
+  confirmText?: string;
+  confirmButtonIcon?: IconName;
+  confirmIcon?: IconName;
   cancelButtonText?: string;
-  cancelButtonIcon?: string;
+  closeText?: string;
+  cancelButtonIcon?: IconName;
+  closeIcon?: IconName;
+  closeSeverity?: MorphusMessageSeverity;
   showCancelButton?: boolean;
+  closeButton?: boolean;
   closable?: boolean;
   disableClose?: boolean;
   doubleCheck?: boolean;
+  dobbleConfirmation?: boolean;
   doubleCheckLabel?: string;
+  dobbleConfirmationMessage?: string;
   doubleCheckText?: string;
   doubleCheckPlaceholder?: string;
+  timeout?: number;
   error?: unknown;
-  data?: unknown;
-  onConfirm?: () => void | Promise<void>;
+  data?: T;
+  onConfirm?: (data?: T) => void | Promise<void>;
   onCancel?: () => void;
 }

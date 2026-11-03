@@ -9,6 +9,8 @@ namespace Mpx.Infrastructure.Data;
 
 public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenantProvider tenantProvider) : DbContext(options), IUnitOfWork
 {
+  public Guid CurrentCorporationId => tenantProvider.GetCorporationId();
+
   protected override void OnModelCreating(ModelBuilder builder)
   {
     base.OnModelCreating(builder);
@@ -16,6 +18,41 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
 
     foreach (var entityType in builder.Model.GetEntityTypes())
     {
+      if (typeof(MorphusEntity).IsAssignableFrom(entityType.ClrType))
+      {
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MorphusEntity.Key))
+            .IsRequired()
+            .HasMaxLength(100)
+            .HasDefaultValue(string.Empty);
+
+        builder.Entity(entityType.ClrType)
+            .HasIndex(nameof(MorphusEntity.Key))
+            .IsUnique();
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MorphusEntity.System))
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MorphusEntity.Inactive))
+            .IsRequired()
+            .HasDefaultValue(false);
+      }
+      else if (typeof(MorphusRelatedEntity).IsAssignableFrom(entityType.ClrType))
+      {
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MorphusRelatedEntity.System))
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MorphusRelatedEntity.Inactive))
+            .IsRequired()
+            .HasDefaultValue(false);
+      }
+
       if (typeof(IMorphusTenant).IsAssignableFrom(entityType.ClrType))
       {
         builder.Entity(entityType.ClrType)
@@ -24,7 +61,7 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
     }
 
     builder.Entity<User>()
-        .HasQueryFilter(u => u.CorporationId == tenantProvider.GetCorporationId());
+        .HasQueryFilter(u => u.CorporationId == CurrentCorporationId);
   }
 
   private System.Linq.Expressions.LambdaExpression ConvertFilterExpression(Type type)
@@ -32,18 +69,27 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
     var parameter = System.Linq.Expressions.Expression.Parameter(type, "e");
     var property = System.Linq.Expressions.Expression.Property(parameter, nameof(IMorphusTenant.CorporationId));
 
-    var providerExpression = System.Linq.Expressions.Expression.Call(
-        System.Linq.Expressions.Expression.Constant(tenantProvider),
-        typeof(ITenantProvider).GetMethod(nameof(ITenantProvider.GetCorporationId))!
+    var contextProperty = System.Linq.Expressions.Expression.Property(
+        System.Linq.Expressions.Expression.Constant(this),
+        nameof(CurrentCorporationId)
     );
 
-    var condition = System.Linq.Expressions.Expression.Equal(property, providerExpression);
+    var condition = System.Linq.Expressions.Expression.Equal(property, contextProperty);
 
     return System.Linq.Expressions.Expression.Lambda(condition, parameter);
   }
 
   public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
   {
+    var addedEntityEntries = ChangeTracker.Entries<MorphusEntity>()
+        .Where(e => e.State == EntityState.Added && string.IsNullOrWhiteSpace(e.Entity.Key))
+        .ToList();
+
+    foreach (var entry in addedEntityEntries)
+    {
+      entry.Entity.Key = MorphusEntity.GenerateKey();
+    }
+
     var addedTenantEntries = ChangeTracker.Entries<IMorphusTenant>()
         .Where(e => e.State == EntityState.Added && e.Entity.CorporationId == Guid.Empty)
         .ToList();

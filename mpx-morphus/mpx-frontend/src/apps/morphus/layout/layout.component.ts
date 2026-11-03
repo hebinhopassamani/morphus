@@ -5,13 +5,22 @@ import { MatSidenav, MatSidenavContainer, MatSidenavContent } from '@angular/mat
 import { NavigationEnd, Router } from '@angular/router';
 import { Media } from '@core/mpx-media';
 import { Theming } from '@core/mpx-theming';
-import { BuiScrollViewport } from '@core/mpx-viewport-scroller';
+import { MpxScrollViewport } from '@core/mpx-viewport-scroller';
 import { MpxContentComponent } from '@morphus/layout/content/content.component';
 import { MpxSidebarComponent } from '@morphus/layout/sideBar/sidebar.component';
 import { MpxTopBarComponent } from '@morphus/layout/topbar/topbar.component';
 
 @Component({
-  imports: [MatSidenav, MatSidenavContainer, MatSidenavContent, MpxSidebarComponent, MpxContentComponent, MpxTopBarComponent, CdkScrollable, BuiScrollViewport],
+  imports: [
+    MatSidenav,
+    MatSidenavContainer,
+    MatSidenavContent,
+    MpxSidebarComponent,
+    MpxContentComponent,
+    MpxTopBarComponent,
+    CdkScrollable,
+    MpxScrollViewport,
+  ],
   selector: 'mpx-layout',
   host: { class: 'flex min-h-full w-full flex-auto flex-col' },
   templateUrl: './layout.component.html',

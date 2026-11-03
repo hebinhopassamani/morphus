@@ -1,4 +1,5 @@
 <div class="mx-auto flex w-full max-w-3xl flex-col p-6">
+  <!-- Cabeçalho usando title1 e title2 herdados de MorphusComponent -->
   <div class="flex items-center gap-x-3">
     <button matIconButton type="button" (click)="onCancel()">
       <mat-icon svgIcon="arrow-left" />
@@ -9,25 +10,152 @@
     </div>
   </div>
 
-  <form class="mt-8 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2" (ngSubmit)="onSave()">
+  <!-- Formulário de Edição / Criação usando MorphusValidator -->
+  <form
+    class="mt-8 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+    (ngSubmit)="onSave()"
+  >
+    <!-- Nome Fantasia e Chave Única (Key) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>
+          {{ isPj() ? 'Nome Fantasia / Corporação' : 'Nome de Exibição' }}
+        </mat-label>
+        <input
+          matInput
+          name="name"
+          required
+          minlength="3"
+          placeholder="Ex: Morphus"
+          [ngModel]="entity().name"
+          (ngModelChange)="updateField('name', $event)"
+          #corporationName="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(corporationName) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="cursor-pointer"
+        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+        (click)="copyKey()"
+      >
+        <mat-label>
+          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+        </mat-label>
+        <input
+          matInput
+          name="key"
+          readonly
+          class="cursor-pointer font-mono select-all opacity-75"
+          [ngModel]="entity().key"
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Tipo de Pessoa (PJ / PF) e CPF / CNPJ (14 caracteres) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>Tipo de Pessoa</mat-label>
+        <mat-select
+          name="personType"
+          required
+          [ngModel]="entity().personType || 'PJ'"
+          (ngModelChange)="onPersonTypeChange($event)"
+        >
+          <mat-option value="PJ">Pessoa Jurídica (PJ - CNPJ)</mat-option>
+          <mat-option value="PF">Pessoa Física (PF - CPF)</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>
+          {{ isPj() ? 'CNPJ (14 dígitos)' : 'CPF (11 dígitos)' }}
+        </mat-label>
+        <input
+          matInput
+          name="cpfCnpj"
+          inputmode="numeric"
+          [invalid_cnpj]="isPj()"
+          [invalid_cpf]="!isPj()"
+          [maxlength]="isPj() ? 14 : 11"
+          [placeholder]="isPj() ? 'Somente os 14 números do CNPJ' : 'Somente os 11 números do CPF'"
+          [ngModel]="entity().cpfCnpj"
+          (ngModelChange)="onCpfCnpjChange($event)"
+          #cpfCnpjCtrl="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(cpfCnpjCtrl) }}</span>
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Razão Social / Nome Completo -->
     <mat-form-field>
-      <mat-label>Nome da Corporação</mat-label>
+      <mat-label>
+        {{ isPj() ? 'Razão Social' : 'Nome Completo' }}
+      </mat-label>
       <input
         matInput
-        name="name"
-        required
-        [ngModel]="entity().name"
-        (ngModelChange)="updateField('name', $event)"
-        #corporationName="ngModel"
+        name="fullName"
+        [placeholder]="isPj() ? 'Ex: Morphus Cloud & Enterprise Systems Ltda.' : 'Ex: Nome completo do titular'"
+        [ngModel]="entity().fullName"
+        (ngModelChange)="updateField('fullName', $event)"
+        #fullName="ngModel"
       />
-      <mat-error class="morphus-mat-error">
-        <span class="morphus-mat-error-label">{{ validator.showErros(corporationName) }}</span>
-      </mat-error>
     </mat-form-field>
 
+    <!-- E-mail e Ícone -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>E-mail Principal</mat-label>
+        <input
+          matInput
+          type="email"
+          name="email"
+          required
+          invalid_email
+          placeholder="Ex: contato@empresa.com.br"
+          [ngModel]="entity().email"
+          (ngModelChange)="updateField('email', $event)"
+          #corporationEmail="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(corporationEmail) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mpx-icon-selector
+        label="Ícone"
+        [value]="entity().icon"
+        (valueChange)="updateField('icon', $event)"
+      />
+    </div>
+
+    <!-- Descrição (Textarea) -->
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        name="description"
+        placeholder="Descreva a finalidade ou segmento desta corporação..."
+        [ngModel]="entity().description"
+        (ngModelChange)="updateField('description', $event)"
+        #description="ngModel"
+      ></textarea>
+    </mat-form-field>
+
+    <!-- Ações do Formulário -->
     <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
-      <button matButton type="button" (click)="onCancel()">Cancelar</button>
-      <button matButton class="primary" type="submit">Salvar</button>
+      <button matButton type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button matButton class="primary" type="submit" [disabled]="loading()">
+        <mat-icon svgIcon="check" />
+        {{ isEditing() ? 'Salvar Alterações' : 'Criar Corporação' }}
+      </button>
     </div>
   </form>
 </div>

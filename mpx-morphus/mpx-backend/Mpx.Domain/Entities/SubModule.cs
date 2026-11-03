@@ -2,12 +2,9 @@ using Mpx.Domain.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class SubModule : IMorphusTenant
+public class SubModule : MorphusEntity, IMorphusTenant
 {
-  public Guid Id { get; set; }
   public required string Name { get; set; }
-  public required string Key { get; set; }
-  public bool System { get; set; }
   public Guid ModuleId { get; set; }
   public Guid CorporationId { get; set; }
   public string? Description { get; set; }

@@ -1,10 +1,16 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-public class ModuleHandler(IModuleRepository moduleRepository, IUnitOfWork unitOfWork)
+public class ModuleHandler(
+    IModuleRepository moduleRepository,
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<Module>(httpContext)
 {
   public Task<Module?> GetByIdAsync(Guid id) => moduleRepository.GetByIdAsync(id);
 
@@ -29,7 +35,7 @@ public class ModuleHandler(IModuleRepository moduleRepository, IUnitOfWork unitO
 
   public async Task<Module> UpdateAsync(Module module)
   {
-    moduleRepository.Update(module);
+    await moduleRepository.UpdateNotNull(module, updateCorporationId: false);
     await unitOfWork.SaveChangesAsync();
     return module;
   }

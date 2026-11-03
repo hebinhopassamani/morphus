@@ -1,0 +1,91 @@
+<mat-form-field
+  class="mpx-icon-field"
+  [matMenuTriggerFor]="iconSelectorMenu"
+  (mousedown)="syncPanelWidth()"
+  (menuOpened)="syncPanelWidth()"
+>
+  <mat-label>{{ label() }}</mat-label>
+  <mat-icon
+    matIconPrefix
+    [svgIcon]="value() || defaultIcon()"
+  />
+  <input
+    matInput
+    readonly
+    class="mpx-icon-input"
+    [value]="baseIconName()"
+  />
+  <mat-icon
+    matIconSuffix
+    svgIcon="chevron-down"
+  />
+</mat-form-field>
+
+<mat-menu
+  class="max-w-none! min-w-0! overflow-x-hidden p-0!"
+  #iconSelectorMenu="matMenu"
+>
+  <div
+    class="not-mat-menu-wrapper mpx-icon-panel"
+    [style.width.px]="panelWidth()"
+    (click)="$event.stopPropagation()"
+    (keydown)="$event.stopPropagation()"
+  >
+    <div class="mpx-icon-search-box">
+      <mat-icon class="size-4 opacity-60" svgIcon="search" />
+      <input
+        type="text"
+        class="mpx-icon-search-input"
+        placeholder="Buscar ícone..."
+        [ngModel]="search"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      @if (search !== '') {
+        <button
+          type="button"
+          (click)="clearSearch($event)"
+        >
+          <mat-icon class="size-3.5 opacity-60" svgIcon="x" />
+        </button>
+      }
+    </div>
+
+    <div class="mpx-icon-colors">
+      <button
+        type="button"
+        class="mpx-icon-color-dot bg-neutral-500"
+        [class.mpx-icon-color-dot-active]="activeColor() === ''"
+        matTooltip="Padrão do tema"
+        (click)="selectColor('')"
+      ></button>
+
+      @for (color of themeColors; track color.value) {
+        <button
+          type="button"
+          class="mpx-icon-color-dot"
+          [class.mpx-icon-color-dot-active]="activeColor() === color.value"
+          [style.background-color]="color.value"
+          [matTooltip]="color.name"
+          (click)="selectColor(color.value)"
+        ></button>
+      }
+    </div>
+
+    <div class="mpx-icon-grid">
+      @for (iconName of filteredIcons(); track iconName) {
+        <button
+          type="button"
+          class="mpx-icon-item"
+          [class.mpx-icon-item-active]="baseIconName() === iconName"
+          [matTooltip]="iconName"
+          (click)="selectIcon(iconName)"
+        >
+          <mat-icon
+            class="size-5"
+            [svgIcon]="buildIconKey(iconName)"
+          />
+        </button>
+      }
+    </div>
+  </div>
+</mat-menu>

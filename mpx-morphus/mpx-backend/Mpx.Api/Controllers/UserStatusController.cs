@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Mpx.Application.Handlers;
+using Mpx.Application.MorphusController;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -8,7 +9,10 @@ namespace Mpx.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/v1/user-status")]
-public class UserStatusController(UserStatusHandler userStatusHandler) : ControllerBase
+public class UserStatusController(
+    UserStatusHandler userStatusHandler,
+    IHttpContextAccessor httpContext)
+    : MorphusController<UserStatus>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "USER_STATUS_GET_BY_ID")]
@@ -26,9 +30,15 @@ public class UserStatusController(UserStatusHandler userStatusHandler) : Control
       Ok(await userStatusHandler.CreateAsync(userStatus));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "USER_STATUS_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] UserStatus userStatus) =>
-      Ok(await userStatusHandler.UpdateAsync(userStatus));
+  public async Task<IActionResult> Update([FromBody] UserStatus userStatus, Guid? id = null)
+  {
+    if (id.HasValue && userStatus.Id == Guid.Empty)
+      userStatus.Id = id.Value;
+
+    return Ok(await userStatusHandler.UpdateAsync(userStatus));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "USER_STATUS_DELETE")]
@@ -38,4 +48,3 @@ public class UserStatusController(UserStatusHandler userStatusHandler) : Control
     return NoContent();
   }
 }
-

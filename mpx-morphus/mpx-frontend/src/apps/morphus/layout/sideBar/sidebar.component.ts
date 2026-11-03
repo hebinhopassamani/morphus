@@ -17,7 +17,6 @@ import {
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { CorporationSummary } from '@security/entities/session';
 import { MpxMenuComponent } from '@src/components/morphus/menu';
 
 @Component({
@@ -39,6 +38,7 @@ import { MpxMenuComponent } from '@src/components/morphus/menu';
   host: {
     class: 'flex w-full flex-auto flex-col overflow-x-clip',
     '[class.scheme-dark]': 'theming.sidebarScheme() === "dark"',
+    '[class.scheme-light]': 'theming.sidebarScheme() === "light"',
   },
   styleUrl: './sidebar.component.css',
   templateUrl: './sidebar.component.html',
@@ -47,10 +47,6 @@ export class MpxSidebarComponent {
   protected readonly auth = inject(Auth);
   protected readonly context = inject(MorphusContextService);
   protected readonly theming = inject(Theming);
-
-  protected selectCorporation(corp: CorporationSummary): void {
-    this.context.switchCorporation(corp);
-  }
 
   protected selectWorkspace(workspace: Workspace): void {
     this.context.selectWorkspace(workspace);
