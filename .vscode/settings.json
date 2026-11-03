@@ -1,0 +1,86 @@
+{
+  // Configuração e consistência do Formatador (Prettier global do Monorepo)
+  "prettier.configPath": "./.prettierrc",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2,
+  "prettier.requireConfig": true,
+
+  // Automação de correções de Lint ao salvar (Angular/Typescript)
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  // Mapeamentos específicos de tecnologias do projeto
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "material-icon-theme.folders.color": "#C870CC",
+
+  // Limpeza do Explorer: Oculta pastas de build e arquivos de config locais
+  "files.exclude": {
+    ".csharpierrc.json": true,
+    "**/.prettierignore": true,
+    "**/eslint.config.js": true,
+    "**/*.spec.ts": true,
+    "**/*.postcssrc.json": true,
+    "**/*AGENTS.md": true,
+    "**/*skills-lock.json": true,
+    "**/*.env": true,
+    "**/*.lnk": true,
+    "**/e2e": true,
+    "**/karma.conf.js": true,
+    "**/package-lock.json": true,
+    "**/test.ts": true,
+    "**/tsconfig.spec.json": true,
+    "**/tslint.json": true,
+    "**/obj": true,
+    "**/bin": true,
+    "**/dist": true,
+    "**/.builderkit": true,
+    "**/.angular": true,
+    "**/.agents": true,
+    "**/.gitignore": true,
+    "**/node_modules": true
+  },
+
+  // Definição estrita de formatadores por linguagem no Morphus
+  "[csharp]": {
+    "editor.defaultFormatter": "ms-dotnettools.csharp"
+  },
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.inlayHints.enabled": "off"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[tailwindcss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svg]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
+}

@@ -1,0 +1,116 @@
+<div class="relative sticky top-0 z-99 flex items-center gap-x-2 overflow-hidden border-b bg-[#F7F5FC] py-2.5 ps-4 pe-5 dark:bg-[#140A2E]">
+  <!-- Arte Oficial Topbar (Change Log 2: topbar_light.jpg / topbar_dark.jpg) -->
+  <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
+    <img
+      src="/brand/topbar_light.jpg"
+      alt=""
+      class="h-full w-full object-cover object-right opacity-90 dark:hidden"
+    />
+    <img
+      src="/brand/topbar_dark.jpg"
+      alt=""
+      class="hidden h-full w-full object-cover object-right opacity-90 dark:block"
+    />
+  </div>
+
+  <a class="relative z-10 inline-flex items-center gap-x-3 rounded-xl" routerLink="/">
+    <div class="flex size-10 items-center justify-center overflow-hidden rounded-xl shadow-xs">
+      <img src="/brand/favicon_light_512.png" alt="Morphus logo" class="size-full object-cover dark:hidden" />
+      <img src="/brand/favicon_dark_512.png" alt="Morphus logo" class="hidden size-full object-cover dark:block" />
+    </div>
+    <div class="flex flex-col gap-y-0.5">
+      <div class="bg-gradient-to-r from-[#0EA5E9] via-[#6D28D9] to-[#F43F5E] bg-clip-text text-2xl leading-none font-extrabold tracking-tight uppercase text-transparent dark:from-[#22D3EE] dark:via-[#A78BFA] dark:to-[#FB7185]">
+        MORPHUS
+      </div>
+      <div class="text-xs leading-none font-medium text-neutral-a10">
+        Do que você precisa hoje?
+      </div>
+    </div>
+  </a>
+
+  <div class="flex-auto"></div>
+
+  <button matIconButton class="relative z-10" (click)="toggleScheme()">
+    <mat-icon [svgIcon]="isDark() ? 'sun' : 'moon'" />
+  </button>
+
+  @if (auth.isAuthenticated() && auth.user(); as user) {
+    <button
+      type="button"
+      [matMenuTriggerFor]="secUserMenu"
+      class="relative z-10 flex cursor-pointer items-center gap-x-3 rounded-xl border border-neutral-a4 bg-surface-container-low/60 px-3 py-1.5 text-start transition hover:bg-neutral-a3"
+    >
+      @if (user.picture; as picture) {
+        <img
+          class="size-8 shrink-0 overflow-hidden rounded-lg object-cover"
+          [src]="picture"
+          alt="Avatar do usuário"
+        />
+      } @else {
+        <div
+          class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-a3 text-xs font-semibold text-primary-a11"
+        >
+          {{ userInitials() }}
+        </div>
+      }
+
+      <div class="hidden min-w-0 flex-col gap-y-0.5 leading-tight sm:flex">
+        <span class="max-w-44 truncate text-xs font-semibold text-on-surface">
+          {{ user.name || 'Usuário Morphus' }}
+        </span>
+        <span class="max-w-44 truncate text-[11px] text-neutral-a11">
+          {{ auth.corporation()?.name || user.email }}
+        </span>
+      </div>
+
+      <mat-icon class="ms-1 size-4! shrink-0 text-neutral-a10" svgIcon="chevron-down" />
+    </button>
+
+    <mat-menu #secUserMenu="matMenu" xPosition="before" class="min-w-56">
+      <div class="not-mat-menu-wrapper flex flex-row! items-center gap-x-3 px-4 py-2.5 select-none">
+        @if (user.picture; as picture) {
+          <img
+            class="size-9 shrink-0 rounded-lg object-cover"
+            [src]="picture"
+            alt="Avatar do usuário"
+          />
+        } @else {
+          <div
+            class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-a4 text-sm font-semibold text-primary-a11"
+          >
+            {{ userInitials() }}
+          </div>
+        }
+        <div class="flex min-w-0 flex-col">
+          <span class="truncate text-sm font-semibold">
+            {{ user.name || 'Usuário Morphus' }}
+          </span>
+          <span class="truncate text-xs text-neutral-a11">
+            {{ auth.corporation()?.name || user.email }}
+          </span>
+        </div>
+      </div>
+
+      <mat-divider />
+
+      <a mat-menu-item routerLink="/admin">
+        <mat-icon svgIcon="layout-grid" />
+        <span>Ir para o Painel</span>
+      </a>
+
+      @if (auth.availableCorporations().length > 1) {
+        <button mat-menu-item (click)="auth.openCorporationSelector('/admin', 'security')">
+          <mat-icon svgIcon="building-2" />
+          <span>Trocar corporação</span>
+        </button>
+      }
+
+      <mat-divider />
+
+      <button mat-menu-item (click)="auth.logout()">
+        <mat-icon svgIcon="log-out" />
+        <span>Sair / Trocar de conta</span>
+      </button>
+    </mat-menu>
+  }
+</div>

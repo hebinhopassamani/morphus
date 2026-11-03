@@ -1,0 +1,11 @@
+/* Morphus - Paleta de cores */
+:root { /* Light */
+  --background:#F7F5FC; --foreground:#1E1B2E;
+  --primary:#6D28D9; --secondary:#0EA5E9; --tertiary:#F43F5E;
+  --success:#16A34A; --error:#DC2626; --info:#2563EB; --warning:#D97706;
+}
+.dark {
+  --background:#140A2E; --foreground:#F5F3FF;
+  --primary:#A78BFA; --secondary:#22D3EE; --tertiary:#FB7185;
+  --success:#4ADE80; --error:#F87171; --info:#60A5FA; --warning:#FBBF24;
+}

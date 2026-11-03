@@ -1,0 +1,30 @@
+<mat-sidenav-container
+  class="overflow-clip print:overflow-visible"
+  [class.scheme-dark]="theming.sidebarScheme() === 'dark'"
+  [class.scheme-light]="theming.sidebarScheme() === 'light'"
+>
+  <mat-sidenav
+    class="w-60 border-none print:hidden"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="!isMobile()"
+    [disableClose]="!isMobile()"
+    fixedInViewport
+    #sidenav
+  >
+    <mpx-sidebar />
+  </mat-sidenav>
+  <mat-sidenav-content
+    class="min-w-0 overflow-clip bg-transparent min-[1000px]:h-dvh min-[1000px]:p-2 print:ms-0 print:h-auto print:overflow-visible"
+    [class.scheme-dark]="theming.isDark()"
+    [class.scheme-light]="!theming.isDark()"
+  >
+    <div
+      class="flex h-full flex-auto flex-col bg-[#F7F5FC] shadow-xs min-[1000px]:overflow-y-auto min-[1000px]:rounded-lg min-[1000px]:ring-1 min-[1000px]:ring-neutral-a3 dark:bg-[#140A2E] print:overflow-visible print:shadow-none"
+      cdkScrollable
+      mpxScrollViewport
+    >
+      <mpx-topbar (menuToggle)="sidenav.toggle()" />
+      <mpx-content />
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

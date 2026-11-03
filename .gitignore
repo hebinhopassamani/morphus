@@ -36,6 +36,7 @@ testem.log
 **/Thumbs.db
 **/*.log
 **/*.bak
+**/*.lnk
 **/.builderkit
 **/.angular/cache
 **/connect.lock
@@ -48,5 +49,7 @@ testem.log
 # ==========================================
 # Oculta arquivos locais do VS Code/Cursor da equipe, 
 # mas permite compartilhar extensões se necessário
-.vscode/*
+.vscode/tasks.json
+.vscode/launch.json
+!.vscode/settings.json
 !.vscode/extensions.json
