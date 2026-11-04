@@ -1,4 +1,4 @@
-<div class="mx-auto flex w-full max-w-3xl flex-col p-6">
+<div class="mx-auto flex w-full max-w-6xl flex-col p-6">
   <div class="flex items-center gap-x-3">
     <button matIconButton type="button" (click)="onCancel()">
       <mat-icon svgIcon="arrow-left" />
@@ -9,104 +9,523 @@
     </div>
   </div>
 
-  <form
-    #workspaceForm="ngForm"
-    (ngSubmit)="workspaceForm.form.valid && onSave()"
-    class="mt-8 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+  <mat-tab-group
+    class="mt-6"
+    [selectedIndex]="selectedTabIndex()"
+    (selectedIndexChange)="selectedTabIndex.set($event)"
   >
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-      <!-- Nome do Workspace -->
-      <mat-form-field>
-        <mat-label>Nome do Workspace</mat-label>
-        <input
-          matInput
-          name="name"
-          placeholder="Ex.: Principal, Financeiro, Operações..."
-          required
-          minlength="2"
-          maxlength="100"
-          [ngModel]="entity().name"
-          (ngModelChange)="updateField('name', $event)"
-          #nameCtrl="ngModel"
-        />
-        <mat-error class="morphus-mat-error">
-          <span class="morphus-mat-error-label">{{ validator.showErros(nameCtrl) }}</span>
-        </mat-error>
-      </mat-form-field>
-
-      <!-- Chave Única (Key) -->
-      <mat-form-field
-        class="cursor-pointer"
-        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
-        (click)="copyKey()"
+    <!-- =================================================================== -->
+    <!-- ABA 1: Dados do Workspace                                           -->
+    <!-- =================================================================== -->
+    <mat-tab label="Dados do Workspace">
+      <form
+        #workspaceForm="ngForm"
+        (ngSubmit)="workspaceForm.form.valid && onSave()"
+        class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
       >
-        <mat-label>
-          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
-        </mat-label>
-        <input
-          matInput
-          name="key"
-          readonly
-          class="cursor-pointer font-mono select-all opacity-75"
-          [ngModel]="entity().key"
-        />
-      </mat-form-field>
-    </div>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <mat-form-field>
+            <mat-label>Nome do Workspace</mat-label>
+            <input
+              matInput
+              name="name"
+              placeholder="Ex.: Principal, Financeiro, Operações..."
+              required
+              minlength="2"
+              maxlength="100"
+              [ngModel]="entity().name"
+              (ngModelChange)="updateField('name', $event)"
+              #nameCtrl="ngModel"
+            />
+            <mat-error class="morphus-mat-error">
+              <span class="morphus-mat-error-label">{{ validator.showErros(nameCtrl) }}</span>
+            </mat-error>
+          </mat-form-field>
 
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-      <!-- Seletor Visual de Ícones e Cores -->
-      <mpx-icon-selector
-        label="Ícone do Workspace"
-        defaultIcon="layout-grid"
-        [value]="entity().icon"
-        (valueChange)="updateField('icon', $event)"
-      />
-
-      <!-- Switch de Workspace Padrão (Default) -->
-      <div class="mpx-workspace-default-card">
-        <div class="flex flex-col">
-          <span class="mpx-body-medium font-medium text-neutral-12">
-            Workspace padrão da corporação
-          </span>
-          <span class="mpx-body-small text-neutral-a11">
-            Carregado automaticamente ao entrar na corporação.
-          </span>
+          <mat-form-field
+            class="cursor-pointer"
+            [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+            (click)="copyKey(entity().key)"
+          >
+            <mat-label>
+              {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+            </mat-label>
+            <input
+              matInput
+              name="key"
+              readonly
+              class="cursor-pointer font-mono select-all opacity-75"
+              [ngModel]="entity().key"
+            />
+          </mat-form-field>
         </div>
-        <mat-slide-toggle
-          name="default"
-          [ngModel]="entity().default"
-          (ngModelChange)="updateField('default', $event)"
-        />
-      </div>
-    </div>
 
-    <!-- Descrição (Textarea) -->
-    <mat-form-field>
-      <mat-label>Descrição</mat-label>
-      <textarea
-        matInput
-        name="description"
-        rows="3"
-        placeholder="Descreva a finalidade deste espaço de trabalho..."
-        maxlength="255"
-        [ngModel]="entity().description"
-        (ngModelChange)="updateField('description', $event)"
-      ></textarea>
-    </mat-form-field>
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <mpx-icon-selector
+            label="Ícone do Workspace"
+            defaultIcon="layout-grid"
+            [value]="entity().icon"
+            (valueChange)="updateField('icon', $event)"
+          />
 
-    <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
-      <button matButton type="button" (click)="onCancel()">
-        Cancelar
-      </button>
-      <button
-        matButton
-        class="primary"
-        type="submit"
-        [disabled]="workspaceForm.invalid"
-      >
-        <mat-icon svgIcon="check" />
-        {{ isEditing() ? 'Salvar Alterações' : 'Criar Workspace' }}
-      </button>
-    </div>
-  </form>
+          <div class="mpx-workspace-default-card">
+            <div class="flex flex-col">
+              <span class="mpx-body-medium font-medium text-neutral-12">
+                Workspace padrão da corporação
+              </span>
+              <span class="mpx-body-small text-neutral-a11">
+                Carregado automaticamente ao entrar na corporação.
+              </span>
+            </div>
+            <mat-slide-toggle
+              name="default"
+              [ngModel]="entity().default"
+              (ngModelChange)="updateField('default', $event)"
+            />
+          </div>
+        </div>
+
+        <mat-form-field>
+          <mat-label>Descrição</mat-label>
+          <textarea
+            matInput
+            name="description"
+            rows="3"
+            placeholder="Descreva a finalidade deste espaço de trabalho..."
+            maxlength="255"
+            [ngModel]="entity().description"
+            (ngModelChange)="updateField('description', $event)"
+          ></textarea>
+        </mat-form-field>
+
+        <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
+          <button matButton type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            matButton
+            class="primary"
+            type="submit"
+            [disabled]="workspaceForm.invalid"
+          >
+            <mat-icon svgIcon="check" />
+            {{ isEditing() ? 'Salvar Alterações' : 'Criar Workspace' }}
+          </button>
+        </div>
+      </form>
+    </mat-tab>
+
+    <!-- =================================================================== -->
+    <!-- ABA 2: N:N Aplicações do Workspace (Com Multi-Seleção)              -->
+    <!-- =================================================================== -->
+    @if (isEditing()) {
+      <mat-tab [label]="'Aplicações (' + relatedApps().length + ')'">
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- ESQUERDA: Aplicações Disponíveis -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Aplicações Disponíveis ({{ filteredAppsToRelate().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Aplicações da corporação ainda não vinculadas a este workspace.
+                </p>
+              </div>
+              <button
+                matButton
+                class="primary"
+                type="button"
+                [disabled]="selectedAppToRelateIds().size === 0"
+                (click)="addSelectedApps()"
+              >
+                <span>Vincular ({{ selectedAppToRelateIds().size }})</span>
+                <mat-icon svgIcon="arrow-right" />
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllAppsToRelateSelected()"
+                [disabled]="filteredAppsToRelate().length === 0"
+                (change)="toggleSelectAllAppsToRelate()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar todas</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar aplicações..."
+                  [ngModel]="searchAppToRelate()"
+                  (ngModelChange)="searchAppToRelate.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredAppsToRelate().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="boxes" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Todas as aplicações da corporação já estão vinculadas.
+                  </p>
+                </div>
+              } @else {
+                @for (app of filteredAppsToRelate(); track app.id) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isAppToRelateSelected(app.id)"
+                        (change)="toggleAppToRelate(app.id)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="truncate mpx-body-medium font-medium text-neutral-12">
+                            {{ app.name }}
+                          </span>
+                          <code class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-[10px] text-neutral-11">
+                            {{ app.key }}
+                          </code>
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ app.description || '—' }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-primary-11"
+                      matTooltip="Vincular aplicação"
+                      (click)="addSingleApp(app)"
+                    >
+                      <mat-icon svgIcon="arrow-right" />
+                    </button>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- DIREITA: Aplicações Vinculadas -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Aplicações no Workspace ({{ filteredRelatedApps().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Aplicações habilitadas para os membros deste workspace.
+                </p>
+              </div>
+              <button
+                matButton
+                type="button"
+                class="text-red-a11"
+                [disabled]="selectedAppRelatedIds().size === 0"
+                (click)="removeSelectedApps()"
+              >
+                <mat-icon svgIcon="trash" />
+                <span>Remover ({{ selectedAppRelatedIds().size }})</span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllAppsRelatedSelected()"
+                [disabled]="filteredRelatedApps().length === 0"
+                (change)="toggleSelectAllAppsRelated()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar removíveis</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar vinculadas..."
+                  [ngModel]="searchAppRelated()"
+                  (ngModelChange)="searchAppRelated.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredRelatedApps().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="boxes" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Nenhuma aplicação vinculada a este workspace.
+                  </p>
+                </div>
+              } @else {
+                @for (rel of filteredRelatedApps(); track rel.applicationId) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isAppRelatedSelected(rel.applicationId)"
+                        [disabled]="!!rel.system"
+                        (change)="toggleAppRelated(rel)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <span class="truncate mpx-body-medium font-medium text-neutral-12">
+                            {{ rel.application?.name || rel.applicationId }}
+                          </span>
+                          @if (rel.system) {
+                            <span class="rounded bg-primary-a3 px-1.5 py-0.5 text-[10px] font-semibold text-primary-11">
+                              Nativa
+                            </span>
+                          }
+                          @if (rel.inactive) {
+                            <span class="rounded bg-red-a3 px-1.5 py-0.5 text-[10px] font-semibold text-red-11">
+                              Inativa
+                            </span>
+                          }
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ rel.application?.description || rel.application?.key }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-1">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        [matTooltip]="rel.inactive ? 'Ativar aplicação no workspace' : 'Desativar aplicação no workspace'"
+                        [disabled]="rel.system"
+                        (click)="toggleAppActive(rel)"
+                      >
+                        <mat-icon [svgIcon]="rel.inactive ? 'check' : 'ban'" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        matTooltip="Remover vínculo"
+                        [disabled]="rel.system"
+                        (click)="removeSingleApp(rel)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- =================================================================== -->
+      <!-- ABA 3: N:N Usuários do Workspace (Com Multi-Seleção)                -->
+      <!-- =================================================================== -->
+      <mat-tab [label]="'Usuários (' + relatedUsers().length + ')'">
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- ESQUERDA: Usuários Disponíveis -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Usuários Disponíveis ({{ filteredUsersToRelate().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Usuários da corporação ainda não vinculados a este workspace.
+                </p>
+              </div>
+              <button
+                matButton
+                class="primary"
+                type="button"
+                [disabled]="selectedUserToRelateIds().size === 0"
+                (click)="addSelectedUsers()"
+              >
+                <span>Vincular ({{ selectedUserToRelateIds().size }})</span>
+                <mat-icon svgIcon="arrow-right" />
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllUsersToRelateSelected()"
+                [disabled]="filteredUsersToRelate().length === 0"
+                (change)="toggleSelectAllUsersToRelate()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar todos</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar usuários..."
+                  [ngModel]="searchUserToRelate()"
+                  (ngModelChange)="searchUserToRelate.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredUsersToRelate().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="users" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Todos os usuários da corporação já estão neste workspace.
+                  </p>
+                </div>
+              } @else {
+                @for (user of filteredUsersToRelate(); track user.id) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isUserToRelateSelected(user.id)"
+                        (change)="toggleUserToRelate(user.id)"
+                      />
+                      <div class="min-w-0">
+                        <p class="truncate mpx-body-medium font-medium text-neutral-12">
+                          {{ user.name }}
+                        </p>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ user.email }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-primary-11"
+                      matTooltip="Vincular usuário"
+                      (click)="addSingleUser(user)"
+                    >
+                      <mat-icon svgIcon="arrow-right" />
+                    </button>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- DIREITA: Usuários Vinculados -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Usuários no Workspace ({{ filteredRelatedUsers().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Membros autorizados neste espaço de trabalho.
+                </p>
+              </div>
+              <button
+                matButton
+                type="button"
+                class="text-red-a11"
+                [disabled]="selectedUserRelatedIds().size === 0"
+                (click)="removeSelectedUsers()"
+              >
+                <mat-icon svgIcon="trash" />
+                <span>Remover ({{ selectedUserRelatedIds().size }})</span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllUsersRelatedSelected()"
+                [disabled]="filteredRelatedUsers().length === 0"
+                (change)="toggleSelectAllUsersRelated()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar removíveis</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar vinculados..."
+                  [ngModel]="searchUserRelated()"
+                  (ngModelChange)="searchUserRelated.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredRelatedUsers().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="users" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Nenhum usuário vinculado a este workspace.
+                  </p>
+                </div>
+              } @else {
+                @for (rel of filteredRelatedUsers(); track rel.userId) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isUserRelatedSelected(rel.userId)"
+                        [disabled]="!canRemoveUser(rel)"
+                        (change)="toggleUserRelated(rel)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <span class="truncate mpx-body-medium font-medium text-neutral-12">
+                            {{ rel.user?.name || rel.userId }}
+                          </span>
+                          @if (rel.isOwner) {
+                            <span class="rounded bg-primary-a3 px-1.5 py-0.5 text-[10px] font-semibold text-primary-11">
+                              Proprietário
+                            </span>
+                          }
+                          @if (rel.inactive) {
+                            <span class="rounded bg-red-a3 px-1.5 py-0.5 text-[10px] font-semibold text-red-11">
+                              Inativo
+                            </span>
+                          }
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ rel.user?.email }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-1">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        [matTooltip]="rel.isOwner ? 'Remover propriedade' : 'Definir como proprietário'"
+                        [disabled]="rel.system"
+                        (click)="toggleUserOwner(rel)"
+                      >
+                        <mat-icon [svgIcon]="rel.isOwner ? 'shield-check' : 'shield'" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        [matTooltip]="rel.inactive ? 'Ativar no workspace' : 'Desativar no workspace'"
+                        [disabled]="rel.system || rel.isOwner"
+                        (click)="toggleUserActive(rel)"
+                      >
+                        <mat-icon [svgIcon]="rel.inactive ? 'check' : 'ban'" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        matTooltip="Remover vínculo"
+                        [disabled]="!canRemoveUser(rel)"
+                        (click)="removeSingleUser(rel)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
 </div>

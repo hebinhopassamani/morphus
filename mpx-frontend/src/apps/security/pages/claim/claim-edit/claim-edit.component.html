@@ -1,0 +1,153 @@
+<div class="mx-auto flex w-full max-w-4xl flex-col p-6">
+  <!-- Cabeçalho -->
+  <div class="flex items-center gap-x-3">
+    <button matIconButton type="button" (click)="onCancel()">
+      <mat-icon svgIcon="arrow-left" />
+    </button>
+    <div>
+      <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+      <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+    </div>
+  </div>
+
+  <form
+    class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+    (ngSubmit)="onSave()"
+  >
+    <!-- Escopo: Aplicação -> Módulo -> Submódulo -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <mat-form-field>
+        <mat-label>Aplicação</mat-label>
+        <mat-select
+          name="applicationId"
+          [disabled]="!!entity().system"
+          [ngModel]="selectedApplicationId()"
+          (ngModelChange)="onApplicationChange($event)"
+        >
+          <mat-option value="">Todas as Aplicações</mat-option>
+          @for (app of applications(); track app.id) {
+            <mat-option [value]="app.id">{{ app.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Módulo</mat-label>
+        <mat-select
+          name="moduleId"
+          required
+          [disabled]="!!entity().system"
+          [ngModel]="entity().moduleId"
+          (ngModelChange)="onModuleChange($event)"
+          #moduleId="ngModel"
+        >
+          @for (mod of availableModules(); track mod.id) {
+            <mat-option [value]="mod.id">{{ mod.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(moduleId) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Submódulo</mat-label>
+        <mat-select
+          name="subModuleId"
+          required
+          [disabled]="!!entity().system || !entity().moduleId"
+          [ngModel]="entity().subModuleId"
+          (ngModelChange)="updateField('subModuleId', $event)"
+          #subModuleId="ngModel"
+        >
+          @for (sub of availableSubModules(); track sub.id) {
+            <mat-option [value]="sub.id">{{ sub.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(subModuleId) }}</span>
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Tipo, Valor e Chave (Key) -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <mat-form-field>
+        <mat-label>Tipo (ClaimType)</mat-label>
+        <input
+          matInput
+          name="claimType"
+          required
+          minlength="2"
+          placeholder="Ex: INVOICE, PAYABLE, USER..."
+          [disabled]="!!entity().system"
+          [ngModel]="entity().claimType"
+          (ngModelChange)="updateField('claimType', $event)"
+          #claimType="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(claimType) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Valor / Ação (ClaimValue)</mat-label>
+        <input
+          matInput
+          name="claimValue"
+          required
+          minlength="2"
+          placeholder="Ex: LIST, CREATE, UPDATE, DELETE..."
+          [disabled]="!!entity().system"
+          [ngModel]="entity().claimValue"
+          (ngModelChange)="updateField('claimValue', $event)"
+          #claimValue="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(claimValue) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field
+        class="cursor-pointer"
+        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+        (click)="copyKey(entity().key)"
+      >
+        <mat-label>
+          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+        </mat-label>
+        <input
+          matInput
+          name="key"
+          readonly
+          class="cursor-pointer font-mono select-all opacity-75"
+          [ngModel]="entity().key"
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Descrição -->
+    <mat-form-field>
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        rows="3"
+        name="description"
+        placeholder="Descreva a ação ou recurso protegido por esta permissão..."
+        [ngModel]="entity().description"
+        (ngModelChange)="updateField('description', $event)"
+      ></textarea>
+    </mat-form-field>
+
+    <!-- Ações -->
+    <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
+      <button matButton type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button matButton class="primary" type="submit" [disabled]="loading()">
+        <mat-icon svgIcon="check" />
+        {{ isEditing() ? 'Salvar Alterações' : 'Criar Permissão' }}
+      </button>
+    </div>
+  </form>
+</div>

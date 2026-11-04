@@ -980,7 +980,12 @@ public class SecurityHandler(
             Icon = cu.Corporation.Icon,
             Description = cu.Corporation.Description,
             ParentCorporationId = cu.Corporation.CorporationId,
-            IsOwner = cu.IsOwner
+            IsOwner = cu.IsOwner,
+            Roles = user.UserRoles
+                .Where(ur => !ur.Inactive && ur.CorporationId == cu.Corporation.Id && ur.Role is not null && !string.IsNullOrWhiteSpace(ur.Role.Name))
+                .Select(ur => ur.Role!.Name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList()
           })
           .ToList()
     };

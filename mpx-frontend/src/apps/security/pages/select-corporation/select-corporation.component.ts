@@ -103,6 +103,25 @@ export class SelectCorporationComponent implements OnInit {
     return !!this.starredIds()[corpId];
   }
 
+  protected roleLabelFor(corp: CorporationSummary): string {
+    const roles = corp.roles?.filter((r) => !!r?.trim()) ?? [];
+    if (roles.length === 1) {
+      return roles[0];
+    }
+    if (roles.length > 1) {
+      return `${roles[0]} (+${roles.length - 1})`;
+    }
+    return corp.isOwner ? 'Administrador' : 'Usuário';
+  }
+
+  protected roleTooltipFor(corp: CorporationSummary): string {
+    const roles = corp.roles?.filter((r) => !!r?.trim()) ?? [];
+    if (roles.length > 1) {
+      return `Perfis: ${roles.join(', ')}`;
+    }
+    return '';
+  }
+
   protected toggleStar(corp: CorporationSummary, event?: Event): void {
     event?.stopPropagation();
     this.starredIds.update((prev) => ({
@@ -144,7 +163,7 @@ export class SelectCorporationComponent implements OnInit {
   }
 
   private navigateToTarget(): void {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/admin';
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/website/home';
     this.router.navigateByUrl(returnUrl);
   }
 }

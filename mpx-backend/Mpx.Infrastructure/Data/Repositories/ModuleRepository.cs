@@ -45,4 +45,17 @@ public class ModuleRepository(MorphusDbContext context) : MorphusRepository<Modu
         .OrderBy(m => m.Name)
         .ToListAsync();
   }
+
+  public async Task<bool> HasDependenciesAsync(Guid moduleId)
+  {
+    var hasSubModules = await _context.SubModules.AsNoTracking().AnyAsync(s => s.ModuleId == moduleId);
+    if (hasSubModules)
+      return true;
+
+    var hasRoles = await _context.Roles.AsNoTracking().AnyAsync(r => r.ModuleId == moduleId);
+    if (hasRoles)
+      return true;
+
+    return await _context.Claims.AsNoTracking().AnyAsync(c => c.ModuleId == moduleId);
+  }
 }

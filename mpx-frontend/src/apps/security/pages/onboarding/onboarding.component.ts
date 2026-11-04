@@ -103,7 +103,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       next: (state) => {
         if (state.onboardingCompleted) {
           this.stopEmailPolling();
-          this.router.navigateByUrl('/admin');
+          this.router.navigateByUrl('/website/home');
           return;
         }
 
@@ -301,7 +301,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private finishOnboarding(applicationIds: string[]): void {
     this.auth.completeOnboarding({ applicationIds }).subscribe({
       next: () => {
-        this.router.navigateByUrl('/admin');
+        this.router.navigateByUrl('/website/home');
       },
     });
   }

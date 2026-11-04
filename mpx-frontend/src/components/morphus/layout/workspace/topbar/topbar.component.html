@@ -1,4 +1,4 @@
-<div class="relative sticky top-0 z-99 flex items-center gap-x-1 overflow-hidden border-b bg-[#F7F5FC] py-2.5 ps-4 pe-5 dark:bg-[#140A2E]">
+<div class="relative sticky top-0 z-99 flex items-center gap-x-2 overflow-hidden border-b bg-[#F7F5FC] py-2 ps-4 pe-5 dark:bg-[#140A2E]">
   <!-- Arte Oficial Topbar (Change Log 2: topbar_light.jpg / topbar_dark.jpg) -->
   <div class="pointer-events-none absolute inset-0 z-0 overflow-hidden select-none">
     <img
@@ -13,117 +13,140 @@
     />
   </div>
 
-  <!-- Toggle da Sidebar -->
+  <!-- Toggle da Sidebar (panel-right-open quando aberta para esconder / panel-left-open quando fechada para abrir) -->
   <button
     matIconButton
     class="relative z-10"
     (click)="menuToggle.emit()"
-    matTooltip="Alternar menu lateral"
+    [matTooltip]="sidebarOpened() ? 'Esconder menu lateral' : 'Abrir menu lateral'"
   >
-    <mat-icon svgIcon="panel-left" />
+    <mat-icon [svgIcon]="sidebarOpened() ? 'panel-right-open' : 'panel-left-open'" />
   </button>
 
   <div class="flex-auto"></div>
 
-  <!-- Quick Settings (Pincel do Fuse) -->
-  <mpx-quick-settings class="relative z-10" />
-
-  <!-- Botão do Avatar do Usuário no canto superior direito (Padrão Fuse compact) -->
+  <!-- Botão do Avatar + Nome + Corporação (Padrão unificado em todas as telas) -->
   <button
-    matButton
+    type="button"
     [matMenuTriggerFor]="userMenu"
-    class="tiny tertiary relative z-10 [--button-padding-x:0.25rem] [--button-padding-y:0.25rem]"
+    class="relative z-10 flex cursor-pointer items-center gap-x-2.5 rounded-xl border border-neutral-a4 bg-white/75 px-2.5 py-1 text-start backdrop-blur-sm transition hover:bg-neutral-a3 dark:bg-neutral-2/75"
   >
     @if (auth.user()?.picture; as picture) {
       <img
-        class="size-6 shrink-0 overflow-hidden rounded-md object-cover"
+        class="size-7 shrink-0 overflow-hidden rounded-lg object-cover"
         [src]="picture"
-        alt="User Avatar"
+        alt="Avatar do usuário"
       />
     } @else {
       <div
-        class="flex size-6 shrink-0 items-center justify-center rounded-md bg-primary-a3 text-xs font-semibold text-primary-a11"
+        class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary-a3 text-xs font-semibold text-primary-a11"
       >
         {{ userInitials() }}
       </div>
     }
+
+    <div class="hidden min-w-0 flex-col leading-tight sm:flex">
+      <span class="max-w-36 truncate text-xs font-semibold text-neutral-12">
+        {{ auth.displayName() }}
+      </span>
+      <span class="max-w-36 truncate text-[11px] text-primary-a11">
+        {{ auth.corporation()?.name || auth.user()?.email }}
+      </span>
+    </div>
+
+    <mat-icon class="size-4! shrink-0 text-neutral-a10" svgIcon="chevron-down" />
   </button>
 
-  <!-- User Menu (Original do Fuse) -->
+  <!-- User Menu no padrão GitHub (Cabeçalho com botão de troca rápida + Blocos organizados) -->
   <mat-menu
-    class="min-w-52"
+    class="min-w-64"
     xPosition="before"
     #userMenu="matMenu"
   >
-    <button mat-menu-item>
+    <div class="not-mat-menu-wrapper flex flex-row! items-center gap-x-3 px-4 py-2.5 select-none">
       @if (auth.user()?.picture; as picture) {
         <img
-          class="size-9 shrink-0 rounded-lg object-cover"
+          class="size-9 shrink-0 rounded-full object-cover"
           [src]="picture"
-          alt="User avatar"
+          alt="Avatar do usuário"
         />
       } @else {
         <div
-          class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-a4 mpx-title-small text-primary-a11"
+          class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-a4 text-sm font-semibold text-primary-a11"
         >
           {{ userInitials() }}
         </div>
       }
-      <div class="ms-3 flex min-w-0 flex-auto flex-col select-none">
-        <div class="truncate text-lg font-medium">
-          {{ auth.user()?.name || 'John Builder' }}
-        </div>
-        <div class="truncate text-sm text-neutral-a11">
-          {{ auth.user()?.email || 'john@example.com' }}
-        </div>
+      <div class="flex min-w-0 flex-auto flex-col">
+        <span class="truncate text-sm font-semibold">
+          {{ auth.displayName() }}
+        </span>
+        <span class="truncate text-xs text-neutral-a11">
+          {{ auth.corporation()?.name || auth.user()?.email }}
+        </span>
       </div>
-    </button>
+      @if (auth.availableCorporations().length > 1) {
+        <button
+          type="button"
+          matIconButton
+          class="tiny shrink-0"
+          (click)="auth.openCorporationSelector('/website/home', 'security')"
+          matTooltip="Trocar corporação"
+        >
+          <mat-icon svgIcon="repeat" />
+        </button>
+      }
+    </div>
 
     <mat-divider />
+
+    <!-- Bloco 1: Perfil e Navegação do Ecossistema -->
+    <a mat-menu-item routerLink="/website/profile">
+      <mat-icon svgIcon="user-round" />
+      <span>Meu Perfil</span>
+    </a>
+
+    <a mat-menu-item routerLink="/website/home">
+      <mat-icon svgIcon="globe" />
+      <span>Portal da Corporação</span>
+    </a>
 
     @if (auth.availableCorporations().length > 1) {
       <button
         mat-menu-item
-        (click)="auth.openCorporationSelector('/admin', 'security')"
+        (click)="auth.openCorporationSelector('/website/home', 'security')"
       >
         <mat-icon svgIcon="building-2" />
         <span>Trocar corporação ({{ auth.corporation()?.name || 'Ativa' }})</span>
       </button>
-
-      <mat-divider />
     }
 
-    <button mat-menu-item>
-      <mat-icon svgIcon="sparkles" />
-      Upgrade to Pro
-    </button>
-
     <mat-divider />
 
+    <!-- Bloco 2: Configurações (Settings), Notificações, Tema e Aparência -->
     <a
       mat-menu-item
-      routerLink="/admin/settings/profile"
+      routerLink="/morphus/settings"
     >
-      <mat-icon svgIcon="circle-user" />
-      <span>Account</span>
+      <mat-icon svgIcon="settings" />
+      <span>Configurações (Settings)</span>
     </a>
 
     <a
       mat-menu-item
-      routerLink="/admin/settings/notifications"
+      routerLink="/morphus/settings/notifications"
     >
       <mat-icon svgIcon="bell" />
-      <span>Notifications</span>
+      <span>Notificações</span>
     </a>
 
-    <mat-divider />
-
+    <!-- Submenu Tema (Claro / Escuro / Automático) -->
     <button
       mat-menu-item
       [matMenuTriggerFor]="schemeMenu"
     >
       <mat-icon svgIcon="sun-moon" />
-      <span>Color scheme</span>
+      <span>Tema</span>
     </button>
     <mat-menu #schemeMenu="matMenu">
       @for (item of schemes; track item.value) {
@@ -133,24 +156,62 @@
         >
           <mat-pseudo-checkbox
             appearance="minimal"
-            [state]="
-              theming.scheme() === item.value ? 'checked' : 'unchecked'
-            "
+            [state]="theming.scheme() === item.value ? 'checked' : 'unchecked'"
           />
           <span class="ms-1">{{ item.label }}</span>
         </button>
       }
     </mat-menu>
 
-    <a
+    <!-- Submenu Aparência (Substitui o pincelzinho solto na barra) -->
+    <button
       mat-menu-item
-      routerLink="/admin/settings/preferences"
+      [matMenuTriggerFor]="appearanceMenu"
     >
-      <mat-icon svgIcon="sliders-horizontal" />
-      <span>Preferences</span>
-    </a>
+      <mat-icon svgIcon="paintbrush" />
+      <span>Aparência</span>
+    </button>
+    <mat-menu #appearanceMenu="matMenu" class="min-w-56">
+      <div class="px-3 py-1.5 text-xs font-semibold tracking-wider uppercase text-neutral-a10 select-none">
+        Cor de destaque
+      </div>
+      @for (preset of themePresets; track preset.primary.value) {
+        <button
+          mat-menu-item
+          (click)="setPreset(preset)"
+        >
+          <mat-pseudo-checkbox
+            appearance="minimal"
+            [state]="selectedPreset().primary.value === preset.primary.value ? 'checked' : 'unchecked'"
+          />
+          <span class="ms-1.5 inline-flex items-center gap-x-2">
+            <span
+              class="size-3 rounded-full"
+              [style.background-color]="preset.primary.value"
+            ></span>
+            <span>{{ preset.primary.name }}</span>
+          </span>
+        </button>
+      }
+
+      <mat-divider />
+
+      <button
+        mat-menu-item
+        [disabled]="theming.isDark()"
+        (click)="toggleDarkSidebar()"
+      >
+        <mat-pseudo-checkbox
+          appearance="minimal"
+          [state]="theming.sidebarScheme() === 'dark' ? 'checked' : 'unchecked'"
+        />
+        <span class="ms-1">Menu lateral escuro</span>
+      </button>
+    </mat-menu>
 
     <mat-divider />
+
+    <!-- Bloco 3: Sair -->
 
     <button
       mat-menu-item
@@ -158,7 +219,7 @@
     >
       <mat-icon svgIcon="log-out" />
       <span class="flex w-full items-center justify-between gap-x-4">
-        <span>Sign out</span>
+        <span>Sair</span>
         @if (auth.expirationTimer()) {
           <span class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs text-neutral-a11">
             {{ auth.expirationTimer() }}

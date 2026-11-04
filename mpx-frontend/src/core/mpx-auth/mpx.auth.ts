@@ -579,7 +579,7 @@ export class MpxAuth {
     });
   }
 
-  openCorporationSelector(returnUrl = '/admin', appPrefix: 'security' | 'website' = 'security'): void {
+  openCorporationSelector(returnUrl = '/morphus', appPrefix: 'security' | 'website' = 'security'): void {
     this.markCorporationSelected(false);
     void this.router.navigate([`/${appPrefix}/select-corporation`], {
       queryParams: { switch: 'true', returnUrl },

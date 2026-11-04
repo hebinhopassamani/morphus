@@ -1,37 +1,31 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment } from '@angular/router';
 import { authGuard } from '@core/mpx-auth';
-import { MorphusAuthLayout } from '@src/components/morphus/layout';
-import { ConfirmEmailComponent } from '@security/pages/confirm-email/confirm-email.component';
-import { ForgotPasswordComponent } from '@security/pages/forgot-password/forgot-password.component';
-import { OnboardingComponent } from '@security/pages/onboarding/onboarding.component';
-import { ResetPasswordComponent } from '@security/pages/reset-password/reset-password.component';
-import { SelectCorporationComponent } from '@security/pages/select-corporation/select-corporation.component';
-import { SigninComponent } from '@security/pages/signin/signin.component';
-import { SignoutComponent } from '@security/pages/signout/signout.component';
-import { SignupComponent } from '@security/pages/signup/signup.component';
+import { MorphusAuthLayout, MorphusWorkspaceLayout } from '@src/components/morphus/layout';
+
+const AUTH_LAYOUT_ROUTES = new Set([
+  'signin',
+  'signup',
+  'signout',
+  'forgot-password',
+  'reset-password',
+  'confirm-email',
+  'onboarding',
+  'select-corporation',
+]);
 
 export const routes: Routes = [
   {
-    path: '',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length > 0 && AUTH_LAYOUT_ROUTES.has(segments[0].path)
+        ? { consumed: [] }
+        : null,
     component: MorphusAuthLayout,
-    children: [
-      { path: '', pathMatch: 'full', redirectTo: 'signin' },
-      { path: 'signin', component: SigninComponent },
-      { path: 'signup', component: SignupComponent },
-      { path: 'signout', component: SignoutComponent },
-      { path: 'forgot-password', component: ForgotPasswordComponent },
-      { path: 'reset-password', component: ResetPasswordComponent },
-      { path: 'confirm-email', component: ConfirmEmailComponent },
-      {
-        path: 'onboarding',
-        canActivate: [authGuard],
-        component: OnboardingComponent,
-      },
-      {
-        path: 'select-corporation',
-        canActivate: [authGuard],
-        component: SelectCorporationComponent,
-      },
-    ],
+    loadChildren: () => import('@security/pages/auth.routes'),
+  },
+  {
+    path: '',
+    component: MorphusWorkspaceLayout,
+    canActivate: [authGuard],
+    loadChildren: () => import('@security/pages/routes'),
   },
 ];

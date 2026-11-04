@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { ParamMap } from '@angular/router';
-import { Observable } from 'rxjs';
+import { catchError, concatMap, from, map, Observable, of, toArray } from 'rxjs';
 import { MpxAuth } from '@core/mpx-auth';
 import { MorphusFilter } from '@core/mpx-base';
 import {
@@ -193,12 +193,65 @@ export abstract class MorphusEntityService<
 
   public addRelationship(entity: Partial<T>): Observable<T> {
     this.validatePrimaryKeys(entity);
-    return this.http.post<T>(`${this.baseUrl}/add-relationship`, entity);
+    const corpId = this.auth.corporation()?.id;
+    const payload =
+      corpId && !(entity as Record<string, unknown>)['corporationId']
+        ? ({ ...entity, corporationId: corpId } as Partial<T>)
+        : entity;
+    return this.http.post<T>(`${this.baseUrl}/add-relationship`, payload);
+  }
+
+  public addRelationships(entities: Partial<T>[]): Observable<T[]> {
+    if (!entities.length) {
+      return of([]);
+    }
+    const corpId = this.auth.corporation()?.id;
+    const payloads = entities.map((entity) => {
+      this.validatePrimaryKeys(entity);
+      return corpId && !(entity as Record<string, unknown>)['corporationId']
+        ? ({ ...entity, corporationId: corpId } as Partial<T>)
+        : entity;
+    });
+    return this.http.post<T[]>(`${this.baseUrl}/add-relationships`, payloads).pipe(
+      catchError(() =>
+        from(payloads).pipe(
+          concatMap((entity) => this.addRelationship(entity)),
+          toArray(),
+        ),
+      ),
+    );
   }
 
   public removeRelationship(entity: Partial<T>): Observable<boolean> {
     this.validatePrimaryKeys(entity);
-    return this.http.post<boolean>(`${this.baseUrl}/remove-relationship`, entity);
+    const corpId = this.auth.corporation()?.id;
+    const payload =
+      corpId && !(entity as Record<string, unknown>)['corporationId']
+        ? ({ ...entity, corporationId: corpId } as Partial<T>)
+        : entity;
+    return this.http.post<boolean>(`${this.baseUrl}/remove-relationship`, payload);
+  }
+
+  public removeRelationships(entities: Partial<T>[]): Observable<number> {
+    if (!entities.length) {
+      return of(0);
+    }
+    const corpId = this.auth.corporation()?.id;
+    const payloads = entities.map((entity) => {
+      this.validatePrimaryKeys(entity);
+      return corpId && !(entity as Record<string, unknown>)['corporationId']
+        ? ({ ...entity, corporationId: corpId } as Partial<T>)
+        : entity;
+    });
+    return this.http.post<number>(`${this.baseUrl}/remove-relationships`, payloads).pipe(
+      catchError(() =>
+        from(payloads).pipe(
+          concatMap((entity) => this.removeRelationship(entity)),
+          toArray(),
+          map((results) => results.length),
+        ),
+      ),
+    );
   }
 
   public activate(entity: Partial<T>): Observable<boolean> {
@@ -209,6 +262,16 @@ export abstract class MorphusEntityService<
   public deactivate(entity: Partial<T>): Observable<boolean> {
     this.validatePrimaryKeys(entity);
     return this.http.post<boolean>(`${this.baseUrl}/deactivate`, entity);
+  }
+
+  public setOwner(entity: Partial<T>): Observable<boolean> {
+    this.validatePrimaryKeys(entity);
+    return this.http.post<boolean>(`${this.baseUrl}/set-owner`, entity);
+  }
+
+  public removeOwner(entity: Partial<T>): Observable<boolean> {
+    this.validatePrimaryKeys(entity);
+    return this.http.post<boolean>(`${this.baseUrl}/remove-owner`, entity);
   }
 
   protected applyFilterParams(filter?: Record<string, unknown>): void {

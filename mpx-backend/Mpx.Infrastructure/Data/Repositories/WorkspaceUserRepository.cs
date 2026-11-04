@@ -8,6 +8,8 @@ public class WorkspaceUserRepository(MorphusDbContext context) : MorphusReposito
 {
   public async Task<List<User>> GetEntitiesToRelateAsync(Guid workspaceId)
   {
+    var currentCorpId = _context.CurrentCorporationId;
+
     var relatedUserIds = await _context.WorkspaceUsers
         .AsNoTracking()
         .Where(wu => wu.WorkspaceId == workspaceId)
@@ -15,8 +17,13 @@ public class WorkspaceUserRepository(MorphusDbContext context) : MorphusReposito
         .ToListAsync();
 
     return await _context.Users
+        .IgnoreQueryFilters()
         .AsNoTracking()
-        .Where(u => !relatedUserIds.Contains(u.Id))
+        .Where(u =>
+            !u.Inactive &&
+            !relatedUserIds.Contains(u.Id) &&
+            (u.CorporationId == currentCorpId ||
+             u.CorporationUsers.Any(cu => cu.CorporationId == currentCorpId && !cu.Inactive)))
         .OrderBy(u => u.Name)
         .ToListAsync();
   }
@@ -28,6 +35,7 @@ public class WorkspaceUserRepository(MorphusDbContext context) : MorphusReposito
         .Include(wu => wu.User)
         .Include(wu => wu.Workspace)
         .Where(wu => wu.WorkspaceId == workspaceId)
+        .OrderBy(wu => wu.User!.Name)
         .ToListAsync();
   }
 

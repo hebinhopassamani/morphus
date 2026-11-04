@@ -261,7 +261,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         statusName,
         statusLabel,
         footerLabel,
-        route: '/admin/corporation',
+        route: '/morphus',
         isActiveApp: activeAppId === app.id,
         isInstalled: statusName === 'Ativa',
         modules: dbModules.length > 0 ? dbModules : this.inferModulesForApp(app.name || 'Morphus'),
@@ -282,7 +282,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         statusName: 'Ativa',
         statusLabel: 'Disponível',
         footerLabel: 'Tudo pronto para você usar',
-        route: '/admin/corporation',
+        route: '/morphus',
         isActiveApp: cards.length === 0,
         isInstalled: true,
         modules: this.inferModulesForApp('Morphus'),
@@ -299,7 +299,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         statusName: 'Ativa',
         statusLabel: 'Disponível',
         footerLabel: 'Tudo pronto para você usar',
-        route: '/admin/user-role',
+        route: '/security',
         isActiveApp: false,
         isInstalled: true,
         modules: this.inferModulesForApp('Segurança'),
@@ -316,7 +316,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         statusName: 'Ativa',
         statusLabel: 'Disponível',
         footerLabel: 'Tudo pronto para você usar',
-        route: '/admin/corporation',
+        route: '/morphus',
         isActiveApp: false,
         isInstalled: true,
         modules: this.inferModulesForApp('Morphus Financeiro'),
@@ -333,7 +333,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         statusName: 'Em preparação',
         statusLabel: 'Sendo preparada',
         footerLabel: 'Estamos preparando tudo para você',
-        route: '/admin/corporation',
+        route: '/morphus',
         isActiveApp: false,
         isInstalled: false,
         modules: this.inferModulesForApp('Kalupa Automação'),
@@ -695,7 +695,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       this.context.selectApplication(card.rawApp);
       return;
     }
-    void this.router.navigateByUrl(card.route || '/admin');
+    void this.router.navigateByUrl(card.route || '/morphus');
   }
 
   protected openWorkspace(ws: Workspace): void {
@@ -703,7 +703,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       this.context.selectWorkspace(ws);
       return;
     }
-    void this.router.navigateByUrl('/admin');
+    void this.router.navigateByUrl('/morphus');
   }
 
   protected selectCorporation(corp: CorporationSummary): void {
@@ -711,7 +711,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       return;
     }
     if (this.auth.corporation()?.id === corp.id) {
-      void this.router.navigateByUrl('/admin');
+      void this.router.navigateByUrl('/morphus');
       return;
     }
     this.switchingCorpId.set(corp.id);

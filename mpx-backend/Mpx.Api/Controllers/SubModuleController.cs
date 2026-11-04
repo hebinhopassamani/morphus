@@ -24,6 +24,12 @@ public class SubModuleController(
   public async Task<IActionResult> GetList() =>
       Ok(await subModuleHandler.GetListAsync());
 
+  [HttpGet("module/{moduleId:guid}")]
+  [HttpGet("by-module/{moduleId:guid}")]
+  [Authorize(Policy = "SUB_MODULE_LIST")]
+  public async Task<IActionResult> GetByModule(Guid moduleId) =>
+      Ok(await subModuleHandler.GetByModuleIdAsync(moduleId));
+
   [HttpPost]
   [Authorize(Policy = "SUB_MODULE_CREATE")]
   public async Task<IActionResult> Create([FromBody] SubModule subModule) =>

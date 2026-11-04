@@ -14,9 +14,31 @@ public class ApplicationUserHandler(IApplicationUserRepository applicationUserRe
 
   public async Task<ApplicationUser> AddRelationshipAsync(ApplicationUser applicationUser)
   {
+    var existing = await applicationUserRepository.GetByKeysAsync(applicationUser.ApplicationId, applicationUser.UserId);
+    if (existing is not null)
+      return existing;
+
     await applicationUserRepository.AddRelationshipAsync(applicationUser);
     await unitOfWork.SaveChangesAsync();
     return applicationUser;
+  }
+
+  public async Task<List<ApplicationUser>> AddRelationshipsAsync(List<ApplicationUser> items)
+  {
+    var added = new List<ApplicationUser>();
+    foreach (var item in items)
+    {
+      var existing = await applicationUserRepository.GetByKeysAsync(item.ApplicationId, item.UserId);
+      if (existing is null)
+      {
+        await applicationUserRepository.AddRelationshipAsync(item);
+        added.Add(item);
+      }
+    }
+    if (added.Count > 0)
+      await unitOfWork.SaveChangesAsync();
+
+    return added;
   }
 
   public async Task<ApplicationUser> RemoveRelationshipAsync(ApplicationUser applicationUser)
@@ -30,6 +52,24 @@ public class ApplicationUserHandler(IApplicationUserRepository applicationUserRe
     applicationUserRepository.RemoveRelationship(existing);
     await unitOfWork.SaveChangesAsync();
     return existing;
+  }
+
+  public async Task<int> RemoveRelationshipsAsync(List<ApplicationUser> items)
+  {
+    var removedCount = 0;
+    foreach (var item in items)
+    {
+      var existing = await applicationUserRepository.GetByKeysAsync(item.ApplicationId, item.UserId);
+      if (existing is not null && !existing.System && !existing.IsOwner)
+      {
+        applicationUserRepository.RemoveRelationship(existing);
+        removedCount++;
+      }
+    }
+    if (removedCount > 0)
+      await unitOfWork.SaveChangesAsync();
+
+    return removedCount;
   }
 
   public async Task ActivateAsync(ApplicationUser applicationUser)

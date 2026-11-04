@@ -7,6 +7,7 @@ import {
   MORPHUS_EMPTY_GUID,
 } from '@core/mpx-entities';
 import { MorphusMessageService } from '@core/mpx-message';
+import { MorphusToastService } from '@core/mpx-toast';
 
 @Directive()
 export abstract class MorphusComponent<
@@ -15,6 +16,7 @@ export abstract class MorphusComponent<
   public readonly router = inject(Router);
   public readonly activatedRoute = inject(ActivatedRoute);
   public readonly messageService = inject(MorphusMessageService);
+  public readonly toast = inject(MorphusToastService);
   protected readonly destroyRef = inject(DestroyRef);
 
   public readonly title1 = signal<string>('');

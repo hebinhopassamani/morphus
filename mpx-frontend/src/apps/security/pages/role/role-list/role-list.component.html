@@ -1,0 +1,168 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col p-6">
+  <!-- Cabeçalho estilo Clean Admin -->
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight text-neutral-12">Perfis (Roles)</h1>
+    <p class="mt-1 text-sm text-neutral-a11">
+      Defina o que as permissões dão ou não direito de um usuário que a possui pode fazer.
+    </p>
+  </div>
+
+  <!-- Card Principal -->
+  <div class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-surface shadow-xs">
+    <!-- Topo do Card: Contador + Busca + Botão Adicionar -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-a4 px-6 py-4">
+      <div class="flex items-center gap-3.5">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-11">
+          <mat-icon class="!size-5" svgIcon="shield" />
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-neutral-12">Perfis cadastrados</h2>
+          <p class="text-xs text-neutral-a11">
+            {{ list().length }} {{ list().length === 1 ? 'perfil cadastrado' : 'perfis cadastrados' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <mat-form-field class="small w-full sm:w-64" subscriptSizing="dynamic">
+          <mat-icon svgIcon="search" matIconPrefix />
+          <input
+            matInput
+            placeholder="Buscar perfil..."
+            autocomplete="off"
+            [(ngModel)]="search"
+            (ngModelChange)="loadList()"
+          />
+          @if (search !== '') {
+            <button matIconButton matIconSuffix type="button" (click)="onFilterClear()">
+              <mat-icon svgIcon="x" />
+            </button>
+          }
+        </mat-form-field>
+
+        <button matButton class="primary" type="button" (click)="newEntity()">
+          <mat-icon svgIcon="plus" />
+          Adicionar perfil
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Filtros de Escopo (Aplicação -> Módulo -> Submódulo) -->
+    <div class="grid grid-cols-1 gap-3 border-b border-neutral-a4 bg-neutral-a2/30 px-6 py-3 sm:grid-cols-3">
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Aplicação</mat-label>
+        <mat-select
+          [ngModel]="selectedApplicationId()"
+          (ngModelChange)="onApplicationChange($event)"
+        >
+          <mat-option value="">Todas as Aplicações</mat-option>
+          @for (app of applications(); track app.id) {
+            <mat-option [value]="app.id">{{ app.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Módulo</mat-label>
+        <mat-select
+          [ngModel]="selectedModuleId()"
+          (ngModelChange)="onModuleChange($event)"
+        >
+          <mat-option value="">Todos os Módulos</mat-option>
+          @for (mod of availableModules(); track mod.id) {
+            <mat-option [value]="mod.id">{{ mod.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Submódulo</mat-label>
+        <mat-select
+          [ngModel]="selectedSubModuleId()"
+          [disabled]="!selectedModuleId()"
+          (ngModelChange)="onSubModuleChange($event)"
+        >
+          <mat-option value="">Todos os Submódulos</mat-option>
+          @for (sub of availableSubModules(); track sub.id) {
+            <mat-option [value]="sub.id">{{ sub.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Cabeçalho das Colunas -->
+    <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/40 px-6 py-3 text-[11px] font-semibold tracking-wider text-neutral-a11 uppercase">
+      <span>Perfil</span>
+      <span>Ações</span>
+    </div>
+
+    <!-- Lista de Perfis -->
+    @if (list().length === 0) {
+      <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+        <mat-icon class="!size-10 text-neutral-a8" svgIcon="shield" />
+        <p class="mt-2 text-sm font-medium text-neutral-12">Nenhum perfil encontrado</p>
+        <p class="mt-0.5 text-xs text-neutral-a11">
+          Ajuste os filtros ou clique em "+ Adicionar perfil" para criar um novo perfil.
+        </p>
+      </div>
+    } @else {
+      <div class="divide-y divide-neutral-a4">
+        @for (row of list(); track row.id) {
+          <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-neutral-a2/40">
+            <!-- Dados do Perfil -->
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="truncate text-sm font-semibold text-neutral-12">
+                  {{ row.name }}
+                </span>
+              </div>
+              <div class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-a11">
+                <span>{{ row.description || 'Sem descrição' }}</span>
+              </div>
+            </div>
+
+            <!-- Botões de Ação (Ícone + Tooltip, perfeitos para Desktop e Mobile) -->
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-neutral-a5 bg-surface text-neutral-12 transition-colors hover:bg-neutral-a3"
+                matTooltip="Editar perfil"
+                (click)="editEntity(row)"
+              >
+                <mat-icon class="!size-4 text-neutral-a11" svgIcon="square-pen" />
+              </button>
+
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-primary-a5 bg-surface text-primary-11 transition-colors hover:bg-primary-a3"
+                matTooltip="Gerenciar permissões do perfil"
+                (click)="configureClaims(row)"
+              >
+                <mat-icon class="!size-4 text-primary-11" svgIcon="key-round" />
+              </button>
+
+              <span
+                class="inline-flex"
+                [class.cursor-not-allowed]="row.system"
+                [matTooltip]="
+                  row.system
+                    ? 'Você não pode excluir um perfil criado pelo sistema'
+                    : 'Excluir perfil'
+                "
+              >
+                <button
+                  type="button"
+                  class="flex size-9 items-center justify-center rounded-lg border border-red-a5 bg-surface text-red-11 transition-colors hover:bg-red-a3 disabled:pointer-events-none disabled:opacity-40"
+                  [disabled]="row.system"
+                  (click)="deleteEntity(row)"
+                >
+                  <mat-icon class="!size-4 text-red-11" svgIcon="trash" />
+                </button>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

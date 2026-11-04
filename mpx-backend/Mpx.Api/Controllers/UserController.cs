@@ -26,9 +26,15 @@ public class UserController(UserHandler userHandler) : ControllerBase
       Ok(await userHandler.CreateAsync(user, password));
 
   [HttpPut]
+  [HttpPut("{id:guid}")]
   [Authorize(Policy = "USER_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] User user, [FromQuery] string? password = null) =>
-      Ok(await userHandler.UpdateAsync(user, password));
+  public async Task<IActionResult> Update([FromBody] User user, [FromQuery] string? password = null, Guid? id = null)
+  {
+    if (id.HasValue && user.Id == Guid.Empty)
+      user.Id = id.Value;
+
+    return Ok(await userHandler.UpdateAsync(user, password));
+  }
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "USER_DELETE")]

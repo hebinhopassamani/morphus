@@ -1,0 +1,345 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col p-4 sm:p-6">
+  <!-- Card Principal estilo Modal/Painel Limpo -->
+  <div class="overflow-hidden rounded-3xl border border-neutral-a4 bg-surface shadow-sm">
+    <!-- Topo: Título + Subtítulo com nome do perfil + Botão X -->
+    <div class="flex items-start justify-between gap-4 px-5 pt-6 pb-4 sm:px-6">
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-neutral-12">Gerenciar permissões do perfil</h1>
+        <p class="mt-1 text-sm text-neutral-a11">
+          Defina o que as permissões de
+          <strong class="font-semibold text-neutral-12">
+            {{ role()?.name || 'selecionado' }}
+          </strong>
+          dão ou não direito de um usuário que o possui pode fazer.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        class="flex size-8 items-center justify-center rounded-lg text-neutral-a11 transition-colors hover:bg-neutral-a3 hover:text-neutral-12"
+        title="Fechar e voltar"
+        (click)="back()"
+      >
+        <mat-icon class="!size-4" svgIcon="x" />
+      </button>
+    </div>
+
+    <!-- Filtros Cascata (Aplicação -> Módulo -> Submódulo -> Buscar) 100% alinhados -->
+    <div class="grid grid-cols-1 items-end gap-3 px-5 pb-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Aplicação</mat-label>
+        <mat-select
+          [ngModel]="filterApplicationId()"
+          (ngModelChange)="onApplicationFilterChange($event)"
+        >
+          <mat-option value="">Todas as Aplicações</mat-option>
+          @for (app of applications(); track app.id) {
+            <mat-option [value]="app.id">{{ app.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Módulo</mat-label>
+        <mat-select
+          [ngModel]="filterModuleId()"
+          (ngModelChange)="onModuleFilterChange($event)"
+        >
+          <mat-option value="">Todos os Módulos</mat-option>
+          @for (mod of availableModules(); track mod.id) {
+            <mat-option [value]="mod.id">{{ mod.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Submódulo</mat-label>
+        <mat-select
+          [ngModel]="filterSubModuleId()"
+          [disabled]="!filterModuleId()"
+          (ngModelChange)="onSubModuleFilterChange($event)"
+        >
+          <mat-option value="">Todos os Submódulos</mat-option>
+          @for (sub of availableSubModules(); track sub.id) {
+            <mat-option [value]="sub.id">{{ sub.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Buscar</mat-label>
+        <mat-icon svgIcon="search" matIconPrefix />
+        <input
+          matInput
+          placeholder="Filtrar permissões..."
+          [ngModel]="searchToRelate()"
+          (ngModelChange)="searchToRelate.set($event); searchRelated.set($event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <!-- Corpo Central: Coluna Esquerda + Setas Centrais (-> / <-) + Coluna Direita -->
+    <div class="flex flex-col items-stretch gap-3 px-5 py-2 sm:px-6 lg:flex-row lg:items-center">
+      <!-- COLUNA ESQUERDA: Permissões a conceder -->
+      <div class="flex h-[420px] w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-a4 bg-surface lg:w-6/12">
+        <div class="border-b border-neutral-a4 px-4 py-3.5">
+          <h2 class="text-sm font-semibold text-neutral-12">
+            Permitir que ele possa... <span class="font-medium text-neutral-a11">({{ filteredClaimsToRelate().length }})</span>
+          </h2>
+          <p class="mt-0.5 text-xs text-neutral-a11">
+            É só jogar <span class="lg:hidden">para baixo</span><span class="hidden lg:inline">para a direita</span> e o perfil receberá essa permissão
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/50 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-neutral-a11 uppercase">
+          <button
+            type="button"
+            class="group flex cursor-pointer items-center gap-3 uppercase disabled:cursor-not-allowed disabled:opacity-40"
+            [disabled]="filteredClaimsToRelate().length === 0"
+            (click)="toggleSelectAllToRelate(filteredClaimsToRelate())"
+          >
+            <span
+              class="flex size-4 shrink-0 items-center justify-center rounded-[4px] border-2 transition-colors"
+              [class.border-primary-9]="areAllToRelateSelected(filteredClaimsToRelate())"
+              [class.bg-primary-9]="areAllToRelateSelected(filteredClaimsToRelate())"
+              [class.border-neutral-8]="!areAllToRelateSelected(filteredClaimsToRelate())"
+              [class.bg-surface]="!areAllToRelateSelected(filteredClaimsToRelate())"
+              [class.group-hover:border-primary-9]="!areAllToRelateSelected(filteredClaimsToRelate())"
+            >
+              @if (areAllToRelateSelected(filteredClaimsToRelate())) {
+                <svg class="size-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="2 6.5 4.8 9.2 10 3" />
+                </svg>
+              }
+            </span>
+            <span>Permissão</span>
+          </button>
+          <span>Módulo</span>
+        </div>
+
+        <div class="flex-1 divide-y divide-neutral-a3 overflow-y-auto">
+          @if (filteredClaimsToRelate().length === 0) {
+            <div class="flex h-full flex-col items-center justify-center p-6 text-center">
+              <p class="text-xs text-neutral-a11">Nenhuma permissão disponível para conceder.</p>
+            </div>
+          } @else {
+            @for (claim of filteredClaimsToRelate(); track claim.id) {
+              <div
+                class="group flex cursor-pointer items-center justify-between gap-3 px-5 py-3.5 transition-all select-none"
+                [class.bg-primary-a2]="isToRelateSelected(claim)"
+                [class.mpx-transferred-row]="isRecentlyTransferred(claim.id) && !isToRelateSelected(claim)"
+                [class.hover:bg-neutral-a2/50]="!isToRelateSelected(claim) && !isRecentlyTransferred(claim.id)"
+                (click)="toggleToRelateSelection(claim)"
+                (dblclick)="addSingleClaim(claim)"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                    class="flex size-4 shrink-0 items-center justify-center rounded-[4px] border-2 transition-colors"
+                    [class.border-primary-9]="isToRelateSelected(claim)"
+                    [class.bg-primary-9]="isToRelateSelected(claim)"
+                    [class.border-neutral-8]="!isToRelateSelected(claim)"
+                    [class.bg-surface]="!isToRelateSelected(claim)"
+                    [class.group-hover:border-primary-9]="!isToRelateSelected(claim)"
+                  >
+                    @if (isToRelateSelected(claim)) {
+                      <svg class="size-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="2 6.5 4.8 9.2 10 3" />
+                      </svg>
+                    }
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <p class="truncate text-sm font-medium text-neutral-12">
+                        {{ claim.description || (claim.claimType + ' : ' + claim.claimValue) }}
+                      </p>
+                      @if (isRecentlyTransferred(claim.id)) {
+                        <span class="shrink-0 rounded-full bg-jade-9 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase shadow-2xs">
+                          Movido
+                        </span>
+                      }
+                    </div>
+                    <p class="truncate font-mono text-[11px] text-neutral-a10">
+                      {{ claim.claimType }}:{{ claim.claimValue }}
+                    </p>
+                  </div>
+                </div>
+
+                <span class="shrink-0 text-right text-xs font-medium text-neutral-a11">
+                  {{ claim.module?.name || 'Administração' }}
+                  @if (claim.subModule?.name) {
+                    <span class="block text-[10px] text-neutral-a9">{{ claim.subModule?.name }}</span>
+                  }
+                </span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+
+      <!-- COLUNA CENTRAL: Botões de Seta (-> e <-) -->
+      <div class="flex flex-row items-center justify-center gap-3 py-2 lg:flex-col">
+        <span
+          class="inline-flex"
+          [class.cursor-not-allowed]="selectedToRelateCount() === 0"
+          [matTooltip]="
+            selectedToRelateCount() === 0
+              ? 'Selecione pelo menos uma permissão a conceder'
+              : 'Conceder permissões selecionadas'
+          "
+        >
+          <button
+            type="button"
+            class="flex size-11 items-center justify-center rounded-xl bg-primary-9 text-white shadow-xs transition-all hover:bg-primary-10 disabled:pointer-events-none disabled:opacity-50"
+            [disabled]="selectedToRelateCount() === 0"
+            (click)="addSelectedClaims()"
+          >
+            <mat-icon class="!size-5 rotate-90 !text-white lg:rotate-0" svgIcon="arrow-right" />
+          </button>
+        </span>
+
+        <span
+          class="inline-flex"
+          [class.cursor-not-allowed]="selectedRelatedCount() === 0"
+          [matTooltip]="
+            selectedRelatedCount() === 0
+              ? 'Selecione pelo menos uma permissão atribuída ao perfil'
+              : 'Revogar permissões selecionadas'
+          "
+        >
+          <button
+            type="button"
+            class="flex size-11 items-center justify-center rounded-xl border border-neutral-a6 bg-surface text-neutral-12 shadow-2xs transition-all hover:bg-neutral-a3 disabled:pointer-events-none disabled:opacity-50"
+            [disabled]="selectedRelatedCount() === 0"
+            (click)="removeSelectedClaims()"
+          >
+            <mat-icon class="!size-5 rotate-90 !text-neutral-12 lg:rotate-0" svgIcon="arrow-left" />
+          </button>
+        </span>
+      </div>
+
+      <!-- COLUNA DIREITA: Permissões concedidas -->
+      <div class="flex h-[420px] w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-neutral-a4 bg-surface lg:w-6/12">
+        <div class="border-b border-neutral-a4 px-4 py-3.5">
+          <h2 class="text-sm font-semibold text-neutral-12">
+            Ele já pode fazer... <span class="font-medium text-neutral-a11">({{ filteredRelatedClaims().length }})</span>
+          </h2>
+          <p class="mt-0.5 text-xs text-neutral-a11">
+            É só jogar <span class="lg:hidden">para cima</span><span class="hidden lg:inline">para a esquerda</span> e o perfil perderá essa permissão
+          </p>
+        </div>
+
+        <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/50 px-5 py-2.5 text-[11px] font-semibold tracking-wider text-neutral-a11 uppercase">
+          <span
+            class="inline-flex"
+            [class.cursor-not-allowed]="!hasRemovableRelated(filteredRelatedClaims())"
+            [matTooltip]="
+              filteredRelatedClaims().length > 0 && !hasRemovableRelated(filteredRelatedClaims())
+                ? 'Você não pode alterar uma permissão que foi dada pelo sistema'
+                : ''
+            "
+          >
+            <button
+              type="button"
+              class="group flex cursor-pointer items-center gap-3 uppercase disabled:pointer-events-none disabled:opacity-40"
+              [disabled]="!hasRemovableRelated(filteredRelatedClaims())"
+              (click)="toggleSelectAllRelated(filteredRelatedClaims())"
+            >
+              <span
+                class="flex size-4 shrink-0 items-center justify-center rounded-[4px] border-2 transition-colors"
+                [class.border-primary-9]="areAllRelatedSelected(filteredRelatedClaims())"
+                [class.bg-primary-9]="areAllRelatedSelected(filteredRelatedClaims())"
+                [class.border-neutral-8]="!areAllRelatedSelected(filteredRelatedClaims())"
+                [class.bg-surface]="!areAllRelatedSelected(filteredRelatedClaims())"
+                [class.group-hover:border-primary-9]="!areAllRelatedSelected(filteredRelatedClaims())"
+              >
+                @if (areAllRelatedSelected(filteredRelatedClaims())) {
+                  <svg class="size-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="2 6.5 4.8 9.2 10 3" />
+                  </svg>
+                }
+              </span>
+              <span>Permissão</span>
+            </button>
+          </span>
+          <span>Módulo</span>
+        </div>
+
+        <div class="flex-1 divide-y divide-neutral-a3 overflow-y-auto">
+          @if (filteredRelatedClaims().length === 0) {
+            <div class="flex h-full flex-col items-center justify-center p-6 text-center">
+              <p class="text-xs text-neutral-a11">Nenhuma permissão atribuída até o momento.</p>
+            </div>
+          } @else {
+            @for (rel of filteredRelatedClaims(); track rel.claimId) {
+              <div
+                class="group flex items-center justify-between gap-3 px-5 py-3.5 transition-all select-none"
+                [class.cursor-pointer]="!rel.system"
+                [class.cursor-not-allowed]="rel.system"
+                [class.bg-primary-a2]="isRelatedSelected(rel)"
+                [class.mpx-transferred-row]="isRecentlyTransferred(rel.claimId) && !isRelatedSelected(rel)"
+                [class.hover:bg-neutral-a2/50]="!isRelatedSelected(rel) && !isRecentlyTransferred(rel.claimId)"
+                [matTooltip]="rel.system ? 'Você não pode alterar uma permissão que foi dada pelo sistema' : ''"
+                (click)="toggleRelatedSelection(rel)"
+                (dblclick)="removeSingleClaim(rel)"
+              >
+                <div class="flex min-w-0 items-center gap-3">
+                  <div
+                    class="flex size-4 shrink-0 items-center justify-center rounded-[4px] border-2 transition-colors"
+                    [class.border-primary-9]="isRelatedSelected(rel)"
+                    [class.bg-primary-9]="isRelatedSelected(rel)"
+                    [class.border-neutral-8]="!isRelatedSelected(rel) && !rel.system"
+                    [class.bg-surface]="!isRelatedSelected(rel) && !rel.system"
+                    [class.group-hover:border-primary-9]="!isRelatedSelected(rel) && !rel.system"
+                    [class.border-neutral-a5]="rel.system"
+                    [class.bg-neutral-a3]="rel.system"
+                    [class.opacity-50]="rel.system"
+                  >
+                    @if (isRelatedSelected(rel)) {
+                      <svg class="size-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="2 6.5 4.8 9.2 10 3" />
+                      </svg>
+                    }
+                  </div>
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <p class="truncate text-sm font-medium text-neutral-12">
+                        {{ rel.claim?.description || ((rel.claim?.claimType || 'Permissão') + ' : ' + (rel.claim?.claimValue || '')) }}
+                      </p>
+                      @if (rel.system) {
+                        <span class="shrink-0 rounded-md bg-neutral-a3 px-1.5 py-0.5 text-[10px] font-semibold text-neutral-11">
+                          Sistema
+                        </span>
+                      }
+                      @if (isRecentlyTransferred(rel.claimId)) {
+                        <span class="shrink-0 rounded-full bg-jade-9 px-2 py-0.5 text-[10px] font-bold tracking-wide text-white uppercase shadow-2xs">
+                          Concedida
+                        </span>
+                      }
+                    </div>
+                    <p class="truncate font-mono text-[11px] text-neutral-a10">
+                      {{ rel.claim?.claimType }}:{{ rel.claim?.claimValue }}
+                    </p>
+                  </div>
+                </div>
+
+                <span class="shrink-0 text-right text-xs font-medium text-neutral-a11">
+                  {{ rel.claim?.module?.name || 'Administração' }}
+                  @if (rel.claim?.subModule?.name) {
+                    <span class="block text-[10px] text-neutral-a9">{{ rel.claim?.subModule?.name }}</span>
+                  }
+                </span>
+              </div>
+            }
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Rodapé com botão Concluir -->
+    <div class="mt-4 flex items-center justify-end border-t border-neutral-a4 px-5 py-4 sm:px-6">
+      <button matButton class="primary px-6" type="button" (click)="back()">
+        Concluir
+      </button>
+    </div>
+  </div>
+</div>

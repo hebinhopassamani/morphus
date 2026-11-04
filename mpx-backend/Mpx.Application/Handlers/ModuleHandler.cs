@@ -49,6 +49,9 @@ public class ModuleHandler(
     if (existing.System)
       throw new InvalidOperationException("Não é permitido excluir um módulo padrão do sistema.");
 
+    if (await moduleRepository.HasDependenciesAsync(id))
+      throw new InvalidOperationException("Não é permitido excluir este módulo pois existem submódulos, perfis ou permissões vinculados a ele.");
+
     moduleRepository.Delete(existing);
     await unitOfWork.SaveChangesAsync();
   }

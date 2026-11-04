@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Http;
 using mpx.Domain.Interfaces;
+using Mpx.Application.MorphusHandler;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
@@ -8,7 +10,9 @@ namespace Mpx.Application.Handlers;
 public class UserHandler(
     IUserRepository userRepository,
     ICorporationUserRepository corporationUserRepository,
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IHttpContextAccessor httpContext)
+    : MorphusHandler<User>(httpContext)
 {
   public Task<User?> GetByIdAsync(Guid id) => userRepository.GetByIdAsync(id);
 
@@ -26,6 +30,14 @@ public class UserHandler(
       user.Id = Guid.NewGuid();
 
     user.Email = user.Email.Trim().ToLowerInvariant();
+    user.OnboardingCompleted = true;
+    user.EmailConfirmed = true;
+    user.TermsConfirmed = true;
+
+    if ((user.CorporationId is null || user.CorporationId == Guid.Empty) && CorporationId is not null && CorporationId != Guid.Empty)
+    {
+      user.CorporationId = CorporationId;
+    }
 
     if (!string.IsNullOrWhiteSpace(plainPassword))
     {

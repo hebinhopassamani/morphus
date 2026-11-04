@@ -65,7 +65,7 @@ export class SignupComponent implements OnInit {
       if (this.auth.needsOnboarding()) {
         this.router.navigateByUrl('/security/onboarding');
       } else {
-        this.router.navigateByUrl('/admin');
+        this.router.navigateByUrl('/website/home');
       }
     }
   }

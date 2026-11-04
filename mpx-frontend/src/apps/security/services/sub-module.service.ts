@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of } from 'rxjs';
 import { SubModule } from '@security/entities/sub-module';
 import { environment } from '@src/environments/environment';
 
@@ -9,10 +9,10 @@ import { environment } from '@src/environments/environment';
 })
 export class SubModuleService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/submodule`;
+  private readonly apiUrl = `${environment.apiUrl}/sub-module`;
 
   getAll(): Observable<SubModule[]> {
-    return this.http.get<SubModule[]>(this.apiUrl);
+    return this.http.get<SubModule[]>(this.apiUrl).pipe(catchError(() => of([])));
   }
 
   getById(id: string): Observable<SubModule> {
@@ -20,7 +20,9 @@ export class SubModuleService {
   }
 
   getByModuleId(moduleId: string): Observable<SubModule[]> {
-    return this.http.get<SubModule[]>(`${this.apiUrl}/by-module/${moduleId}`);
+    return this.http
+      .get<SubModule[]>(`${environment.apiUrl}/module/${moduleId}/sub-modules`)
+      .pipe(catchError(() => this.http.get<SubModule[]>(`${this.apiUrl}/module/${moduleId}`)));
   }
 
   create(entity: Partial<SubModule>): Observable<SubModule> {

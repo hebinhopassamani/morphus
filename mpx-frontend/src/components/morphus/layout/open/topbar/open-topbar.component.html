@@ -15,7 +15,7 @@
       </div>
     </a>
 
-    <!-- Links rápidos no Desktop quando autenticado (Minhas Apps, Workspaces, Corporações, Perfil) -->
+    <!-- Links rápidos no Desktop quando autenticado (Minhas Apps, Workspaces, Corporações) -->
     @if (auth.isAuthenticated()) {
       <nav class="ms-6 hidden items-center gap-x-1 lg:flex">
         <button
@@ -45,15 +45,6 @@
           <mat-icon svgIcon="building-2" class="size-4" />
           Minhas Corporações
         </button>
-        <button
-          type="button"
-          matButton
-          class="tertiary small"
-          (click)="navigateToSection('meu-perfil')"
-        >
-          <mat-icon svgIcon="circle-user" class="size-4" />
-          Meu Perfil
-        </button>
       </nav>
     }
 
@@ -62,7 +53,7 @@
     <!-- Botões de ação alinhados à direita -->
     <div class="flex items-center gap-x-2 sm:gap-x-3">
       @if (auth.isAuthenticated() && auth.user(); as user) {
-        <a matButton class="primary small hidden sm:inline-flex" routerLink="/admin">
+        <a matButton class="primary small hidden sm:inline-flex" routerLink="/morphus">
           <mat-icon svgIcon="layout-grid" />
           Acessar painel
         </a>
@@ -98,22 +89,22 @@
           <mat-icon class="size-4! shrink-0 text-neutral-a10" svgIcon="chevron-down" />
         </button>
 
-        <mat-menu #webUserMenu="matMenu" xPosition="before" class="min-w-60">
+        <mat-menu #webUserMenu="matMenu" xPosition="before" class="min-w-64">
           <div class="not-mat-menu-wrapper flex flex-row! items-center gap-x-3 px-4 py-2.5 select-none">
             @if (user.picture; as picture) {
               <img
-                class="size-9 shrink-0 rounded-lg object-cover"
+                class="size-9 shrink-0 rounded-full object-cover"
                 [src]="picture"
                 alt="Avatar do usuário"
               />
             } @else {
               <div
-                class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary-a4 text-sm font-semibold text-primary-a11"
+                class="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary-a4 text-sm font-semibold text-primary-a11"
               >
                 {{ userInitials() }}
               </div>
             }
-            <div class="flex min-w-0 flex-col">
+            <div class="flex min-w-0 flex-auto flex-col">
               <span class="truncate text-sm font-semibold">
                 {{ auth.displayName() }}
               </span>
@@ -121,45 +112,122 @@
                 {{ auth.corporation()?.name || user.email }}
               </span>
             </div>
+            @if (auth.availableCorporations().length > 1) {
+              <button
+                type="button"
+                matIconButton
+                class="tiny shrink-0"
+                (click)="openSwitchCorporation()"
+                aria-label="Trocar corporação"
+              >
+                <mat-icon svgIcon="repeat" />
+              </button>
+            }
           </div>
 
           <mat-divider />
 
-          <!-- No Mobile (< lg), os itens do menu da Topbar ficam acessíveis aqui dentro do menu do usuário! -->
-          <div class="lg:hidden">
-            <button mat-menu-item (click)="navigateToSection('minhas-apps')">
-              <mat-icon svgIcon="boxes" />
-              <span>Minhas Apps</span>
-            </button>
-            <button mat-menu-item (click)="navigateToSection('meus-workspaces')">
-              <mat-icon svgIcon="layout-grid" />
-              <span>Meus Workspaces</span>
-            </button>
-            <button mat-menu-item (click)="navigateToSection('minhas-corporacoes')">
-              <mat-icon svgIcon="building-2" />
-              <span>Minhas Corporações</span>
-            </button>
-            <button mat-menu-item (click)="navigateToSection('meu-perfil')">
-              <mat-icon svgIcon="circle-user" />
-              <span>Meu Perfil</span>
-            </button>
-            <mat-divider />
-          </div>
-
-          <a mat-menu-item routerLink="/admin">
-            <mat-icon svgIcon="layout-grid" />
-            <span>Ir para o Painel</span>
+          <!-- Bloco 1 (Estilo GitHub): Perfil, Aplicações, Workspaces, Corporações, Painel -->
+          <a mat-menu-item routerLink="/website/profile">
+            <mat-icon svgIcon="user-round" />
+            <span>Meu Perfil</span>
           </a>
+
+          <button mat-menu-item (click)="navigateToSection('minhas-apps')">
+            <mat-icon svgIcon="boxes" />
+            <span>Minhas Apps</span>
+          </button>
+
+          <button mat-menu-item (click)="navigateToSection('meus-workspaces')">
+            <mat-icon svgIcon="layers" />
+            <span>Meus Workspaces</span>
+          </button>
+
+          <button mat-menu-item (click)="navigateToSection('minhas-corporacoes')">
+            <mat-icon svgIcon="building-2" />
+            <span>Minhas Corporações</span>
+          </button>
 
           @if (auth.availableCorporations().length > 1) {
             <button mat-menu-item (click)="openSwitchCorporation()">
-              <mat-icon svgIcon="building-2" />
+              <mat-icon svgIcon="repeat" />
               <span>Trocar corporação</span>
             </button>
           }
 
+          <a mat-menu-item routerLink="/morphus">
+            <mat-icon svgIcon="layout-grid" />
+            <span>Administrar Corporação</span>
+          </a>
+
           <mat-divider />
 
+          <!-- Bloco 2 (Estilo GitHub): Settings, Tema, Aparência -->
+          <a mat-menu-item routerLink="/morphus/settings">
+            <mat-icon svgIcon="settings" />
+            <span>Configurações (Settings)</span>
+          </a>
+
+          <!-- Submenu Tema -->
+          <button mat-menu-item [matMenuTriggerFor]="webSchemeMenu">
+            <mat-icon svgIcon="sun-moon" />
+            <span>Tema</span>
+          </button>
+          <mat-menu #webSchemeMenu="matMenu">
+            @for (item of schemes; track item.value) {
+              <button mat-menu-item (click)="updateScheme(item.value)">
+                <mat-pseudo-checkbox
+                  appearance="minimal"
+                  [state]="theming.scheme() === item.value ? 'checked' : 'unchecked'"
+                />
+                <span class="ms-1">{{ item.label }}</span>
+              </button>
+            }
+          </mat-menu>
+
+          <!-- Submenu Aparência -->
+          <button mat-menu-item [matMenuTriggerFor]="webAppearanceMenu">
+            <mat-icon svgIcon="paintbrush" />
+            <span>Aparência</span>
+          </button>
+          <mat-menu #webAppearanceMenu="matMenu" class="min-w-56">
+            <div class="px-3 py-1.5 text-xs font-semibold tracking-wider uppercase text-neutral-a10 select-none">
+              Cor de destaque
+            </div>
+            @for (preset of themePresets; track preset.primary.value) {
+              <button mat-menu-item (click)="setPreset(preset)">
+                <mat-pseudo-checkbox
+                  appearance="minimal"
+                  [state]="selectedPreset().primary.value === preset.primary.value ? 'checked' : 'unchecked'"
+                />
+                <span class="ms-1.5 inline-flex items-center gap-x-2">
+                  <span
+                    class="size-3 rounded-full"
+                    [style.background-color]="preset.primary.value"
+                  ></span>
+                  <span>{{ preset.primary.name }}</span>
+                </span>
+              </button>
+            }
+
+            <mat-divider />
+
+            <button
+              mat-menu-item
+              [disabled]="theming.isDark()"
+              (click)="toggleDarkSidebar()"
+            >
+              <mat-pseudo-checkbox
+                appearance="minimal"
+                [state]="theming.sidebarScheme() === 'dark' ? 'checked' : 'unchecked'"
+              />
+              <span class="ms-1">Menu lateral escuro</span>
+            </button>
+          </mat-menu>
+
+          <mat-divider />
+
+          <!-- Bloco 3: Sair -->
           <button mat-menu-item (click)="auth.logout('/website')">
             <mat-icon svgIcon="log-out" />
             <span>Sair</span>
@@ -173,13 +241,13 @@
         <a matButton class="primary small" routerLink="/security/signup">
           Teste grátis
         </a>
+
+        <div class="mx-0.5 h-5 w-px bg-neutral-a5"></div>
+
+        <button matIconButton (click)="toggleScheme()" aria-label="Alternar tema">
+          <mat-icon [svgIcon]="isDark() ? 'sun' : 'moon'" />
+        </button>
       }
-
-      <div class="mx-0.5 h-5 w-px bg-neutral-a5"></div>
-
-      <button matIconButton (click)="toggleScheme()" aria-label="Alternar tema">
-        <mat-icon [svgIcon]="isDark() ? 'sun' : 'moon'" />
-      </button>
     </div>
   </div>
 </header>

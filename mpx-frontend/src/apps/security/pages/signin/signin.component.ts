@@ -173,6 +173,6 @@ export class SigninComponent implements OnInit {
       return;
     }
 
-    this.router.navigateByUrl(returnUrl || '/admin');
+    this.router.navigateByUrl(returnUrl || '/website/home');
   }
 }

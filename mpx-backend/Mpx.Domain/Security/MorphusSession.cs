@@ -132,4 +132,5 @@ public class CorporationSummary
   public string? Description { get; set; }
   public Guid? ParentCorporationId { get; set; }
   public bool IsOwner { get; set; }
+  public List<string> Roles { get; set; } = [];
 }

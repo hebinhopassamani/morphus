@@ -11,6 +11,7 @@ public class ClaimRepository(MorphusDbContext context) : MorphusRepository<Claim
     return await _context.Claims
         .AsNoTracking()
         .Include(c => c.Module)
+          .ThenInclude(m => m!.Application)
         .Include(c => c.SubModule)
         .OrderBy(c => c.ClaimType)
         .ThenBy(c => c.ClaimValue)

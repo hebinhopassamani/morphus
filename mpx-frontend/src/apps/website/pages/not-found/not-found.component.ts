@@ -33,7 +33,7 @@ import { RouterLink } from '@angular/router';
           <a
             matButton
             class="tertiary large border border-white/20 bg-white/10 font-semibold tracking-wider uppercase text-white! hover:bg-white/20"
-            routerLink="/admin"
+            routerLink="/morphus"
           >
             Ir para o Painel
           </a>

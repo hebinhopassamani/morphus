@@ -45,6 +45,7 @@ public static class DependencyInjection
         UPDATE users SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
         UPDATE menus SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
         UPDATE claims SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
+        UPDATE menus SET url = REPLACE(url, '/admin/', '/morphus/') WHERE url LIKE '/admin/%';
 
         INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
         SELECT
@@ -59,7 +60,7 @@ public static class DependencyInjection
             sub.id,
             0,
             parent.corporation_id,
-            '/admin/corporation',
+            '/morphus/corporation',
             'building-2',
             'Gerenciamento de corporações e filiais do sistema'
         FROM menus parent
@@ -70,7 +71,7 @@ public static class DependencyInjection
           AND NOT EXISTS (
               SELECT 1 FROM menus m
               WHERE m.corporation_id = parent.corporation_id
-                AND m.url = '/admin/corporation'
+                AND m.url = '/morphus/corporation'
           );
 
         INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
@@ -86,7 +87,7 @@ public static class DependencyInjection
             sub.id,
             2,
             parent.corporation_id,
-            '/admin/workspace',
+            '/morphus/workspace',
             'layout-grid',
             'Gerenciamento dos ambientes de trabalho (workspaces) da corporação'
         FROM menus parent
@@ -97,7 +98,7 @@ public static class DependencyInjection
           AND NOT EXISTS (
               SELECT 1 FROM menus m
               WHERE m.corporation_id = parent.corporation_id
-                AND m.url = '/admin/workspace'
+                AND m.url = '/morphus/workspace'
           );
         """);
 

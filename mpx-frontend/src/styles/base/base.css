@@ -68,4 +68,53 @@
     background-color: light-dark(var(--color-white), var(--color-neutral-1));
     color: var(--color-neutral-12);
   }
+
+  /* Pointer cursor on all clickable / interactive elements */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a,
+  summary,
+  label[for],
+  input[type='checkbox']:not(:disabled),
+  input[type='radio']:not(:disabled),
+  select:not(:disabled),
+  .mat-mdc-select:not(.mat-mdc-select-disabled),
+  .mat-mdc-option,
+  .mat-mdc-menu-item:not([disabled]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role='button'][aria-disabled='true'],
+  input:disabled,
+  select:disabled {
+    cursor: not-allowed;
+  }
+}
+
+@keyframes mpx-row-flash {
+  0% {
+    background-color: rgba(16, 185, 129, 0.42);
+    transform: scale(0.99);
+  }
+  25% {
+    background-color: rgba(124, 58, 237, 0.32);
+    transform: scale(1);
+  }
+  50% {
+    background-color: rgba(16, 185, 129, 0.42);
+  }
+  75% {
+    background-color: rgba(124, 58, 237, 0.28);
+  }
+  100% {
+    background-color: rgba(16, 185, 129, 0.16);
+  }
+}
+
+.mpx-transferred-row {
+  background-color: rgba(16, 185, 129, 0.16) !important;
+  border-left: 5px solid #10b981 !important;
+  box-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.35);
+  animation: mpx-row-flash 1.4s ease-in-out 1;
 }

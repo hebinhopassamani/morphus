@@ -21,9 +21,14 @@
 
   @for (item of items; track item.id ?? item.label) {
     @if (isSection(item)) {
-      <!-- Section header -->
-      <li buiSidebarSectionHeader class="mt-3 first:mt-0">
-        <span buiSidebarLabel class="text-xs uppercase">{{ item.label }}</span>
+      <!-- Section header (Título preenchido com a cor de destaque) -->
+      <li
+        buiSidebarSectionHeader
+        class="mt-4 first:mt-0 rounded-lg bg-primary-a3 px-2.5 text-primary-a11 font-semibold"
+      >
+        <span buiSidebarLabel class="text-xs font-semibold tracking-wider uppercase text-primary-a11">
+          {{ item.label }}
+        </span>
       </li>
 
       <!-- Section items -->
@@ -69,9 +74,10 @@
         <div buiSidebarMenuRow>
           <a
             buiSidebarButton
+            class="[&.active]:before:hidden! [&.active]:text-primary-a11 [&.active]:font-semibold"
             [routerLink]="item.url || defaultUrl()"
             routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: false }"
+            [routerLinkActiveOptions]="{ exact: isExactRoute(item.url) }"
           >
             @if (item.icon) {
               <mat-icon buiSidebarIcon [svgIcon]="item.icon" />

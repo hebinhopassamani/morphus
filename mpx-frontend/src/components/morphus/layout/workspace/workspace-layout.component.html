@@ -23,7 +23,7 @@
       cdkScrollable
       mpxScrollViewport
     >
-      <mpx-topbar (menuToggle)="sidenav.toggle()" />
+      <mpx-topbar [sidebarOpened]="sidenav.opened" (menuToggle)="sidenav.toggle()" />
       <mpx-content />
     </div>
   </mat-sidenav-content>

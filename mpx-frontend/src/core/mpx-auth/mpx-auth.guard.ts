@@ -13,7 +13,7 @@ export const mpxAuthGuard: CanActivateFn = (route, state) => {
 
   if (!auth.isAuthenticated()) {
     return router.createUrlTree(['/security/signin'], {
-      queryParams: state.url && state.url !== '/admin' ? { returnUrl: state.url } : undefined,
+      queryParams: state.url && state.url !== '/morphus' ? { returnUrl: state.url } : undefined,
     });
   }
 
@@ -27,19 +27,19 @@ export const mpxAuthGuard: CanActivateFn = (route, state) => {
   }
 
   if (!auth.needsOnboarding() && isOnboardingRoute) {
-    return router.createUrlTree(['/admin']);
+    return router.createUrlTree(['/website/home']);
   }
 
-  // Se o usuário ainda precisa selecionar a corporação após login e tenta entrar direto no /admin:
+  // Se o usuário ainda precisa selecionar a corporação após login e tenta entrar direto no /morphus:
   if (auth.needsCorporationSelection() && !isSelectCorporationRoute) {
     return router.createUrlTree(['/security/select-corporation'], {
-      queryParams: state.url && state.url !== '/admin' ? { returnUrl: state.url } : undefined,
+      queryParams: state.url && state.url !== '/morphus' ? { returnUrl: state.url } : undefined,
     });
   }
 
   // Se a corporação JÁ foi escolhida, a tela select-corporation não aparece mais (a menos que venha com ?switch=true):
   if (isSelectCorporationRoute && auth.corporationSelected() && route.queryParamMap.get('switch') !== 'true') {
-    const returnUrl = route.queryParamMap.get('returnUrl') || '/admin';
+    const returnUrl = route.queryParamMap.get('returnUrl') || '/website/home';
     return router.parseUrl(returnUrl);
   }
 

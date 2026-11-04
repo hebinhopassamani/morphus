@@ -1,0 +1,305 @@
+<div class="mx-auto flex w-full max-w-5xl flex-col p-6">
+  <!-- Cabeçalho usando title1 e title2 herdados de MorphusComponent -->
+  <div class="flex items-center gap-x-3">
+    <button matIconButton type="button" (click)="onCancel()">
+      <mat-icon svgIcon="arrow-left" />
+    </button>
+    <div>
+      <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+      <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+    </div>
+  </div>
+
+  <mat-tab-group
+    class="mt-6"
+    [selectedIndex]="selectedTabIndex()"
+    (selectedIndexChange)="selectedTabIndex.set($event)"
+  >
+    <!-- =================================================================== -->
+    <!-- ABA 1: Dados do Módulo                                              -->
+    <!-- =================================================================== -->
+    <mat-tab label="Dados do Módulo">
+      <form
+        class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+        (ngSubmit)="onSave()"
+      >
+        <!-- Aplicação -->
+        <mat-form-field>
+          <mat-label>Aplicação</mat-label>
+          <mat-select
+            name="applicationId"
+            required
+            [disabled]="!!entity().system"
+            [ngModel]="entity().applicationId"
+            (ngModelChange)="updateField('applicationId', $event)"
+            #applicationId="ngModel"
+          >
+            @for (app of applications(); track app.id) {
+              <mat-option [value]="app.id">{{ app.name }}</mat-option>
+            }
+          </mat-select>
+          <mat-error class="morphus-mat-error">
+            <span class="morphus-mat-error-label">{{ validator.showErros(applicationId) }}</span>
+          </mat-error>
+        </mat-form-field>
+
+        <!-- Nome e Chave (Key) -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <mat-form-field>
+            <mat-label>Nome do Módulo</mat-label>
+            <input
+              matInput
+              name="name"
+              required
+              minlength="3"
+              placeholder="Ex: Gestão Financeira"
+              [ngModel]="entity().name"
+              (ngModelChange)="updateField('name', $event)"
+              #moduleName="ngModel"
+            />
+            <mat-error class="morphus-mat-error">
+              <span class="morphus-mat-error-label">{{ validator.showErros(moduleName) }}</span>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field
+            class="cursor-pointer"
+            [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+            (click)="copyKey(entity().key)"
+          >
+            <mat-label>
+              {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+            </mat-label>
+            <input
+              matInput
+              name="key"
+              readonly
+              class="cursor-pointer font-mono select-all opacity-75"
+              [ngModel]="entity().key"
+            />
+          </mat-form-field>
+        </div>
+
+        <!-- Descrição -->
+        <mat-form-field>
+          <mat-label>Descrição</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            name="description"
+            placeholder="Descreva a finalidade deste módulo..."
+            [ngModel]="entity().description"
+            (ngModelChange)="updateField('description', $event)"
+            #description="ngModel"
+          ></textarea>
+        </mat-form-field>
+
+        <!-- Ações do Formulário -->
+        <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
+          <button matButton type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button matButton class="primary" type="submit" [disabled]="loading()">
+            <mat-icon svgIcon="check" />
+            {{ isEditing() ? 'Salvar Alterações' : 'Criar Módulo' }}
+          </button>
+        </div>
+      </form>
+    </mat-tab>
+
+    <!-- =================================================================== -->
+    <!-- ABA 2: Submódulos (1:N exclusivo deste Módulo)                      -->
+    <!-- =================================================================== -->
+    @if (isEditing()) {
+      <mat-tab [label]="'Submódulos (' + subModules().length + ')'">
+        <div class="mt-6 flex flex-col gap-y-5">
+          <!-- Cabeçalho da aba de Submódulos -->
+          <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-a4 bg-white p-5 dark:bg-neutral-2">
+            <div>
+              <div class="flex items-center gap-2">
+                <h3 class="mpx-title-medium text-neutral-12">
+                  Submódulos de {{ entity().name }}
+                </h3>
+                <span class="rounded-full bg-primary-a3 px-2.5 py-0.5 text-xs font-medium text-primary-11">
+                  Vínculo 1:N Exclusivo
+                </span>
+              </div>
+              <p class="mt-1 mpx-body-small text-neutral-a11">
+                Cada submódulo nasce vinculado exclusivamente a este módulo e define o escopo granular para Perfis e Permissões.
+              </p>
+            </div>
+
+            @if (!subModuleFormOpen()) {
+              <button matButton class="primary" type="button" (click)="openNewSubModuleForm()">
+                <mat-icon svgIcon="plus" />
+                Novo Submódulo
+              </button>
+            }
+          </div>
+
+          <!-- Card de Criação / Edição de Submódulo -->
+          @if (subModuleFormOpen()) {
+            <div class="flex flex-col gap-y-4 rounded-xl border border-primary-a6 bg-white p-6 shadow-xs dark:bg-neutral-2">
+              <div class="flex items-center justify-between border-b border-neutral-a4 pb-3">
+                <div class="flex items-center gap-2">
+                  <mat-icon class="text-primary-11" svgIcon="layers" />
+                  <span class="mpx-title-small text-neutral-12">
+                    {{ editingSubModule().id ? 'Editar Submódulo' : 'Novo Submódulo para ' + entity().name }}
+                  </span>
+                </div>
+                <span class="rounded bg-neutral-a3 px-2.5 py-1 text-xs font-medium text-neutral-11">
+                  Módulo Pai (Fixo): {{ entity().name }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <mat-form-field>
+                  <mat-label>Nome do Submódulo</mat-label>
+                  <input
+                    matInput
+                    name="subModuleName"
+                    required
+                    minlength="2"
+                    placeholder="Ex: Lançamento de Notas, Aprovação, Cadastro..."
+                    [ngModel]="editingSubModule().name"
+                    (ngModelChange)="updateSubModuleField('name', $event)"
+                  />
+                </mat-form-field>
+
+                <mat-form-field
+                  class="cursor-pointer"
+                  [matTooltip]="keyCopied() ? 'Copiado!' : 'Clique para copiar a Chave do Submódulo'"
+                  (click)="copyKey(editingSubModule().key)"
+                >
+                  <mat-label>Chave Única (SDK Key)</mat-label>
+                  <input
+                    matInput
+                    name="subModuleKey"
+                    readonly
+                    class="cursor-pointer font-mono select-all opacity-75"
+                    [ngModel]="editingSubModule().key"
+                  />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field>
+                <mat-label>Descrição do Submódulo</mat-label>
+                <input
+                  matInput
+                  name="subModuleDescription"
+                  placeholder="Descreva a funcionalidade ou tela representada por este submódulo..."
+                  [ngModel]="editingSubModule().description"
+                  (ngModelChange)="updateSubModuleField('description', $event)"
+                />
+              </mat-form-field>
+
+              <div class="flex items-center justify-end gap-x-3 pt-2">
+                <button matButton type="button" (click)="cancelSubModuleForm()">
+                  Cancelar
+                </button>
+                <button
+                  matButton
+                  class="primary"
+                  type="button"
+                  [disabled]="!editingSubModule().name || (editingSubModule().name?.trim()?.length ?? 0) < 2"
+                  (click)="saveSubModule()"
+                >
+                  <mat-icon svgIcon="check" />
+                  {{ editingSubModule().id ? 'Atualizar Submódulo' : 'Adicionar Submódulo' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- Tabela de Submódulos do Módulo -->
+          <div class="relative isolate overflow-x-auto overflow-y-hidden rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            @if (subModules().length === 0) {
+              <div class="flex flex-col items-center justify-center py-12 text-center">
+                <mat-icon class="!size-10 text-neutral-a8" svgIcon="layers" />
+                <p class="mt-3 mpx-body-medium font-medium text-neutral-12">
+                  Nenhum submódulo cadastrado neste módulo
+                </p>
+                <p class="mt-1 mpx-body-small text-neutral-a11">
+                  Clique em "Novo Submódulo" acima para criar o primeiro submódulo de {{ entity().name }}.
+                </p>
+              </div>
+            } @else {
+              <table class="w-full whitespace-nowrap" mat-table [dataSource]="subModules()">
+                <ng-container matColumnDef="name">
+                  <th mat-header-cell *matHeaderCellDef>Submódulo</th>
+                  <td mat-cell *matCellDef="let sub">
+                    <div class="flex items-center gap-2.5">
+                      <div class="flex size-7 items-center justify-center rounded-md bg-primary-a3 text-primary-11">
+                        <mat-icon class="!size-4" svgIcon="layers" />
+                      </div>
+                      <span class="mpx-body-medium font-medium text-neutral-12">{{ sub.name }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="key">
+                  <th mat-header-cell *matHeaderCellDef>Chave (Key)</th>
+                  <td mat-cell *matCellDef="let sub">
+                    <code
+                      class="cursor-pointer rounded bg-neutral-a3 px-2 py-0.5 font-mono text-xs text-neutral-12 hover:bg-neutral-a4"
+                      title="Clique para copiar"
+                      (click)="copyKey(sub.key)"
+                    >
+                      {{ sub.key }}
+                    </code>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>Descrição</th>
+                  <td mat-cell *matCellDef="let sub">
+                    <span class="mpx-body-small text-neutral-a11">{{ sub.description || '—' }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="origin">
+                  <th mat-header-cell *matHeaderCellDef>Origem</th>
+                  <td mat-cell *matCellDef="let sub">
+                    <span class="mpx-body-small text-neutral-11">
+                      {{ sub.system ? 'Nativo' : 'Customizado' }}
+                    </span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th class="w-28 text-right" mat-header-cell *matHeaderCellDef>Ações</th>
+                  <td class="text-right" mat-cell *matCellDef="let sub">
+                    <div class="inline-flex items-center justify-end gap-1">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        matTooltip="Editar Submódulo"
+                        (click)="openEditSubModuleForm(sub)"
+                      >
+                        <mat-icon svgIcon="square-pen" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        matTooltip="Excluir Submódulo"
+                        [disabled]="sub.system"
+                        (click)="deleteSubModule(sub)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="subModuleColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: subModuleColumns"></tr>
+              </table>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+</div>

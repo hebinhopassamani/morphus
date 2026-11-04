@@ -1,38 +1,15 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { MorphusEntityService } from '@core/mpx-http';
+import { Role } from '@security/entities/role';
 import { UserRole } from '@security/entities/user-role';
-import { environment } from '@src/environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserRoleService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/userrole`;
-
-  getAll(): Observable<UserRole[]> {
-    return this.http.get<UserRole[]>(this.apiUrl);
-  }
-
-  getByUserId(userId: string): Observable<UserRole[]> {
-    return this.http.get<UserRole[]>(`${this.apiUrl}/by-user/${userId}`);
-  }
-
-  create(entity: Partial<UserRole>): Observable<UserRole> {
-    return this.http.post<UserRole>(this.apiUrl, entity);
-  }
-
-  createMany(entities: Partial<UserRole>[]): Observable<UserRole[]> {
-    return this.http.post<UserRole[]>(`${this.apiUrl}/create-many`, entities);
-  }
-
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  deleteMany(ids: string[]): Observable<void> {
-    return this.http.post<void>(`${this.apiUrl}/delete-many`, ids);
+export class UserRoleService extends MorphusEntityService<UserRole, Role> {
+  constructor() {
+    super('user-role');
+    this.addPk('userId').addPk('roleId');
   }
 }
 

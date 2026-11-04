@@ -66,7 +66,7 @@ export class MpxMenuComponent {
   readonly emptyMessage = input<string>('Nenhum menu cadastrado para esta aplicação.');
 
   /** Rota padrão caso um item de menu folha não possua URL definida */
-  readonly defaultUrl = input<string>('/admin');
+  readonly defaultUrl = input<string>('/morphus');
 
   /** Define se os submenus retráteis iniciam abertos por padrão */
   readonly expandedByDefault = input<boolean>(true);
@@ -77,5 +77,19 @@ export class MpxMenuComponent {
 
   protected isSection(item: Menu): boolean {
     return !item.menuId && !item.url && !!item.subMenus?.length;
+  }
+
+  protected isExactRoute(url?: string | null): boolean {
+    if (!url) {
+      return true;
+    }
+    const clean = url.split('?')[0].replace(/\/+$/, '');
+    return (
+      clean === '' ||
+      clean === '/morphus' ||
+      clean === '/security' ||
+      clean === '/website' ||
+      clean === '/website/home'
+    );
   }
 }

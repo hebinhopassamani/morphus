@@ -10,11 +10,13 @@ namespace Mpx.Api.Controllers;
 [Route("api/v1/corporation-user")]
 public class CorporationUserController(CorporationUserHandler corporationUserHandler) : ControllerBase
 {
+  [HttpGet("entities-to-relate")]
   [HttpGet("entities-to-relate/{corporationId:guid}")]
   [Authorize(Policy = "CORPORATION_USER_LIST")]
   public async Task<IActionResult> GetEntitiesToRelate(Guid corporationId) =>
       Ok(await corporationUserHandler.GetEntitiesToRelateAsync(corporationId));
 
+  [HttpGet("related-entities")]
   [HttpGet("related-entities/{corporationId:guid}")]
   [Authorize(Policy = "CORPORATION_USER_LIST")]
   public async Task<IActionResult> GetRelatedEntities(Guid corporationId) =>
@@ -25,10 +27,20 @@ public class CorporationUserController(CorporationUserHandler corporationUserHan
   public async Task<IActionResult> AddRelationship([FromBody] CorporationUser corporationUser) =>
       Ok(await corporationUserHandler.AddRelationshipAsync(corporationUser));
 
+  [HttpPost("add-relationships")]
+  [Authorize(Policy = "CORPORATION_USER_ADD")]
+  public async Task<IActionResult> AddRelationships([FromBody] List<CorporationUser> items) =>
+      Ok(await corporationUserHandler.AddRelationshipsAsync(items));
+
   [HttpPost("remove-relationship")]
   [Authorize(Policy = "CORPORATION_USER_REMOVE")]
   public async Task<IActionResult> RemoveRelationship([FromBody] CorporationUser corporationUser) =>
       Ok(await corporationUserHandler.RemoveRelationshipAsync(corporationUser));
+
+  [HttpPost("remove-relationships")]
+  [Authorize(Policy = "CORPORATION_USER_REMOVE")]
+  public async Task<IActionResult> RemoveRelationships([FromBody] List<CorporationUser> items) =>
+      Ok(await corporationUserHandler.RemoveRelationshipsAsync(items));
 
   [HttpPost("activate")]
   [Authorize(Policy = "CORPORATION_USER_ACTIVATE")]

@@ -28,7 +28,7 @@ services:
 
   mpx-frontend:
     build:
-      context: ./mpx-morphus/mpx-frontend
+      context: ./mpx-frontend
       dockerfile: Dockerfile
       args:
         NG_CONFIG: ${NG_CONFIG:-production}
@@ -39,7 +39,7 @@ services:
 
   mpx-backend:
     build:
-      context: ./mpx-morphus/mpx-backend
+      context: ./mpx-backend
       dockerfile: Dockerfile
     container_name: mpx-backend
     restart: unless-stopped

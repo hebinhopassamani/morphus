@@ -1,0 +1,306 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col p-6">
+  <div class="flex items-center gap-x-3">
+    <button matIconButton type="button" (click)="onCancel()">
+      <mat-icon svgIcon="arrow-left" />
+    </button>
+    <div>
+      <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+      <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+    </div>
+  </div>
+
+  <mat-tab-group
+    class="mt-6"
+    [selectedIndex]="selectedTabIndex()"
+    (selectedIndexChange)="selectedTabIndex.set($event)"
+  >
+    <!-- ABA 1: Dados da Aplicação -->
+    <mat-tab label="Dados da Aplicação">
+      <form
+        #appForm="ngForm"
+        (ngSubmit)="appForm.form.valid && onSave()"
+        class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+      >
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <mat-form-field>
+            <mat-label>Nome da Aplicação</mat-label>
+            <input
+              matInput
+              name="name"
+              placeholder="Ex.: Financeiro, Notas Fiscais, Contas a Pagar..."
+              required
+              minlength="2"
+              maxlength="100"
+              [ngModel]="entity().name"
+              (ngModelChange)="updateField('name', $event)"
+              #nameCtrl="ngModel"
+            />
+            <mat-error class="morphus-mat-error">
+              <span class="morphus-mat-error-label">{{ validator.showErros(nameCtrl) }}</span>
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field
+            class="cursor-pointer"
+            [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+            (click)="copyKey(entity().key)"
+          >
+            <mat-label>
+              {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+            </mat-label>
+            <input
+              matInput
+              name="key"
+              readonly
+              class="cursor-pointer font-mono select-all opacity-75"
+              [ngModel]="entity().key"
+            />
+          </mat-form-field>
+        </div>
+
+        <mpx-icon-selector
+          label="Ícone da Aplicação"
+          defaultIcon="boxes"
+          [value]="entity().icon ?? undefined"
+          (valueChange)="updateField('icon', $event)"
+        />
+
+        <mat-form-field>
+          <mat-label>Descrição</mat-label>
+          <textarea
+            matInput
+            name="description"
+            rows="3"
+            placeholder="Descreva a finalidade desta aplicação..."
+            maxlength="255"
+            [ngModel]="entity().description"
+            (ngModelChange)="updateField('description', $event)"
+          ></textarea>
+        </mat-form-field>
+
+        <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
+          <button matButton type="button" (click)="onCancel()">
+            Cancelar
+          </button>
+          <button
+            matButton
+            class="primary"
+            type="submit"
+            [disabled]="appForm.invalid"
+          >
+            <mat-icon svgIcon="check" />
+            {{ isEditing() ? 'Salvar Alterações' : 'Criar Aplicação' }}
+          </button>
+        </div>
+      </form>
+    </mat-tab>
+
+    <!-- ABA 2: N:N Usuários da Aplicação (Com Multi-Seleção) -->
+    @if (isEditing()) {
+      <mat-tab [label]="'Usuários da Aplicação (' + relatedUsers().length + ')'">
+        <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- ESQUERDA: Usuários Disponíveis -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Usuários Disponíveis ({{ filteredUsersToRelate().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Usuários da corporação ainda não vinculados a esta aplicação.
+                </p>
+              </div>
+              <button
+                matButton
+                class="primary"
+                type="button"
+                [disabled]="selectedToRelateIds().size === 0"
+                (click)="addSelectedUsers()"
+              >
+                <span>Vincular ({{ selectedToRelateIds().size }})</span>
+                <mat-icon svgIcon="arrow-right" />
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllToRelateSelected()"
+                [disabled]="filteredUsersToRelate().length === 0"
+                (change)="toggleSelectAllToRelate()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar todos</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar usuários..."
+                  [ngModel]="searchToRelate()"
+                  (ngModelChange)="searchToRelate.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredUsersToRelate().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="users" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Todos os usuários da corporação já possuem vínculo com esta aplicação.
+                  </p>
+                </div>
+              } @else {
+                @for (user of filteredUsersToRelate(); track user.id) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isToRelateSelected(user.id)"
+                        (change)="toggleToRelate(user.id)"
+                      />
+                      <div class="min-w-0">
+                        <p class="truncate mpx-body-medium font-medium text-neutral-12">
+                          {{ user.name }}
+                        </p>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ user.email }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-primary-11"
+                      matTooltip="Vincular usuário"
+                      (click)="addSingleUser(user)"
+                    >
+                      <mat-icon svgIcon="arrow-right" />
+                    </button>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- DIREITA: Usuários Vinculados -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Usuários na Aplicação ({{ filteredRelatedUsers().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Usuários autorizados a acessar esta aplicação.
+                </p>
+              </div>
+              <button
+                matButton
+                type="button"
+                class="text-red-a11"
+                [disabled]="selectedRelatedIds().size === 0"
+                (click)="removeSelectedUsers()"
+              >
+                <mat-icon svgIcon="trash" />
+                <span>Remover ({{ selectedRelatedIds().size }})</span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllRelatedSelected()"
+                [disabled]="filteredRelatedUsers().length === 0"
+                (change)="toggleSelectAllRelated()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">Selecionar removíveis</span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar vinculados..."
+                  [ngModel]="searchRelated()"
+                  (ngModelChange)="searchRelated.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @if (filteredRelatedUsers().length === 0) {
+                <div class="flex flex-col items-center justify-center py-12 text-center">
+                  <mat-icon class="!size-8 text-neutral-a8" svgIcon="users" />
+                  <p class="mt-2 mpx-body-small text-neutral-a11">
+                    Nenhum usuário vinculado a esta aplicação.
+                  </p>
+                </div>
+              } @else {
+                @for (rel of filteredRelatedUsers(); track rel.userId) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isRelatedSelected(rel.userId)"
+                        [disabled]="!canRemoveUser(rel)"
+                        (change)="toggleRelated(rel)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <span class="truncate mpx-body-medium font-medium text-neutral-12">
+                            {{ rel.user?.name || rel.userId }}
+                          </span>
+                          @if (rel.isOwner) {
+                            <span class="rounded bg-primary-a3 px-1.5 py-0.5 text-[10px] font-semibold text-primary-11">
+                              Proprietário
+                            </span>
+                          }
+                          @if (rel.inactive) {
+                            <span class="rounded bg-red-a3 px-1.5 py-0.5 text-[10px] font-semibold text-red-11">
+                              Inativo
+                            </span>
+                          }
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ rel.user?.email }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="flex shrink-0 items-center gap-1">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        [matTooltip]="rel.isOwner ? 'Remover propriedade' : 'Definir como proprietário'"
+                        [disabled]="rel.system"
+                        (click)="toggleUserOwner(rel)"
+                      >
+                        <mat-icon [svgIcon]="rel.isOwner ? 'shield-check' : 'shield'" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny"
+                        [matTooltip]="rel.inactive ? 'Ativar na aplicação' : 'Desativar na aplicação'"
+                        [disabled]="rel.system || rel.isOwner"
+                        (click)="toggleUserActive(rel)"
+                      >
+                        <mat-icon [svgIcon]="rel.inactive ? 'check' : 'ban'" />
+                      </button>
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        matTooltip="Remover vínculo"
+                        [disabled]="!canRemoveUser(rel)"
+                        (click)="removeSingleUser(rel)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+    }
+  </mat-tab-group>
+</div>

@@ -15,8 +15,8 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
 >   3. **Propósito Operacional Central**: **Notas Fiscais** e **Contas a Pagar** — **e PONTO FINAL!**
 > - **Fase 2 em diante**: Só iniciam em código após a Fase 1 estar 100% concluída e entregue, definindo-se também um novo rumo final fechado para a Fase 2.
 
-## 1. Morphus Flow (Motor de Workflow Genérico e Configurável)
-- **Conceito**: Aplicativo/Módulo de fluxo de trabalho 100% configurável, genérico e Multi-Tenant (`CorporationId`).
+## 1. Morphus Flow (Motor de Workflow Genérico e Configurável — Inspirado no WeWeb)
+- **Conceito**: Aplicativo/Módulo de fluxo de trabalho 100% configurável, genérico e Multi-Tenant (`CorporationId`), com **interface visual de nós, gatilhos (Triggers), ramificações condicionais (`True/False` / `Switch`), variáveis de contexto, loops e inspetor lateral de payload inspirado no editor de Workflows do WeWeb**.
 - **Funcionamento**:
   - Capaz de carregar e transportar **qualquer objeto/entidade** (ou coleção de objetos) da corporação contratante através de fluxos pré-montados e configurados.
   - Composto por etapas/nós encadeados onde cada etapa recebe o(s) objeto(s), executa suas tarefas/regras de negócio (aprovações, validações, mutações, integrações, notificações por e-mail, tarefas humanas ou ações de IA) e passa o fluxo adiante para a próxima etapa.
@@ -47,6 +47,18 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
   4. **Pronta para o Mercado como SaaS (Estilo Auth0 / Firebase SDK via `Key` Única)**:
      - Todas as entidades do Morphus herdam `Key` (12 caracteres únicos gerados por GUID, com índice `UNIQUE` no banco e cópia em 1 clique nas telas de edição via `MorphusEditComponent.copyKey()`).
      - Quando o cliente cria uma `Application`, `Module`, `SubModule`, `Role` ou `Claim` no painel, ele simplesmente clica na `Key` para copiá-la e usa direto no SDK (`Morphus.Security.Sdk` / `@morphus/security`) ou no futuro `AppBuilder`, permitindo que a `Security.Api` valide permissões e operações dinamicamente pela `Key` sem precisar criar Controllers físicos ou alterar código no `CrossCutting`!
+  5. **Visão Completa do Painel `/security` (`Morphus Security` — Auth0 Enterprise Completo)**:
+     - Mesma estrutura visual de Workspace (`MorphusWorkspaceLayout` + Sidebar + Dashboard estilo Fuse com nomenclatura de Identidade & Segurança).
+     - **Escopo da Fase 1 no `/security`**: `Users`, `Roles`, `Claims` (`user-role`) e `Modules & SubModules` (`module`).
+     - **Módulos Futuros do `/security` (Roadmap Auth0)**:
+       - `API Keys` / `APIs` (Chaves de API e escopos server-to-server)
+       - `Access Control` (Políticas avançadas de acesso)
+       - `Attack Protection` (Rate limit, brute-force protection, suspicious IP throttling)
+       - `Multi-Factor Auth (MFA)` (TOTP, SMS, Email, WebAuthn/Passkeys)
+       - `Social Authentication` (Google, GitHub, Microsoft, Apple)
+       - `SSO Integration` (SAML, OIDC, Active Directory / Entra ID)
+       - `How to Authenticate` (Quickstarts interativos e snippets de SDK por linguagem)
+       - `Monitoring`, `Security Logs` e `Webhooks` de eventos de segurança.
 
 ## 4. Morphus Mail (SaaS de Disparo de E-mails + Painel + SDK no NPM estilo Resend/SendGrid)
 - **Conceito**: Transformar a estrutura de tabelas de e-mail e o motor `EmailHandler` (que já estão prontos) em um produto SaaS completo de envio de e-mails transacionais dentro do ecossistema Morphus.
@@ -92,12 +104,26 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
   - Além das tabelas de vínculo (`corporation_users`, `workspace_users`, `application_users`), todo provisionamento, alteração de permissão, início/fim de trial, upgrade/downgrade e ação crítica deve ter **log de auditoria completo** (`Quem fez`, `Quando`, `Como`, `Por que / Origem` e `Payload Anterior/Novo`).
 
 ## 6. Governança de Layouts, Telas, Cotas de E-mail e Motor de Webhooks
+- **Visão Completa do Painel `/morphus` (`Morphus Platform & Workspace Hub`)**:
+  - `Organization` (`Corporations` / Matriz e Filiais)
+  - `Workspaces`
+  - `Applications`, `My Applications` & `Application Templates / Models` (Catálogo, Aplicações contratadas/criadas e Modelos/Templates prontos para clonar e criar uma nova aplicação a partir deles)
+  - `My Forms`, `My Pages` & `Code Components` (AppBuilder / Telas, Formulários dinâmicos e Componentes de Código reutilizáveis da corporação)
+  - `Application Profiles` (Perfis e configurações por aplicação)
+  - `Workflows` (`Morphus Flow` — fluxos de trabalho configuráveis da corporação)
+  - `Agents` (Agentes de IA da corporação — orquestração, prompts, ferramentas e automações inteligentes)
+  - `Plugins`, `Webhooks` & `Integrations` (Extensões, conectores e eventos de negócio)
+  - `Domains`, `Emails`, `Email Templates`, `Email Settings` (Governança de comunicação e SMTP/Domínios)
+  - `Plans & Billing` (Planos, assinaturas, trials e faturamento da corporação)
+  - `Monitoring` & `System Logs` (Observabilidade e auditoria operacional da corporação).
 - **Layouts e Comportamento de Telas no Banco de Dados**:
   - Definir e cadastrar no banco de dados **quais layouts** existem (`Default`, `Clean`, `Enterprise`, `Mail`, etc.) e qual layout/comportamento cada `Application`, `Module` ou `SubModule` (tela) utiliza, permitindo que o front-end resolva dinamicamente a casca visual e o comportamento da tela a partir dos metadados vindos da API.
 - **Governança e Cotas de Envio de E-mail**:
   - Controlar rigorosamente **quem pode enviar e-mails** (quais `Corporations`, `Applications`, `Users`, `Roles` ou `SecretKeys`), **como** pode enviar (via SMTP próprio, relay do Morphus, template obrigatório ou HTML livre) e **quantos e-mails pode enviar** (cotas diárias/mensais por plano, rate-limiting por minuto/segundo e bloqueio automático ao atingir o limite do Trial/Plano).
 - **Motor de Criação e Disparo de Webhooks (`Webhooks Engine`)**:
   - Permitir que as corporações/aplicações cadastrem **Webhooks** (URLs de destino + `Secret` de assinatura HMAC + seleção de eventos como `email.sent`, `email.bounced`, `document.processed`, `subscription.trial_ended`, etc.), com fila de retentativas (Exponential Backoff) e log de entregas (`WebhookDeliveries`).
+- **Roteamento Dinâmico & Domínios Customizados Cadastráveis no Caddy (`Caddy Admin API` + `On-Demand TLS`)**:
+  - Como o Caddy é 100% controlado por API JSON em tempo real (`http://localhost:2019/config/...`) sem precisar reiniciar o servidor e possui **On-Demand TLS** (com endpoint `ask` batendo na API C# do Morphus para validar se o domínio/subdomínio está cadastrado e ativo no PostgreSQL), os próprios clientes/corporações poderão **cadastrar seus domínios/subdomínios e rotas no painel do Morphus** e o back-end C# injeta/atualiza as rotas e certificados SSL (Let's Encrypt) no Caddy automaticamente em tempo real!
 
 
 

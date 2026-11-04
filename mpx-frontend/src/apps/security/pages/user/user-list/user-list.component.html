@@ -1,0 +1,139 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col p-6">
+  <!-- Cabeçalho estilo Clean Admin -->
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight text-neutral-12">Usuários</h1>
+    <p class="mt-1 text-sm text-neutral-a11">
+      Gerencie os membros da equipe, acessos, perfis e permissões.
+    </p>
+  </div>
+
+  <!-- Card Principal -->
+  <div class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-surface shadow-xs">
+    <!-- Topo do Card: Contador + Busca + Botão Adicionar -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-a4 px-6 py-4">
+      <div class="flex items-center gap-3.5">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-11">
+          <mat-icon class="!size-5" svgIcon="users" />
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-neutral-12">Membros da equipe</h2>
+          <p class="text-xs text-neutral-a11">
+            {{ list().length }} {{ list().length === 1 ? 'usuário cadastrado' : 'usuários cadastrados' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <mat-form-field class="small w-full sm:w-64" subscriptSizing="dynamic">
+          <mat-icon svgIcon="search" matIconPrefix />
+          <input
+            matInput
+            placeholder="Buscar usuário..."
+            autocomplete="off"
+            [(ngModel)]="search"
+            (ngModelChange)="loadList()"
+          />
+          @if (search !== '') {
+            <button matIconButton matIconSuffix type="button" (click)="onFilterClear()">
+              <mat-icon svgIcon="x" />
+            </button>
+          }
+        </mat-form-field>
+
+        <button matButton class="primary" type="button" (click)="newEntity()">
+          <mat-icon svgIcon="plus" />
+          Adicionar usuário
+        </button>
+      </div>
+    </div>
+
+    <!-- Cabeçalho das Colunas -->
+    <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/40 px-6 py-3 text-[11px] font-semibold tracking-wider text-neutral-a11 uppercase">
+      <span>Usuário</span>
+      <span>Ações</span>
+    </div>
+
+    <!-- Lista de Usuários -->
+    @if (list().length === 0) {
+      <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+        <mat-icon class="!size-10 text-neutral-a8" svgIcon="users" />
+        <p class="mt-2 text-sm font-medium text-neutral-12">Nenhum usuário encontrado</p>
+        <p class="mt-0.5 text-xs text-neutral-a11">
+          Ajuste a busca ou clique em "+ Adicionar usuário" para cadastrar um novo membro.
+        </p>
+      </div>
+    } @else {
+      <div class="divide-y divide-neutral-a4">
+        @for (row of list(); track row.id) {
+          <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-neutral-a2/40">
+            <!-- Dados do Usuário -->
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2.5">
+                <span class="truncate text-sm font-semibold text-neutral-12">
+                  {{ row.name || row.email }}
+                </span>
+                @if (row.inactive) {
+                  <span class="rounded-full bg-red-a3 px-2 py-0.5 text-[10px] font-semibold text-red-11">
+                    Inativo
+                  </span>
+                }
+              </div>
+              <div class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-a11">
+                <span>{{ row.email }}</span>
+              </div>
+            </div>
+
+            <!-- Botões de Ação (Ícone + Tooltip, perfeitos para Desktop e Mobile) -->
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-neutral-a5 bg-surface text-neutral-12 transition-colors hover:bg-neutral-a3"
+                matTooltip="Editar usuário"
+                (click)="editEntity(row)"
+              >
+                <mat-icon class="!size-4 text-neutral-a11" svgIcon="square-pen" />
+              </button>
+
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-primary-a5 bg-surface text-primary-11 transition-colors hover:bg-primary-a3"
+                matTooltip="Gerenciar perfis (Roles)"
+                (click)="configureRoles(row)"
+              >
+                <mat-icon class="!size-4 text-primary-11" svgIcon="shield" />
+              </button>
+
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-primary-a5 bg-surface text-primary-11 transition-colors hover:bg-primary-a3"
+                matTooltip="Gerenciar permissões (Claims)"
+                (click)="configureClaims(row)"
+              >
+                <mat-icon class="!size-4 text-primary-11" svgIcon="key-round" />
+              </button>
+
+              <span
+                class="inline-flex"
+                [class.cursor-not-allowed]="row.system"
+                [matTooltip]="
+                  row.system
+                    ? 'Você não pode excluir um usuário criado pelo sistema'
+                    : 'Excluir usuário'
+                "
+              >
+                <button
+                  type="button"
+                  class="flex size-9 items-center justify-center rounded-lg border border-red-a5 bg-surface text-red-11 transition-colors hover:bg-red-a3 disabled:pointer-events-none disabled:opacity-40"
+                  [disabled]="row.system"
+                  (click)="deleteEntity(row)"
+                >
+                  <mat-icon class="!size-4 text-red-11" svgIcon="trash" />
+                </button>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

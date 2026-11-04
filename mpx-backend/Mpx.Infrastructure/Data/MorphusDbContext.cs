@@ -61,7 +61,9 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
     }
 
     builder.Entity<User>()
-        .HasQueryFilter(u => u.CorporationId == CurrentCorporationId);
+        .HasQueryFilter(u =>
+            u.CorporationId == CurrentCorporationId ||
+            u.CorporationUsers.Any(cu => cu.CorporationId == CurrentCorporationId));
   }
 
   private System.Linq.Expressions.LambdaExpression ConvertFilterExpression(Type type)

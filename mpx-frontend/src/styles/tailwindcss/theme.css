@@ -1,12 +1,12 @@
-﻿/* -------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 /* Main theme configuration                                                   */
 /* -------------------------------------------------------------------------- */
 @theme {
   /* Font family */
-  --font-sans: 'Roboto', system-ui, sans-serif;
+  --font-sans: 'Google Sans', 'Plus Jakarta Sans', 'Roboto', system-ui, sans-serif;
   --font-sans--font-feature-settings: 'salt';
 
-  --font-mono: 'Fira Code', ui-monospace, monospace;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
   --font-mono--font-feature-settings: 'ss01', 'ss02', 'cv02', 'cv06';
 
   /* Font configuration */

@@ -1,0 +1,61 @@
+@for (pos of positions; track pos) {
+  @if (getToasts(pos).length > 0) {
+    <div
+      class="pointer-events-none fixed z-[10002] flex flex-col gap-2.5 {{ getPositionClasses(pos) }}"
+      aria-live="polite"
+    >
+      @for (item of getToasts(pos); track item.id) {
+        <div
+          class="pointer-events-auto relative flex min-w-[280px] max-w-sm items-center gap-3 overflow-hidden rounded-2xl border bg-surface px-4 py-3 shadow-xl transition-all duration-300"
+          [class.border-jade-a6]="item.severity === 'success'"
+          [class.border-primary-a6]="item.severity === 'info'"
+          [class.border-amber-a6]="item.severity === 'warn'"
+          [class.border-red-a6]="item.severity === 'error'"
+        >
+          <!-- Barra lateral de cor por severidade -->
+          <div
+            class="absolute inset-y-0 left-0 w-1.5"
+            [class.bg-jade-9]="item.severity === 'success'"
+            [class.bg-primary-9]="item.severity === 'info'"
+            [class.bg-amber-9]="item.severity === 'warn'"
+            [class.bg-red-9]="item.severity === 'error'"
+          ></div>
+
+          <!-- Ícone da severidade -->
+          <div
+            class="ml-1 flex size-8 shrink-0 items-center justify-center rounded-xl"
+            [class.bg-jade-a3]="item.severity === 'success'"
+            [class.text-jade-11]="item.severity === 'success'"
+            [class.bg-primary-a3]="item.severity === 'info'"
+            [class.text-primary-11]="item.severity === 'info'"
+            [class.bg-amber-a3]="item.severity === 'warn'"
+            [class.text-amber-11]="item.severity === 'warn'"
+            [class.bg-red-a3]="item.severity === 'error'"
+            [class.text-red-11]="item.severity === 'error'"
+          >
+            <mat-icon class="!size-4" [svgIcon]="item.icon" />
+          </div>
+
+          <!-- Conteúdo (Título opcional + Mensagem) -->
+          <div class="min-w-0 flex-1">
+            @if (item.title) {
+              <p class="truncate text-xs font-bold text-neutral-12">{{ item.title }}</p>
+            }
+            <p class="text-xs font-medium text-neutral-11">{{ item.message }}</p>
+          </div>
+
+          <!-- Botão fechar -->
+          @if (item.closable) {
+            <button
+              type="button"
+              class="flex size-6 shrink-0 items-center justify-center rounded-lg text-neutral-a10 transition-colors hover:bg-neutral-a3 hover:text-neutral-12"
+              (click)="toastService.dismiss(item.id)"
+            >
+              <mat-icon class="!size-3.5" svgIcon="x" />
+            </button>
+          }
+        </div>
+      }
+    </div>
+  }
+}

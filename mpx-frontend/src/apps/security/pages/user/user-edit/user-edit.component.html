@@ -1,0 +1,134 @@
+<div class="mx-auto flex w-full max-w-4xl flex-col p-6">
+  <!-- Cabeçalho -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div class="flex items-center gap-x-3">
+      <button matIconButton type="button" (click)="onCancel()">
+        <mat-icon svgIcon="arrow-left" />
+      </button>
+      <div>
+        <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+        <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+      </div>
+    </div>
+
+    @if (isEditing()) {
+      <div class="flex items-center gap-2">
+        <button matButton type="button" (click)="goToRoles()">
+          <mat-icon svgIcon="shield" />
+          Configurar Perfis (Roles)
+        </button>
+        <button matButton type="button" (click)="goToClaims()">
+          <mat-icon svgIcon="key-round" />
+          Configurar Permissões (Claims)
+        </button>
+      </div>
+    }
+  </div>
+
+  <form
+    class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
+    (ngSubmit)="onSave()"
+  >
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>Nome Completo</mat-label>
+        <input
+          matInput
+          name="name"
+          required
+          minlength="3"
+          placeholder="Ex: João da Silva"
+          [ngModel]="entity().name"
+          (ngModelChange)="updateField('name', $event)"
+          #userName="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(userName) }}</span>
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>E-mail</mat-label>
+        <input
+          matInput
+          type="email"
+          name="email"
+          required
+          placeholder="usuario@empresa.com.br"
+          [ngModel]="entity().email"
+          (ngModelChange)="updateField('email', $event)"
+          #userEmail="ngModel"
+        />
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(userEmail) }}</span>
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>Apelido / Como prefere ser chamado</mat-label>
+        <input
+          matInput
+          name="nickName"
+          placeholder="Ex: João"
+          [ngModel]="entity().nickName"
+          (ngModelChange)="updateField('nickName', $event)"
+        />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Telefone / WhatsApp</mat-label>
+        <input
+          matInput
+          name="phoneNumber"
+          placeholder="(00) 00000-0000"
+          [ngModel]="entity().phoneNumber"
+          (ngModelChange)="updateField('phoneNumber', $event)"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+      <mat-form-field>
+        <mat-label>{{ isEditing() ? 'Nova Senha (deixe em branco para manter)' : 'Senha de Acesso' }}</mat-label>
+        <input
+          matInput
+          type="password"
+          name="password"
+          [required]="!isEditing()"
+          placeholder="••••••••"
+          [ngModel]="password()"
+          (ngModelChange)="password.set($event)"
+        />
+      </mat-form-field>
+
+      <mat-form-field
+        class="cursor-pointer"
+        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
+        (click)="copyKey(entity().key)"
+      >
+        <mat-label>
+          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
+        </mat-label>
+        <input
+          matInput
+          name="key"
+          readonly
+          class="cursor-pointer font-mono select-all opacity-75"
+          [ngModel]="entity().key"
+        />
+      </mat-form-field>
+    </div>
+
+    <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
+      <button matButton type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+      <button matButton class="primary" type="submit" [disabled]="loading()">
+        <mat-icon svgIcon="check" />
+        {{ isEditing() ? 'Salvar Alterações' : 'Criar Usuário' }}
+      </button>
+    </div>
+  </form>
+</div>

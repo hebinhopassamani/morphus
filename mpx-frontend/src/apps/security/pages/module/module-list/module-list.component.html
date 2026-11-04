@@ -1,0 +1,161 @@
+<div class="mx-auto flex w-full max-w-6xl flex-col p-6">
+  <!-- Cabeçalho estilo Clean Admin -->
+  <div>
+    <h1 class="text-3xl font-bold tracking-tight text-neutral-12">Módulos do Sistema</h1>
+    <p class="mt-1 text-sm text-neutral-a11">
+      Gerencie os módulos das aplicações e acesse cada módulo para configurar seus submódulos.
+    </p>
+  </div>
+
+  <!-- Card Principal -->
+  <div class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-surface shadow-xs">
+    <!-- Topo do Card: Contador + Botão Novo Módulo -->
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-neutral-a4 px-6 py-4">
+      <div class="flex items-center gap-3.5">
+        <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-a3 text-primary-11">
+          <mat-icon class="!size-5" svgIcon="boxes" />
+        </div>
+        <div>
+          <h2 class="text-sm font-semibold text-neutral-12">Módulos cadastrados</h2>
+          <p class="text-xs text-neutral-a11">
+            {{ list().length }} {{ list().length === 1 ? 'módulo cadastrado' : 'módulos cadastrados' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <button matButton class="primary" type="button" (click)="newEntity()">
+          <mat-icon svgIcon="plus" />
+          Novo Módulo
+        </button>
+      </div>
+    </div>
+
+    <!-- Barra de Busca e Filtro por Aplicação (100% alinhados com mat-label + items-end) -->
+    <div class="grid grid-cols-1 items-end gap-3 border-b border-neutral-a4 bg-neutral-a2/30 px-6 py-3 sm:grid-cols-2">
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Buscar</mat-label>
+        <mat-icon svgIcon="search" matIconPrefix />
+        <input
+          matInput
+          placeholder="Buscar por nome, aplicação ou descrição..."
+          autocomplete="off"
+          [(ngModel)]="search"
+          (ngModelChange)="loadList()"
+        />
+        @if (search !== '') {
+          <button matIconButton matIconSuffix type="button" (click)="onFilterClear()">
+            <mat-icon svgIcon="x" />
+          </button>
+        }
+      </mat-form-field>
+
+      <mat-form-field class="small w-full" subscriptSizing="dynamic">
+        <mat-label>Filtrar por Aplicação</mat-label>
+        <mat-select
+          [(ngModel)]="selectedApplicationId"
+          (ngModelChange)="loadList()"
+        >
+          <mat-option value="">Todas as Aplicações</mat-option>
+          @for (app of applications(); track app.id) {
+            <mat-option [value]="app.id">{{ app.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Cabeçalho das Colunas -->
+    <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/40 px-6 py-3 text-[11px] font-semibold tracking-wider text-neutral-a11 uppercase">
+      <span>Módulo</span>
+      <span>Ações</span>
+    </div>
+
+    <!-- Lista de Módulos -->
+    @if (list().length === 0) {
+      <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+        <mat-icon class="!size-10 text-neutral-a8" svgIcon="boxes" />
+        <p class="mt-2 text-sm font-medium text-neutral-12">Nenhum módulo encontrado</p>
+        <p class="mt-0.5 text-xs text-neutral-a11">
+          Ajuste os filtros ou clique em "+ Novo Módulo" para criar um módulo.
+        </p>
+      </div>
+    } @else {
+      <div class="divide-y divide-neutral-a4">
+        @for (row of list(); track row.id) {
+          <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-neutral-a2/40">
+            <!-- Dados do Módulo -->
+            <div class="min-w-0 flex-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="truncate text-sm font-semibold text-neutral-12">
+                  {{ row.name }}
+                </span>
+                <span class="rounded-md bg-neutral-a3 px-2 py-0.5 text-[11px] font-medium text-neutral-11">
+                  {{ row.application?.name || 'Geral' }}
+                </span>
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1 rounded-full border border-primary-a6 bg-primary-a2 px-2 py-0.5 text-[11px] font-medium text-primary-11 transition-colors hover:bg-primary-a3"
+                  (click)="openSubModules(row)"
+                >
+                  <mat-icon class="!size-3" svgIcon="layers" />
+                  <span>{{ row.subModules?.length ?? 0 }} submódulo(s)</span>
+                </button>
+              </div>
+              <div class="mt-0.5 text-xs text-neutral-a11">
+                {{ row.description || 'Sem descrição' }}
+              </div>
+            </div>
+
+            <!-- Botões de Ação (Ícone + Tooltip) -->
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-neutral-a5 bg-surface text-neutral-12 transition-colors hover:bg-neutral-a3"
+                matTooltip="Editar módulo"
+                (click)="editEntity(row)"
+              >
+                <mat-icon class="!size-4 text-neutral-a11" svgIcon="square-pen" />
+              </button>
+
+              <button
+                type="button"
+                class="flex size-9 items-center justify-center rounded-lg border border-primary-a5 bg-surface text-primary-11 transition-colors hover:bg-primary-a3"
+                matTooltip="Gerenciar submódulos"
+                (click)="openSubModules(row)"
+              >
+                <mat-icon class="!size-4 text-primary-11" svgIcon="layers" />
+              </button>
+
+              <span
+                class="inline-flex"
+                [class.cursor-not-allowed]="row.system"
+                [matTooltip]="
+                  row.system
+                    ? 'Você não pode excluir um módulo criado pelo sistema'
+                    : 'Excluir módulo'
+                "
+              >
+                <button
+                  type="button"
+                  class="flex size-9 items-center justify-center rounded-lg border border-red-a5 bg-surface text-red-11 transition-colors hover:bg-red-a3 disabled:pointer-events-none disabled:opacity-40"
+                  [disabled]="row.system"
+                  (click)="deleteEntity(row)"
+                >
+                  <mat-icon class="!size-4 text-red-11" svgIcon="trash" />
+                </button>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Modal Popup de Filtro Componentizado -->
+  <mpx-filter
+    [filterService]="moduleFilterService"
+    (onFilter)="onFilter()"
+    (onFilterClean)="onFilterClear()"
+    (onFilterClose)="onFilterClose()"
+  />
+</div>

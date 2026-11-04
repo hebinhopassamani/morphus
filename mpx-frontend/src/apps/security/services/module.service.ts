@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Module } from '@security/entities/module';
+import { SubModule } from '@security/entities/sub-module';
 import { environment } from '@src/environments/environment';
 
 export type ModuleResponse = Module;
@@ -15,6 +16,18 @@ export class ModuleService {
 
   getModules(): Observable<Module[]> {
     return this.http.get<Module[]>(this.apiUrl);
+  }
+
+  getAll(): Observable<Module[]> {
+    return this.http.get<Module[]>(this.apiUrl);
+  }
+
+  getByApplication(applicationId: string): Observable<Module[]> {
+    return this.http.get<Module[]>(`${this.apiUrl}/application/${applicationId}`);
+  }
+
+  getSubModules(moduleId: string): Observable<SubModule[]> {
+    return this.http.get<SubModule[]>(`${this.apiUrl}/${moduleId}/sub-modules`);
   }
 
   getById(id: string): Observable<Module> {

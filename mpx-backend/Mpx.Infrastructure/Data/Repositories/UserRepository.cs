@@ -6,11 +6,27 @@ namespace Mpx.Infrastructure.Data.Repositories;
 
 public class UserRepository(MorphusDbContext context) : MorphusRepository<User>(context), IUserRepository
 {
+  public override async Task<User?> GetByIdAsync(Guid id)
+  {
+    var currentCorpId = _context.CurrentCorporationId;
+
+    return await _context.Users
+        .IgnoreQueryFilters()
+        .Include(u => u.UserStatus)
+        .FirstOrDefaultAsync(u =>
+            u.Id == id &&
+            (u.CorporationId == currentCorpId || u.CorporationUsers.Any(cu => cu.CorporationId == currentCorpId)));
+  }
+
   public async Task<List<User>> GetListAsync()
   {
+    var currentCorpId = _context.CurrentCorporationId;
+
     return await _context.Users
+        .IgnoreQueryFilters()
         .AsNoTracking()
         .Include(u => u.UserStatus)
+        .Where(u => u.CorporationId == currentCorpId || u.CorporationUsers.Any(cu => cu.CorporationId == currentCorpId))
         .OrderBy(u => u.Name)
         .ToListAsync();
   }

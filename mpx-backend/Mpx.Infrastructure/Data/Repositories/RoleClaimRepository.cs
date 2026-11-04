@@ -6,7 +6,7 @@ namespace Mpx.Infrastructure.Data.Repositories;
 
 public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<RoleClaim>(context), IRoleClaimRepository
 {
-  public async Task<List<Claim>> GetEntitiesToRelateAsync(Guid roleId, Guid? moduleId, Guid? subModuleId)
+  public async Task<List<Claim>> GetEntitiesToRelateAsync(Guid roleId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null)
   {
     var relatedClaimIds = await _context.RoleClaims
         .AsNoTracking()
@@ -14,7 +14,15 @@ public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<R
         .Select(rc => rc.ClaimId)
         .ToListAsync();
 
-    var toRelate = _context.Claims.AsNoTracking();
+    var toRelate = _context.Claims
+        .AsNoTracking()
+        .Include(c => c.Module)
+          .ThenInclude(m => m!.Application)
+        .Include(c => c.SubModule)
+        .Where(c => !c.Inactive);
+
+    if (applicationId is not null && applicationId != Guid.Empty)
+      toRelate = toRelate.Where(c => c.Module!.ApplicationId == applicationId);
 
     if (moduleId is not null && moduleId != Guid.Empty)
       toRelate = toRelate.Where(c => c.ModuleId == moduleId);
@@ -31,13 +39,20 @@ public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<R
         .ToListAsync();
   }
 
-  public async Task<List<RoleClaim>> GetRelatedEntitiesAsync(Guid roleId, Guid? moduleId, Guid? subModuleId)
+  public async Task<List<RoleClaim>> GetRelatedEntitiesAsync(Guid roleId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null)
   {
     var query = _context.RoleClaims
         .AsNoTracking()
         .Include(rc => rc.Role)
         .Include(rc => rc.Claim)
+          .ThenInclude(c => c!.Module)
+            .ThenInclude(m => m!.Application)
+        .Include(rc => rc.Claim)
+          .ThenInclude(c => c!.SubModule)
         .Where(rc => rc.RoleId == roleId);
+
+    if (applicationId is not null && applicationId != Guid.Empty)
+      query = query.Where(rc => rc.Claim!.Module!.ApplicationId == applicationId);
 
     if (moduleId is not null && moduleId != Guid.Empty)
       query = query.Where(rc => rc.Claim!.ModuleId == moduleId);
@@ -45,7 +60,10 @@ public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<R
     if (subModuleId is not null && subModuleId != Guid.Empty)
       query = query.Where(rc => rc.Claim!.SubModuleId == subModuleId);
 
-    return await query.ToListAsync();
+    return await query
+        .OrderBy(rc => rc.Claim!.ClaimType)
+        .ThenBy(rc => rc.Claim!.ClaimValue)
+        .ToListAsync();
   }
 
   public async Task<RoleClaim?> GetByKeysAsync(Guid roleId, Guid claimId)

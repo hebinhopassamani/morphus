@@ -15,7 +15,9 @@ public class WorkspaceApplicationRepository(MorphusDbContext context)
         .Select(wa => wa.ApplicationId)
         .ToListAsync();
 
-    var toRelate = _context.Applications.AsNoTracking();
+    var toRelate = _context.Applications
+        .AsNoTracking()
+        .Where(a => !a.Inactive);
 
     if (relatedApplicationIds.Count > 0)
       toRelate = toRelate.Where(a => !relatedApplicationIds.Contains(a.Id));

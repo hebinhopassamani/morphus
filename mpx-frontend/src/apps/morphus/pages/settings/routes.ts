@@ -9,7 +9,7 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'preferences',
+        redirectTo: 'profile',
       },
       {
         path: 'profile',

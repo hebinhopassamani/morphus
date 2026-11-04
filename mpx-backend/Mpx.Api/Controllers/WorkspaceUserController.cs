@@ -10,11 +10,13 @@ namespace Mpx.Api.Controllers;
 [Route("api/v1/workspace-user")]
 public class WorkspaceUserController(WorkspaceUserHandler workspaceUserHandler) : ControllerBase
 {
+  [HttpGet("entities-to-relate")]
   [HttpGet("entities-to-relate/{workspaceId:guid}")]
   [Authorize(Policy = "WORKSPACE_USER_LIST")]
   public async Task<IActionResult> GetEntitiesToRelate(Guid workspaceId) =>
       Ok(await workspaceUserHandler.GetEntitiesToRelateAsync(workspaceId));
 
+  [HttpGet("related-entities")]
   [HttpGet("related-entities/{workspaceId:guid}")]
   [Authorize(Policy = "WORKSPACE_USER_LIST")]
   public async Task<IActionResult> GetRelatedEntities(Guid workspaceId) =>
@@ -25,10 +27,20 @@ public class WorkspaceUserController(WorkspaceUserHandler workspaceUserHandler) 
   public async Task<IActionResult> AddRelationship([FromBody] WorkspaceUser workspaceUser) =>
       Ok(await workspaceUserHandler.AddRelationshipAsync(workspaceUser));
 
+  [HttpPost("add-relationships")]
+  [Authorize(Policy = "WORKSPACE_USER_ADD")]
+  public async Task<IActionResult> AddRelationships([FromBody] List<WorkspaceUser> items) =>
+      Ok(await workspaceUserHandler.AddRelationshipsAsync(items));
+
   [HttpPost("remove-relationship")]
   [Authorize(Policy = "WORKSPACE_USER_REMOVE")]
   public async Task<IActionResult> RemoveRelationship([FromBody] WorkspaceUser workspaceUser) =>
       Ok(await workspaceUserHandler.RemoveRelationshipAsync(workspaceUser));
+
+  [HttpPost("remove-relationships")]
+  [Authorize(Policy = "WORKSPACE_USER_REMOVE")]
+  public async Task<IActionResult> RemoveRelationships([FromBody] List<WorkspaceUser> items) =>
+      Ok(await workspaceUserHandler.RemoveRelationshipsAsync(items));
 
   [HttpPost("activate")]
   [Authorize(Policy = "WORKSPACE_USER_ACTIVATE")]

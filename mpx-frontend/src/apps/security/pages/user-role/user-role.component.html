@@ -1,0 +1,904 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col p-6">
+  <!-- Cabeçalho -->
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+      <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+    </div>
+  </div>
+
+  <!-- Barra Global de Filtro Hierárquico (Aplicação -> Módulo -> Submódulo) -->
+  <div class="mt-6 grid grid-cols-1 gap-3 rounded-xl border border-neutral-a4 bg-white p-4 dark:bg-neutral-2 sm:grid-cols-3">
+    <mat-form-field class="small w-full" subscriptSizing="dynamic">
+      <mat-label>1. Filtrar por Aplicação</mat-label>
+      <mat-select
+        [ngModel]="filterApplicationId()"
+        (ngModelChange)="onApplicationFilterChange($event)"
+      >
+        <mat-option value="">Todas as Aplicações</mat-option>
+        @for (app of applications(); track app.id) {
+          <mat-option [value]="app.id">{{ app.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="small w-full" subscriptSizing="dynamic">
+      <mat-label>2. Filtrar por Módulo</mat-label>
+      <mat-select
+        [ngModel]="filterModuleId()"
+        (ngModelChange)="onModuleFilterChange($event)"
+      >
+        <mat-option value="">Todos os Módulos</mat-option>
+        @for (mod of availableModules(); track mod.id) {
+          <mat-option [value]="mod.id">{{ mod.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="small w-full" subscriptSizing="dynamic">
+      <mat-label>3. Filtrar por Submódulo</mat-label>
+      <mat-select
+        [ngModel]="filterSubModuleId()"
+        [disabled]="!filterModuleId()"
+        (ngModelChange)="onSubModuleFilterChange($event)"
+      >
+        <mat-option value="">Todos os Submódulos</mat-option>
+        @for (sub of availableSubModules(); track sub.id) {
+          <mat-option [value]="sub.id">{{ sub.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-tab-group
+    class="mt-6"
+    [selectedIndex]="mainTabIndex()"
+    (selectedIndexChange)="mainTabIndex.set($event)"
+  >
+    <!-- =================================================================== -->
+    <!-- ABA 1: USUÁRIOS + N:N (Perfis & Permissões Diretas)                 -->
+    <!-- =================================================================== -->
+    <mat-tab [label]="'1. Usuários & Vínculos (' + users().length + ')'">
+      <div class="mt-6 flex flex-col gap-6">
+        <!-- Seletor / Cadastro de Usuário -->
+        <div class="rounded-xl border border-neutral-a4 bg-white p-5 dark:bg-neutral-2">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <mat-form-field class="small w-72" subscriptSizing="dynamic">
+                <mat-label>Usuário Selecionado</mat-label>
+                <mat-select
+                  [ngModel]="selectedUser()?.id"
+                  (ngModelChange)="
+                    $event &&
+                      selectUser(users().find((u) => u.id === $event)!)
+                  "
+                >
+                  @for (u of filteredUsers(); track u.id) {
+                    <mat-option [value]="u.id">{{ u.name }} ({{ u.email }})</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              @if (selectedUser(); as selUser) {
+                <button
+                  matButton
+                  type="button"
+                  (click)="openEditUserForm(selUser)"
+                >
+                  <mat-icon svgIcon="square-pen" />
+                  Editar Usuário
+                </button>
+                <button
+                  matButton
+                  type="button"
+                  class="text-red-a11"
+                  [disabled]="selUser.system"
+                  (click)="deleteUser(selUser)"
+                >
+                  <mat-icon svgIcon="trash" />
+                  Excluir
+                </button>
+              }
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button
+                matButton
+                type="button"
+                [class.primary]="userRelationSubTab() === 'roles'"
+                (click)="userRelationSubTab.set('roles')"
+              >
+                <mat-icon svgIcon="shield" />
+                Perfis do Usuário ({{ relatedEntities().length }})
+              </button>
+              <button
+                matButton
+                type="button"
+                [class.primary]="userRelationSubTab() === 'claims'"
+                (click)="userRelationSubTab.set('claims')"
+              >
+                <mat-icon svgIcon="key-round" />
+                Permissões Diretas ({{ relatedUserClaims().length }})
+              </button>
+              <button
+                matButton
+                class="primary"
+                type="button"
+                (click)="openNewUserForm()"
+              >
+                <mat-icon svgIcon="plus" />
+                Novo Usuário
+              </button>
+            </div>
+          </div>
+
+          <!-- Formulário Inline de Criação / Edição de Usuário -->
+          @if (userFormOpen()) {
+            <div class="mt-5 grid grid-cols-1 gap-4 border-t border-neutral-a4 pt-5 sm:grid-cols-4">
+              <mat-form-field>
+                <mat-label>Nome do Usuário</mat-label>
+                <input
+                  matInput
+                  required
+                  [ngModel]="editingUser().name"
+                  (ngModelChange)="updateUserField('name', $event)"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>E-mail</mat-label>
+                <input
+                  matInput
+                  type="email"
+                  required
+                  [ngModel]="editingUser().email"
+                  (ngModelChange)="updateUserField('email', $event)"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <mat-label>Senha (opcional na edição)</mat-label>
+                <input
+                  matInput
+                  type="password"
+                  [ngModel]="editingUser().password"
+                  (ngModelChange)="updateUserField('password', $event)"
+                />
+              </mat-form-field>
+              <div class="flex items-center justify-end gap-2">
+                <button matButton type="button" (click)="cancelUserForm()">Cancelar</button>
+                <button matButton class="primary" type="button" (click)="saveUser()">
+                  <mat-icon svgIcon="check" />
+                  Salvar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- SUB-ABA A: N:N UserRole (Perfis do Usuário com Multi-Seleção) -->
+        @if (userRelationSubTab() === 'roles') {
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- ESQUERDA: Perfis Disponíveis (Estritamente Filtrados) -->
+            <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+                <div>
+                  <h3 class="mpx-title-small text-neutral-12">
+                    Perfis Disponíveis ({{ filteredRolesToRelate().length }})
+                  </h3>
+                  <p class="mpx-body-small text-neutral-a11">
+                    Perfis ainda não atribuídos a {{ selectedUser()?.name }}.
+                  </p>
+                </div>
+                <button
+                  matButton
+                  class="primary"
+                  type="button"
+                  [disabled]="selectedToRelateCount() === 0"
+                  (click)="addSelectedUserRoles()"
+                >
+                  <span>Vincular ({{ selectedToRelateCount() }})</span>
+                  <mat-icon svgIcon="arrow-right" />
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+                <mat-checkbox
+                  [checked]="areAllToRelateSelected(filteredRolesToRelate())"
+                  [disabled]="filteredRolesToRelate().length === 0"
+                  (change)="toggleSelectAllToRelate(filteredRolesToRelate())"
+                >
+                  <span class="mpx-body-small font-medium text-neutral-12">Selecionar todos</span>
+                </mat-checkbox>
+                <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                  <mat-icon svgIcon="search" matIconPrefix />
+                  <input
+                    matInput
+                    placeholder="Filtrar perfis..."
+                    [ngModel]="searchRoleToRelate()"
+                    (ngModelChange)="searchRoleToRelate.set($event)"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+                @for (role of filteredRolesToRelate(); track role.id) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isToRelateSelected(role)"
+                        (change)="toggleToRelateSelection(role)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <span class="mpx-body-medium font-medium text-neutral-12">{{ role.name }}</span>
+                          @if (role.module?.name) {
+                            <span class="rounded bg-neutral-a3 px-1.5 py-0.5 text-[10px] text-neutral-11">
+                              {{ role.module?.name }} / {{ role.subModule?.name }}
+                            </span>
+                          }
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">{{ role.description || role.key }}</p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-primary-11"
+                      matTooltip="Vincular perfil"
+                      (click)="addSingleUserRole(role)"
+                    >
+                      <mat-icon svgIcon="arrow-right" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- DIREITA: Perfis Já Vinculados ao Usuário -->
+            <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+                <div>
+                  <h3 class="mpx-title-small text-neutral-12">
+                    Perfis Atribuídos ({{ filteredRelatedRoles().length }})
+                  </h3>
+                  <p class="mpx-body-small text-neutral-a11">
+                    Perfis ativos de {{ selectedUser()?.name }} nesta corporação.
+                  </p>
+                </div>
+                <button
+                  matButton
+                  type="button"
+                  class="text-red-a11"
+                  [disabled]="selectedRelatedCount() === 0"
+                  (click)="removeSelectedUserRoles()"
+                >
+                  <mat-icon svgIcon="trash" />
+                  <span>Remover ({{ selectedRelatedCount() }})</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+                <mat-checkbox
+                  [checked]="areAllRelatedSelected(filteredRelatedRoles())"
+                  [disabled]="filteredRelatedRoles().length === 0"
+                  (change)="toggleSelectAllRelated(filteredRelatedRoles())"
+                >
+                  <span class="mpx-body-small font-medium text-neutral-12">Selecionar removíveis</span>
+                </mat-checkbox>
+                <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                  <mat-icon svgIcon="search" matIconPrefix />
+                  <input
+                    matInput
+                    placeholder="Filtrar atribuídos..."
+                    [ngModel]="searchRoleRelated()"
+                    (ngModelChange)="searchRoleRelated.set($event)"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+                @for (ur of filteredRelatedRoles(); track ur.roleId) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-3 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isRelatedSelected(ur)"
+                        [disabled]="!canRemoveRelated(ur)"
+                        (change)="toggleRelatedSelection(ur)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <span class="mpx-body-medium font-medium text-neutral-12">
+                            {{ ur.role?.name || ur.roleId }}
+                          </span>
+                          @if (ur.system) {
+                            <span class="rounded bg-primary-a3 px-1.5 py-0.5 text-[10px] font-semibold text-primary-11">
+                              Nativo
+                            </span>
+                          }
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ ur.role?.module?.name }} / {{ ur.role?.subModule?.name }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-red-a11"
+                      matTooltip="Remover perfil"
+                      [disabled]="!canRemoveRelated(ur)"
+                      (click)="removeSingleUserRole(ur)"
+                    >
+                      <mat-icon svgIcon="trash" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- SUB-ABA B: N:N UserClaim (Permissões Diretas do Usuário com Multi-Seleção) -->
+        @if (userRelationSubTab() === 'claims') {
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- ESQUERDA: Claims Disponíveis -->
+            <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+                <div>
+                  <h3 class="mpx-title-small text-neutral-12">
+                    Permissões Disponíveis ({{ filteredUserClaimsToRelate().length }})
+                  </h3>
+                  <p class="mpx-body-small text-neutral-a11">
+                    Selecione múltiplas permissões para conceder diretamente ao usuário.
+                  </p>
+                </div>
+                <button
+                  matButton
+                  class="primary"
+                  type="button"
+                  [disabled]="selectedUserClaimToRelateIds().size === 0"
+                  (click)="addSelectedUserClaims()"
+                >
+                  <span>Vincular ({{ selectedUserClaimToRelateIds().size }})</span>
+                  <mat-icon svgIcon="arrow-right" />
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+                <mat-checkbox
+                  [checked]="areAllUserClaimsToRelateSelected()"
+                  [disabled]="filteredUserClaimsToRelate().length === 0"
+                  (change)="toggleSelectAllUserClaimsToRelate()"
+                >
+                  <span class="mpx-body-small font-medium text-neutral-12">
+                    Selecionar todas ({{ filteredUserClaimsToRelate().length }})
+                  </span>
+                </mat-checkbox>
+                <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                  <mat-icon svgIcon="search" matIconPrefix />
+                  <input
+                    matInput
+                    placeholder="Filtrar permissões..."
+                    [ngModel]="searchUserClaimToRelate()"
+                    (ngModelChange)="searchUserClaimToRelate.set($event)"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+                @for (claim of filteredUserClaimsToRelate(); track claim.id) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isUserClaimToRelateSelected(claim.id)"
+                        (change)="toggleUserClaimToRelate(claim.id)"
+                      />
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5">
+                          <code class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs font-semibold text-neutral-12">
+                            {{ claim.claimValue }}
+                          </code>
+                          <span class="text-xs text-neutral-a11">({{ claim.claimType }})</span>
+                        </div>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ claim.description || (claim.module?.name + ' / ' + claim.subModule?.name) }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-primary-11"
+                      (click)="addSingleUserClaim(claim)"
+                    >
+                      <mat-icon svgIcon="arrow-right" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- DIREITA: Claims Já Concedidas ao Usuário -->
+            <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+              <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+                <div>
+                  <h3 class="mpx-title-small text-neutral-12">
+                    Permissões Diretas do Usuário ({{ filteredRelatedUserClaims().length }})
+                  </h3>
+                  <p class="mpx-body-small text-neutral-a11">
+                    Permissões avulsas atribuídas diretamente a {{ selectedUser()?.name }}.
+                  </p>
+                </div>
+                <button
+                  matButton
+                  type="button"
+                  class="text-red-a11"
+                  [disabled]="selectedUserClaimRelatedIds().size === 0"
+                  (click)="removeSelectedUserClaims()"
+                >
+                  <mat-icon svgIcon="trash" />
+                  <span>Remover ({{ selectedUserClaimRelatedIds().size }})</span>
+                </button>
+              </div>
+
+              <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+                <mat-checkbox
+                  [checked]="areAllUserClaimsRelatedSelected()"
+                  [disabled]="filteredRelatedUserClaims().length === 0"
+                  (change)="toggleSelectAllUserClaimsRelated()"
+                >
+                  <span class="mpx-body-small font-medium text-neutral-12">Selecionar removíveis</span>
+                </mat-checkbox>
+                <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                  <mat-icon svgIcon="search" matIconPrefix />
+                  <input
+                    matInput
+                    placeholder="Filtrar concedidas..."
+                    [ngModel]="searchUserClaimRelated()"
+                    (ngModelChange)="searchUserClaimRelated.set($event)"
+                  />
+                </mat-form-field>
+              </div>
+
+              <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+                @for (uc of filteredRelatedUserClaims(); track uc.claimId) {
+                  <div class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-a2">
+                    <div class="flex min-w-0 items-center gap-3">
+                      <mat-checkbox
+                        [checked]="isUserClaimRelatedSelected(uc.claimId)"
+                        [disabled]="!!uc.system"
+                        (change)="toggleUserClaimRelated(uc)"
+                      />
+                      <div class="min-w-0">
+                        <code class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs font-semibold text-neutral-12">
+                          {{ uc.claim?.claimValue || uc.claimId }}
+                        </code>
+                        <p class="truncate mpx-body-small text-neutral-a11">
+                          {{ uc.claim?.description }}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      matIconButton
+                      type="button"
+                      class="tiny text-red-a11"
+                      [disabled]="uc.system"
+                      (click)="removeSingleUserClaim(uc)"
+                    >
+                      <mat-icon svgIcon="trash" />
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- =================================================================== -->
+    <!-- ABA 2: PERFIS (ROLES) + N:N RoleClaim (40+ Claims em 1 Clique!)     -->
+    <!-- =================================================================== -->
+    <mat-tab [label]="'2. Perfis & Permissões do Perfil (' + filteredRoles().length + ')'">
+      <div class="mt-6 flex flex-col gap-6">
+        <div class="rounded-xl border border-neutral-a4 bg-white p-5 dark:bg-neutral-2">
+          <div class="flex flex-wrap items-center justify-between gap-4">
+            <div class="flex flex-wrap items-center gap-3">
+              <mat-form-field class="small w-80" subscriptSizing="dynamic">
+                <mat-label>Perfil (Role) Selecionado</mat-label>
+                <mat-select
+                  [ngModel]="selectedRole()?.id"
+                  (ngModelChange)="
+                    $event &&
+                      selectRole(roles().find((r) => r.id === $event)!)
+                  "
+                >
+                  @for (r of filteredRoles(); track r.id) {
+                    <mat-option [value]="r.id">
+                      {{ r.name }} ({{ r.module?.name || 'Global' }})
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              @if (selectedRole(); as selRole) {
+                <button matButton type="button" (click)="openEditRoleForm(selRole)">
+                  <mat-icon svgIcon="square-pen" />
+                  Editar Perfil
+                </button>
+                <button
+                  matButton
+                  type="button"
+                  class="text-red-a11"
+                  [disabled]="selRole.system"
+                  (click)="deleteRole(selRole)"
+                >
+                  <mat-icon svgIcon="trash" />
+                  Excluir
+                </button>
+              }
+            </div>
+
+            <button matButton class="primary" type="button" (click)="openNewRoleForm()">
+              <mat-icon svgIcon="plus" />
+              Novo Perfil (Role)
+            </button>
+          </div>
+
+          @if (roleFormOpen()) {
+            <div class="mt-5 grid grid-cols-1 gap-4 border-t border-neutral-a4 pt-5 sm:grid-cols-4">
+              <mat-form-field>
+                <mat-label>Nome do Perfil</mat-label>
+                <input
+                  matInput
+                  required
+                  [ngModel]="editingRole().name"
+                  (ngModelChange)="updateRoleField('name', $event)"
+                />
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Módulo</mat-label>
+                <mat-select
+                  required
+                  [ngModel]="editingRole().moduleId"
+                  (ngModelChange)="updateRoleField('moduleId', $event)"
+                >
+                  @for (m of allModules(); track m.id) {
+                    <mat-option [value]="m.id">{{ m.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field>
+                <mat-label>Submódulo</mat-label>
+                <mat-select
+                  required
+                  [ngModel]="editingRole().subModuleId"
+                  (ngModelChange)="updateRoleField('subModuleId', $event)"
+                >
+                  @for (s of roleFormSubModules(); track s.id) {
+                    <mat-option [value]="s.id">{{ s.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <div class="flex items-center justify-end gap-2">
+                <button matButton type="button" (click)="cancelRoleForm()">Cancelar</button>
+                <button matButton class="primary" type="button" (click)="saveRole()">
+                  <mat-icon svgIcon="check" />
+                  Salvar Perfil
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Painel Dual-List N:N RoleClaim com Multi-Seleção em Lote -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- ESQUERDA: Claims Disponíveis para o Perfil -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Permissões Disponíveis ({{ filteredRoleClaimsToRelate().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Marque quantas quiser (ou todas) para transferir de uma só vez.
+                </p>
+              </div>
+              <button
+                matButton
+                class="primary"
+                type="button"
+                [disabled]="selectedRoleClaimToRelateIds().size === 0"
+                (click)="addSelectedRoleClaims()"
+              >
+                <span>Vincular ({{ selectedRoleClaimToRelateIds().size }})</span>
+                <mat-icon svgIcon="arrow-right" />
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllRoleClaimsToRelateSelected()"
+                [disabled]="filteredRoleClaimsToRelate().length === 0"
+                (change)="toggleSelectAllRoleClaimsToRelate()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">
+                  Selecionar todas ({{ filteredRoleClaimsToRelate().length }})
+                </span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar permissões..."
+                  [ngModel]="searchRoleClaimToRelate()"
+                  (ngModelChange)="searchRoleClaimToRelate.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @for (claim of filteredRoleClaimsToRelate(); track claim.id) {
+                <div class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-a2">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <mat-checkbox
+                      [checked]="isRoleClaimToRelateSelected(claim.id)"
+                      (change)="toggleRoleClaimToRelate(claim.id)"
+                    />
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <code class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs font-semibold text-neutral-12">
+                          {{ claim.claimValue }}
+                        </code>
+                        <span class="text-xs text-neutral-a11">{{ claim.module?.name }}</span>
+                      </div>
+                      <p class="truncate mpx-body-small text-neutral-a11">
+                        {{ claim.description || claim.claimType }}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    matIconButton
+                    type="button"
+                    class="tiny text-primary-11"
+                    (click)="addSingleRoleClaim(claim)"
+                  >
+                    <mat-icon svgIcon="arrow-right" />
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- DIREITA: Claims Já Vinculadas ao Perfil -->
+          <div class="flex flex-col rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 p-4">
+              <div>
+                <h3 class="mpx-title-small text-neutral-12">
+                  Permissões no Perfil ({{ filteredRelatedRoleClaims().length }})
+                </h3>
+                <p class="mpx-body-small text-neutral-a11">
+                  Permissões concedidas ao perfil {{ selectedRole()?.name }}.
+                </p>
+              </div>
+              <button
+                matButton
+                type="button"
+                class="text-red-a11"
+                [disabled]="selectedRoleClaimRelatedIds().size === 0"
+                (click)="removeSelectedRoleClaims()"
+              >
+                <mat-icon svgIcon="trash" />
+                <span>Remover ({{ selectedRoleClaimRelatedIds().size }})</span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-3 border-b border-neutral-a4 bg-neutral-a2 px-4 py-2.5">
+              <mat-checkbox
+                [checked]="areAllRoleClaimsRelatedSelected()"
+                [disabled]="filteredRelatedRoleClaims().length === 0"
+                (change)="toggleSelectAllRoleClaimsRelated()"
+              >
+                <span class="mpx-body-small font-medium text-neutral-12">
+                  Selecionar removíveis
+                </span>
+              </mat-checkbox>
+              <mat-form-field class="small ms-auto w-full max-w-64" subscriptSizing="dynamic">
+                <mat-icon svgIcon="search" matIconPrefix />
+                <input
+                  matInput
+                  placeholder="Filtrar vinculadas..."
+                  [ngModel]="searchRoleClaimRelated()"
+                  (ngModelChange)="searchRoleClaimRelated.set($event)"
+                />
+              </mat-form-field>
+            </div>
+
+            <div class="max-h-96 divide-y divide-neutral-a4 overflow-y-auto">
+              @for (rc of filteredRelatedRoleClaims(); track rc.claimId) {
+                <div class="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-neutral-a2">
+                  <div class="flex min-w-0 items-center gap-3">
+                    <mat-checkbox
+                      [checked]="isRoleClaimRelatedSelected(rc.claimId)"
+                      [disabled]="!!rc.system"
+                      (change)="toggleRoleClaimRelated(rc)"
+                    />
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-1.5">
+                        <code class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-xs font-semibold text-neutral-12">
+                          {{ rc.claim?.claimValue || rc.claimId }}
+                        </code>
+                        @if (rc.system) {
+                          <span class="rounded bg-primary-a3 px-1.5 py-0.5 text-[10px] font-semibold text-primary-11">
+                            Nativa
+                          </span>
+                        }
+                      </div>
+                      <p class="truncate mpx-body-small text-neutral-a11">
+                        {{ rc.claim?.description || rc.claim?.claimType }}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    matIconButton
+                    type="button"
+                    class="tiny text-red-a11"
+                    [disabled]="rc.system"
+                    (click)="removeSingleRoleClaim(rc)"
+                  >
+                    <mat-icon svgIcon="trash" />
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- =================================================================== -->
+    <!-- ABA 3: CADASTRO DE PERMISSÕES (CLAIMS)                              -->
+    <!-- =================================================================== -->
+    <mat-tab [label]="'3. Catálogo de Permissões (' + filteredClaims().length + ')'">
+      <div class="mt-6 flex flex-col gap-5">
+        <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-a4 bg-white p-5 dark:bg-neutral-2">
+          <mat-form-field class="small w-full sm:max-w-96" subscriptSizing="dynamic">
+            <mat-icon svgIcon="search" matIconPrefix />
+            <input
+              matInput
+              placeholder="Buscar permissão por tipo, valor, chave ou descrição..."
+              [ngModel]="claimSearch()"
+              (ngModelChange)="claimSearch.set($event)"
+            />
+          </mat-form-field>
+
+          <button matButton class="primary" type="button" (click)="openNewClaimForm()">
+            <mat-icon svgIcon="plus" />
+            Nova Permissão (Claim)
+          </button>
+        </div>
+
+        @if (claimFormOpen()) {
+          <div class="grid grid-cols-1 gap-4 rounded-xl border border-primary-a6 bg-white p-5 dark:bg-neutral-2 sm:grid-cols-3">
+            <mat-form-field>
+              <mat-label>Tipo (ClaimType)</mat-label>
+              <input
+                matInput
+                required
+                placeholder="Ex: INVOICE, PAYABLE, USER..."
+                [ngModel]="editingClaim().claimType"
+                (ngModelChange)="updateClaimField('claimType', $event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Valor / Política (ClaimValue)</mat-label>
+              <input
+                matInput
+                required
+                placeholder="Ex: INVOICE_APPROVE, PAYABLE_CREATE..."
+                [ngModel]="editingClaim().claimValue"
+                (ngModelChange)="updateClaimField('claimValue', $event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Descrição</mat-label>
+              <input
+                matInput
+                placeholder="Ex: Permite aprovar notas fiscais"
+                [ngModel]="editingClaim().description"
+                (ngModelChange)="updateClaimField('description', $event)"
+              />
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Módulo</mat-label>
+              <mat-select
+                required
+                [ngModel]="editingClaim().moduleId"
+                (ngModelChange)="updateClaimField('moduleId', $event)"
+              >
+                @for (m of allModules(); track m.id) {
+                  <mat-option [value]="m.id">{{ m.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field>
+              <mat-label>Submódulo</mat-label>
+              <mat-select
+                required
+                [ngModel]="editingClaim().subModuleId"
+                (ngModelChange)="updateClaimField('subModuleId', $event)"
+              >
+                @for (s of claimFormSubModules(); track s.id) {
+                  <mat-option [value]="s.id">{{ s.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <div class="flex items-center justify-end gap-2">
+              <button matButton type="button" (click)="cancelClaimForm()">Cancelar</button>
+              <button matButton class="primary" type="button" (click)="saveClaim()">
+                <mat-icon svgIcon="check" />
+                Salvar Permissão
+              </button>
+            </div>
+          </div>
+        }
+
+        <div class="divide-y divide-neutral-a4 rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+          @for (claim of filteredClaims(); track claim.id) {
+            <div class="flex flex-wrap items-center justify-between gap-4 px-5 py-3 hover:bg-neutral-a2">
+              <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <code class="rounded bg-neutral-a3 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-12">
+                    {{ claim.claimValue }}
+                  </code>
+                  <span class="rounded bg-primary-a2 px-2 py-0.5 text-xs text-primary-11">
+                    {{ claim.claimType }}
+                  </span>
+                  <span class="text-xs text-neutral-a11">
+                    {{ claim.module?.name }} / {{ claim.subModule?.name }}
+                  </span>
+                  <code
+                    class="cursor-pointer rounded bg-neutral-a2 px-1.5 py-0.5 font-mono text-[11px] text-neutral-11 hover:bg-neutral-a4"
+                    title="Copiar SDK Key"
+                    (click)="copyKey(claim.key)"
+                  >
+                    Key: {{ claim.key }}
+                  </code>
+                </div>
+                <p class="mt-0.5 mpx-body-small text-neutral-a11">
+                  {{ claim.description || '—' }}
+                </p>
+              </div>
+              <div class="flex items-center gap-1">
+                <button
+                  matIconButton
+                  type="button"
+                  class="tiny"
+                  (click)="openEditClaimForm(claim)"
+                >
+                  <mat-icon svgIcon="square-pen" />
+                </button>
+                <button
+                  matIconButton
+                  type="button"
+                  class="tiny text-red-a11"
+                  [disabled]="claim.system"
+                  (click)="deleteClaim(claim)"
+                >
+                  <mat-icon svgIcon="trash" />
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

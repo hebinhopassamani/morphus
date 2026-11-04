@@ -33,6 +33,24 @@ public class WorkspaceApplicationHandler(
     return workspaceApplication;
   }
 
+  public async Task<List<WorkspaceApplication>> AddRelationshipsAsync(List<WorkspaceApplication> items)
+  {
+    var added = new List<WorkspaceApplication>();
+    foreach (var item in items)
+    {
+      var existing = await workspaceApplicationRepository.GetByKeysAsync(item.WorkspaceId, item.ApplicationId);
+      if (existing is null)
+      {
+        await workspaceApplicationRepository.AddRelationshipAsync(item);
+        added.Add(item);
+      }
+    }
+    if (added.Count > 0)
+      await unitOfWork.SaveChangesAsync();
+
+    return added;
+  }
+
   public async Task<WorkspaceApplication> RemoveRelationshipAsync(WorkspaceApplication workspaceApplication)
   {
     var existing = await workspaceApplicationRepository.GetByKeysAsync(
@@ -46,6 +64,24 @@ public class WorkspaceApplicationHandler(
     workspaceApplicationRepository.RemoveRelationship(existing);
     await unitOfWork.SaveChangesAsync();
     return existing;
+  }
+
+  public async Task<int> RemoveRelationshipsAsync(List<WorkspaceApplication> items)
+  {
+    var removedCount = 0;
+    foreach (var item in items)
+    {
+      var existing = await workspaceApplicationRepository.GetByKeysAsync(item.WorkspaceId, item.ApplicationId);
+      if (existing is not null && !existing.System)
+      {
+        workspaceApplicationRepository.RemoveRelationship(existing);
+        removedCount++;
+      }
+    }
+    if (removedCount > 0)
+      await unitOfWork.SaveChangesAsync();
+
+    return removedCount;
   }
 
   public async Task ActivateAsync(WorkspaceApplication workspaceApplication)

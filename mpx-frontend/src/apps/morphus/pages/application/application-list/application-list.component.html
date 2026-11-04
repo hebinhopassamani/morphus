@@ -1,0 +1,125 @@
+<div class="mx-auto flex w-full max-w-7xl flex-col p-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 class="mpx-headline-medium text-neutral-12">{{ title1() }}</h2>
+      <p class="mt-0.5 mpx-body-medium text-neutral-a11">{{ title2() }}</p>
+    </div>
+
+    <div class="ms-auto flex shrink-0 gap-x-3">
+      <button matButton class="primary" (click)="newEntity()">
+        <mat-icon svgIcon="plus" />
+        Nova Aplicação
+      </button>
+    </div>
+  </div>
+
+  <div class="mt-8 flex flex-col items-center gap-2 sm:flex-row">
+    <mat-form-field class="small w-full sm:max-w-96" subscriptSizing="dynamic">
+      <mat-icon svgIcon="search" matIconPrefix />
+      <input
+        matInput
+        placeholder="Buscar por nome, chave (Key) ou descrição..."
+        autocomplete="off"
+        [(ngModel)]="search"
+        (ngModelChange)="loadList()"
+      />
+      @if (search !== '') {
+        <button matIconButton matIconSuffix (click)="search = ''; loadList()">
+          <mat-icon svgIcon="x" />
+        </button>
+      }
+    </mat-form-field>
+  </div>
+
+  <div class="mt-4 flex flex-col">
+    <div class="relative isolate overflow-x-auto overflow-y-hidden rounded-lg border border-neutral-a4">
+      <table class="w-full whitespace-nowrap" mat-table [dataSource]="list()">
+        <ng-container matColumnDef="name">
+          <th class="md:w-64" mat-header-cell *matHeaderCellDef>Aplicação</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="flex items-center gap-x-3">
+              <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-neutral-a3 text-neutral-a11">
+                <mat-icon class="size-4" [svgIcon]="row.icon || 'boxes'" />
+              </div>
+              <button
+                type="button"
+                class="mpx-body-medium font-medium text-neutral-12 hover:text-primary-11 hover:underline text-left"
+                (click)="editEntity(row)"
+              >
+                {{ row.name }}
+              </button>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="key">
+          <th class="max-sm:hidden md:w-48" mat-header-cell *matHeaderCellDef>Chave (Key)</th>
+          <td class="max-sm:hidden" mat-cell *matCellDef="let row">
+            <code
+              class="cursor-pointer rounded bg-neutral-a3 px-2 py-0.5 font-mono text-xs text-neutral-12 hover:bg-neutral-a4"
+              title="Clique para copiar a Chave"
+              (click)="copyKey(row.key)"
+            >
+              {{ row.key }}
+            </code>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th class="max-md:hidden" mat-header-cell *matHeaderCellDef>Descrição</th>
+          <td class="max-md:hidden" mat-cell *matCellDef="let row">
+            <span class="mpx-body-small text-neutral-a11">{{ row.description || '—' }}</span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="origin">
+          <th class="w-36 max-md:hidden" mat-header-cell *matHeaderCellDef>Origem</th>
+          <td class="max-md:hidden" mat-cell *matCellDef="let row">
+            <div class="inline-flex items-center gap-x-1.5">
+              <div
+                class="size-1.5 rounded-full"
+                [class.bg-primary-9]="row.system"
+                [class.bg-jade-9]="!row.system"
+              ></div>
+              <span class="mpx-body-small text-neutral-11">
+                {{ row.system ? 'Nativa' : 'Customizada' }}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th class="w-12" mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let row">
+            <button matIconButton [matMenuTriggerFor]="rowMenu" class="tiny mx-auto">
+              <mat-icon svgIcon="ellipsis-vertical" />
+            </button>
+            <mat-menu xPosition="before" #rowMenu="matMenu">
+              <button mat-menu-item (click)="editEntity(row)">
+                <mat-icon svgIcon="square-pen" />
+                <span>Editar aplicação</span>
+              </button>
+              <button mat-menu-item (click)="openApplicationUsers(row)">
+                <mat-icon svgIcon="users" />
+                <span>Usuários da aplicação</span>
+              </button>
+              <mat-divider />
+              <button
+                mat-menu-item
+                class="text-red-a11 hover:bg-red-a3"
+                [disabled]="row.system"
+                (click)="deleteEntity(row)"
+              >
+                <mat-icon svgIcon="trash" class="text-red-a11" />
+                <span>Excluir aplicação</span>
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+    </div>
+  </div>
+</div>

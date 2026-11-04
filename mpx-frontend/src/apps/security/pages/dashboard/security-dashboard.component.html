@@ -1,0 +1,180 @@
+<!-- Header estilo Fuse / Auth0 Security Dashboard -->
+<div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+  <div class="flex min-w-0 flex-col gap-y-1">
+    <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+      <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">
+        Morphus Security
+      </h1>
+      <span
+        class="inline-flex items-center gap-x-1 rounded-lg bg-primary-a3 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-primary-a11"
+      >
+        <mat-icon svgIcon="shield-check" class="size-3.5!" />
+        {{ auth.corporation()?.name || 'Master Tenant' }}
+      </span>
+    </div>
+    <p class="text-sm text-neutral-a11 sm:text-base">
+      Identidade, autenticação e controle de acesso (RBAC) do workspace
+      <span class="font-medium text-neutral-12">{{ context.activeWorkspace()?.name || 'Principal' }}</span>.
+    </p>
+  </div>
+
+  <div class="flex shrink-0 items-center gap-x-2">
+    <a matButton class="secondary small whitespace-nowrap" routerLink="/morphus">
+      <mat-icon svgIcon="layout-grid" />
+      Painel Morphus
+    </a>
+    <a matButton class="primary small whitespace-nowrap" routerLink="/security/user">
+      <mat-icon svgIcon="users" />
+      Gerenciar Usuários
+    </a>
+  </div>
+</div>
+
+<!-- KPIs / Small Stats (Alinhados em 1 linha sem quebra) -->
+<div class="@container">
+  <div class="grid gap-4 sm:gap-6 @max-md:grid-cols-1 @md:grid-cols-2 @4xl:grid-cols-4">
+    @for (item of stats(); track item.title) {
+      <mat-card appearance="filled" class="flex flex-col">
+        <mat-card-header>
+          <div class="flex min-w-0 flex-auto items-center justify-between gap-x-2">
+            <div class="flex min-w-0 items-center gap-x-2">
+              <mat-icon class="size-4 shrink-0 text-primary-11" [svgIcon]="item.icon" />
+              <div class="truncate text-sm font-medium tracking-tight">{{ item.title }}</div>
+            </div>
+            <span class="shrink-0 whitespace-nowrap rounded-md bg-neutral-a3 px-2 py-0.5 text-[11px] font-medium text-neutral-a11">
+              {{ item.badge }}
+            </span>
+          </div>
+        </mat-card-header>
+        <mat-card-content class="flex flex-auto flex-col justify-between">
+          <div class="text-3xl font-semibold tabular-nums sm:text-4xl">
+            {{ item.value }}
+          </div>
+          <div class="mt-2 flex items-center gap-x-1.5 text-xs font-medium text-neutral-a11">
+            <mat-icon class="size-3.5! text-primary-a11" svgIcon="shield-check" />
+            <span class="truncate">{{ item.subtitle }}</span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+</div>
+
+<!-- Resumo de Governança Universal (Security.Api) -->
+<mat-card appearance="filled" class="flex flex-col">
+  <mat-card-header>
+    <div class="flex flex-auto items-center gap-x-2">
+      <mat-icon class="size-4 text-primary-11" svgIcon="lock" />
+      <div class="font-medium tracking-tight">Governança Universal de Identidade (`Security.Api`)</div>
+      <div class="ms-auto flex items-center gap-x-2">
+        <span class="rounded-lg bg-primary-a3 px-2 py-0.5 text-xs font-semibold text-primary-a11">
+          Perfil: {{ activeRolesLabel() }}
+        </span>
+      </div>
+    </div>
+  </mat-card-header>
+  <div class="@container">
+    <div class="-mt-px grid gap-1 @3xl:grid-cols-3">
+      <mat-card-content class="flex min-w-0 flex-auto flex-col justify-between gap-y-4 @3xl:col-span-2">
+        <div class="flex flex-col gap-y-1">
+          <div class="text-lg font-semibold tracking-tight">
+            Isolamento Multi-Tenant &amp; Autorização por `Key`
+          </div>
+          <p class="text-sm leading-relaxed text-neutral-a11">
+            Todas as aplicações do ecossistema (<strong class="text-neutral-12">Website, Morphus, Morphus Mail, Morphus Flow</strong> e aplicações de clientes) consomem a <strong class="text-neutral-12">Security.Api</strong> como provedor único de autenticação e autorização para a corporação <strong class="text-neutral-12">{{ auth.corporation()?.name }}</strong>.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <a matButton class="tiny secondary" routerLink="/security/user">
+            <mat-icon svgIcon="users" />
+            Users (Usuários)
+          </a>
+          <a matButton class="tiny secondary" routerLink="/security/role">
+            <mat-icon svgIcon="shield" />
+            Roles (Perfis)
+          </a>
+          <a matButton class="tiny secondary" routerLink="/security/claim">
+            <mat-icon svgIcon="key-round" />
+            Claims (Permissões)
+          </a>
+          <a matButton class="tiny secondary" routerLink="/security/module">
+            <mat-icon svgIcon="boxes" />
+            Modules &amp; SubModules
+          </a>
+        </div>
+      </mat-card-content>
+
+      <mat-card-content class="flex min-w-0 flex-col">
+        <div class="font-medium tracking-tight">Status de Proteção</div>
+        <div class="mt-3 flex flex-col gap-y-2.5 text-sm">
+          <div class="flex items-center justify-between gap-x-2">
+            <span class="text-neutral-a11">Tenant Ativo</span>
+            <span class="truncate font-medium">{{ auth.corporation()?.name || 'Morphus' }}</span>
+          </div>
+          <div class="flex items-center justify-between gap-x-2">
+            <span class="text-neutral-a11">Social Auth</span>
+            <span class="font-medium">Google OAuth 2.0</span>
+          </div>
+          <div class="flex items-center justify-between gap-x-2">
+            <span class="text-neutral-a11">Token Engine</span>
+            <span class="font-medium">JWT + Refresh Token</span>
+          </div>
+          <div class="flex items-center justify-between gap-x-2 border-t border-neutral-a4 pt-2.5">
+            <span class="font-medium">Attack Protection</span>
+            <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
+              <mat-icon svgIcon="shield-check" class="size-4!" />
+              Ativo
+            </span>
+          </div>
+        </div>
+      </mat-card-content>
+    </div>
+  </div>
+</mat-card>
+
+<!-- Módulos de Identidade e Segurança com Botões Sempre Alinhados no mat-card-footer -->
+<div class="flex flex-col gap-y-3">
+  <div class="flex items-center justify-between">
+    <h2 class="text-lg font-semibold tracking-tight">
+      Módulos de Identidade, Acesso e Proteção
+    </h2>
+    <span class="text-xs text-neutral-a11">
+      Governança centralizada de segurança
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+    @for (item of securityModules; track item.title) {
+      <mat-card appearance="filled" class="flex h-full flex-col">
+        <mat-card-header>
+          <div class="flex min-w-0 flex-auto items-center justify-between gap-x-2">
+            <div class="flex min-w-0 items-center gap-x-2">
+              <mat-icon class="size-4 shrink-0 text-primary-11" [svgIcon]="item.icon" />
+              <div class="truncate font-medium tracking-tight">{{ item.title }}</div>
+            </div>
+            <span class="shrink-0 whitespace-nowrap rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-semibold text-primary-a11">
+              {{ item.badge }}
+            </span>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content class="flex flex-auto flex-col">
+          <p class="text-sm leading-relaxed text-neutral-a11">
+            {{ item.description }}
+          </p>
+        </mat-card-content>
+
+        <mat-card-footer class="mt-auto flex items-center justify-between gap-x-3 px-4 py-2.5">
+          <span class="truncate text-xs text-neutral-a11">
+            {{ item.footerHint }}
+          </span>
+          <a matButton class="secondary small shrink-0" [routerLink]="item.route">
+            {{ item.actionLabel }}
+            <mat-icon svgIcon="arrow-right" class="size-4!" />
+          </a>
+        </mat-card-footer>
+      </mat-card>
+    }
+  </div>
+</div>

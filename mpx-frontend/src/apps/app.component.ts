@@ -9,9 +9,10 @@ import {
 } from '@angular/router';
 import { Auth } from '@core/mpx-auth';
 import { MpxMessageComponent } from '@/components/morphus/message';
+import { MpxToastComponent } from '@/components/morphus/toast';
 
 @Component({
-  imports: [RouterOutlet, MpxMessageComponent],
+  imports: [RouterOutlet, MpxMessageComponent, MpxToastComponent],
   selector: 'mpx-root',
   host: {
     class: 'flex min-h-full w-full flex-auto flex-col',

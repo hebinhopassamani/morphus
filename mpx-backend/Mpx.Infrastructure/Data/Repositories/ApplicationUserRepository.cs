@@ -8,6 +8,8 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
 {
   public async Task<List<User>> GetEntitiesToRelateAsync(Guid applicationId)
   {
+    var currentCorpId = _context.CurrentCorporationId;
+
     var relatedUserIds = await _context.ApplicationUsers
         .AsNoTracking()
         .Where(au => au.ApplicationId == applicationId)
@@ -15,8 +17,13 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
         .ToListAsync();
 
     return await _context.Users
+        .IgnoreQueryFilters()
         .AsNoTracking()
-        .Where(u => !relatedUserIds.Contains(u.Id))
+        .Where(u =>
+            !u.Inactive &&
+            !relatedUserIds.Contains(u.Id) &&
+            (u.CorporationId == currentCorpId ||
+             u.CorporationUsers.Any(cu => cu.CorporationId == currentCorpId && !cu.Inactive)))
         .OrderBy(u => u.Name)
         .ToListAsync();
   }
@@ -28,6 +35,7 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
         .Include(au => au.User)
         .Include(au => au.Application)
         .Where(au => au.ApplicationId == applicationId)
+        .OrderBy(au => au.User!.Name)
         .ToListAsync();
   }
 

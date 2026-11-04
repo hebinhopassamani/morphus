@@ -10,11 +10,13 @@ namespace Mpx.Api.Controllers;
 [Route("api/v1/application-user")]
 public class ApplicationUserController(ApplicationUserHandler applicationUserHandler) : ControllerBase
 {
+  [HttpGet("entities-to-relate")]
   [HttpGet("entities-to-relate/{applicationId:guid}")]
   [Authorize(Policy = "APPLICATION_USER_LIST")]
   public async Task<IActionResult> GetEntitiesToRelate(Guid applicationId) =>
       Ok(await applicationUserHandler.GetEntitiesToRelateAsync(applicationId));
 
+  [HttpGet("related-entities")]
   [HttpGet("related-entities/{applicationId:guid}")]
   [Authorize(Policy = "APPLICATION_USER_LIST")]
   public async Task<IActionResult> GetRelatedEntities(Guid applicationId) =>
@@ -25,10 +27,20 @@ public class ApplicationUserController(ApplicationUserHandler applicationUserHan
   public async Task<IActionResult> AddRelationship([FromBody] ApplicationUser applicationUser) =>
       Ok(await applicationUserHandler.AddRelationshipAsync(applicationUser));
 
+  [HttpPost("add-relationships")]
+  [Authorize(Policy = "APPLICATION_USER_ADD")]
+  public async Task<IActionResult> AddRelationships([FromBody] List<ApplicationUser> items) =>
+      Ok(await applicationUserHandler.AddRelationshipsAsync(items));
+
   [HttpPost("remove-relationship")]
   [Authorize(Policy = "APPLICATION_USER_REMOVE")]
   public async Task<IActionResult> RemoveRelationship([FromBody] ApplicationUser applicationUser) =>
       Ok(await applicationUserHandler.RemoveRelationshipAsync(applicationUser));
+
+  [HttpPost("remove-relationships")]
+  [Authorize(Policy = "APPLICATION_USER_REMOVE")]
+  public async Task<IActionResult> RemoveRelationships([FromBody] List<ApplicationUser> items) =>
+      Ok(await applicationUserHandler.RemoveRelationshipsAsync(items));
 
   [HttpPost("activate")]
   [Authorize(Policy = "APPLICATION_USER_ACTIVATE")]

@@ -23,6 +23,7 @@ export interface CorporationSummary {
   description?: string;
   parentCorporationId?: string;
   isOwner: boolean;
+  roles?: string[];
 }
 
 export interface LoginRequest {
