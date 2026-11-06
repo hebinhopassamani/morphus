@@ -67,19 +67,33 @@
         @for (row of list(); track row.id) {
           <div class="flex flex-wrap items-center justify-between gap-4 px-6 py-4 transition-colors hover:bg-neutral-a2/40">
             <!-- Dados do Usuário -->
-            <div class="min-w-0 flex-1">
-              <div class="flex items-center gap-2.5">
-                <span class="truncate text-sm font-semibold text-neutral-12">
-                  {{ row.name || row.email }}
-                </span>
-                @if (row.inactive) {
-                  <span class="rounded-full bg-red-a3 px-2 py-0.5 text-[10px] font-semibold text-red-11">
-                    Inativo
+            <div class="flex min-w-0 flex-1 items-center gap-3.5">
+              @if (row.picture) {
+                <img
+                  [src]="row.picture"
+                  [alt]="row.name || row.email || 'Usuário'"
+                  referrerpolicy="no-referrer"
+                  class="size-10 shrink-0 rounded-full object-cover ring-1 ring-primary-a6"
+                />
+              } @else {
+                <div class="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-a4 text-sm font-bold text-primary-11">
+                  {{ (row.name || row.email || 'U').charAt(0).toUpperCase() }}
+                </div>
+              }
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2.5">
+                  <span class="truncate text-sm font-semibold text-neutral-12">
+                    {{ row.name || row.email }}
                   </span>
-                }
-              </div>
-              <div class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-a11">
-                <span>{{ row.email }}</span>
+                  @if (row.inactive) {
+                    <span class="rounded-full bg-red-a3 px-2 py-0.5 text-[10px] font-semibold text-red-11">
+                      Inativo
+                    </span>
+                  }
+                </div>
+                <div class="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-neutral-a11">
+                  <span>{{ row.email }}</span>
+                </div>
               </div>
             </div>
 

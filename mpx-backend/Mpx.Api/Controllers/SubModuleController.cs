@@ -30,6 +30,11 @@ public class SubModuleController(
   public async Task<IActionResult> GetByModule(Guid moduleId) =>
       Ok(await subModuleHandler.GetByModuleIdAsync(moduleId));
 
+  [HttpGet("{id:guid}/dependencies")]
+  [Authorize(Policy = "SUB_MODULE_LIST")]
+  public async Task<IActionResult> GetDependencies(Guid id) =>
+      Ok(await subModuleHandler.GetDependenciesSummaryAsync(id));
+
   [HttpPost]
   [Authorize(Policy = "SUB_MODULE_CREATE")]
   public async Task<IActionResult> Create([FromBody] SubModule subModule) =>
@@ -48,9 +53,9 @@ public class SubModuleController(
 
   [HttpDelete("{id:guid}")]
   [Authorize(Policy = "SUB_MODULE_DELETE")]
-  public async Task<IActionResult> Delete(Guid id)
+  public async Task<IActionResult> Delete(Guid id, [FromQuery] bool force = false)
   {
-    await subModuleHandler.DeleteAsync(id);
+    await subModuleHandler.DeleteAsync(id, force);
     return NoContent();
   }
 }

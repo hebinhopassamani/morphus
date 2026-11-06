@@ -8,6 +8,7 @@ public class ClaimConfiguration : IEntityTypeConfiguration<Claim>
 {
   public void Configure(EntityTypeBuilder<Claim> builder)
   {
+    builder.ToTable("sec_claims");
     builder.HasKey(c => c.Id);
 
     builder.Property(c => c.ClaimType).IsRequired().HasMaxLength(50);

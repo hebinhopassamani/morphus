@@ -8,13 +8,16 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
   public void Configure(EntityTypeBuilder<ApplicationUser> builder)
   {
-    builder.ToTable("application_users");
+    builder.ToTable("mpx_application_users");
 
     builder.HasKey(au => new { au.ApplicationId, au.UserId });
 
     builder.Property(au => au.ApplicationId).IsRequired();
     builder.Property(au => au.UserId).IsRequired();
+    builder.Property(au => au.WorkspaceId).IsRequired(false);
     builder.Property(au => au.CorporationId).IsRequired();
+    builder.Property(au => au.Color).IsRequired(false).HasMaxLength(250);
+    builder.Property(au => au.Favorite).IsRequired().HasDefaultValue(false);
     builder.Property(au => au.Inactive).IsRequired().HasDefaultValue(false);
     builder.Property(au => au.System).IsRequired().HasDefaultValue(false);
     builder.Property(au => au.IsOwner).IsRequired().HasDefaultValue(false);

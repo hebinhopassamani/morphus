@@ -1,0 +1,168 @@
+<mat-card
+  appearance="filled"
+  class="group relative flex min-h-[256px] flex-col transition-all duration-200"
+  [class.opacity-50]="disabled"
+  [class.pointer-events-none]="disabled"
+  [class.cursor-not-allowed]="disabled"
+  [class.hover:ring-2!]="!disabled"
+  [class.hover:ring-primary-8!]="!disabled"
+  [class.hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]!]="!disabled"
+  [class.dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!]="!disabled"
+>
+  <mat-card-content
+    class="relative flex flex-auto flex-col gap-y-4 overflow-clip p-5"
+    [class.cursor-pointer]="!disabled"
+    role="button"
+    [attr.tabindex]="disabled ? -1 : 0"
+    [attr.aria-disabled]="disabled"
+    (click)="onCardAccess()"
+    (keydown.enter)="onCardAccess()"
+  >
+    <!-- Faixa decorativa superior em gradiente suave -->
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+      [class]="accent.bannerClass"
+    ></div>
+
+    <!-- Topo do Card: Ícone colorido vivo + Badges -->
+    <div class="relative flex items-start justify-between gap-x-3">
+      <div
+        class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
+        [class]="accent.iconBoxClass"
+      >
+        @if (isImageIcon) {
+          <img [src]="icon" [alt]="title" class="size-7 object-contain" />
+        } @else {
+          <mat-icon [svgIcon]="icon || 'boxes'" class="size-6" />
+        }
+      </div>
+
+      <div class="flex flex-wrap items-center justify-end gap-1.5">
+        @for (badge of badges; track badge.label) {
+          <span
+            class="inline-flex items-center gap-x-1 rounded-lg px-2 py-0.5 text-xs font-medium"
+            [class]="badge.classes"
+            [matTooltip]="badge.tooltip || ''"
+          >
+            @if (badge.dotClass) {
+              <span class="size-1.5 rounded-full" [class]="badge.dotClass"></span>
+            }
+            @if (badge.icon) {
+              <mat-icon [svgIcon]="badge.icon" class="size-3" />
+            }
+            {{ badge.label }}
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Título + Favorito + Descrição completa (até 120 caracteres sem corte) -->
+    <div class="relative mt-1 flex flex-col gap-y-1.5">
+      <div class="flex items-center gap-x-1.5">
+        <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
+          {{ title }}
+        </div>
+        @if (favorite) {
+          <mat-icon class="size-4 shrink-0 text-amber-a10" svgIcon="star" />
+        }
+      </div>
+
+      <p class="min-h-[4.5rem] text-sm leading-relaxed text-neutral-a11">
+        {{ (description || '').slice(0, 120) }}
+      </p>
+    </div>
+
+    <!-- Barra inferior interna: Meta opcional à esquerda (ex.: nº de aplicações no Workspace) + Link "Acessar" à direita -->
+    <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
+      @if (leftMetaLabel) {
+        <span class="inline-flex items-center gap-x-1.5">
+          @if (leftMetaIcon) {
+            <mat-icon [svgIcon]="leftMetaIcon" class="size-3.5 text-primary-a11" />
+          }
+          <span>{{ leftMetaLabel }}</span>
+        </span>
+      } @else {
+        <span></span>
+      }
+
+      <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
+        {{ actionLabel }}
+        <mat-icon svgIcon="arrow-right" class="size-3.5" />
+      </span>
+    </div>
+  </mat-card-content>
+
+  <!-- Rodapé externo padronizado: "Veja mais opções" + Menu de 3 pontinhos -->
+  <mat-card-footer class="flex items-center justify-between px-3.5 py-1.5">
+    <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11">
+      Veja mais opções
+    </div>
+
+    <button
+      type="button"
+      matIconButton
+      class="tiny shrink-0"
+      [disabled]="disabled"
+      [matMenuTriggerFor]="cardOptionsMenu"
+      (click)="$event.stopPropagation()"
+      matTooltip="Veja mais opções"
+    >
+      <mat-icon svgIcon="ellipsis-vertical" />
+    </button>
+  </mat-card-footer>
+</mat-card>
+
+<mat-menu xPosition="before" #cardOptionsMenu="matMenu">
+  <button mat-menu-item (click)="onCardAccess()">
+    <mat-icon svgIcon="log-in" />
+    <span>Acessar</span>
+  </button>
+
+  <button mat-menu-item (click)="favoriteToggle.emit()">
+    <mat-icon [svgIcon]="favorite ? 'star-off' : 'star'" />
+    <span>{{ favorite ? 'Remover dos favoritos' : 'Adicionar aos favoritos' }}</span>
+  </button>
+
+  @if (showViewWorkspacesOption || showViewApplicationsOption) {
+    <mat-divider />
+  }
+
+  @if (showViewWorkspacesOption) {
+    <button mat-menu-item (click)="viewWorkspaces.emit()">
+      <mat-icon svgIcon="layout-grid" />
+      <span>Ver Workspaces</span>
+    </button>
+  }
+
+  @if (showViewApplicationsOption) {
+    <button mat-menu-item (click)="viewApplications.emit()">
+      <mat-icon svgIcon="boxes" />
+      <span>Ver aplicações</span>
+    </button>
+  }
+
+  <mat-divider />
+
+  <div class="px-3 py-2" (click)="$event.stopPropagation()">
+    <div class="mb-1.5 text-[11px] font-semibold tracking-wider uppercase text-neutral-a10">
+      {{ colorPickerLabel }}
+    </div>
+    <div class="flex items-center gap-2">
+      @for (opt of colorOptions; track opt.key) {
+        <button
+          type="button"
+          class="flex size-6 items-center justify-center rounded-full ring-offset-2 transition-transform hover:scale-110"
+          [class]="opt.dotClass"
+          [class.ring-2]="color === opt.key"
+          [class.ring-neutral-12]="color === opt.key"
+          [matTooltip]="opt.label"
+          (click)="onSelectColor(opt.key, $event)"
+        >
+          @if (color === opt.key) {
+            <span class="size-2 rounded-full bg-white"></span>
+          }
+        </button>
+      }
+    </div>
+  </div>
+</mat-menu>

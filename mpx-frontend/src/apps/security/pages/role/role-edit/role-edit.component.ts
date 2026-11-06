@@ -1,12 +1,14 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
+import {
+  DefaultApplication,
+  DefaultModule,
+  DefaultSubModule,
+  IMorphusEditComponent,
+  MorphusEditComponent,
+  MorphusEditShared,
+  NgForm,
+} from '@core/mpx-shared/edit';
 import { MorphusApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Module } from '@security/entities/module';
@@ -20,19 +22,7 @@ import { RoleValidator } from '../validators/role.validator';
 @Component({
   selector: 'mpx-role-edit',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatSelect,
-    MatOption,
-    MatTooltip,
-  ],
+  imports: [MorphusEditShared],
   styleUrl: './role-edit.component.css',
   templateUrl: './role-edit.component.html',
 })
@@ -45,21 +35,21 @@ export class RoleEditComponent
   private readonly moduleService = inject(ModuleService);
   private readonly subModuleService = inject(SubModuleService);
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MorphusApplication[]>([{ ...DefaultApplication }]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
-  protected readonly selectedApplicationId = signal<string>('');
+  protected readonly selectedApplicationId = signal<string | undefined>(undefined);
 
-  protected readonly availableModules = computed(() => {
+  protected readonly availableModules = computed<Module[]>(() => {
     const appId = this.selectedApplicationId();
-    const list = this.allModules();
-    return appId ? list.filter((m) => m.applicationId === appId) : list;
+    const list = appId ? this.allModules().filter((m) => m.applicationId === appId) : [];
+    return [{ ...DefaultModule }, ...list];
   });
 
-  protected readonly availableSubModules = computed(() => {
+  protected readonly availableSubModules = computed<SubModule[]>(() => {
     const modId = this.entity().moduleId;
-    const list = this.allSubModules();
-    return modId ? list.filter((s) => s.moduleId === modId) : [];
+    const list = modId ? this.allSubModules().filter((s) => s.moduleId === modId) : [];
+    return [{ ...DefaultSubModule }, ...list];
   });
 
   constructor() {
@@ -86,7 +76,7 @@ export class RoleEditComponent
       firstValueFrom(this.subModuleService.getAll()),
     ]);
 
-    this.applications.set(apps ?? []);
+    this.applications.set([{ ...DefaultApplication }, ...(apps ?? [])]);
     this.allModules.set(mods ?? []);
     this.allSubModules.set(subMods ?? []);
 
@@ -109,21 +99,14 @@ export class RoleEditComponent
   newEntity(): void {
     this.title1.set('Novo Perfil (Role)');
     this.title2.set('Cadastre um novo perfil de acesso vinculado a um módulo e submódulo.');
-    const defaultMod = this.allModules()[0];
-    const defaultSub = defaultMod
-      ? this.allSubModules().find((s) => s.moduleId === defaultMod.id)
-      : undefined;
-
-    if (defaultMod?.applicationId) {
-      this.selectedApplicationId.set(defaultMod.applicationId);
-    }
+    this.selectedApplicationId.set(undefined);
 
     this.setEntity({
       name: '',
       key: this.generateKey(),
       description: '',
-      moduleId: defaultMod?.id ?? '',
-      subModuleId: defaultSub?.id ?? '',
+      moduleId: undefined,
+      subModuleId: undefined,
       system: false,
       inactive: false,
     });
@@ -134,20 +117,15 @@ export class RoleEditComponent
     this.title2.set('Atualize os dados do perfil ou configure suas permissões.');
   }
 
-  onApplicationChange(appId: string): void {
+  onApplicationChange(appId: string | undefined): void {
     this.selectedApplicationId.set(appId);
-    const firstMod = this.allModules().find((m) => !appId || m.applicationId === appId);
-    const firstSub = firstMod
-      ? this.allSubModules().find((s) => s.moduleId === firstMod.id)
-      : undefined;
-    this.updateField('moduleId', firstMod?.id ?? '');
-    this.updateField('subModuleId', firstSub?.id ?? '');
+    this.updateField('moduleId', undefined);
+    this.updateField('subModuleId', undefined);
   }
 
-  onModuleChange(modId: string): void {
+  onModuleChange(modId: string | undefined): void {
     this.updateField('moduleId', modId);
-    const firstSub = this.allSubModules().find((s) => s.moduleId === modId);
-    this.updateField('subModuleId', firstSub?.id ?? '');
+    this.updateField('subModuleId', undefined);
   }
 
   async submitForm(): Promise<void> {
@@ -161,9 +139,9 @@ export class RoleEditComponent
   async create(): Promise<void> {
     const created = await firstValueFrom(this.roleService.create(this.entity()));
     this.messageService.showSuccess(
-      `O perfil "${created.name}" foi criado! Agora configure as permissões dele.`,
+      `O perfil "${created.name}" foi criado com sucesso!`,
     );
-    void this.router.navigate(['/security/role', created.id, 'claims']);
+    this.back();
   }
 
   async update(): Promise<void> {
@@ -184,7 +162,11 @@ export class RoleEditComponent
     void this.router.navigate(['/security/role']);
   }
 
-  async onSave(): Promise<void> {
+  async onSave(form?: NgForm): Promise<void> {
+    if (form && form.invalid) {
+      form.form.markAllAsTouched();
+      return;
+    }
     await this.submitForm();
   }
 

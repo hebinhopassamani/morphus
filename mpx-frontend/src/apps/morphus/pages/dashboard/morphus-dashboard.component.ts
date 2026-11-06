@@ -1,5 +1,5 @@
-import { Component, computed, inject } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { Component, computed, inject, signal } from '@angular/core';
+import { MatButton, MatIconButton } from '@angular/material/button';
 import {
   MatCard,
   MatCardContent,
@@ -9,6 +9,8 @@ import {
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { Auth } from '@core/mpx-auth';
+import { MorphusApplication } from '@morphus/entities/application';
+import { Workspace } from '@morphus/entities/workspace';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
@@ -20,6 +22,7 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
     MatCardContent,
     MatCardFooter,
     MatButton,
+    MatIconButton,
     MatIcon,
     RouterLink,
   ],
@@ -31,6 +34,115 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
 export class MorphusDashboardComponent {
   protected readonly auth = inject(Auth);
   protected readonly context = inject(MorphusContextService);
+
+  protected readonly pendingOfferApp = signal<MorphusApplication | null>(null);
+  protected readonly selectedTargetWorkspaceId = signal<string>('');
+  protected readonly offerInstanceMode = signal<'isolated' | 'shared'>('isolated');
+  protected readonly selectedSharedSourceWorkspaceId = signal<string>('');
+  protected readonly provisioningApp = signal<boolean>(false);
+
+  protected readonly otherWorkspacesForOfferApp = computed<Workspace[]>(() => {
+    const app = this.pendingOfferApp();
+    const targetWsId = this.selectedTargetWorkspaceId();
+    if (!app?.id) {
+      return [];
+    }
+    return this.context.getWorkspacesWithApplication(app.id, targetWsId || null);
+  });
+
+  protected readonly availableTargetWorkspacesForOffer = computed<Workspace[]>(() => {
+    const app = this.pendingOfferApp();
+    const allWorkspaces = this.context.workspaces();
+    if (!app?.id) {
+      return allWorkspaces;
+    }
+    const alreadyInWsIds = new Set(
+      this.context
+        .getWorkspacesWithApplication(app.id, null)
+        .map((w) => w.id)
+        .filter((id): id is string => !!id),
+    );
+    const filtered = allWorkspaces.filter((w) => w.id && !alreadyInWsIds.has(w.id));
+    return filtered.length > 0 ? filtered : allWorkspaces;
+  });
+
+  protected canStartFreeTrial(app: MorphusApplication): boolean {
+    return !this.context.getApplicationTrialInfo(app).trialUsed;
+  }
+
+  protected openOfferProvisionModal(app: MorphusApplication): void {
+    this.pendingOfferApp.set(app);
+    const activeWsId = this.context.activeWorkspace()?.id;
+    const candidates = this.availableTargetWorkspacesForOffer();
+    const defaultTargetWsId =
+      (activeWsId && candidates.some((w) => w.id === activeWsId)
+        ? activeWsId
+        : candidates[0]?.id) ||
+      activeWsId ||
+      '';
+
+    this.selectedTargetWorkspaceId.set(defaultTargetWsId);
+    this.offerInstanceMode.set('isolated');
+
+    const others = this.context.getWorkspacesWithApplication(app.id, defaultTargetWsId || null);
+    this.selectedSharedSourceWorkspaceId.set(others[0]?.id || '');
+  }
+
+  protected selectTargetWorkspaceForOffer(wsId: string): void {
+    this.selectedTargetWorkspaceId.set(wsId);
+    const app = this.pendingOfferApp();
+    if (!app?.id) {
+      return;
+    }
+    const others = this.context.getWorkspacesWithApplication(app.id, wsId);
+    if (others.length === 0) {
+      this.offerInstanceMode.set('isolated');
+      this.selectedSharedSourceWorkspaceId.set('');
+    } else if (!others.some((w) => w.id === this.selectedSharedSourceWorkspaceId())) {
+      this.selectedSharedSourceWorkspaceId.set(others[0]?.id || '');
+    }
+  }
+
+  protected closeOfferProvisionModal(): void {
+    if (this.provisioningApp()) {
+      return;
+    }
+    this.pendingOfferApp.set(null);
+  }
+
+  protected confirmOfferProvision(): void {
+    const app = this.pendingOfferApp();
+    const targetWsId = this.selectedTargetWorkspaceId() || this.context.activeWorkspace()?.id;
+    if (!app?.id || !targetWsId || this.provisioningApp()) {
+      return;
+    }
+
+    const sharedWsId =
+      this.offerInstanceMode() === 'shared'
+        ? this.selectedSharedSourceWorkspaceId() || null
+        : null;
+
+    this.provisioningApp.set(true);
+    this.context
+      .provisionApplicationInWorkspace({
+        applicationId: app.id,
+        workspaceId: targetWsId,
+        sharedWithWorkspaceId: sharedWsId,
+      })
+      .subscribe({
+        next: () => {
+          this.provisioningApp.set(false);
+          this.pendingOfferApp.set(null);
+          const targetWs = this.context.workspaces().find((w) => w.id === targetWsId);
+          if (targetWs && targetWs.id !== this.context.activeWorkspace()?.id) {
+            this.context.selectWorkspace(targetWs);
+          }
+        },
+        error: () => {
+          this.provisioningApp.set(false);
+        },
+      });
+  }
 
   protected readonly activeCorporationSummary = computed(() => {
     const activeId = this.auth.corporation()?.id;

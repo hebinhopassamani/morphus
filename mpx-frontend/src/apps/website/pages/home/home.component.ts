@@ -10,24 +10,30 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatCard, MatCardContent, MatCardFooter } from '@angular/material/card';
+import { MatButton } from '@angular/material/button';
+import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import {
   MatMenu,
-  MatMenuContent,
   MatMenuItem,
   MatMenuTrigger,
 } from '@angular/material/menu';
-import { MatTooltip } from '@angular/material/tooltip';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '@/environments/environment';
 import { Auth } from '@core/mpx-auth';
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { CorporationSummary } from '@security/entities/session';
+import {
+  CorporationSummary,
+  PortalPreferenceItem,
+  SavePortalPreferenceRequest,
+} from '@security/entities/session';
+import {
+  MpxPortalCardComponent,
+  PortalCardBadge,
+} from './portal-card.component';
 
 export type CardColorKey = 'violet' | 'indigo' | 'jade' | 'amber';
 
@@ -61,6 +67,13 @@ export type PortalAppCard = {
   icon: string;
   color: CardColorKey;
   badgeLabel: string;
+  trialBadgeLabel?: string;
+  trialTooltip?: string;
+  isInTrial?: boolean;
+  trialUsed?: boolean;
+  canStartFreeTrial?: boolean;
+  instanceBadgeLabel?: string;
+  otherWorkspacesCount?: number;
   statusName: string;
   statusLabel: string;
   footerLabel: string;
@@ -71,21 +84,35 @@ export type PortalAppCard = {
   rawApp?: MorphusApplication;
 };
 
-type FeatureCard = {
+export type ShowcaseHighlightItem = {
+  id?: string;
+  featureId?: string;
   title: string;
-  description: string;
-  icon: string;
-  category: string;
-  footerLabel: string;
+  titleIcon?: string;
+  highlight: string;
+  highlightIcon?: string;
+  order: number;
 };
 
-type StoryStep = {
-  step: string;
-  badge: string;
+export type ShowcaseFeatureItem = {
+  id?: string;
+  title: string;
+  highlightPhrase: string;
+  description: string;
+  order: number;
+  highlights: ShowcaseHighlightItem[];
+};
+
+export type ShowcaseModuleItem = {
+  id?: string;
+  categoryId?: string;
+  categoryName: string;
+  categoryColor?: string;
+  icon?: string;
   title: string;
   description: string;
-  icon: string;
-  highlights: string[];
+  actionText: string;
+  order: number;
 };
 
 const CARD_ACCENTS: CardAccent[] = [
@@ -134,18 +161,15 @@ const CARD_ACCENT_MAP: Record<CardColorKey, CardAccent> = {
   selector: 'web-home',
   imports: [
     MatButton,
-    MatIconButton,
     MatCard,
     MatCardContent,
-    MatCardFooter,
     MatIcon,
     MatMenu,
-    MatMenuContent,
     MatMenuItem,
     MatMenuTrigger,
     MatDivider,
-    MatTooltip,
     RouterLink,
+    MpxPortalCardComponent,
   ],
   host: {
     class: 'flex flex-auto flex-col gap-y-12 py-6 text-neutral-12 lg:gap-y-16 lg:py-8',
@@ -163,10 +187,18 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   protected readonly colorOptions = CARD_ACCENTS;
   protected readonly activeTab = signal<PortalSectionTab>('all');
+  protected readonly selectedAppFilterId = signal<string>('all');
+  protected readonly selectedWorkspaceFilterId = signal<string>('all');
+  protected readonly selectedCorporationFilterId = signal<string>('all');
   protected readonly showMarketingPreview = signal<boolean>(false);
   protected readonly starredIds = signal<Record<string, boolean>>({});
   protected readonly cardColorOverrides = signal<Record<string, CardColorKey>>({});
   protected readonly selectedAppForModules = signal<PortalAppCard | null>(null);
+  protected readonly pendingOfferApp = signal<PortalAppCard | null>(null);
+  protected readonly selectedTargetWorkspaceId = signal<string>('');
+  protected readonly offerInstanceMode = signal<'isolated' | 'shared'>('isolated');
+  protected readonly selectedSharedSourceWorkspaceId = signal<string>('');
+  protected readonly provisioningApp = signal<boolean>(false);
   protected readonly switchingCorpId = signal<string | null>(null);
   protected readonly nickNameInput = signal<string>(this.auth.user()?.nickName || '');
   protected readonly savingNickName = signal<boolean>(false);
@@ -202,15 +234,76 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   });
 
+  protected readonly appFilterLabel = computed(() => {
+    const filterId = this.selectedAppFilterId();
+    if (filterId === 'all') {
+      return 'Ver tudo';
+    }
+    return (
+      this.portalAppCards().find((a) => a.id === filterId)?.name || 'Ver tudo'
+    );
+  });
+
+  protected readonly workspaceFilterLabel = computed(() => {
+    const filterId = this.selectedWorkspaceFilterId();
+    if (filterId === 'all') {
+      return 'Ver tudo';
+    }
+    return (
+      this.context.workspaces().find((w) => w.id === filterId)?.name || 'Ver tudo'
+    );
+  });
+
+  protected readonly corporationFilterLabel = computed(() => {
+    const filterId = this.selectedCorporationFilterId();
+    if (filterId === 'all') {
+      return 'Ver tudo';
+    }
+    return (
+      this.auth.availableCorporations().find((c) => c.id === filterId)?.name || 'Ver tudo'
+    );
+  });
+
+  protected clearFilters(): void {
+    this.selectedAppFilterId.set('all');
+    this.selectedWorkspaceFilterId.set('all');
+    this.selectedCorporationFilterId.set('all');
+    this.activeTab.set('all');
+  }
+
+  protected selectAppFilter(appId: string): void {
+    this.selectedAppFilterId.set(appId);
+  }
+
+  protected selectWorkspaceFilter(wsId: string): void {
+    this.selectedWorkspaceFilterId.set(wsId);
+    if (wsId !== 'all') {
+      const ws = this.context.workspaces().find((w) => w.id === wsId);
+      if (ws && ws.id !== this.context.activeWorkspace()?.id) {
+        this.context.selectWorkspace(ws, false);
+      }
+    }
+  }
+
+  protected selectCorporationFilter(corpId: string): void {
+    this.selectedCorporationFilterId.set(corpId);
+    if (corpId !== 'all' && corpId !== this.auth.corporation()?.id) {
+      const corp = this.auth.availableCorporations().find((c) => c.id === corpId);
+      if (corp && !corp.inactive) {
+        this.selectCorporation(corp, false);
+      }
+    }
+  }
+
   /**
-   * Monta os Cards de Aplicações do Usuário com seus 3 Pais:
-   * 1. Categoria (`category.label` -> 2º badge no topo direito: Finanças, Gestão, Segurança, Automação, Comercial, Portal)
-   * 2. Status (`applicationStatus.label` -> 1º badge com "Palavra Google": Disponível, Sendo preparada, Experimentando, Aguardando você, Pausada)
-   * 3. Módulos e Submódulos (`modules` -> vitrine do produto para o usuário + árvore de Claims para segurança)
+   * Monta os Cards de Aplicações Operacionais do Usuário no Workspace selecionado:
+   * Nunca exibe Morphus, Segurança ou Website para nenhum perfil.
    */
   protected readonly portalAppCards = computed<PortalAppCard[]>(() => {
-    const activeAppId = this.context.activeApplication()?.id;
-    const workspaceApps = this.context.availableApplications();
+    const activeAppId = this.context.activeOperationalApplication()?.id;
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const activeWsId = this.context.activeWorkspace()?.id || '';
+    const workspaceApps = this.context.operationalApplications();
     const colorOverrides = this.cardColorOverrides();
     const cards: PortalAppCard[] = [];
 
@@ -228,12 +321,17 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       const statusLabel =
         app.applicationStatus?.label ||
         (app.inactive ? 'Pausada' : statusName === 'Em preparação' ? 'Sendo preparada' : 'Disponível');
-      const footerLabel =
-        app.applicationStatus?.description ||
-        (statusName === 'Em preparação'
-          ? 'Estamos preparando tudo para você'
-          : 'Tudo pronto para você usar');
-      const rawColor = (colorOverrides[app.id] || app.color || app.category?.color || '') as string;
+      const footerLabel = 'Veja mais opções';
+      const scopedKey = `app:${activeCorpId}:${activeWsId}:${app.id}`;
+      const fallbackAppKey = `app:${activeCorpId}:${app.id}`;
+      const rawColor = (
+        colorOverrides[scopedKey] ||
+        colorOverrides[fallbackAppKey] ||
+        colorOverrides[app.id] ||
+        app.color ||
+        app.category?.color ||
+        ''
+      ) as string;
       const color = this.normalizeColor(rawColor, app.name, i);
 
       const dbModules: PortalModuleItem[] =
@@ -248,16 +346,30 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
             }))
           : [];
 
+      const trialInfo = this.context.getApplicationTrialInfo(app);
+      const sharedWsName = this.context.getSharedWorkspaceName(app.sharedWithWorkspaceId);
+      const instanceBadgeLabel = sharedWsName
+        ? `Compartilhada com ${sharedWsName}`
+        : !app.system
+          ? 'Instância isolada'
+          : undefined;
+
       cards.push({
         id: app.id,
-        key: app.key || 'MORPHUS',
-        name: app.name || 'Morphus',
-        description:
+        key: app.key || 'APP',
+        name: app.name || 'Aplicação',
+        description: (
           app.description ||
-          'Tudo o que você precisa para cuidar das suas empresas, notas fiscais e contas a pagar.',
+          'Aplicação integrada ao seu workspace respeitando suas permissões de acesso.'
+        ).slice(0, 120),
         icon: app.icon || 'boxes',
         color,
         badgeLabel: categoryLabel,
+        trialBadgeLabel: trialInfo.badgeLabel,
+        trialTooltip: trialInfo.detailLabel,
+        isInTrial: trialInfo.isInTrial,
+        trialUsed: trialInfo.trialUsed,
+        instanceBadgeLabel,
         statusName,
         statusLabel,
         footerLabel,
@@ -269,200 +381,317 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
       });
     }
 
-    const fallbackEcosystemApps: PortalAppCard[] = [
-      {
-        id: 'eco-morphus-erp',
-        key: 'MORPHUS',
-        name: 'Morphus',
+    return cards;
+  });
+
+  protected readonly filteredPortalAppCards = computed<PortalAppCard[]>(() => {
+    const all = this.portalAppCards();
+    const filterId = this.selectedAppFilterId();
+    if (filterId === 'all') {
+      return all;
+    }
+    return all.filter((a) => a.id === filterId);
+  });
+
+  protected readonly filteredWorkspaces = computed<Workspace[]>(() => {
+    const all = this.context.workspaces();
+    const filterId = this.selectedWorkspaceFilterId();
+    if (filterId === 'all') {
+      return all;
+    }
+    return all.filter((w) => w.id === filterId);
+  });
+
+  protected readonly filteredCorporations = computed<CorporationSummary[]>(() => {
+    const all = this.auth.availableCorporations();
+    const filterId = this.selectedCorporationFilterId();
+    if (filterId === 'all') {
+      return all;
+    }
+    return all.filter((c) => c.id === filterId);
+  });
+
+  /**
+   * "Veja o que mais o Morphus tem para te oferecer":
+   * Lista APENAS as aplicações do catálogo que o usuário ainda NÃO tem no Workspace ativo.
+   */
+  protected readonly offerAppCards = computed<PortalAppCard[]>(() => {
+    const unlinked = this.context.unlinkedApplications();
+    const activeWsId = this.context.activeWorkspace()?.id;
+    const colorOverrides = this.cardColorOverrides();
+    const cards: PortalAppCard[] = [];
+
+    for (let i = 0; i < unlinked.length; i++) {
+      const app = unlinked[i];
+      if (!app.id) {
+        continue;
+      }
+
+      const categoryLabel =
+        app.category?.label ||
+        app.category?.name ||
+        this.inferCategoryLabel(app.name);
+      const rawColor = (colorOverrides[app.id] || app.color || app.category?.color || '') as string;
+      const color = this.normalizeColor(rawColor, app.name, i + 2);
+
+      const dbModules: PortalModuleItem[] =
+        app.applicationModules && app.applicationModules.length > 0
+          ? app.applicationModules.map((m) => ({
+              name: m.label || m.name || 'Módulo',
+              description: m.description || 'Funcionalidade integrada à aplicação.',
+              subModules: (m.applicationSubModules || []).map((sm) => ({
+                name: sm.label || sm.name || 'Submódulo',
+                description: sm.description || 'Controle específico e permissão de acesso.',
+              })),
+            }))
+          : [];
+
+      const trialInfo = this.context.getApplicationTrialInfo(app);
+      const otherWorkspaces = this.context.getWorkspacesWithApplication(app.id, activeWsId);
+      const canStartFreeTrial = !trialInfo.trialUsed;
+
+      cards.push({
+        id: app.id,
+        key: app.key || 'APP',
+        name: app.name || 'Aplicação Morphus',
         description:
-          'Aplicação principal de gestão empresarial, governança, workspaces e estrutura corporativa.',
-        icon: 'boxes',
-        color: colorOverrides['eco-morphus-erp'] || 'violet',
-        badgeLabel: 'Gestão',
-        statusName: 'Ativa',
-        statusLabel: 'Disponível',
-        footerLabel: 'Tudo pronto para você usar',
-        route: '/morphus',
-        isActiveApp: cards.length === 0,
-        isInstalled: true,
-        modules: this.inferModulesForApp('Morphus'),
-      },
-      {
-        id: 'eco-morphus-security',
-        key: 'SECURITY',
-        name: 'Segurança',
-        description:
-          'Convide pessoas da sua equipe e escolha o que cada uma pode ver ou fazer.',
-        icon: 'shield',
-        color: colorOverrides['eco-morphus-security'] || 'indigo',
-        badgeLabel: 'Segurança',
-        statusName: 'Ativa',
-        statusLabel: 'Disponível',
-        footerLabel: 'Tudo pronto para você usar',
-        route: '/security',
-        isActiveApp: false,
-        isInstalled: true,
-        modules: this.inferModulesForApp('Segurança'),
-      },
-      {
-        id: 'eco-morphus-finance',
-        key: 'FINANCE',
-        name: 'Morphus Financeiro',
-        description:
-          'Contas a pagar e receber, entrada de notas fiscais, conciliação bancária e fluxo de caixa.',
-        icon: 'wallet',
-        color: colorOverrides['eco-morphus-finance'] || 'jade',
-        badgeLabel: 'Finanças',
-        statusName: 'Ativa',
-        statusLabel: 'Disponível',
-        footerLabel: 'Tudo pronto para você usar',
-        route: '/morphus',
-        isActiveApp: false,
-        isInstalled: true,
-        modules: this.inferModulesForApp('Morphus Financeiro'),
-      },
-      {
-        id: 'eco-morphus-kalupa',
-        key: 'KALUPA',
-        name: 'Kalupa Automação',
-        description:
-          'Organize documentos e tarefas da sua empresa automaticamente em segundo plano.',
-        icon: 'workflow',
-        color: colorOverrides['eco-morphus-kalupa'] || 'amber',
-        badgeLabel: 'Automação',
-        statusName: 'Em preparação',
-        statusLabel: 'Sendo preparada',
-        footerLabel: 'Estamos preparando tudo para você',
+          app.description ||
+          'Expanda o poder do seu workspace com esta aplicação do ecossistema Morphus.',
+        icon: app.icon || 'sparkles',
+        color,
+        badgeLabel: categoryLabel,
+        trialBadgeLabel: canStartFreeTrial
+          ? 'Teste grátis disponível'
+          : otherWorkspaces.length > 0
+            ? `Ativa em ${otherWorkspaces.length} workspace(s)`
+            : 'Teste já utilizado',
+        trialTooltip: canStartFreeTrial
+          ? 'Comece seu período de teste grátis desta aplicação'
+          : otherWorkspaces.length > 0
+            ? 'Você já possui esta aplicação em outro workspace e pode puxá-la para cá (isolada ou compartilhada)'
+            : 'Sua corporação já utilizou o período de teste grátis desta aplicação',
+        isInTrial: false,
+        trialUsed: trialInfo.trialUsed,
+        canStartFreeTrial,
+        otherWorkspacesCount: otherWorkspaces.length,
+        statusName: 'Catálogo',
+        statusLabel: canStartFreeTrial ? 'Experimentar' : 'Distribuir',
+        footerLabel: canStartFreeTrial
+          ? 'Liberação imediata no workspace escolhido'
+          : otherWorkspaces.length > 0
+            ? 'Instância isolada ou compartilhada'
+            : 'Disponível para ativação no workspace',
         route: '/morphus',
         isActiveApp: false,
         isInstalled: false,
-        modules: this.inferModulesForApp('Kalupa Automação'),
-      },
-    ];
-
-    for (const fallback of fallbackEcosystemApps) {
-      if (cards.length >= 4) {
-        break;
-      }
-      const alreadyExists = cards.some(
-        (c) => c.name.trim().toUpperCase() === fallback.name.trim().toUpperCase(),
-      );
-      if (!alreadyExists) {
-        cards.push(fallback);
-      }
+        modules: dbModules.length > 0 ? dbModules : this.inferModulesForApp(app.name || 'Morphus'),
+        rawApp: app,
+      });
     }
 
     return cards;
   });
 
-  protected readonly features: FeatureCard[] = [
+  protected readonly otherWorkspacesForOfferApp = computed<Workspace[]>(() => {
+    const app = this.pendingOfferApp();
+    const targetWsId = this.selectedTargetWorkspaceId();
+    if (!app?.id) {
+      return [];
+    }
+    return this.context.getWorkspacesWithApplication(app.id, targetWsId || null);
+  });
+
+  protected readonly availableTargetWorkspacesForOffer = computed<Workspace[]>(() => {
+    const app = this.pendingOfferApp();
+    const allWorkspaces = this.context.workspaces();
+    if (!app?.id) {
+      return allWorkspaces;
+    }
+    const alreadyInWsIds = new Set(
+      this.context
+        .getWorkspacesWithApplication(app.id, null)
+        .map((w) => w.id)
+        .filter((id): id is string => !!id),
+    );
+    const filtered = allWorkspaces.filter((w) => w.id && !alreadyInWsIds.has(w.id));
+    return filtered.length > 0 ? filtered : allWorkspaces;
+  });
+
+  protected readonly showcaseModules = signal<ShowcaseModuleItem[]>([
     {
       title: 'Acessos e Permissões',
       description:
         'Gestão granular de usuários, perfis (roles) e permissões (claims) isolados por corporação, filial, workspace e aplicação.',
       icon: 'shield-check',
-      category: 'Segurança',
-      footerLabel: 'Multi-Tenant · RBAC & Claims',
+      categoryName: 'Segurança',
+      categoryColor: 'violet',
+      actionText: 'Experimentar',
+      order: 1,
     },
     {
       title: 'Corporações e Filiais',
       description:
         'Estrutura hierárquica com auto-relacionamento entre matriz e múltiplas filiais, permitindo alternar de ambiente em um clique.',
       icon: 'building-2',
-      category: 'Corporativo',
-      footerLabel: 'Matriz & Filiais · Morphus Cloud',
+      categoryName: 'Corporativo',
+      categoryColor: 'indigo',
+      actionText: 'Experimentar',
+      order: 2,
     },
     {
       title: 'Entrada de Notas Fiscais',
       description:
         'Importação automática de XML e lançamento de notas fiscais de compra com validação de natureza de operação e tributação.',
       icon: 'file-text',
-      category: 'Fiscal',
-      footerLabel: 'Automação XML · Tributação',
+      categoryName: 'Fiscal',
+      categoryColor: 'jade',
+      actionText: 'Experimentar',
+      order: 3,
     },
     {
       title: 'Cadastros Inteligentes',
       description:
         'Produtos, categorias, fornecedores, contas bancárias, contas caixa e naturezas de operação centralizados e padronizados.',
       icon: 'boxes',
-      category: 'Core ERP',
-      footerLabel: 'Catálogo Unificado · Cadastros',
+      categoryName: 'Core ERP',
+      categoryColor: 'amber',
+      actionText: 'Experimentar',
+      order: 4,
     },
     {
       title: 'Contas a Pagar e Receber',
       description:
         'Controle completo de títulos, vencimentos, baixas parciais ou integrais, juros, multas e previsibilidade financeira.',
       icon: 'wallet',
-      category: 'Financeiro',
-      footerLabel: 'Gestão de Títulos · Tesouraria',
+      categoryName: 'Financeiro',
+      categoryColor: 'violet',
+      actionText: 'Experimentar',
+      order: 5,
     },
     {
       title: 'Conciliação e CNAB',
       description:
         'Integração bancária com processamento de arquivos CNAB de remessa e retorno e conciliação automatizada de extratos.',
       icon: 'landmark',
-      category: 'Bancário',
-      footerLabel: 'Remessa & Retorno · CNAB',
+      categoryName: 'Bancário',
+      categoryColor: 'indigo',
+      actionText: 'Experimentar',
+      order: 6,
     },
     {
       title: 'Fluxo de Caixa em Tempo Real',
       description:
         'Visão consolidada por filial ou grupo econômico das entradas e saídas realizadas e projetadas por centro de custo.',
       icon: 'chart-no-axes-combined',
-      category: 'Analytics',
-      footerLabel: 'Previsto vs. Realizado · DRE',
+      categoryName: 'Analytics',
+      categoryColor: 'jade',
+      actionText: 'Experimentar',
+      order: 7,
     },
     {
       title: 'Frotas e Patrimônio',
       description:
         'Controle do imobilizado, veículos da corporação, manutenções e cálculo automatizado de depreciação mensal.',
       icon: 'truck',
-      category: 'Ativos',
-      footerLabel: 'Controle de Bens · Depreciação',
+      categoryName: 'Ativos',
+      categoryColor: 'amber',
+      actionText: 'Experimentar',
+      order: 8,
     },
-  ];
+  ]);
 
-  protected readonly storySteps: StoryStep[] = [
+  protected readonly showcaseFeatures = signal<ShowcaseFeatureItem[]>([
     {
-      step: '01',
-      badge: 'Arquitetura Multi-Tenant',
+      order: 1,
+      highlightPhrase: 'Arquitetura Multi-Corporação',
       title: 'Uma única conta. Múltiplas corporações, filiais e workspaces.',
       description:
         'O Morphus foi desenhado para grupos empresariais reais. Um mesmo usuário pode atuar em diferentes organizações e filiais mantendo cada base de dados 100% isolada e segura.',
-      icon: 'layers',
       highlights: [
-        'Hierarquia ilimitada entre Matriz e Filiais com auto-relacionamento nativo',
-        'Workspaces e aplicações sob medida para cada departamento',
-        'Menus dinâmicos montados automaticamente conforme o perfil de acesso',
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'layers',
+          highlight: 'Hierarquia ilimitada entre Matriz e Filiais com auto-relacionamento nativo',
+          highlightIcon: 'check',
+          order: 1,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'layers',
+          highlight: 'Workspaces e aplicações sob medida para cada departamento',
+          highlightIcon: 'check',
+          order: 2,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'layers',
+          highlight: 'Menus dinâmicos montados automaticamente conforme o perfil de acesso',
+          highlightIcon: 'check',
+          order: 3,
+        },
       ],
     },
     {
-      step: '02',
-      badge: 'Operação Fiscal & Financeira',
+      order: 2,
+      highlightPhrase: 'Operação Fiscal & Financeira',
       title: 'Da importação da nota fiscal até a conciliação bancária.',
       description:
         'Elimine retrabalho manual. Ao dar entrada em uma nota fiscal, o Morphus já alimenta o estoque, aplica as regras de tributação e gera as provisões no contas a pagar.',
-      icon: 'sparkles',
       highlights: [
-        'Importação automática de notas fiscais e vínculo com natureza de operação',
-        'Geração de remessas e leitura de retornos bancários (CNAB)',
-        'Motor próprio de disparo de e-mails transacionais com templates HTML',
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'sparkles',
+          highlight: 'Importação automática de notas fiscais e vínculo com natureza de operação',
+          highlightIcon: 'check',
+          order: 1,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'sparkles',
+          highlight: 'Geração de remessas e leitura de retornos bancários (CNAB)',
+          highlightIcon: 'check',
+          order: 2,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'sparkles',
+          highlight: 'Motor próprio de disparo de e-mails transacionais com templates HTML',
+          highlightIcon: 'check',
+          order: 3,
+        },
       ],
     },
     {
-      step: '03',
-      badge: 'Flexibilidade de Infraestrutura',
+      order: 3,
+      highlightPhrase: 'Flexibilidade de Infraestrutura',
       title: 'Na nuvem compartilhada ou dedicado no seu próprio servidor.',
       description:
-        'Comece imediatamente no Morphus Cloud com isolamento lógico por tenant ou publique toda a stack containerizada na infraestrutura privada da sua corporação.',
-      icon: 'server',
+        'Comece imediatamente no Morphus Cloud com isolamento total por corporação ou publique toda a stack containerizada na infraestrutura privada da sua empresa.',
       highlights: [
-        'Arquitetura limpa (.NET Clean Architecture + Angular) pronta para containers',
-        'Autenticação blindada com JWT, OAuth 2.0 e Login com Google',
-        'Alta performance e zero dependência de renderização bloqueante',
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'server',
+          highlight: 'Arquitetura limpa (.NET Clean Architecture + Angular) pronta para containers',
+          highlightIcon: 'check',
+          order: 1,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'server',
+          highlight: 'Autenticação blindada com JWT, OAuth 2.0 e Login com Google',
+          highlightIcon: 'check',
+          order: 2,
+        },
+        {
+          title: 'Destaques da arquitetura',
+          titleIcon: 'server',
+          highlight: 'Alta performance e zero dependência de renderização bloqueante',
+          highlightIcon: 'check',
+          order: 3,
+        },
       ],
     },
-  ];
+  ]);
 
   protected accentFor(index: number, color?: string | null, icon?: string | null): CardAccent {
     if (color && (color in CARD_ACCENT_MAP)) {
@@ -478,28 +707,311 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     return CARD_ACCENTS[index % CARD_ACCENTS.length];
   }
 
+  protected getAppCardBadges(app: PortalAppCard, accent: CardAccent): PortalCardBadge[] {
+    const badges: PortalCardBadge[] = [];
+
+    if (app.trialBadgeLabel) {
+      badges.push({
+        label: app.trialBadgeLabel,
+        classes: 'bg-primary-a3 text-primary-a11',
+        icon: 'sparkles',
+        tooltip: [app.statusLabel, app.trialTooltip, app.instanceBadgeLabel]
+          .filter(Boolean)
+          .join(' · '),
+      });
+    } else {
+      badges.push({
+        label: app.statusLabel,
+        classes: app.isInstalled ? 'bg-jade-a3 text-jade-a11' : 'bg-amber-a3 text-amber-a11',
+        dotClass: app.isInstalled ? 'bg-jade-9' : 'bg-amber-9',
+        tooltip: app.instanceBadgeLabel || '',
+      });
+    }
+
+    if (app.badgeLabel) {
+      badges.push({
+        label: app.badgeLabel,
+        classes: accent.badgeClass,
+        tooltip: app.rawApp?.default ? 'Aplicação padrão deste workspace' : '',
+      });
+    }
+
+    return badges;
+  }
+
+  protected getAppCardMetaLabel(app: PortalAppCard): string {
+    const parts: string[] = [];
+    if (app.rawApp?.default) {
+      parts.push('Padrão');
+    }
+    if (app.instanceBadgeLabel) {
+      parts.push(app.instanceBadgeLabel);
+    }
+    return parts.join(' · ');
+  }
+
+  protected getWorkspaceColor(ws: Workspace, index: number): CardColorKey {
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const overrides = this.cardColorOverrides();
+    const raw =
+      overrides[`ws:${activeCorpId}:${ws.id}`] ||
+      overrides[ws.id || ''] ||
+      ws.color ||
+      '';
+    return this.normalizeColor(raw, ws.name, index + 1);
+  }
+
+  protected getWorkspaceCardBadges(ws: Workspace, accent: CardAccent): PortalCardBadge[] {
+    const badges: PortalCardBadge[] = [];
+    if (this.context.activeWorkspace()?.id === ws.id) {
+      badges.push({
+        label: 'Ativo',
+        classes: 'bg-jade-a3 text-jade-a11',
+        dotClass: 'bg-jade-9',
+      });
+    }
+    badges.push({
+      label: ws.default ? 'Padrão' : 'Workspace',
+      classes: accent.badgeClass,
+    });
+    return badges;
+  }
+
+  protected getWorkspaceOperationalAppLabel(ws: Workspace): string {
+    const count = this.context.getOperationalApplicationsForWorkspace(ws).length;
+    return `${count} ${count === 1 ? 'aplicação' : 'aplicações'}`;
+  }
+
+  protected getCorporationColor(corp: CorporationSummary, index: number): CardColorKey {
+    const overrides = this.cardColorOverrides();
+    const raw = overrides[`corp:${corp.id}`] || overrides[corp.id] || corp.color || '';
+    return this.normalizeColor(raw, corp.name, index);
+  }
+
+  protected getCorporationCardBadges(
+    corp: CorporationSummary,
+    accent: CardAccent,
+  ): PortalCardBadge[] {
+    const badges: PortalCardBadge[] = [];
+    if (this.auth.corporation()?.id === corp.id) {
+      badges.push({
+        label: 'Selecionada',
+        classes: 'bg-jade-a3 text-jade-a11',
+        dotClass: 'bg-jade-9',
+      });
+    }
+    badges.push({
+      label: corp.parentCorporationId ? 'Filial' : 'Matriz',
+      classes: corp.parentCorporationId ? 'bg-neutral-a4 text-neutral-a11' : accent.badgeClass,
+    });
+    if (corp.isOwner) {
+      badges.push({
+        label: 'Owner',
+        classes: 'bg-amber-a3 text-amber-a11',
+        icon: 'crown',
+      });
+    }
+    return badges;
+  }
+
   protected setCardColor(card: PortalAppCard, color: CardColorKey, event?: Event): void {
     event?.stopPropagation();
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const activeWsId = this.context.activeWorkspace()?.id || '';
+    const scopedKey = `app:${activeCorpId}:${activeWsId}:${card.id}`;
+
     this.cardColorOverrides.update((prev) => ({
       ...prev,
+      [scopedKey]: color,
+      [`app:${activeCorpId}:${card.id}`]: color,
       [card.id]: color,
     }));
 
-    if (this.selectedAppForModules()?.id === card.id) {
-      this.selectedAppForModules.update((curr) => (curr ? { ...curr, color } : null));
-    }
+    this.savePortalPreference({
+      targetType: 'application',
+      targetId: card.id,
+      corporationId: activeCorpId || null,
+      workspaceId: activeWsId || null,
+      color,
+    });
+  }
 
-    if (card.rawApp?.id) {
-      this.http
-        .put(`${environment.apiUrl}/application`, {
-          id: card.rawApp.id,
-          name: card.rawApp.name,
-          icon: card.rawApp.icon,
-          description: card.rawApp.description,
-          color,
-        })
-        .subscribe({ error: () => {} });
+  protected setWorkspaceCardColor(ws: Workspace, color: CardColorKey): void {
+    if (!ws.id) {
+      return;
     }
+    const activeCorpId = this.auth.corporation()?.id || '';
+    this.cardColorOverrides.update((prev) => ({
+      ...prev,
+      [`ws:${activeCorpId}:${ws.id}`]: color,
+      [ws.id!]: color,
+    }));
+
+    this.savePortalPreference({
+      targetType: 'workspace',
+      targetId: ws.id,
+      corporationId: activeCorpId || null,
+      workspaceId: ws.id,
+      color,
+    });
+  }
+
+  protected setCorporationCardColor(corp: CorporationSummary, color: CardColorKey): void {
+    this.cardColorOverrides.update((prev) => ({
+      ...prev,
+      [`corp:${corp.id}`]: color,
+      [corp.id]: color,
+    }));
+
+    this.savePortalPreference({
+      targetType: 'corporation',
+      targetId: corp.id,
+      corporationId: corp.id,
+      color,
+    });
+  }
+
+  protected toggleAppFavorite(card: PortalAppCard): void {
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const activeWsId = this.context.activeWorkspace()?.id || '';
+    const key = `app:${activeCorpId}:${activeWsId}:${card.id}`;
+    const nextVal = !this.isStarred(key) && !this.isStarred(card.id);
+
+    this.starredIds.update((prev) => ({
+      ...prev,
+      [key]: nextVal,
+      [card.id]: nextVal,
+    }));
+
+    this.savePortalPreference({
+      targetType: 'application',
+      targetId: card.id,
+      corporationId: activeCorpId || null,
+      workspaceId: activeWsId || null,
+      favorite: nextVal,
+    });
+  }
+
+  protected toggleWorkspaceFavorite(ws: Workspace): void {
+    if (!ws.id) {
+      return;
+    }
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const key = `ws:${activeCorpId}:${ws.id}`;
+    const nextVal = !this.isStarred(key) && !this.isStarred(ws.id);
+
+    this.starredIds.update((prev) => ({
+      ...prev,
+      [key]: nextVal,
+      [ws.id!]: nextVal,
+    }));
+
+    this.savePortalPreference({
+      targetType: 'workspace',
+      targetId: ws.id,
+      corporationId: activeCorpId || null,
+      workspaceId: ws.id,
+      favorite: nextVal,
+    });
+  }
+
+  protected toggleCorporationFavorite(corp: CorporationSummary): void {
+    const key = `corp:${corp.id}`;
+    const nextVal = !this.isStarred(key) && !this.isStarred(corp.id);
+
+    this.starredIds.update((prev) => ({
+      ...prev,
+      [key]: nextVal,
+      [corp.id]: nextVal,
+    }));
+
+    this.savePortalPreference({
+      targetType: 'corporation',
+      targetId: corp.id,
+      corporationId: corp.id,
+      favorite: nextVal,
+    });
+  }
+
+  protected isAppFavorite(card: PortalAppCard): boolean {
+    const activeCorpId = this.auth.corporation()?.id || '';
+    const activeWsId = this.context.activeWorkspace()?.id || '';
+    return (
+      this.isStarred(`app:${activeCorpId}:${activeWsId}:${card.id}`) ||
+      this.isStarred(`app:${activeCorpId}:${card.id}`) ||
+      this.isStarred(card.id)
+    );
+  }
+
+  protected isWorkspaceFavorite(ws: Workspace): boolean {
+    const activeCorpId = this.auth.corporation()?.id || '';
+    return this.isStarred(`ws:${activeCorpId}:${ws.id}`) || this.isStarred(ws.id);
+  }
+
+  protected isCorporationFavorite(corp: CorporationSummary): boolean {
+    return this.isStarred(`corp:${corp.id}`) || this.isStarred(corp.id) || Boolean(corp.favorite);
+  }
+
+  private savePortalPreference(payload: SavePortalPreferenceRequest): void {
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
+    this.http
+      .post(`${environment.apiUrl}/security/portal-preferences`, payload)
+      .subscribe({ error: () => {} });
+  }
+
+  private loadUserPortalPreferences(): void {
+    if (!this.auth.isAuthenticated()) {
+      return;
+    }
+    this.http
+      .get<PortalPreferenceItem[]>(`${environment.apiUrl}/security/portal-preferences`)
+      .subscribe({
+        next: (items) => {
+          if (!items?.length) {
+            return;
+          }
+          const nextColors: Record<string, CardColorKey> = { ...this.cardColorOverrides() };
+          const nextStars: Record<string, boolean> = { ...this.starredIds() };
+
+          for (const item of items) {
+            const cleanColor = (item.color || '').trim().toLowerCase();
+            const isValidColor =
+              cleanColor === 'violet' ||
+              cleanColor === 'indigo' ||
+              cleanColor === 'jade' ||
+              cleanColor === 'amber';
+
+            if (item.targetType === 'application') {
+              const scopedKey = `app:${item.corporationId}:${item.workspaceId || ''}:${item.targetId}`;
+              const corpAppKey = `app:${item.corporationId}:${item.targetId}`;
+              if (isValidColor) {
+                nextColors[scopedKey] = cleanColor as CardColorKey;
+                nextColors[corpAppKey] = cleanColor as CardColorKey;
+              }
+              nextStars[scopedKey] = Boolean(item.favorite);
+              nextStars[corpAppKey] = Boolean(item.favorite);
+            } else if (item.targetType === 'workspace') {
+              const wsKey = `ws:${item.corporationId}:${item.targetId}`;
+              if (isValidColor) {
+                nextColors[wsKey] = cleanColor as CardColorKey;
+              }
+              nextStars[wsKey] = Boolean(item.favorite);
+            } else if (item.targetType === 'corporation') {
+              const corpKey = `corp:${item.targetId}`;
+              if (isValidColor) {
+                nextColors[corpKey] = cleanColor as CardColorKey;
+              }
+              nextStars[corpKey] = Boolean(item.favorite);
+            }
+          }
+
+          this.cardColorOverrides.set(nextColors);
+          this.starredIds.set(nextStars);
+        },
+        error: () => {},
+      });
   }
 
   protected openAppModulesModal(card: PortalAppCard, event?: Event): void {
@@ -509,6 +1021,82 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   protected closeAppModulesModal(): void {
     this.selectedAppForModules.set(null);
+  }
+
+  protected openOfferProvisionModal(card: PortalAppCard, event?: Event): void {
+    event?.stopPropagation();
+    this.pendingOfferApp.set(card);
+
+    const activeWsId = this.context.activeWorkspace()?.id;
+    const candidates = this.availableTargetWorkspacesForOffer();
+    const defaultTargetWsId =
+      (activeWsId && candidates.some((w) => w.id === activeWsId)
+        ? activeWsId
+        : candidates[0]?.id) ||
+      activeWsId ||
+      '';
+
+    this.selectedTargetWorkspaceId.set(defaultTargetWsId);
+    this.offerInstanceMode.set('isolated');
+
+    const others = this.context.getWorkspacesWithApplication(card.id, defaultTargetWsId || null);
+    this.selectedSharedSourceWorkspaceId.set(others[0]?.id || '');
+  }
+
+  protected selectTargetWorkspaceForOffer(wsId: string): void {
+    this.selectedTargetWorkspaceId.set(wsId);
+    const app = this.pendingOfferApp();
+    if (!app?.id) {
+      return;
+    }
+    const others = this.context.getWorkspacesWithApplication(app.id, wsId);
+    if (others.length === 0) {
+      this.offerInstanceMode.set('isolated');
+      this.selectedSharedSourceWorkspaceId.set('');
+    } else if (!others.some((w) => w.id === this.selectedSharedSourceWorkspaceId())) {
+      this.selectedSharedSourceWorkspaceId.set(others[0]?.id || '');
+    }
+  }
+
+  protected closeOfferProvisionModal(): void {
+    if (this.provisioningApp()) {
+      return;
+    }
+    this.pendingOfferApp.set(null);
+  }
+
+  protected confirmOfferProvision(): void {
+    const app = this.pendingOfferApp();
+    const targetWsId = this.selectedTargetWorkspaceId() || this.context.activeWorkspace()?.id;
+    if (!app?.id || !targetWsId || this.provisioningApp()) {
+      return;
+    }
+
+    const sharedWsId =
+      this.offerInstanceMode() === 'shared'
+        ? this.selectedSharedSourceWorkspaceId() || null
+        : null;
+
+    this.provisioningApp.set(true);
+    this.context
+      .provisionApplicationInWorkspace({
+        applicationId: app.id,
+        workspaceId: targetWsId,
+        sharedWithWorkspaceId: sharedWsId,
+      })
+      .subscribe({
+        next: () => {
+          this.provisioningApp.set(false);
+          this.pendingOfferApp.set(null);
+          const targetWs = this.context.workspaces().find((w) => w.id === targetWsId);
+          if (targetWs && targetWs.id !== this.context.activeWorkspace()?.id) {
+            this.context.selectWorkspace(targetWs);
+          }
+        },
+        error: () => {
+          this.provisioningApp.set(false);
+        },
+      });
   }
 
   private inferCategoryLabel(appName?: string | null): string {
@@ -699,25 +1287,76 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   }
 
   protected openWorkspace(ws: Workspace): void {
-    if (ws.id && ws.id !== this.context.activeWorkspace()?.id) {
-      this.context.selectWorkspace(ws);
-      return;
+    if (ws.id) {
+      this.context.selectWorkspace(ws, false);
+      this.selectedWorkspaceFilterId.set(ws.id);
+      this.selectedAppFilterId.set('all');
+      this.scrollToSection('minhas-apps');
     }
-    void this.router.navigateByUrl('/morphus');
   }
 
-  protected selectCorporation(corp: CorporationSummary): void {
-    if (this.auth.isLoading() || this.switchingCorpId() !== null) {
+  protected viewWorkspaceApplications(ws: Workspace): void {
+    if (ws.id && ws.id !== this.context.activeWorkspace()?.id) {
+      this.context.selectWorkspace(ws, false);
+    }
+    this.selectedAppFilterId.set('all');
+    this.scrollToSection('minhas-apps');
+  }
+
+  protected viewCorporationWorkspaces(corp: CorporationSummary): void {
+    if (corp.inactive) {
+      return;
+    }
+    if (this.auth.corporation()?.id !== corp.id) {
+      this.selectCorporation(corp, false, () => {
+        this.selectedWorkspaceFilterId.set('all');
+        this.scrollToSection('meus-workspaces');
+      });
+      return;
+    }
+    this.selectedWorkspaceFilterId.set('all');
+    this.scrollToSection('meus-workspaces');
+  }
+
+  protected viewCorporationApplications(corp: CorporationSummary): void {
+    if (corp.inactive) {
+      return;
+    }
+    if (this.auth.corporation()?.id !== corp.id) {
+      this.selectCorporation(corp, false, () => {
+        this.selectedAppFilterId.set('all');
+        this.scrollToSection('minhas-apps');
+      });
+      return;
+    }
+    this.selectedAppFilterId.set('all');
+    this.scrollToSection('minhas-apps');
+  }
+
+  protected selectCorporation(
+    corp: CorporationSummary,
+    scrollToApps = true,
+    onDone?: () => void,
+  ): void {
+    if (corp.inactive || this.auth.isLoading() || this.switchingCorpId() !== null) {
       return;
     }
     if (this.auth.corporation()?.id === corp.id) {
-      void this.router.navigateByUrl('/morphus');
+      onDone?.();
+      if (scrollToApps) {
+        this.scrollToSection('minhas-apps');
+      }
       return;
     }
     this.switchingCorpId.set(corp.id);
     this.auth.switchCorporation(corp.id).subscribe({
       next: () => {
         this.switchingCorpId.set(null);
+        this.loadUserPortalPreferences();
+        onDone?.();
+        if (scrollToApps) {
+          this.scrollToSection('minhas-apps');
+        }
       },
       error: () => {
         this.switchingCorpId.set(null);
@@ -725,11 +1364,60 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  private scrollToSection(sectionId: string): void {
+    if (!this.isBrowser) {
+      return;
+    }
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      el?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 60);
+  }
+
   ngAfterViewInit(): void {
     if (!this.isBrowser) {
       return;
     }
     this.initRevealObserver();
+    this.loadShowcaseFromDatabase();
+    this.loadUserPortalPreferences();
+  }
+
+  private loadShowcaseFromDatabase(): void {
+    this.http
+      .get<{
+        features?: ShowcaseFeatureItem[];
+        modules?: ShowcaseModuleItem[];
+      }>(`${environment.apiUrl}/website/showcase`)
+      .subscribe({
+        next: (res) => {
+          if (res?.features && res.features.length > 0) {
+            const sortedFeatures = [...res.features]
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((f) => ({
+                ...f,
+                highlights: [...(f.highlights ?? [])].sort(
+                  (a, b) => (a.order ?? 0) - (b.order ?? 0),
+                ),
+              }));
+            this.showcaseFeatures.set(sortedFeatures);
+          }
+
+          if (res?.modules && res.modules.length > 0) {
+            const sortedModules = [...res.modules].sort(
+              (a, b) => (a.order ?? 0) - (b.order ?? 0),
+            );
+            this.showcaseModules.set(sortedModules);
+          }
+
+          if (this.isBrowser) {
+            setTimeout(() => this.initRevealObserver(), 30);
+          }
+        },
+        error: () => {
+          // Mantém os cards padrão em caso de indisponibilidade temporária da API
+        },
+      });
   }
 
   private initRevealObserver(): void {

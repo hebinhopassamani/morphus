@@ -1,0 +1,81 @@
+<div class="relative w-full overflow-hidden rounded-xl border border-neutral-a5 bg-[#1e1e1e]">
+  <!-- Barra superior estilo VS Code -->
+  <div class="flex items-center justify-between border-b border-white/10 bg-[#252526] px-3.5 py-1.5 text-[11px] text-white/80">
+    <div class="flex items-center gap-2">
+      <span class="size-2.5 rounded-full bg-[#ff5f56]"></span>
+      <span class="size-2.5 rounded-full bg-[#ffbd2e]"></span>
+      <span class="size-2.5 rounded-full bg-[#27c93f]"></span>
+      <span class="ms-2 font-mono font-semibold text-white">
+        VS Code Monaco Editor · {{ language.toUpperCase() }}
+      </span>
+    </div>
+    <div class="flex flex-wrap items-center gap-2">
+      @if (vsCodeSyncActive()) {
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-[#34d399]/40 bg-[#10b981]/20 px-2.5 py-0.5 text-[10px] font-semibold text-[#6ee7b7]">
+          <span class="size-1.5 animate-pulse rounded-full bg-[#34d399]"></span>
+          Sincronizado com VS Code (Ctrl+S lá atualiza aqui!)
+        </span>
+      }
+      <button
+        type="button"
+        (click)="openInVsCodeDesktop()"
+        class="inline-flex items-center gap-1.5 rounded border border-[#38bdf8]/40 bg-[#0ea5e9]/20 px-2.5 py-0.5 text-[11px] font-semibold text-[#7dd3fc] transition hover:bg-[#0ea5e9]/30"
+      >
+        <span>Editar no VS Code</span>
+      </button>
+      <button
+        type="button"
+        (click)="togglePrettierConfig()"
+        class="rounded border border-[#fbbf24]/40 bg-[#f59e0b]/20 px-2.5 py-0.5 font-mono text-[11px] font-semibold text-[#fde68a] transition hover:bg-[#f59e0b]/30"
+      >
+        ⚙️ .prettierrc
+      </button>
+      <button
+        type="button"
+        (click)="formatDocument()"
+        class="rounded bg-primary-9 px-2.5 py-0.5 text-[11px] font-semibold text-white transition hover:bg-primary-10"
+      >
+        Formatar (Prettier)
+      </button>
+    </div>
+  </div>
+
+  @if (showPrettierConfig()) {
+    <div class="border-b border-white/10 bg-[#252526] p-3 text-xs text-white">
+      <div class="mb-1.5 flex items-center justify-between">
+        <span class="font-mono text-[11px] font-semibold text-[#fbbf24]">
+          Configuração ativa do Prettier (.prettierrc)
+        </span>
+        <button
+          type="button"
+          (click)="formatDocument(); togglePrettierConfig(false)"
+          class="rounded bg-white/15 px-2.5 py-0.5 text-[11px] font-semibold text-white hover:bg-white/25"
+        >
+          Aplicar e Fechar
+        </button>
+      </div>
+      <textarea
+        rows="6"
+        [ngModel]="prettierConfigJson()"
+        (ngModelChange)="onPrettierConfigChange($event)"
+        class="w-full rounded border border-white/15 bg-[#1e1e1e] p-2.5 font-mono text-[11px] text-[#6ee7b7] outline-none"
+      ></textarea>
+    </div>
+  }
+
+  @if (!monacoFailed()) {
+    <div
+      #editorContainer
+      class="w-full"
+      [style.height]="resolvedHeight()"
+    ></div>
+  } @else {
+    <textarea
+      rows="12"
+      [ngModel]="value"
+      (ngModelChange)="onFallbackChange($event)"
+      [placeholder]="placeholder"
+      class="w-full bg-[#1e1e1e] p-3.5 font-mono text-xs leading-relaxed text-neutral-100 outline-none"
+    ></textarea>
+  }
+</div>

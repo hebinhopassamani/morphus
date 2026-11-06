@@ -8,6 +8,10 @@ export default [
     component: WorkspaceListComponent,
   },
   {
+    path: 'new',
+    component: WorkspaceEditComponent,
+  },
+  {
     path: ':id',
     component: WorkspaceEditComponent,
   },

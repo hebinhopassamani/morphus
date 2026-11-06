@@ -1,14 +1,17 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Mpx.Application.Handlers;
+using Mpx.Domain.Entities;
 using Mpx.Domain.Security;
+using Mpx.Infrastructure.Data;
 
 namespace Mpx.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/security")]
-public class SecurityController(SecurityHandler securityHandler) : ControllerBase
+public class SecurityController(SecurityHandler securityHandler, MorphusDbContext dbContext) : ControllerBase
 {
   [AllowAnonymous]
   [HttpPost("login")]
@@ -234,6 +237,176 @@ public class SecurityController(SecurityHandler securityHandler) : ControllerBas
       return NotFound();
 
     return Ok(updatedUser);
+  }
+
+  [Authorize]
+  [HttpGet("portal-preferences")]
+  public async Task<IActionResult> GetPortalPreferences()
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var items = new List<PortalPreferenceItem>();
+
+    var corpUsers = await dbContext.Set<CorporationUser>()
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(cu => cu.UserId == userId)
+        .ToListAsync();
+
+    foreach (var cu in corpUsers)
+    {
+      items.Add(new PortalPreferenceItem
+      {
+        TargetType = "corporation",
+        TargetId = cu.CorporationId,
+        CorporationId = cu.CorporationId,
+        Color = cu.Color,
+        Favorite = cu.Favorite
+      });
+    }
+
+    var wsUsers = await dbContext.Set<WorkspaceUser>()
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(wu => wu.UserId == userId)
+        .ToListAsync();
+
+    foreach (var wu in wsUsers)
+    {
+      items.Add(new PortalPreferenceItem
+      {
+        TargetType = "workspace",
+        TargetId = wu.WorkspaceId,
+        CorporationId = wu.CorporationId,
+        WorkspaceId = wu.WorkspaceId,
+        Color = wu.Color,
+        Favorite = wu.Favorite
+      });
+    }
+
+    var appUsers = await dbContext.Set<ApplicationUser>()
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(au => au.UserId == userId)
+        .ToListAsync();
+
+    foreach (var au in appUsers)
+    {
+      items.Add(new PortalPreferenceItem
+      {
+        TargetType = "application",
+        TargetId = au.ApplicationId,
+        CorporationId = au.CorporationId,
+        WorkspaceId = au.WorkspaceId,
+        Color = au.Color,
+        Favorite = au.Favorite
+      });
+    }
+
+    return Ok(items);
+  }
+
+  [Authorize]
+  [HttpPost("portal-preferences")]
+  public async Task<IActionResult> SavePortalPreference([FromBody] SavePortalPreferenceRequest request)
+  {
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    var corpIdClaim = User.FindFirst("corporation_id")?.Value;
+    if (!Guid.TryParse(userIdClaim, out var userId))
+      return Unauthorized();
+
+    var corpId = request.CorporationId.HasValue && request.CorporationId.Value != Guid.Empty
+        ? request.CorporationId.Value
+        : (Guid.TryParse(corpIdClaim, out var parsedCorpId) ? parsedCorpId : Guid.Empty);
+
+    var type = (request.TargetType ?? string.Empty).Trim().ToLowerInvariant();
+
+    if (type == "corporation")
+    {
+      var targetCorpId = request.TargetId != Guid.Empty ? request.TargetId : corpId;
+      var cu = await dbContext.Set<CorporationUser>()
+          .IgnoreQueryFilters()
+          .FirstOrDefaultAsync(x => x.CorporationId == targetCorpId && x.UserId == userId);
+
+      if (cu is not null)
+      {
+        if (request.Color is not null)
+          cu.Color = request.Color.Trim();
+        if (request.Favorite.HasValue)
+          cu.Favorite = request.Favorite.Value;
+
+        await dbContext.SaveChangesAsync();
+      }
+    }
+    else if (type == "workspace")
+    {
+      var wu = await dbContext.Set<WorkspaceUser>()
+          .IgnoreQueryFilters()
+          .FirstOrDefaultAsync(x => x.WorkspaceId == request.TargetId && x.UserId == userId);
+
+      if (wu is null && corpId != Guid.Empty)
+      {
+        wu = new WorkspaceUser
+        {
+          CorporationId = corpId,
+          WorkspaceId = request.TargetId,
+          UserId = userId,
+          Color = request.Color?.Trim(),
+          Favorite = request.Favorite ?? false,
+          IsOwner = false,
+          Inactive = false,
+          System = false
+        };
+        await dbContext.Set<WorkspaceUser>().AddAsync(wu);
+      }
+      else if (wu is not null)
+      {
+        if (request.Color is not null)
+          wu.Color = request.Color.Trim();
+        if (request.Favorite.HasValue)
+          wu.Favorite = request.Favorite.Value;
+      }
+
+      await dbContext.SaveChangesAsync();
+    }
+    else if (type == "application")
+    {
+      var au = await dbContext.Set<ApplicationUser>()
+          .IgnoreQueryFilters()
+          .FirstOrDefaultAsync(x => x.ApplicationId == request.TargetId && x.UserId == userId);
+
+      if (au is null && corpId != Guid.Empty)
+      {
+        au = new ApplicationUser
+        {
+          CorporationId = corpId,
+          WorkspaceId = request.WorkspaceId,
+          ApplicationId = request.TargetId,
+          UserId = userId,
+          Color = request.Color?.Trim(),
+          Favorite = request.Favorite ?? false,
+          IsOwner = false,
+          Inactive = false,
+          System = false
+        };
+        await dbContext.Set<ApplicationUser>().AddAsync(au);
+      }
+      else if (au is not null)
+      {
+        if (request.WorkspaceId.HasValue)
+          au.WorkspaceId = request.WorkspaceId.Value;
+        if (request.Color is not null)
+          au.Color = request.Color.Trim();
+        if (request.Favorite.HasValue)
+          au.Favorite = request.Favorite.Value;
+      }
+
+      await dbContext.SaveChangesAsync();
+    }
+
+    return Ok(new { success = true });
   }
 
   [Authorize]

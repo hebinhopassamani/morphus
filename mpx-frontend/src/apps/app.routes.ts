@@ -12,6 +12,26 @@ export const routes: Routes = [
     loadChildren: () => import('@website/routes').then((m) => m.routes),
   },
   {
+    path: 'produtos',
+    redirectTo: 'website/produtos',
+    pathMatch: 'full',
+  },
+  {
+    path: 'contato',
+    redirectTo: 'website/contato',
+    pathMatch: 'full',
+  },
+  {
+    path: 'privacidade',
+    redirectTo: 'website/privacidade',
+    pathMatch: 'full',
+  },
+  {
+    path: 'termos',
+    redirectTo: 'website/termos',
+    pathMatch: 'full',
+  },
+  {
     path: 'morphus',
     canActivate: [authGuard],
     loadChildren: () => import('@morphus/routes').then((m) => m.routes),
@@ -19,6 +39,11 @@ export const routes: Routes = [
   {
     path: 'security',
     loadChildren: () => import('@security/routes').then((m) => m.routes),
+  },
+  {
+    path: 'app',
+    canActivate: [authGuard],
+    loadChildren: () => import('@app-builder/routes').then((m) => m.routes),
   },
   {
     path: 'notfound',

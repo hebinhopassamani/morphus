@@ -1,0 +1,135 @@
+<section class="mx-auto flex w-full max-w-4xl flex-col gap-y-8">
+  <div class="flex flex-col items-start gap-y-3">
+    <a
+      matButton
+      class="tertiary small"
+      routerLink="/website/home"
+    >
+      <mat-icon svgIcon="arrow-left" />
+      Voltar para a página inicial
+    </a>
+
+    <div class="inline-flex items-center gap-x-2 rounded-lg bg-primary-a3 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-a11">
+      <mat-icon svgIcon="mail" class="size-3.5" />
+      <span>Fale Conosco</span>
+    </div>
+
+    <h1 class="text-3xl font-extrabold tracking-tight text-neutral-12 sm:text-4xl">
+      Quer o Morphus exclusivo nos seus próprios servidores?
+    </h1>
+
+    <p class="max-w-2xl text-base leading-relaxed text-neutral-a11">
+      Leve todo o ecossistema Morphus para dentro da infraestrutura da sua empresa ou tire suas dúvidas comerciais diretamente com nossa equipe.
+    </p>
+  </div>
+
+  @if (submitted()) {
+    <div class="flex flex-col items-center gap-y-4 rounded-2xl border border-jade-a5 bg-jade-a2 p-8 text-center">
+      <div class="flex size-14 items-center justify-center rounded-2xl bg-jade-a3 text-jade-a11">
+        <mat-icon svgIcon="check" class="size-7" />
+      </div>
+      <h2 class="text-2xl font-bold text-neutral-12">Contato iniciado com sucesso!</h2>
+      <p class="max-w-xl text-sm leading-relaxed text-neutral-11 sm:text-base">
+        {{ feedbackMessage() }}
+      </p>
+      <div class="mt-2 flex flex-wrap items-center justify-center gap-3">
+        <button matButton class="secondary" type="button" (click)="resetForm()">
+          Enviar outra mensagem
+        </button>
+        <a matButton class="primary" routerLink="/website/home">
+          Voltar ao início
+        </a>
+      </div>
+    </div>
+  } @else {
+    <form
+      #contactForm="ngForm"
+      (ngSubmit)="contactForm.form.valid && submitContact()"
+      class="flex flex-col gap-y-5 rounded-2xl border border-neutral-a4 bg-white p-6 shadow-xs sm:p-8 dark:bg-neutral-2"
+    >
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <mat-form-field class="w-full">
+          <mat-label>Seu nome</mat-label>
+          <input
+            matInput
+            name="name"
+            required
+            placeholder="Informe seu nome completo"
+            [(ngModel)]="name"
+          />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Seu e-mail corporativo</mat-label>
+          <input
+            matInput
+            type="email"
+            name="email"
+            required
+            placeholder="voce@suaempresa.com.br"
+            [(ngModel)]="email"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <mat-form-field class="w-full">
+          <mat-label>Empresa / Corporação</mat-label>
+          <input
+            matInput
+            name="company"
+            placeholder="Nome da sua empresa"
+            [(ngModel)]="company"
+          />
+        </mat-form-field>
+
+        <mat-form-field class="w-full">
+          <mat-label>Telefone / WhatsApp</mat-label>
+          <input
+            matInput
+            name="phone"
+            placeholder="(00) 00000-0000"
+            [(ngModel)]="phone"
+          />
+        </mat-form-field>
+      </div>
+
+      <mat-form-field class="w-full">
+        <mat-label>Assunto</mat-label>
+        <input
+          matInput
+          name="subject"
+          placeholder="Ex.: Morphus exclusivo em servidor próprio"
+          [(ngModel)]="subject"
+        />
+      </mat-form-field>
+
+      <mat-form-field class="w-full">
+        <mat-label>Como podemos ajudar sua empresa?</mat-label>
+        <textarea
+          matInput
+          name="message"
+          rows="5"
+          required
+          placeholder="Conte-nos sobre a estrutura da sua empresa, número de filiais ou necessidade de instalação dedicada..."
+          [(ngModel)]="message"
+        ></textarea>
+      </mat-form-field>
+
+      <div class="flex flex-wrap items-center justify-end gap-3 border-t border-neutral-a4 pt-4">
+        <a matButton type="button" routerLink="/website/home">
+          Cancelar
+        </a>
+        <button
+          matButton
+          class="primary large"
+          type="submit"
+          [disabled]="contactForm.invalid || sending()"
+        >
+          <mat-icon svgIcon="send" />
+          {{ sending() ? 'Enviando...' : 'Enviar mensagem' }}
+        </button>
+      </div>
+    </form>
+  }
+</section>

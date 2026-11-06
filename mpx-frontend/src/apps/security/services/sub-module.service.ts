@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { SubModule } from '@security/entities/sub-module';
+import { DeleteDependenciesSummary } from '@security/services/module.service';
 import { environment } from '@src/environments/environment';
 
 @Injectable({
@@ -25,6 +26,10 @@ export class SubModuleService {
       .pipe(catchError(() => this.http.get<SubModule[]>(`${this.apiUrl}/module/${moduleId}`)));
   }
 
+  getDependencies(subModuleId: string): Observable<DeleteDependenciesSummary> {
+    return this.http.get<DeleteDependenciesSummary>(`${this.apiUrl}/${subModuleId}/dependencies`);
+  }
+
   create(entity: Partial<SubModule>): Observable<SubModule> {
     return this.http.post<SubModule>(this.apiUrl, entity);
   }
@@ -33,8 +38,9 @@ export class SubModuleService {
     return this.http.put<SubModule>(`${this.apiUrl}/${id}`, entity);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string, force = false): Observable<void> {
+    const query = force ? '?force=true' : '';
+    return this.http.delete<void>(`${this.apiUrl}/${id}${query}`);
   }
 }
 

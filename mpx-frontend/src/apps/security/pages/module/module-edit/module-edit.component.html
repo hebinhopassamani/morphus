@@ -20,8 +20,9 @@
     <!-- =================================================================== -->
     <mat-tab label="Dados do Módulo">
       <form
+        #form="ngForm"
         class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
-        (ngSubmit)="onSave()"
+        (ngSubmit)="onSave(form)"
       >
         <!-- Aplicação -->
         <mat-form-field>
@@ -34,7 +35,7 @@
             (ngModelChange)="updateField('applicationId', $event)"
             #applicationId="ngModel"
           >
-            @for (app of applications(); track app.id) {
+            @for (app of applications(); track app.id ?? $index) {
               <mat-option [value]="app.id">{{ app.name }}</mat-option>
             }
           </mat-select>
@@ -43,42 +44,23 @@
           </mat-error>
         </mat-form-field>
 
-        <!-- Nome e Chave (Key) -->
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <mat-form-field>
-            <mat-label>Nome do Módulo</mat-label>
-            <input
-              matInput
-              name="name"
-              required
-              minlength="3"
-              placeholder="Ex: Gestão Financeira"
-              [ngModel]="entity().name"
-              (ngModelChange)="updateField('name', $event)"
-              #moduleName="ngModel"
-            />
-            <mat-error class="morphus-mat-error">
-              <span class="morphus-mat-error-label">{{ validator.showErros(moduleName) }}</span>
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field
-            class="cursor-pointer"
-            [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
-            (click)="copyKey(entity().key)"
-          >
-            <mat-label>
-              {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
-            </mat-label>
-            <input
-              matInput
-              name="key"
-              readonly
-              class="cursor-pointer font-mono select-all opacity-75"
-              [ngModel]="entity().key"
-            />
-          </mat-form-field>
-        </div>
+        <!-- Nome do Módulo -->
+        <mat-form-field>
+          <mat-label>Nome do Módulo</mat-label>
+          <input
+            matInput
+            name="name"
+            required
+            minlength="3"
+            placeholder="Ex: Gestão Financeira"
+            [ngModel]="entity().name"
+            (ngModelChange)="updateField('name', $event)"
+            #moduleName="ngModel"
+          />
+          <mat-error class="morphus-mat-error">
+            <span class="morphus-mat-error-label">{{ validator.showErros(moduleName) }}</span>
+          </mat-error>
+        </mat-form-field>
 
         <!-- Descrição -->
         <mat-form-field>
@@ -118,7 +100,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <h3 class="mpx-title-medium text-neutral-12">
-                  Submódulos de {{ entity().name }}
+                  Submódulos de {{ entity().name?.trim() || '(Sem nome)' }}
                 </h3>
                 <span class="rounded-full bg-primary-a3 px-2.5 py-0.5 text-xs font-medium text-primary-11">
                   Vínculo 1:N Exclusivo
@@ -152,35 +134,18 @@
                 </span>
               </div>
 
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <mat-form-field>
-                  <mat-label>Nome do Submódulo</mat-label>
-                  <input
-                    matInput
-                    name="subModuleName"
-                    required
-                    minlength="2"
-                    placeholder="Ex: Lançamento de Notas, Aprovação, Cadastro..."
-                    [ngModel]="editingSubModule().name"
-                    (ngModelChange)="updateSubModuleField('name', $event)"
-                  />
-                </mat-form-field>
-
-                <mat-form-field
-                  class="cursor-pointer"
-                  [matTooltip]="keyCopied() ? 'Copiado!' : 'Clique para copiar a Chave do Submódulo'"
-                  (click)="copyKey(editingSubModule().key)"
-                >
-                  <mat-label>Chave Única (SDK Key)</mat-label>
-                  <input
-                    matInput
-                    name="subModuleKey"
-                    readonly
-                    class="cursor-pointer font-mono select-all opacity-75"
-                    [ngModel]="editingSubModule().key"
-                  />
-                </mat-form-field>
-              </div>
+              <mat-form-field>
+                <mat-label>Nome do Submódulo</mat-label>
+                <input
+                  matInput
+                  name="subModuleName"
+                  required
+                  minlength="2"
+                  placeholder="Ex: Lançamento de Notas, Aprovação, Cadastro..."
+                  [ngModel]="editingSubModule().name"
+                  (ngModelChange)="updateSubModuleField('name', $event)"
+                />
+              </mat-form-field>
 
               <mat-form-field>
                 <mat-label>Descrição do Submódulo</mat-label>
@@ -234,19 +199,6 @@
                       </div>
                       <span class="mpx-body-medium font-medium text-neutral-12">{{ sub.name }}</span>
                     </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="key">
-                  <th mat-header-cell *matHeaderCellDef>Chave (Key)</th>
-                  <td mat-cell *matCellDef="let sub">
-                    <code
-                      class="cursor-pointer rounded bg-neutral-a3 px-2 py-0.5 font-mono text-xs text-neutral-12 hover:bg-neutral-a4"
-                      title="Clique para copiar"
-                      (click)="copyKey(sub.key)"
-                    >
-                      {{ sub.key }}
-                    </code>
                   </td>
                 </ng-container>
 

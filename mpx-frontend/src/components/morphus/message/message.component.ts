@@ -18,7 +18,7 @@ import {
   BuiDialogTitle,
 } from '@builder-kit/dialog';
 import { MorphusMessageService } from '@core/mpx-message';
-import { MorphusMessageSeverity } from '@core/mpx-types';
+import { MorphusMessageSeverity, MorphusMessageType } from '@core/mpx-types';
 
 @Component({
   selector: 'mpx-message',
@@ -49,6 +49,14 @@ import { MorphusMessageSeverity } from '@core/mpx-types';
 })
 export class MpxMessageComponent {
   protected readonly messageService = inject(MorphusMessageService);
+
+  public get messageType(): MorphusMessageType {
+    return this.messageService.messageType;
+  }
+
+  public set messageType(value: MorphusMessageType) {
+    this.messageService.messageType = value;
+  }
 
   protected doubleCheckChecked = false;
   protected doubleCheckInput = '';
@@ -85,7 +93,7 @@ export class MpxMessageComponent {
     const msg = this.messageService.message();
 
     if (msg.doubleCheckText) {
-      return this.doubleCheckInput.trim() !== msg.doubleCheckText.trim();
+      return this.doubleCheckInput.trim().toUpperCase() !== msg.doubleCheckText.trim().toUpperCase();
     }
 
     if ((msg.doubleCheck || msg.dobbleConfirmation) && !this.doubleCheckChecked) {

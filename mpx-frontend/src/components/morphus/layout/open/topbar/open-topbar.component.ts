@@ -7,7 +7,11 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { Auth } from '@core/mpx-auth';
 import { Scheme, Theming } from '@core/mpx-theming';
+import { MorphusApplication } from '@morphus/entities/application';
+import { Workspace } from '@morphus/entities/workspace';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
+import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { CorporationSummary } from '@security/entities/session';
 
 @Component({
   imports: [
@@ -26,6 +30,7 @@ import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
 })
 export class WebTopBarComponent {
   protected readonly auth = inject(Auth);
+  protected readonly context = inject(MorphusContextService);
   private readonly router = inject(Router);
   protected readonly theming = inject(Theming);
   protected readonly isDark = computed(() => this.theming.isDark());
@@ -56,6 +61,26 @@ export class WebTopBarComponent {
     }
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   });
+
+  protected selectTopbarApplication(app: MorphusApplication): void {
+    this.context.selectApplication(app);
+  }
+
+  protected selectTopbarWorkspace(ws: Workspace): void {
+    const isOnWebsite = (this.router.url || '').startsWith('/website');
+    this.context.selectWorkspace(ws, !isOnWebsite);
+  }
+
+  protected selectTopbarCorporation(corp: CorporationSummary): void {
+    if (corp.inactive || corp.id === this.auth.corporation()?.id) {
+      return;
+    }
+    this.auth.switchCorporation(corp.id).subscribe({
+      next: () => {
+        this.context.loadWorkspaces();
+      },
+    });
+  }
 
   protected toggleScheme(): void {
     this.theming.scheme.set(this.isDark() ? 'light' : 'dark');

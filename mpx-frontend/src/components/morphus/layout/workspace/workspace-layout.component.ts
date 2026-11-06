@@ -6,6 +6,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Media } from '@core/mpx-media';
 import { Theming } from '@core/mpx-theming';
 import { MpxScrollViewport } from '@core/mpx-viewport-scroller';
+import { MorphusContextService } from '@morphus/services/morphus-context.service';
 import { MpxContentComponent } from './content/content.component';
 import { MpxSidebarComponent } from './sidebar/sidebar.component';
 import { MpxTopBarComponent } from './topbar/topbar.component';
@@ -28,6 +29,7 @@ import { MpxTopBarComponent } from './topbar/topbar.component';
 export class MorphusWorkspaceLayout {
   private readonly media = inject(Media);
   private readonly router = inject(Router);
+  private readonly context = inject(MorphusContextService);
   protected readonly theming = inject(Theming);
   private readonly sidenav = viewChild.required<MatSidenav>('sidenav');
   private readonly routerEvent = toSignal(this.router.events);
@@ -43,6 +45,18 @@ export class MorphusWorkspaceLayout {
       }
 
       untracked(() => this.sidenav().toggle(false));
+    });
+
+    effect(() => {
+      const forceCollapsed = this.context.sidebarForceCollapsed();
+      const isMobile = untracked(() => this.isMobile());
+      untracked(() => {
+        if (forceCollapsed) {
+          void this.sidenav().toggle(false);
+        } else if (!isMobile) {
+          void this.sidenav().toggle(true);
+        }
+      });
     });
   }
 }

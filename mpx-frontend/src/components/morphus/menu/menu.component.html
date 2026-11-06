@@ -15,46 +15,43 @@
   </div>
 </div>
 
-<!-- Template recursivo de navegação (Seções, Submenus retráteis e Itens) -->
+<!-- Template recursivo de navegação (Menus retráteis com Submenus e Itens) -->
 <ng-template let-nav #navigationTemplate>
   @let items = asMenuList(nav);
 
   @for (item of items; track item.id ?? item.label) {
-    @if (isSection(item)) {
-      <!-- Section header (Título preenchido com a cor de destaque) -->
-      <li
-        buiSidebarSectionHeader
-        class="mt-4 first:mt-0 rounded-lg bg-primary-a3 px-2.5 text-primary-a11 font-semibold"
-      >
-        <span buiSidebarLabel class="text-xs font-semibold tracking-wider uppercase text-primary-a11">
-          {{ item.label }}
-        </span>
-      </li>
-
-      <!-- Section items -->
-      <ng-container
-        [ngTemplateOutlet]="navigationTemplate"
-        [ngTemplateOutletContext]="{ $implicit: item.subMenus }"
-      />
-    } @else if (item.subMenus && item.subMenus.length > 0) {
-      <!-- Collapsible submenu -->
+    @if (item.subMenus && item.subMenus.length > 0) {
+      <!-- Menu pai retrátil (Abre e fecha mostrando/escondendo os submenus; pintado quando um filho está ativo) -->
+      @let parentActive = isParentActive(item);
       <li
         buiSidebarMenuItem
         buiCollapsible
         [expanded]="expandedByDefault()"
         #collapsible="buiCollapsible"
+        class="mt-1 first:mt-0"
       >
         <div buiSidebarMenuRow>
-          <button buiSidebarButton buiCollapsibleTrigger>
+          <button
+            type="button"
+            buiSidebarButton
+            buiCollapsibleTrigger
+            [class.active]="parentActive"
+            class="font-semibold text-neutral-12 [&.active]:before:hidden! [&.active]:bg-primary-a3 [&.active]:text-primary-a11"
+          >
             @if (item.icon) {
-              <mat-icon buiSidebarIcon [svgIcon]="item.icon" />
+              <mat-icon
+                buiSidebarIcon
+                [svgIcon]="item.icon"
+                [class.text-primary-a11]="parentActive"
+              />
             }
             <span buiSidebarLabel>{{ item.label }}</span>
             <mat-icon
               buiSidebarIcon
               svgIcon="chevron-right"
-              class="transition-[rotate]"
+              class="ms-auto transition-transform duration-200"
               [class.rotate-90]="collapsible.expanded()"
+              [class.text-primary-a11]="parentActive"
             />
           </button>
         </div>
@@ -69,18 +66,22 @@
         </ng-template>
       </li>
     } @else {
-      <!-- Menu item (Link direto) -->
+      <!-- Submenu / Item filho (Muda para o fundo cinzinha do hover + negrito quando selecionado) -->
       <li buiSidebarMenuItem>
         <div buiSidebarMenuRow>
           <a
             buiSidebarButton
-            class="[&.active]:before:hidden! [&.active]:text-primary-a11 [&.active]:font-semibold"
+            class="text-neutral-11 [&.active]:before:hidden! [&.active]:bg-neutral-a3 [&.active]:text-neutral-12! [&.active]:font-bold!"
             [routerLink]="item.url || defaultUrl()"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: isExactRoute(item.url) }"
           >
             @if (item.icon) {
-              <mat-icon buiSidebarIcon [svgIcon]="item.icon" />
+              <mat-icon
+                buiSidebarIcon
+                [svgIcon]="item.icon"
+                class="group-[.active]/bui-sidebar-button:text-neutral-12!"
+              />
             }
             <span buiSidebarLabel>{{ item.label }}</span>
           </a>

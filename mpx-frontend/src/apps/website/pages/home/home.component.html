@@ -1,9 +1,9 @@
 @if (auth.isAuthenticated() && !showMarketingPreview()) {
   <!-- ========================================================================= -->
-  <!-- MODO LOGADO: PORTAL CENTRAL DO ECOSSISTEMA MORPHUS (APPS, WORKSPACES, CORPS, PERFIL) -->
+  <!-- MODO LOGADO: PORTAL CENTRAL DO ECOSSISTEMA MORPHUS (APPS, WORKSPACES, CORPS) -->
   <!-- ========================================================================= -->
 
-  <!-- Hero Compacto do Portal com Estética Cristal Wave -->
+  <!-- Hero Full Size do Portal com Estética Cristal Wave -->
   <section
     class="relative overflow-hidden rounded-3xl border border-neutral-a4 bg-white p-6 text-neutral-12 shadow-lg sm:p-8 lg:p-10 dark:bg-[#0D061A] dark:text-white"
   >
@@ -25,11 +25,6 @@
 
     <div class="relative flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
       <div class="flex flex-col gap-y-3">
-        <div class="inline-flex w-fit items-center gap-x-2 rounded-full border border-[#00E5FF]/45 bg-[#00E5FF]/10 px-3.5 py-1 text-xs font-semibold tracking-wider uppercase text-[#0088A8] dark:text-cyan-300">
-          <span class="size-2 rounded-full bg-jade-9"></span>
-          <span>Tudo pronto · {{ auth.corporation()?.name || 'Morphus Cloud' }}</span>
-        </div>
-
         <h1
           class="text-2xl font-extrabold tracking-tight text-neutral-12 sm:text-3xl lg:text-4xl dark:text-white"
           style="font-family: var(--mpx-font-display);"
@@ -41,15 +36,11 @@
         </h1>
 
         <p class="max-w-2xl text-sm leading-relaxed text-neutral-11 sm:text-base dark:text-[#E2E8F0]">
-          Olha, <strong class="font-semibold text-neutral-12 dark:text-white">{{ auth.displayName() }}</strong>, você está na
-          <strong class="font-semibold text-neutral-12 dark:text-white">{{ auth.corporation()?.name || 'sua empresa' }}</strong>
-          e pode usar tudo que o
-          <strong class="font-semibold text-neutral-12 dark:text-white">{{ context.activeWorkspace()?.name || 'Morphus Workspace' }}</strong>
-          te oferece.
+          O Morphus está pronto para você. Escolha abaixo em qual aplicação irá trabalhar.
         </p>
       </div>
 
-      <!-- Dois Cardzinhos de Corporação e Workspace alinhados milimetricamente -->
+      <!-- Dois Cards pequenos dentro do Card Full Size: Corporação e Workspace -->
       <div class="flex w-full shrink-0 flex-col gap-3 sm:w-72">
         <div class="flex w-full items-center gap-x-3 rounded-2xl border border-neutral-a4 bg-white/85 px-4 py-3 shadow-2xs backdrop-blur-md dark:border-white/10 dark:bg-white/5">
           <div class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-violet-a3 text-violet-a11 ring-1 ring-violet-a5">
@@ -57,7 +48,7 @@
           </div>
           <div class="flex min-w-0 flex-col">
             <span class="truncate text-xs font-medium text-neutral-a10 dark:text-[#E2E8F0]/75">
-              Você está na
+              Você está na corporação
             </span>
             <span class="truncate text-sm font-bold text-neutral-12 dark:text-white">
               {{ auth.corporation()?.name || 'Matriz Principal' }}
@@ -71,699 +62,302 @@
           </div>
           <div class="flex min-w-0 flex-col">
             <span class="truncate text-xs font-medium text-neutral-a10 dark:text-[#E2E8F0]/75">
-              Espaço de trabalho
+              No Workspace
             </span>
             <span class="truncate text-sm font-bold text-neutral-12 dark:text-white">
-              {{ context.activeWorkspace()?.name || 'Morphus Workspace' }}
+              {{ context.activeWorkspace()?.name || 'Default' }}
             </span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Barra de Abas de Navegação do Portal -->
+    <!-- Barra de Filtros do Portal: Limpar filtro + 3 Menus Dropdown (Minhas Aplicações, Meus Workspaces, Minhas Corporações) -->
     <div class="relative mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-neutral-a4 pt-5 dark:border-white/10">
       <div class="flex flex-wrap items-center gap-2">
         <button
           type="button"
           matButton
-          [class]="activeTab() === 'all' ? 'primary small' : 'tertiary small'"
-          (click)="setTab('all')"
+          [class]="
+            selectedAppFilterId() === 'all' &&
+            selectedWorkspaceFilterId() === 'all' &&
+            selectedCorporationFilterId() === 'all'
+              ? 'primary small'
+              : 'tertiary small'
+          "
+          (click)="clearFilters()"
         >
           <mat-icon svgIcon="sparkles" />
-          Ver tudo
+          Limpar filtro
         </button>
 
+        <!-- 1. Menu Dropdown: Minhas Aplicações -->
         <button
           type="button"
           matButton
-          [class]="activeTab() === 'apps' ? 'primary small' : 'tertiary small'"
-          (click)="setTab('apps')"
+          [class]="selectedAppFilterId() !== 'all' ? 'primary small' : 'tertiary small'"
+          [matMenuTriggerFor]="filterAppsMenu"
         >
           <mat-icon svgIcon="boxes" />
-          Minhas Apps ({{ portalAppCards().length }})
+          <span>
+            Minhas Aplicações{{ selectedAppFilterId() !== 'all' ? ': ' + appFilterLabel() : '' }}
+          </span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5 opacity-75" />
         </button>
 
+        <mat-menu #filterAppsMenu="matMenu">
+          <button mat-menu-item (click)="selectAppFilter('all')">
+            <mat-icon
+              [svgIcon]="selectedAppFilterId() === 'all' ? 'circle-check' : 'sparkles'"
+            />
+            <span [class.font-semibold]="selectedAppFilterId() === 'all'">Ver tudo</span>
+          </button>
+          @if (portalAppCards().length > 0) {
+            <mat-divider />
+          }
+          @for (app of portalAppCards(); track app.id) {
+            <button mat-menu-item (click)="selectAppFilter(app.id)">
+              <mat-icon
+                [svgIcon]="
+                  selectedAppFilterId() === app.id
+                    ? 'circle-check'
+                    : context.isImageIcon(app.icon)
+                      ? 'boxes'
+                      : app.icon
+                "
+              />
+              <span [class.font-semibold]="selectedAppFilterId() === app.id">{{ app.name }}</span>
+            </button>
+          }
+        </mat-menu>
+
+        <!-- 2. Menu Dropdown: Meus Workspaces -->
         <button
           type="button"
           matButton
-          [class]="activeTab() === 'workspaces' ? 'primary small' : 'tertiary small'"
-          (click)="setTab('workspaces')"
+          [class]="selectedWorkspaceFilterId() !== 'all' ? 'primary small' : 'tertiary small'"
+          [matMenuTriggerFor]="filterWorkspacesMenu"
         >
           <mat-icon svgIcon="layout-grid" />
-          Meus Workspaces ({{ context.workspaces().length }})
+          <span>
+            Meus Workspaces{{
+              selectedWorkspaceFilterId() !== 'all' ? ': ' + workspaceFilterLabel() : ''
+            }}
+          </span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5 opacity-75" />
         </button>
 
+        <mat-menu #filterWorkspacesMenu="matMenu">
+          <button mat-menu-item (click)="selectWorkspaceFilter('all')">
+            <mat-icon
+              [svgIcon]="selectedWorkspaceFilterId() === 'all' ? 'circle-check' : 'sparkles'"
+            />
+            <span [class.font-semibold]="selectedWorkspaceFilterId() === 'all'">Ver tudo</span>
+          </button>
+          @if (context.workspaces().length > 0) {
+            <mat-divider />
+          }
+          @for (ws of context.workspaces(); track ws.id) {
+            <button mat-menu-item (click)="selectWorkspaceFilter(ws.id!)">
+              <mat-icon
+                [svgIcon]="
+                  selectedWorkspaceFilterId() === ws.id
+                    ? 'circle-check'
+                    : context.isImageIcon(ws.icon)
+                      ? 'layout-grid'
+                      : ws.icon || 'layout-grid'
+                "
+              />
+              <span [class.font-semibold]="selectedWorkspaceFilterId() === ws.id">
+                {{ ws.name }}
+              </span>
+            </button>
+          }
+        </mat-menu>
+
+        <!-- 3. Menu Dropdown: Minhas Corporações -->
         <button
           type="button"
           matButton
-          [class]="activeTab() === 'corporations' ? 'primary small' : 'tertiary small'"
-          (click)="setTab('corporations')"
+          [class]="selectedCorporationFilterId() !== 'all' ? 'primary small' : 'tertiary small'"
+          [matMenuTriggerFor]="filterCorporationsMenu"
         >
           <mat-icon svgIcon="building-2" />
-          Minhas Corporações ({{ auth.availableCorporations().length }})
+          <span>
+            Minhas Corporações{{
+              selectedCorporationFilterId() !== 'all' ? ': ' + corporationFilterLabel() : ''
+            }}
+          </span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5 opacity-75" />
         </button>
+
+        <mat-menu #filterCorporationsMenu="matMenu">
+          <button mat-menu-item (click)="selectCorporationFilter('all')">
+            <mat-icon
+              [svgIcon]="selectedCorporationFilterId() === 'all' ? 'circle-check' : 'sparkles'"
+            />
+            <span [class.font-semibold]="selectedCorporationFilterId() === 'all'">Ver tudo</span>
+          </button>
+          @if (auth.availableCorporations().length > 0) {
+            <mat-divider />
+          }
+          @for (corp of auth.availableCorporations(); track corp.id) {
+            <button
+              mat-menu-item
+              [disabled]="!!corp.inactive"
+              (click)="selectCorporationFilter(corp.id)"
+            >
+              <mat-icon
+                [svgIcon]="
+                  selectedCorporationFilterId() === corp.id
+                    ? 'circle-check'
+                    : corp.icon || 'building-2'
+                "
+              />
+              <span [class.font-semibold]="selectedCorporationFilterId() === corp.id">
+                {{ corp.name }}
+              </span>
+            </button>
+          }
+        </mat-menu>
       </div>
     </div>
   </section>
 
   <!-- ========================================================================= -->
-  <!-- 1. MINHAS APLICAÇÕES (Cards idênticos à Seleção de Corporação + "Abrir minha app") -->
+  <!-- 1. MINHAS APLICAÇÕES                                                      -->
   <!-- ========================================================================= -->
   @if (activeTab() === 'all' || activeTab() === 'apps') {
     <section id="minhas-apps" class="flex flex-col gap-y-5">
       <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <div class="inline-flex items-center gap-x-2 text-xs font-semibold tracking-wider uppercase text-primary-a11">
-            <mat-icon svgIcon="boxes" class="size-4" />
-            <span>Ecossistema de Aplicações</span>
+          <div class="inline-flex items-center gap-x-2.5 text-2xl font-bold tracking-tight text-neutral-12">
+            <mat-icon svgIcon="boxes" class="size-6 text-primary-a11" />
+            <h2>Minhas Aplicações</h2>
           </div>
-          <h2 class="mt-1 text-2xl font-bold tracking-tight text-neutral-12">
-            Minhas Aplicações
-          </h2>
-          <p class="text-sm text-neutral-a11">
-            Aplicações habilitadas na corporação <strong class="font-semibold text-neutral-12">{{ auth.corporation()?.name }}</strong> e no workspace <strong class="font-semibold text-neutral-12">{{ context.activeWorkspace()?.name || 'Principal' }}</strong>.
+          <p class="mt-1 text-sm text-neutral-a11">
+            Aqui estão suas aplicações
           </p>
         </div>
-
-        <a matButton class="tertiary small" routerLink="/security/module">
-          <mat-icon svgIcon="sliders-horizontal" />
-          Gerenciar Módulos
-        </a>
       </div>
 
       <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        @for (app of portalAppCards(); track app.id; let idx = $index) {
+        @for (app of filteredPortalAppCards(); track app.id; let idx = $index) {
           @let accent = accentFor(idx, app.color);
 
-          <mat-card
-            appearance="filled"
-            class="group relative flex flex-col transition-all duration-200 hover:ring-2! hover:ring-primary-8! hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
-          >
-            <mat-card-content
-              class="relative flex flex-auto cursor-pointer flex-col gap-y-4 overflow-clip p-5"
-              role="button"
-              tabindex="0"
-              (click)="openApplication(app)"
-              (keydown.enter)="openApplication(app)"
-            >
-              <!-- Faixa decorativa superior em gradiente suave (Padrão Select Corporation) -->
-              <div
-                class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-                [class]="accent.bannerClass"
-              ></div>
-
-              <!-- Topo do Card: Ícone colorido vivo + 2 Badges (Status "Palavra Google" + Categoria) -->
-              <div class="relative flex items-start justify-between gap-x-3">
-                <div
-                  class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
-                  [class]="accent.iconBoxClass"
-                >
-                  @if (context.isImageIcon(app.icon)) {
-                    <img [src]="app.icon" [alt]="app.name" class="size-7 object-contain" />
-                  } @else {
-                    <mat-icon [svgIcon]="app.icon" class="size-6" />
-                  }
-                </div>
-
-                <div class="flex flex-wrap items-center justify-end gap-1.5">
-                  <span
-                    class="inline-flex items-center gap-x-1 rounded-lg px-2 py-0.5 text-xs font-medium"
-                    [class]="app.isInstalled ? 'bg-jade-a3 text-jade-a11' : 'bg-amber-a3 text-amber-a11'"
-                  >
-                    <span
-                      class="size-1.5 rounded-full"
-                      [class]="app.isInstalled ? 'bg-jade-9' : 'bg-amber-9'"
-                    ></span>
-                    {{ app.statusLabel }}
-                  </span>
-
-                  @if (app.badgeLabel) {
-                    <span
-                      class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium"
-                      [class]="accent.badgeClass"
-                    >
-                      {{ app.badgeLabel }}
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <!-- Nome da Aplicação + Favorito + Descrição -->
-              <div class="relative mt-1 flex flex-col gap-y-1.5">
-                <div class="flex items-center gap-x-1.5">
-                  <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
-                    {{ app.name }}
-                  </div>
-                  @if (isStarred(app.id)) {
-                    <mat-icon class="size-4 shrink-0 text-amber-a10" svgIcon="star" />
-                  }
-                </div>
-
-                <p class="line-clamp-2 min-h-10 text-sm text-neutral-a11">
-                  {{ app.description }}
-                </p>
-              </div>
-
-              <!-- Botão / Indicador "Abrir minha app" -->
-              <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
-                <button
-                  type="button"
-                  class="inline-flex items-center gap-x-1.5 rounded-md px-1.5 py-0.5 transition-colors hover:bg-neutral-a3 hover:text-neutral-12"
-                  (click)="openAppModulesModal(app, $event)"
-                  matTooltip="Ver os módulos desta aplicação"
-                >
-                  <mat-icon svgIcon="layers" class="size-3.5 text-primary-a11" />
-                  <span>{{ app.modules.length }} {{ app.modules.length === 1 ? 'módulo' : 'módulos' }}</span>
-                </button>
-
-                <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
-                  Abrir minha app
-                  <mat-icon svgIcon="arrow-right" class="size-3.5" />
-                </span>
-              </div>
-            </mat-card-content>
-
-            <!-- Rodapé externo do Card Filled (Idêntico à Seleção de Corporação!) -->
-            <mat-card-footer class="flex items-center justify-between px-3 py-1.5">
-              <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11 tabular-nums">
-                {{ app.footerLabel }}
-              </div>
-
-              <button
-                type="button"
-                matIconButton
-                class="tiny shrink-0"
-                [matMenuTriggerFor]="appCardMenu"
-                [matMenuTriggerData]="{ app: app }"
-                (click)="$event.stopPropagation()"
-                matTooltip="Opções da aplicação"
-              >
-                <mat-icon svgIcon="ellipsis-vertical" />
-              </button>
-            </mat-card-footer>
-          </mat-card>
+          <mpx-portal-card
+            [title]="app.name"
+            [description]="app.description"
+            [icon]="app.icon"
+            [isImageIcon]="context.isImageIcon(app.icon)"
+            [color]="app.color"
+            [accent]="accent"
+            [badges]="getAppCardBadges(app, accent)"
+            [favorite]="isAppFavorite(app)"
+            [leftMetaLabel]="getAppCardMetaLabel(app)"
+            actionLabel="Acessar"
+            colorPickerLabel="Personalize sua aplicação"
+            [colorOptions]="colorOptions"
+            (access)="openApplication(app)"
+            (favoriteToggle)="toggleAppFavorite(app)"
+            (colorChange)="setCardColor(app, $event)"
+          />
         }
       </div>
-
-      <mat-menu xPosition="before" #appCardMenu="matMenu">
-        <ng-template matMenuContent let-app="app">
-          <button mat-menu-item (click)="openApplication(app)">
-            <mat-icon svgIcon="log-in" />
-            Abrir minha app
-          </button>
-          <button mat-menu-item (click)="toggleStar(app.id)">
-            <mat-icon [svgIcon]="isStarred(app.id) ? 'star-off' : 'star'" />
-            {{ isStarred(app.id) ? 'Remover dos favoritos' : 'Favoritar aplicação' }}
-          </button>
-          <mat-divider />
-          <button mat-menu-item (click)="openAppModulesModal(app)">
-            <mat-icon svgIcon="layers" />
-            Ver módulos e submódulos
-          </button>
-          <mat-divider />
-          <div class="px-3 py-2" (click)="$event.stopPropagation()">
-            <div class="mb-1.5 text-[11px] font-semibold tracking-wider uppercase text-neutral-a10">
-              Cor do card
-            </div>
-            <div class="flex items-center gap-2">
-              @for (opt of colorOptions; track opt.key) {
-                <button
-                  type="button"
-                  class="flex size-6 items-center justify-center rounded-full ring-offset-2 transition-transform hover:scale-110"
-                  [class]="opt.dotClass"
-                  [class.ring-2]="app.color === opt.key"
-                  [class.ring-neutral-12]="app.color === opt.key"
-                  [matTooltip]="opt.label"
-                  (click)="setCardColor(app, opt.key, $event)"
-                >
-                  @if (app.color === opt.key) {
-                    <span class="size-2 rounded-full bg-white"></span>
-                  }
-                </button>
-              }
-            </div>
-          </div>
-        </ng-template>
-      </mat-menu>
-
-      <!-- ========================================================================= -->
-      <!-- MODAL / PAINEL DE APRESENTAÇÃO DOS MÓDULOS E SUBMÓDULOS DA APLICAÇÃO -->
-      <!-- ========================================================================= -->
-      @if (selectedAppForModules(); as modalApp) {
-        @let modalAccent = accentFor(0, modalApp.color);
-        <div
-          class="fixed inset-0 z-50 flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
-          (click)="closeAppModulesModal()"
-        >
-          <div
-            class="relative flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-3xl border border-neutral-a4 bg-white shadow-2xl dark:bg-neutral-2"
-            (click)="$event.stopPropagation()"
-          >
-            <!-- Faixa de Topo com a cor escolhida para a App -->
-            <div
-              class="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b opacity-90"
-              [class]="modalAccent.bannerClass"
-            ></div>
-
-            <!-- Cabeçalho da Aplicação (Com seus 3 Pais: Categoria + Status "Palavra Google" + Módulos) -->
-            <div class="relative flex flex-col gap-4 border-b border-neutral-a4 p-6 sm:flex-row sm:items-start sm:justify-between">
-              <div class="flex items-start gap-4">
-                <div
-                  class="flex size-14 shrink-0 items-center justify-center rounded-2xl shadow-xs"
-                  [class]="modalAccent.iconBoxClass"
-                >
-                  @if (context.isImageIcon(modalApp.icon)) {
-                    <img [src]="modalApp.icon" [alt]="modalApp.name" class="size-8 object-contain" />
-                  } @else {
-                    <mat-icon [svgIcon]="modalApp.icon" class="size-7" />
-                  }
-                </div>
-
-                <div class="flex flex-col gap-y-1.5">
-                  <div class="flex flex-wrap items-center gap-2">
-                    <span
-                      class="inline-flex items-center gap-x-1 rounded-lg px-2.5 py-0.5 text-xs font-semibold"
-                      [class]="modalApp.isInstalled ? 'bg-jade-a3 text-jade-a11' : 'bg-amber-a3 text-amber-a11'"
-                    >
-                      <span
-                        class="size-1.5 rounded-full"
-                        [class]="modalApp.isInstalled ? 'bg-jade-9' : 'bg-amber-9'"
-                      ></span>
-                      {{ modalApp.statusLabel }}
-                    </span>
-
-                    <span
-                      class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-semibold"
-                      [class]="modalAccent.badgeClass"
-                    >
-                      Categoria: {{ modalApp.badgeLabel }}
-                    </span>
-                  </div>
-
-                  <h3 class="text-xl font-bold tracking-tight text-neutral-12 sm:text-2xl">
-                    {{ modalApp.name }}
-                  </h3>
-                  <p class="text-sm text-neutral-a11">
-                    {{ modalApp.description }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-center gap-2 self-end sm:self-start">
-                <!-- Seletor rápido de cor do card -->
-                <div class="flex items-center gap-1.5 rounded-full border border-neutral-a4 bg-white/80 px-2.5 py-1 dark:bg-neutral-3/80">
-                  @for (opt of colorOptions; track opt.key) {
-                    <button
-                      type="button"
-                      class="size-4 rounded-full transition-transform hover:scale-110"
-                      [class]="opt.dotClass"
-                      [class.ring-2]="modalApp.color === opt.key"
-                      [class.ring-neutral-12]="modalApp.color === opt.key"
-                      [matTooltip]="'Cor: ' + opt.label"
-                      (click)="setCardColor(modalApp, opt.key, $event)"
-                    ></button>
-                  }
-                </div>
-
-                <button
-                  type="button"
-                  matIconButton
-                  class="small"
-                  (click)="closeAppModulesModal()"
-                  matTooltip="Fechar"
-                >
-                  <mat-icon svgIcon="x" />
-                </button>
-              </div>
-            </div>
-
-            <!-- Corpo: Lista de Módulos e Submódulos da Aplicação -->
-            <div class="flex flex-col gap-y-4 overflow-y-auto p-6">
-              <div class="flex flex-col justify-between gap-2 rounded-2xl border border-neutral-a4 bg-neutral-a2 px-4 py-3 sm:flex-row sm:items-center">
-                <div class="flex items-center gap-x-2.5 text-xs text-neutral-11">
-                  <mat-icon svgIcon="sparkles" class="size-4 shrink-0 text-primary-a11" />
-                  <span>
-                    Veja tudo o que o <strong class="font-semibold text-neutral-12">{{ modalApp.name }}</strong> oferece para você e quais áreas podem ser liberadas para cada pessoa da sua equipe.
-                  </span>
-                </div>
-                <span class="shrink-0 rounded-lg bg-primary-a3 px-2.5 py-1 text-xs font-semibold text-primary-a11">
-                  {{ modalApp.modules.length }} {{ modalApp.modules.length === 1 ? 'módulo' : 'módulos' }}
-                </span>
-              </div>
-
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                @for (mod of modalApp.modules; track mod.name) {
-                  <div class="flex flex-col justify-between gap-y-3 rounded-2xl border border-neutral-a4 bg-neutral-1 p-4 shadow-2xs">
-                    <div class="flex flex-col gap-y-1">
-                      <div class="flex items-center justify-between gap-2">
-                        <div class="flex items-center gap-x-2">
-                          <div
-                            class="flex size-8 shrink-0 items-center justify-center rounded-lg"
-                            [class]="modalAccent.iconBoxClass"
-                          >
-                            <mat-icon svgIcon="layers" class="size-4" />
-                          </div>
-                          <h4 class="text-base font-bold text-neutral-12">
-                            {{ mod.name }}
-                          </h4>
-                        </div>
-                        <span class="rounded-md bg-neutral-a3 px-2 py-0.5 text-[11px] font-medium text-neutral-a11">
-                          Módulo
-                        </span>
-                      </div>
-                      <p class="mt-1 text-xs leading-relaxed text-neutral-a11">
-                        {{ mod.description }}
-                      </p>
-                    </div>
-
-                    @if (mod.subModules.length > 0) {
-                      <div class="flex flex-col gap-y-1.5 border-t border-neutral-a3 pt-3">
-                        <span class="text-[11px] font-semibold tracking-wider uppercase text-neutral-a10">
-                          Submódulos e Permissões ({{ mod.subModules.length }})
-                        </span>
-                        <div class="flex flex-col gap-y-1.5">
-                          @for (sub of mod.subModules; track sub.name) {
-                            <div class="flex items-start gap-x-2 rounded-xl bg-neutral-a2 px-3 py-2">
-                              <mat-icon svgIcon="circle-check" class="mt-0.5 size-3.5 shrink-0 text-jade-a11" />
-                              <div class="flex min-w-0 flex-col">
-                                <span class="text-xs font-semibold text-neutral-12">
-                                  {{ sub.name }}
-                                </span>
-                                <span class="text-[11px] text-neutral-a11">
-                                  {{ sub.description }}
-                                </span>
-                              </div>
-                            </div>
-                          }
-                        </div>
-                      </div>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Rodapé do Modal -->
-            <div class="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-a4 bg-neutral-a2 px-6 py-4">
-              <span class="text-xs text-neutral-a11">
-                {{ modalApp.footerLabel }} · Controle de acesso integrado por módulo e submódulo
-              </span>
-
-              <div class="flex items-center gap-2">
-                <button
-                  type="button"
-                  matButton
-                  class="tertiary small"
-                  (click)="closeAppModulesModal()"
-                >
-                  Fechar
-                </button>
-                <button
-                  type="button"
-                  matButton
-                  class="primary small"
-                  (click)="closeAppModulesModal(); openApplication(modalApp)"
-                >
-                  <mat-icon svgIcon="log-in" />
-                  Abrir {{ modalApp.name }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      }
     </section>
   }
 
   <!-- ========================================================================= -->
-  <!-- 2. MEUS WORKSPACES (Cards idênticos à Seleção de Corporação) -->
+  <!-- 2. MEUS WORKSPACES                                                        -->
   <!-- ========================================================================= -->
   @if (activeTab() === 'all' || activeTab() === 'workspaces') {
     <section id="meus-workspaces" class="flex flex-col gap-y-5">
       <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <div class="inline-flex items-center gap-x-2 text-xs font-semibold tracking-wider uppercase text-indigo-a11">
-            <mat-icon svgIcon="layout-grid" class="size-4" />
-            <span>Ambientes Departamentais</span>
+          <div class="inline-flex items-center gap-x-2.5 text-2xl font-bold tracking-tight text-neutral-12">
+            <mat-icon svgIcon="layout-grid" class="size-6 text-indigo-a11" />
+            <h2>Meus Workspaces</h2>
           </div>
-          <h2 class="mt-1 text-2xl font-bold tracking-tight text-neutral-12">
-            Meus Workspaces
-          </h2>
-          <p class="text-sm text-neutral-a11">
-            Selecione o espaço de trabalho ativo ou crie novos ambientes para organizar os departamentos da sua empresa.
+          <p class="mt-1 text-sm text-neutral-a11">
+            Aqui estão seus workspaces
           </p>
         </div>
-
-        <a matButton class="tertiary small" routerLink="/morphus/workspace/new">
-          <mat-icon svgIcon="plus" />
-          Novo Workspace
-        </a>
       </div>
 
       <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        @for (ws of context.workspaces(); track ws.id; let idx = $index) {
-          @let accent = accentFor(idx + 1);
-          @let isCurrentWs = context.activeWorkspace()?.id === ws.id;
+        @for (ws of filteredWorkspaces(); track ws.id; let idx = $index) {
+          @let wsColor = getWorkspaceColor(ws, idx);
+          @let accent = accentFor(idx + 1, wsColor);
 
-          <mat-card
-            appearance="filled"
-            class="group relative flex flex-col transition-all duration-200 hover:ring-2! hover:ring-primary-8! hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
-          >
-            <mat-card-content
-              class="relative flex flex-auto cursor-pointer flex-col gap-y-4 overflow-clip p-5"
-              role="button"
-              tabindex="0"
-              (click)="openWorkspace(ws)"
-              (keydown.enter)="openWorkspace(ws)"
-            >
-              <div
-                class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-                [class]="accent.bannerClass"
-              ></div>
-
-              <div class="relative flex items-start justify-between gap-x-3">
-                <div
-                  class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
-                  [class]="accent.iconBoxClass"
-                >
-                  @if (context.isImageIcon(ws.icon)) {
-                    <img [src]="ws.icon!" [alt]="ws.name || 'Workspace'" class="size-7 object-contain" />
-                  } @else {
-                    <mat-icon [svgIcon]="ws.icon || 'layout-grid'" class="size-6" />
-                  }
-                </div>
-
-                <div class="flex flex-wrap items-center justify-end gap-1.5">
-                  @if (isCurrentWs) {
-                    <span class="inline-flex items-center gap-x-1 rounded-lg bg-jade-a3 px-2 py-0.5 text-xs font-medium text-jade-a11">
-                      <span class="size-1.5 rounded-full bg-jade-9"></span>
-                      Ativo
-                    </span>
-                  }
-                  <span
-                    class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium"
-                    [class]="accent.badgeClass"
-                  >
-                    {{ ws.default ? 'Padrão' : 'Workspace' }}
-                  </span>
-                </div>
-              </div>
-
-              <div class="relative mt-1 flex flex-col gap-y-1.5">
-                <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
-                  {{ ws.name }}
-                </div>
-                <p class="line-clamp-2 min-h-10 text-sm text-neutral-a11">
-                  {{ ws.description || 'Espaço de trabalho configurado com aplicações e menus dedicados.' }}
-                </p>
-              </div>
-
-              <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
-                <span class="inline-flex items-center gap-x-1.5">
-                  <mat-icon svgIcon="boxes" class="size-3.5 text-primary-a11" />
-                  {{ ws.workspaceApplications?.length || portalAppCards().length }} aplicações
-                </span>
-
-                <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
-                  Abrir workspace
-                  <mat-icon svgIcon="arrow-right" class="size-3.5" />
-                </span>
-              </div>
-            </mat-card-content>
-
-            <mat-card-footer class="flex items-center justify-between px-4 py-2">
-              <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11 tabular-nums">
-                Key: {{ ws.key || 'WORKSPACE' }} · {{ auth.corporation()?.name }}
-              </div>
-            </mat-card-footer>
-          </mat-card>
+          <mpx-portal-card
+            [title]="ws.name || 'Workspace'"
+            [description]="ws.description || 'Espaço de trabalho configurado com aplicações e menus dedicados.'"
+            [icon]="ws.icon || 'layout-grid'"
+            [isImageIcon]="context.isImageIcon(ws.icon)"
+            [color]="wsColor"
+            [accent]="accent"
+            [badges]="getWorkspaceCardBadges(ws, accent)"
+            [favorite]="isWorkspaceFavorite(ws)"
+            [leftMetaLabel]="getWorkspaceOperationalAppLabel(ws)"
+            leftMetaIcon="boxes"
+            actionLabel="Acessar"
+            colorPickerLabel="Personalize seu workspace"
+            [showViewApplicationsOption]="true"
+            [colorOptions]="colorOptions"
+            (access)="openWorkspace(ws)"
+            (favoriteToggle)="toggleWorkspaceFavorite(ws)"
+            (viewApplications)="viewWorkspaceApplications(ws)"
+            (colorChange)="setWorkspaceCardColor(ws, $event)"
+          />
         }
-
-        <!-- Card de Ação Rápida para Criar / Gerenciar Workspaces -->
-        <mat-card
-          appearance="filled"
-          class="group relative flex flex-col border border-dashed border-neutral-a5 transition-all duration-200 hover:border-primary-8 hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
-        >
-          <mat-card-content
-            class="relative flex flex-auto cursor-pointer flex-col gap-y-4 overflow-clip p-5"
-            routerLink="/morphus/workspace/new"
-          >
-            <div class="flex items-start justify-between gap-x-3">
-              <div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-neutral-a3 text-neutral-a11 ring-1 ring-neutral-a5 transition-colors duration-200 group-hover:bg-primary-a3 group-hover:text-primary-a11">
-                <mat-icon svgIcon="plus" class="size-6" />
-              </div>
-              <span class="inline-flex items-center rounded-lg bg-neutral-a3 px-2 py-0.5 text-xs font-medium text-neutral-a11">
-                Expansão
-              </span>
-            </div>
-
-            <div class="mt-1 flex flex-col gap-y-1.5">
-              <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
-                Criar novo Workspace
-              </div>
-              <p class="line-clamp-2 min-h-10 text-sm text-neutral-a11">
-                Estruture um novo ambiente para separar equipes financeiras, fiscais, comerciais ou operacionais.
-              </p>
-            </div>
-
-            <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
-              <span>Configuração imediata</span>
-              <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
-                Adicionar
-                <mat-icon svgIcon="arrow-right" class="size-3.5" />
-              </span>
-            </div>
-          </mat-card-content>
-
-          <mat-card-footer class="flex items-center justify-between px-4 py-2">
-            <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11">
-              Multi-Workspace · Morphus Cloud
-            </div>
-          </mat-card-footer>
-        </mat-card>
       </div>
     </section>
   }
 
   <!-- ========================================================================= -->
-  <!-- 3. MINHAS CORPORAÇÕES (Cards idênticos à Seleção de Corporação) -->
+  <!-- 3. MINHAS CORPORAÇÕES                                                     -->
   <!-- ========================================================================= -->
   @if (activeTab() === 'all' || activeTab() === 'corporations') {
     <section id="minhas-corporacoes" class="flex flex-col gap-y-5">
       <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
         <div>
-          <div class="inline-flex items-center gap-x-2 text-xs font-semibold tracking-wider uppercase text-jade-a11">
-            <mat-icon svgIcon="building-2" class="size-4" />
-            <span>Grupo Empresarial Multi-Tenant</span>
+          <div class="inline-flex items-center gap-x-2.5 text-2xl font-bold tracking-tight text-neutral-12">
+            <mat-icon svgIcon="building-2" class="size-6 text-jade-a11" />
+            <h2>Minhas Corporações</h2>
           </div>
-          <h2 class="mt-1 text-2xl font-bold tracking-tight text-neutral-12">
-            Minhas Corporações
-          </h2>
-          <p class="text-sm text-neutral-a11">
-            Corporação selecionada: <strong class="font-semibold text-neutral-12">{{ auth.corporation()?.name }}</strong>. Clique em outra organização caso queira alternar de ambiente.
+          <p class="mt-1 text-sm text-neutral-a11">
+            Aqui estão as corporações que você pode acessar
           </p>
-        </div>
-
-        <div class="flex items-center gap-2">
-          @if (auth.availableCorporations().length > 1) {
-            <button
-              type="button"
-              matButton
-              class="tertiary small"
-              (click)="auth.openCorporationSelector('/website', 'website')"
-            >
-              <mat-icon svgIcon="repeat" />
-              Tela de troca de corporação
-            </button>
-          }
-          <a matButton class="tertiary small" routerLink="/morphus/corporation/new">
-            <mat-icon svgIcon="plus" />
-            Nova Corporação / Filial
-          </a>
         </div>
       </div>
 
       <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        @for (corp of auth.availableCorporations(); track corp.id; let idx = $index) {
-          @let accent = accentFor(idx);
-          @let isCurrentCorp = auth.corporation()?.id === corp.id;
+        @for (corp of filteredCorporations(); track corp.id; let idx = $index) {
+          @let corpColor = getCorporationColor(corp, idx);
+          @let accent = accentFor(idx, corpColor);
           @let isSwitching = switchingCorpId() === corp.id;
 
-          <mat-card
-            appearance="filled"
-            class="group relative flex flex-col transition-all duration-200 hover:ring-2! hover:ring-primary-8! hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
-          >
-            <mat-card-content
-              class="relative flex flex-auto cursor-pointer flex-col gap-y-4 overflow-clip p-5"
-              role="button"
-              tabindex="0"
-              (click)="selectCorporation(corp)"
-              (keydown.enter)="selectCorporation(corp)"
-            >
-              <div
-                class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
-                [class]="accent.bannerClass"
-              ></div>
-
-              <div class="relative flex items-start justify-between gap-x-3">
-                <div
-                  class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
-                  [class]="accent.iconBoxClass"
-                >
-                  <mat-icon [svgIcon]="corp.icon || 'building-2'" class="size-6" />
-                </div>
-
-                <div class="flex flex-wrap items-center justify-end gap-1.5">
-                  @if (isCurrentCorp) {
-                    <span class="inline-flex items-center gap-x-1 rounded-lg bg-jade-a3 px-2 py-0.5 text-xs font-medium text-jade-a11">
-                      <span class="size-1.5 rounded-full bg-jade-9"></span>
-                      Selecionada
-                    </span>
-                  }
-                  <span
-                    class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium"
-                    [class]="corp.parentCorporationId ? 'bg-neutral-a4 text-neutral-a11' : accent.badgeClass"
-                  >
-                    {{ corp.parentCorporationId ? 'Filial' : 'Matriz' }}
-                  </span>
-                  @if (corp.isOwner) {
-                    <span class="inline-flex items-center gap-x-1 rounded-lg bg-amber-a3 px-2 py-0.5 text-xs font-medium text-amber-a11">
-                      <mat-icon svgIcon="crown" class="size-3 text-amber-a11" />
-                      Owner
-                    </span>
-                  }
-                </div>
-              </div>
-
-              <div class="relative mt-1 flex flex-col gap-y-1.5">
-                <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
-                  {{ corp.name }}
-                </div>
-                <p class="line-clamp-2 min-h-10 text-sm text-neutral-a11">
-                  {{ corp.description || 'Ambiente corporativo multi-tenant isolado e pronto para operação.' }}
-                </p>
-              </div>
-
-              <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
-                <span class="inline-flex items-center gap-x-1.5">
-                  <mat-icon svgIcon="shield-check" class="size-3.5 text-jade-a11" />
-                  Acesso autorizado
-                </span>
-
-                <span class="inline-flex items-center gap-x-1 font-semibold text-primary-a11">
-                  {{ isSwitching ? 'Alternando...' : isCurrentCorp ? 'Abrir painel' : 'Selecionar corporação' }}
-                  <mat-icon svgIcon="arrow-right" class="size-3.5" />
-                </span>
-              </div>
-            </mat-card-content>
-
-            <mat-card-footer class="flex items-center justify-between px-4 py-2">
-              <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11 tabular-nums">
-                {{ corp.parentCorporationId ? 'Unidade vinculada' : 'Sede principal' }} · Key: {{ corp.key }}
-              </div>
-            </mat-card-footer>
-          </mat-card>
+          <mpx-portal-card
+            [title]="corp.name"
+            [description]="corp.description || 'Ambiente corporativo multi-tenant isolado e pronto para operação.'"
+            [icon]="corp.icon || 'building-2'"
+            [isImageIcon]="context.isImageIcon(corp.icon)"
+            [color]="corpColor"
+            [accent]="accent"
+            [badges]="getCorporationCardBadges(corp, accent)"
+            [favorite]="isCorporationFavorite(corp)"
+            [disabled]="!!corp.inactive"
+            [actionLabel]="isSwitching ? 'Alternando...' : 'Acessar'"
+            colorPickerLabel="Personalize sua corporação"
+            [showViewWorkspacesOption]="true"
+            [showViewApplicationsOption]="true"
+            [colorOptions]="colorOptions"
+            (access)="selectCorporation(corp)"
+            (favoriteToggle)="toggleCorporationFavorite(corp)"
+            (viewWorkspaces)="viewCorporationWorkspaces(corp)"
+            (viewApplications)="viewCorporationApplications(corp)"
+            (colorChange)="setCorporationCardColor(corp, $event)"
+          />
         }
       </div>
     </section>
@@ -820,38 +414,46 @@
 
   <div class="relative inline-flex items-center gap-x-2 rounded-full border border-[#00E5FF]/45 bg-[#00E5FF]/10 px-4 py-1 text-xs font-semibold tracking-wider uppercase text-[#0088A8] dark:text-cyan-300">
     <mat-icon svgIcon="sparkles" class="size-3.5 text-[#0088A8]! dark:text-cyan-300!" />
-    <span>ERP Multi-Tenant · Matriz, Filiais e Workspaces</span>
+    <span>Bem vindo ao Morphus, Do que você precisa hoje</span>
   </div>
 
   <h1
-    class="relative mt-6 max-w-4xl text-4xl font-extrabold tracking-tight text-neutral-12 sm:text-5xl lg:text-6xl dark:text-white"
+    class="relative mt-6 max-w-3xl text-2xl leading-snug font-bold tracking-tight text-neutral-12 sm:text-3xl lg:text-4xl dark:text-white"
     style="font-family: var(--mpx-font-display);"
   >
-    Sistema de gestão empresarial que
+    Organize sua empresa sem alterar sua forma de trabalho
     <span class="bg-gradient-to-r from-[#00B8D9] via-[#A855F7] to-[#FF007A] bg-clip-text text-transparent dark:from-[#00E5FF] dark:via-[#B558FF] dark:to-[#FF007A]">
-      se adapta à sua organização
+      é o Morphus quem vai aprender como ela funciona e se adaptar.
     </span>
   </h1>
 
-  <p class="relative mt-5 max-w-2xl text-base leading-relaxed text-neutral-11 sm:text-lg dark:text-[#E2E8F0]">
-    Do que você precisa hoje? O Morphus reúne controle de corporações, filiais, workspaces, notas fiscais, finanças, conciliação bancária, frota e patrimônio em um ambiente único, veloz e modular.
+  <p class="relative mt-5 max-w-2xl text-base leading-relaxed sm:text-lg">
+    <a
+      routerLink="/website/produtos"
+      class="inline-flex items-center gap-x-1.5 font-semibold text-primary-a11 underline decoration-primary-a11/60 underline-offset-4 transition-colors hover:text-primary-11 dark:text-cyan-300 dark:decoration-cyan-300/60"
+    >
+      <span>Veja o que ele pode te oferecer</span>
+      <mat-icon svgIcon="arrow-right" class="size-4" />
+    </a>
   </p>
 
   <div class="relative mt-8 flex flex-wrap items-center justify-center gap-4">
-    <a
-      matButton
-      class="primary large font-semibold tracking-wider uppercase"
-      routerLink="/security/signup"
-    >
-      Teste grátis
-      <mat-icon svgIcon="arrow-right" iconPositionEnd />
-    </a>
+    @if (!context.hasUsedOrActiveTrial()) {
+      <a
+        matButton
+        class="primary large font-semibold tracking-wider uppercase"
+        routerLink="/security/signup"
+      >
+        Comece grátis
+        <mat-icon svgIcon="arrow-right" iconPositionEnd />
+      </a>
+    }
     <a
       matButton
       class="secondary large border border-neutral-a5 bg-white/80 font-semibold tracking-wider uppercase text-neutral-12! hover:bg-neutral-a3 dark:border-white/20 dark:bg-white/10 dark:text-white! dark:hover:bg-white/20"
-      routerLink="/security/signin"
+      [routerLink]="auth.isAuthenticated() ? '/morphus' : '/security/signin'"
     >
-      Entrar na plataforma
+      {{ auth.isAuthenticated() ? 'Acessar plataforma' : 'Entre' }}
     </a>
   </div>
 
@@ -864,7 +466,7 @@
       <div>
         <div class="text-sm font-semibold text-neutral-12 dark:text-white">Multi-Corporação</div>
         <div class="mt-0.5 text-xs text-neutral-a11 dark:text-[#E2E8F0]/80">
-          Gerencie matriz e filiais com isolamento total de dados por tenant.
+          Gerencie sua empresa a partir da matriz e todas as filiais de forma totalmente isolada e com a absoluta segurança das mais modernas tecnologias de permissões e acesso a dados.
         </div>
       </div>
     </div>
@@ -874,9 +476,9 @@
         <mat-icon svgIcon="layout-grid" class="size-5" />
       </div>
       <div>
-        <div class="text-sm font-semibold text-neutral-12 dark:text-white">Workspaces & Apps</div>
+        <div class="text-sm font-semibold text-neutral-12 dark:text-white">Workspaces & Aplicações</div>
         <div class="mt-0.5 text-xs text-neutral-a11 dark:text-[#E2E8F0]/80">
-          Ambientes e menus dinâmicos montados conforme as permissões do usuário.
+          Oferecemos uma série de aplicações que podem ser divididas em espaços de trabalho / setores que podem ser compartilhadas entre si de forma super inteligente e sempre obedecendo as regras de acesso.
         </div>
       </div>
     </div>
@@ -886,38 +488,36 @@
         <mat-icon svgIcon="shield-check" class="size-5" />
       </div>
       <div>
-        <div class="text-sm font-semibold text-neutral-12 dark:text-white">Segurança Blindada</div>
+        <div class="text-sm font-semibold text-neutral-12 dark:text-white">Facilidade de acesso</div>
         <div class="mt-0.5 text-xs text-neutral-a11 dark:text-[#E2E8F0]/80">
-          Autenticação moderna com JWT, controle de Claims e Login com Google.
+          Autenticação moderna utilizando as principais plataformas do mercado, Google, Microsoft, GitHub.
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Seção de Revelação Progressiva (Scroll Storytelling estilo Resend) -->
+<!-- Seção Como o Morphus funciona (Alimentada pelas tabelas mpx_features e mpx_feature_highlights) -->
 <section class="flex flex-col gap-y-12">
   <div
-    data-reveal
-    class="mx-auto flex max-w-3xl translate-y-8 flex-col items-center text-center opacity-0 transition-all duration-700 ease-out"
+    class="mx-auto flex max-w-3xl flex-col items-center text-center transition-all duration-700 ease-out"
   >
     <span class="rounded-lg bg-indigo-a3 px-3 py-1 text-xs font-semibold tracking-wide uppercase text-indigo-a11">
       Como o Morphus funciona
     </span>
-    <h2 class="mt-3 text-3xl font-bold tracking-tight text-neutral-12 sm:text-4xl">
-      Uma plataforma que evolui conforme você rola a operação
-    </h2>
-    <p class="mt-3 text-base text-neutral-a11 sm:text-lg">
-      O nome Morphus vem de se adaptar: em vez de engessar sua empresa, o sistema molda workspaces, aplicações e regras fiscais à realidade de cada filial.
+    <p class="mt-4 text-base font-medium leading-relaxed text-neutral-a11 sm:text-lg">
+      O nome Morphus quer dizer se adaptar, se moldar e literalmente MORPHAR em função da sua empresa e você vai se surpreender com a maneira que isso é feito
     </p>
+    <h2 class="mt-3 text-3xl font-bold tracking-tight text-neutral-12 sm:text-4xl">
+      Um ecossistema que aprende com suas operações diariamente
+    </h2>
   </div>
 
   <div class="flex flex-col gap-y-8">
-    @for (item of storySteps; track item.step; let idx = $index) {
+    @for (item of showcaseFeatures(); track item.title; let idx = $index) {
       @let accent = accentFor(idx);
       <div
-        data-reveal
-        class="group relative translate-y-8 overflow-hidden rounded-2xl border border-neutral-a4 bg-white p-6 opacity-0 shadow-2xs transition-all duration-700 ease-out hover:border-neutral-a6 sm:p-8 lg:p-10 dark:bg-neutral-2"
+        class="group relative overflow-hidden rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xs transition-all duration-700 ease-out hover:border-neutral-a6 sm:p-8 lg:p-10 dark:bg-neutral-2"
       >
         <div
           class="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b opacity-60 transition-opacity duration-300 group-hover:opacity-100"
@@ -928,16 +528,10 @@
           <div class="flex flex-col gap-y-4 lg:col-span-7">
             <div class="flex items-center gap-x-3">
               <span
-                class="inline-flex size-9 items-center justify-center rounded-xl text-sm font-bold"
-                [class]="accent.iconBoxClass"
-              >
-                {{ item.step }}
-              </span>
-              <span
                 class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium"
                 [class]="accent.badgeClass"
               >
-                {{ item.badge }}
+                {{ item.highlightPhrase }}
               </span>
             </div>
 
@@ -952,14 +546,14 @@
 
           <div class="flex flex-col gap-y-3 rounded-xl border border-neutral-a4 bg-neutral-a2/60 p-5 lg:col-span-5">
             <div class="flex items-center gap-x-2.5 text-sm font-semibold text-neutral-12">
-              <mat-icon [svgIcon]="item.icon" class="size-4 text-primary-a11" />
-              <span>Destaques da arquitetura</span>
+              <mat-icon [svgIcon]="item.highlights[0]?.titleIcon || 'layers'" class="size-4 text-primary-a11" />
+              <span>{{ item.highlights[0]?.title || 'Destaques da arquitetura' }}</span>
             </div>
             <ul class="flex flex-col gap-y-2.5">
-              @for (point of item.highlights; track point) {
+              @for (point of item.highlights; track point.highlight) {
                 <li class="flex items-start gap-x-2.5 text-sm text-neutral-a11">
-                  <mat-icon svgIcon="check" class="mt-0.5 size-4 shrink-0 text-jade-a11" />
-                  <span>{{ point }}</span>
+                  <mat-icon [svgIcon]="point.highlightIcon || 'check'" class="mt-0.5 size-4 shrink-0 text-jade-a11" />
+                  <span>{{ point.highlight }}</span>
                 </li>
               }
             </ul>
@@ -970,130 +564,102 @@
   </div>
 </section>
 
-<!-- Grid de Cards de Funcionalidades (Mesmo modelo dos cards de seleção de Corporação/Workspace) -->
+<!-- Grid de Cards de Módulos do Ecossistema (Alimentado pelas tabelas mpx_module_categories e mpx_modules) -->
 <section class="flex flex-col gap-y-10">
   <div
-    data-reveal
-    class="mx-auto flex max-w-3xl translate-y-8 flex-col items-center text-center opacity-0 transition-all duration-700 ease-out"
+    class="mx-auto flex max-w-3xl flex-col items-center text-center transition-all duration-700 ease-out"
   >
-    <span class="rounded-lg bg-violet-a3 px-3 py-1 text-xs font-semibold tracking-wide uppercase text-violet-a11">
-      Ecossistema Completo
+    <span class="rounded-lg bg-violet-a3 px-3 py-1 text-xs font-semibold tracking-wide text-violet-a11">
+      um Ecossistema completo
     </span>
     <h2 class="mt-3 text-3xl font-bold tracking-tight text-neutral-12 sm:text-4xl">
-      O que você controla com o Morphus
+      Veja o poder que você ganha usando o morphus
     </h2>
     <p class="mt-3 text-base text-neutral-a11 sm:text-lg">
-      Cada módulo opera de forma integrada dentro do seu Workspace, respeitando as regras de segurança e permissões da sua corporação.
+      Cada módulo opera de forma integrada dentro do seu Workspace, respeitando as regras de segurança e suas permissões.
     </p>
   </div>
 
   <div class="grid w-full grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-    @for (feature of features; track feature.title; let idx = $index) {
-      @let accent = accentFor(idx);
+    @for (mod of showcaseModules(); track mod.title; let idx = $index) {
+      @let accent = accentFor(idx, mod.categoryColor);
 
       <mat-card
-        data-reveal
         appearance="filled"
-        class="group relative flex translate-y-8 flex-col opacity-0 transition-all duration-500 ease-out hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
+        class="group relative flex min-h-[256px] flex-col transition-all duration-500 ease-out hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.32),0_10px_20px_-6px_rgba(0,0,0,0.20)]! dark:hover:shadow-[0_24px_48px_-8px_rgba(0,0,0,0.75),0_10px_22px_-6px_rgba(0,0,0,0.55)]!"
       >
         <mat-card-content class="relative flex flex-auto flex-col gap-y-4 overflow-clip p-5">
-          <!-- Faixa decorativa superior em gradiente suave (Padrão Select Corporation) -->
+          <!-- Faixa decorativa superior em gradiente suave -->
           <div
             class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
             [class]="accent.bannerClass"
           ></div>
 
-          <!-- Topo do Card: Ícone colorido vivo + Badges -->
+          <!-- Topo do Card: Ícone colorido vivo + Categoria vinda de mpx_module_categories -->
           <div class="relative flex items-start justify-between gap-x-3">
             <div
               class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
               [class]="accent.iconBoxClass"
             >
-              <mat-icon [svgIcon]="feature.icon" class="size-6" />
+              <mat-icon [svgIcon]="mod.icon || 'boxes'" class="size-6" />
             </div>
 
             <div class="flex flex-wrap items-center justify-end gap-1.5">
-              <span class="inline-flex items-center gap-x-1 rounded-lg bg-jade-a3 px-2 py-0.5 text-xs font-medium text-jade-a11">
-                <span class="size-1.5 rounded-full bg-jade-9"></span>
-                Nativo
-              </span>
-
               <span
                 class="inline-flex items-center rounded-lg px-2 py-0.5 text-xs font-medium"
                 [class]="accent.badgeClass"
               >
-                {{ feature.category }}
+                {{ mod.categoryName }}
               </span>
             </div>
           </div>
 
-          <!-- Título e Descrição -->
+          <!-- Título em negrito e Descrição (máximo 120 caracteres sem corte) -->
           <div class="relative mt-1 flex flex-col gap-y-1.5">
-            <div class="truncate text-lg font-semibold tracking-tight text-neutral-12 group-hover:text-primary-a11">
-              {{ feature.title }}
+            <div class="truncate text-lg font-bold tracking-tight text-neutral-12 group-hover:text-primary-a11">
+              {{ mod.title }}
             </div>
 
-            <p class="line-clamp-3 min-h-14 text-sm text-neutral-a11">
-              {{ feature.description }}
+            <p class="min-h-[4.75rem] text-sm leading-relaxed text-neutral-a11">
+              {{ mod.description.slice(0, 120) }}
             </p>
           </div>
 
-          <!-- Indicador visual inferior -->
-          <div class="mt-auto flex items-center justify-between border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
-            <span class="inline-flex items-center gap-x-1.5">
-              <mat-icon svgIcon="shield-check" class="size-3.5 text-jade-a11" />
-              Multi-Tenant
-            </span>
-
+          <!-- Rodapé interno do Card: Link de ação vindo do banco (redireciona para criar conta no Morphus) -->
+          <div class="mt-auto flex items-center justify-end border-t border-neutral-a3 pt-3 text-xs font-medium text-neutral-a11">
             <a
               routerLink="/security/signup"
-              class="inline-flex items-center gap-x-1 font-semibold text-primary-a11"
+              class="inline-flex items-center gap-x-1 font-semibold text-primary-a11 hover:underline"
             >
-              Experimentar
+              {{ mod.actionText || 'Experimentar' }}
               <mat-icon svgIcon="arrow-right" class="size-3.5" />
             </a>
           </div>
         </mat-card-content>
-
-        <!-- Rodapé externo do Card Filled (Idêntico ao Select Corporation) -->
-        <mat-card-footer class="flex items-center justify-between px-4 py-2">
-          <div class="min-w-0 flex-auto truncate text-xs text-neutral-a11 tabular-nums">
-            {{ feature.footerLabel }}
-          </div>
-        </mat-card-footer>
       </mat-card>
     }
   </div>
 </section>
 
-<!-- Seção de Transparência Google OAuth & Privacidade -->
+<!-- Seção Na nuvem ou no seu servidor & Acesse seu ambiente de forma simples -->
 <section
-  data-reveal
-  class="grid translate-y-8 grid-cols-1 gap-6 opacity-0 transition-all duration-700 ease-out lg:grid-cols-2"
+  class="grid grid-cols-1 gap-6 transition-all duration-700 ease-out lg:grid-cols-2"
 >
   <div class="flex flex-col justify-between gap-y-4 rounded-2xl border border-neutral-a4 bg-white p-6 sm:p-8 dark:bg-neutral-2">
-    <div class="flex items-center gap-x-3">
-      <div class="flex size-10 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
-        <mat-icon svgIcon="cloud" class="size-5" />
+    <div class="flex flex-col gap-y-4">
+      <div class="flex items-center gap-x-3">
+        <div class="flex size-10 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
+          <mat-icon svgIcon="cloud" class="size-5" />
+        </div>
+        <h2 class="text-xl font-semibold text-neutral-12">Na nuvem ou no seu servidor</h2>
       </div>
-      <h2 class="text-xl font-semibold text-neutral-12">Na nuvem ou no seu servidor</h2>
-    </div>
-    <p class="text-sm leading-relaxed text-neutral-a11 sm:text-base">
-      O Morphus funciona em uma instância compartilhada na nuvem com os dados de cada corporação estritamente isolados. Se a sua organização exigir conformidade local, toda a solução também pode ser instalada em servidor próprio.
-    </p>
-    <div class="flex items-center gap-x-4 pt-2 text-xs font-medium text-neutral-a10">
-      <span class="inline-flex items-center gap-x-1">
-        <mat-icon svgIcon="check" class="size-3.5 text-jade-a11" />
-        PostgreSQL Isolado
-      </span>
-      <span class="inline-flex items-center gap-x-1">
-        <mat-icon svgIcon="check" class="size-3.5 text-jade-a11" />
-        Containers Docker
-      </span>
-      <span class="inline-flex items-center gap-x-1">
-        <mat-icon svgIcon="check" class="size-3.5 text-jade-a11" />
-        HTTPS Automático
-      </span>
+      <p class="text-sm leading-relaxed text-neutral-a11 sm:text-base">
+        Quer o morphus exclusivo todo o ecossistema vai até a sua empresa. Utilize ele nos seus próprios servidores, é só
+        <a
+          class="font-semibold text-primary-a11 underline decoration-primary-a11 underline-offset-2 hover:text-primary-11"
+          routerLink="/website/contato"
+        >falar conosco</a>.
+      </p>
     </div>
   </div>
 
@@ -1102,16 +668,16 @@
       <div class="flex size-10 items-center justify-center rounded-xl bg-jade-a3 text-jade-a11">
         <mat-icon svgIcon="lock" class="size-5" />
       </div>
-      <h2 class="text-xl font-semibold text-neutral-12">Login com Google e Privacidade</h2>
+      <h2 class="text-xl font-semibold text-neutral-12">Acesse seu ambiente de forma simples</h2>
     </div>
     <p class="text-sm leading-relaxed text-neutral-a11 sm:text-base">
-      Você pode criar sua conta com e-mail e senha ou entrar com a sua conta Google. Do Google, o Morphus recebe apenas o seu nome, endereço de e-mail e foto de perfil, usados exclusivamente para identificar você e liberar o acesso aos seus workspaces.
+      Você pode usar as mais modernas ferramentas de acesso para criar sua conta ou entrar nela, mas se quiser pode se cadastrar e entrar da forma convencional com seu e-mail e senha, mas ainda assim totalmente protegido, com criptografia de ponta a ponta e dados completamente criptografados.
     </p>
     <p class="text-xs leading-relaxed text-neutral-a10">
-      Nenhum outro dado ou serviço do Google é acessado. Consulte nossa
-      <a class="font-medium text-primary-a11 underline decoration-primary-a11 underline-offset-2" routerLink="/privacidade">Política de Privacidade</a>
+      Consulte nossa
+      <a class="font-medium text-primary-a11 underline decoration-primary-a11 underline-offset-2" routerLink="/website/privacidade">Política de Privacidade</a>
       e nossos
-      <a class="font-medium text-primary-a11 underline decoration-primary-a11 underline-offset-2" routerLink="/termos">Termos de Uso</a>.
+      <a class="font-medium text-primary-a11 underline decoration-primary-a11 underline-offset-2" routerLink="/website/termos">Termos de Uso</a>.
     </p>
   </div>
 </section>

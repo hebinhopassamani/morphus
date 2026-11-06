@@ -5,9 +5,14 @@ namespace Mpx.Domain.Entities;
 public class MorphusApplication : MorphusEntity, IMorphusTenant
 {
   public required string Name { get; set; }
+  public string Prefix { get; set; } = string.Empty;
   public string? Description { get; set; }
   public string? Icon { get; set; }
   public string? Color { get; set; }
+  public string LayoutKey { get; set; } = "sidebar-default";
+  public string? CustomLayoutHtml { get; set; }
+  public bool Default { get; set; } = false;
+  public bool AvailableForTrial { get; set; } = false;
   public Guid CorporationId { get; set; }
   public Guid? CategoryId { get; set; }
   public Guid? ApplicationStatusId { get; set; }

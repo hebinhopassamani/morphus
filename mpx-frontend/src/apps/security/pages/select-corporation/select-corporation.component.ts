@@ -3,12 +3,7 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCard, MatCardContent, MatCardFooter } from '@angular/material/card';
 import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
-import {
-  MatMenu,
-  MatMenuContent,
-  MatMenuItem,
-  MatMenuTrigger,
-} from '@angular/material/menu';
+import { MatMenu, MatMenuContent, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Auth } from '@core/mpx-auth';
@@ -63,7 +58,6 @@ const CARD_ACCENTS: CardAccent[] = [
     MatMenuContent,
     MatMenuItem,
     MatMenuTrigger,
-    MatDivider,
     MatTooltip,
   ],
   standalone: true,
@@ -163,7 +157,8 @@ export class SelectCorporationComponent implements OnInit {
   }
 
   private navigateToTarget(): void {
-    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/website/home';
+    const returnUrl =
+      this.route.snapshot.queryParamMap.get('returnUrl') || this.auth.getPostLoginRedirectUrl();
     this.router.navigateByUrl(returnUrl);
   }
 }

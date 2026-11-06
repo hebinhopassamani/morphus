@@ -1,14 +1,13 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTableModule } from '@angular/material/table';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
+import {
+  DefaultApplication,
+  IMorphusEditComponent,
+  MorphusEditComponent,
+  MorphusEditShared,
+  NgForm,
+} from '@core/mpx-shared/edit';
 import { MorphusApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
@@ -21,22 +20,7 @@ import { ModuleValidator } from '../validators/module.validator';
 @Component({
   selector: 'mpx-module-edit',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatSelect,
-    MatOption,
-    MatTabGroup,
-    MatTab,
-    MatTableModule,
-    MatTooltip,
-  ],
+  imports: [MorphusEditShared, MatTableModule],
   styleUrl: './module-edit.component.css',
   templateUrl: './module-edit.component.html',
 })
@@ -49,7 +33,7 @@ export class ModuleEditComponent
   private readonly subModuleService = inject(SubModuleService);
   private readonly applicationService = inject(ApplicationService);
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MorphusApplication[]>([{ ...DefaultApplication }]);
   protected readonly selectedTabIndex = signal<number>(0);
 
   // Estado da aba 1:N de Submódulos (exclusivos deste Módulo)
@@ -60,7 +44,7 @@ export class ModuleEditComponent
     key: '',
     description: '',
   });
-  protected readonly subModuleColumns = ['name', 'key', 'description', 'origin', 'actions'];
+  protected readonly subModuleColumns = ['name', 'description', 'origin', 'actions'];
 
   constructor() {
     super(ModuleValidator);
@@ -86,9 +70,9 @@ export class ModuleEditComponent
   async loadEntity(): Promise<void> {
     try {
       const apps = await firstValueFrom(this.applicationService.getList());
-      this.applications.set(apps ?? []);
+      this.applications.set([{ ...DefaultApplication }, ...(apps ?? [])]);
     } catch {
-      this.applications.set(this.context.availableApplications());
+      this.applications.set([{ ...DefaultApplication }, ...this.context.availableApplications()]);
     }
 
     if (this.isNew) {
@@ -96,8 +80,14 @@ export class ModuleEditComponent
     } else {
       const currentId = this.entity().id;
       if (currentId) {
-        const loaded = await firstValueFrom(this.moduleService.getById(currentId));
-        this.setEntity(loaded);
+        const loaded =
+          (await firstValueFrom(this.moduleService.getById(currentId)).catch(() => null)) ??
+          ((await firstValueFrom(this.moduleService.getModules()).catch(() => [])) ?? []).find(
+            (m) => m.id === currentId,
+          );
+        if (loaded) {
+          this.setEntity(loaded);
+        }
         await this.loadSubModules(currentId);
       }
       this.editEntity();
@@ -120,8 +110,7 @@ export class ModuleEditComponent
       name: '',
       key: this.generateKey(),
       description: '',
-      applicationId:
-        this.context.activeApplication()?.id ?? this.applications()[0]?.id ?? '',
+      applicationId: undefined,
       system: false,
     });
   }
@@ -144,11 +133,9 @@ export class ModuleEditComponent
   async create(): Promise<void> {
     const created = await firstValueFrom(this.moduleService.create(this.entity()));
     this.messageService.showSuccess(
-      `O módulo "${created.name}" foi criado! Agora você pode cadastrar os submódulos dele.`,
+      `O módulo "${created.name}" foi criado com sucesso!`,
     );
-    void this.router.navigate(['/security/module', created.id], {
-      queryParams: { tab: 'submodules' },
-    });
+    this.back();
   }
 
   async update(): Promise<void> {
@@ -220,7 +207,7 @@ export class ModuleEditComponent
     await this.loadSubModules(moduleId);
   }
 
-  deleteSubModule(subModule: SubModule): void {
+  async deleteSubModule(subModule: SubModule): Promise<void> {
     if (subModule.system) {
       this.messageService.showWarn(
         'Submódulos nativos do sistema não podem ser excluídos.',
@@ -228,15 +215,56 @@ export class ModuleEditComponent
       );
       return;
     }
+    if (!subModule.id) {
+      return;
+    }
+
+    const displayName = subModule.name?.trim() || '(Submódulo sem nome)';
+    const deps = await firstValueFrom(this.subModuleService.getDependencies(subModule.id)).catch(
+      () => ({ hasDependencies: false, subModules: [], roles: [], claims: [] }),
+    );
+
+    if (deps.hasDependencies) {
+      const lines: string[] = [
+        `O submódulo "${displayName}" possui registros vinculados que também serão excluídos permanentemente:`,
+        '',
+      ];
+      if (deps.roles.length > 0) {
+        lines.push(`• Perfis de acesso (${deps.roles.length}): ${deps.roles.join(', ')}`);
+      }
+      if (deps.claims.length > 0) {
+        lines.push(`• Permissões (${deps.claims.length}): ${deps.claims.join(', ')}`);
+      }
+      lines.push('', 'Esta ação removerá o submódulo e todos os vínculos listados acima.');
+
+      this.messageService.confirmDelete(
+        displayName,
+        async () => {
+          await firstValueFrom(this.subModuleService.delete(subModule.id!, true));
+          await this.loadSubModules();
+          setTimeout(() => {
+            this.messageService.showSuccess(
+              `O submódulo "${displayName}" e todos os seus vínculos foram excluídos com sucesso!`,
+            );
+          }, 150);
+        },
+        {
+          title: 'Exclusão de Submódulo e Vínculos',
+          detail: lines.join('\n'),
+          doubleCheck: false,
+          doubleCheckText: 'EXCLUIR',
+        },
+      );
+      return;
+    }
+
     this.messageService.confirmDelete(
-      subModule.name,
+      displayName,
       async () => {
-        if (subModule.id) {
-          await firstValueFrom(this.subModuleService.delete(subModule.id));
-        }
+        await firstValueFrom(this.subModuleService.delete(subModule.id!));
         await this.loadSubModules();
         this.messageService.showSuccess(
-          `O submódulo "${subModule.name}" foi excluído com sucesso!`,
+          `O submódulo "${displayName}" foi excluído com sucesso!`,
         );
       },
       { doubleCheck: true },
@@ -247,7 +275,11 @@ export class ModuleEditComponent
     void this.router.navigate(['/security/module']);
   }
 
-  async onSave(): Promise<void> {
+  async onSave(form?: NgForm): Promise<void> {
+    if (form && form.invalid) {
+      form.form.markAllAsTouched();
+      return;
+    }
     await this.submitForm();
   }
 

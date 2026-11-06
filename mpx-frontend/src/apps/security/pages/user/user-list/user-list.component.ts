@@ -1,28 +1,18 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatInput, MatPrefix, MatSuffix } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
+import {
+  IMorphusListComponent,
+  MorphusFilter,
+  MorphusListComponent,
+  MorphusListShared,
+} from '@core/mpx-shared/list';
 import { User } from '@security/entities/user';
 import { UserService } from '@security/services/user.service';
 
 @Component({
   selector: 'mpx-user-list',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatFormField,
-    MatInput,
-    MatPrefix,
-    MatSuffix,
-    MatIcon,
-    MatTooltip,
-  ],
+  imports: [MorphusListShared],
   styleUrl: './user-list.component.css',
   templateUrl: './user-list.component.html',
 })

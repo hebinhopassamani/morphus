@@ -9,5 +9,10 @@ export class ApplicationValidator extends MorphusValidator<MorphusApplication> {
       .messageFor('name')
       .withError('minlength')
       .showMessage('O nome da aplicação deve possuir no mínimo 2 caracteres');
+
+    builder
+      .messageFor('prefix')
+      .withError('minlength')
+      .showMessage('A sigla deve possuir exatamente 3 caracteres');
   }
 }

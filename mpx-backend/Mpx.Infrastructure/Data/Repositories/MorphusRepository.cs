@@ -138,6 +138,18 @@ public class MorphusRepository<TEntity>(MorphusDbContext context) : IMorphusRepo
       StampCorporationId(entity);
     }
 
+    if (entity is MorphusEntity morphusEntity && morphusEntity.Id != Guid.Empty)
+    {
+      var alreadyTracked = _dbSet.Local
+          .OfType<MorphusEntity>()
+          .FirstOrDefault(e => e.Id == morphusEntity.Id);
+
+      if (alreadyTracked is not null && !ReferenceEquals(alreadyTracked, entity))
+      {
+        _context.Entry(alreadyTracked).State = EntityState.Detached;
+      }
+    }
+
     _context.Entry(entity).State = EntityState.Modified;
     return entity;
   }

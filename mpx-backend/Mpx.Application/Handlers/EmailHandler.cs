@@ -224,15 +224,22 @@ public class EmailHandler
 
       using var smtp = new SmtpClient
       {
-        CheckCertificateRevocation = false
+        CheckCertificateRevocation = false,
+        Timeout = 3000
       };
 
       var server = _configuration["SmtpSettings:Server"];
       var port = int.Parse(_configuration["SmtpSettings:Port"] ?? "587");
-      var password = _configuration["SmtpSettings:Password"];
+      var password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? _configuration["SmtpSettings:Password"];
 
-      await smtp.ConnectAsync(server!, port, SecureSocketOptions.StartTls);
-      await smtp.AuthenticateAsync(_senderEmail, password!);
+      if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(password))
+      {
+        _email.MailSent = false;
+        return _email;
+      }
+
+      await smtp.ConnectAsync(server, port, SecureSocketOptions.StartTls);
+      await smtp.AuthenticateAsync(_senderEmail, password);
       await smtp.SendAsync(_emailMessage);
       await smtp.DisconnectAsync(true);
 

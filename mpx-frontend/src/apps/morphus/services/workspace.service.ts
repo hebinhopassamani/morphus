@@ -28,7 +28,11 @@ export class WorkspaceService {
   }
 
   create(workspace: Partial<Workspace>): Observable<Workspace> {
-    return this.http.post<Workspace>(this.apiUrl, workspace);
+    const payload = { ...workspace } as Record<string, unknown>;
+    if (!payload['id'] || String(payload['id']).trim() === '' || String(payload['id']).toLowerCase() === 'new') {
+      delete payload['id'];
+    }
+    return this.http.post<Workspace>(this.apiUrl, payload);
   }
 
   update(idOrWorkspace: string | Partial<Workspace>, workspace?: Partial<Workspace>): Observable<Workspace> {

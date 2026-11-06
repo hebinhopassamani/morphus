@@ -9,4 +9,6 @@ public interface IModuleRepository : IMorphusRepository<Module>
   Task<List<Module>> GetByApplicationIdAsync(Guid applicationId);
   Task<List<Module>> GetListAsync();
   Task<bool> HasDependenciesAsync(Guid moduleId);
+  Task<DeleteDependenciesSummary> GetDependenciesSummaryAsync(Guid moduleId);
+  Task DeleteWithDependenciesAsync(Guid moduleId);
 }

@@ -8,6 +8,7 @@ public class EmailBccConfiguration : IEntityTypeConfiguration<EmailBcc>
 {
   public void Configure(EntityTypeBuilder<EmailBcc> builder)
   {
+    builder.ToTable("mpx_emails_bcc");
     builder.HasKey(t => t.Id);
     builder.Property(t => t.Mail).HasMaxLength(150).IsRequired();
     builder.Property(t => t.Name).HasMaxLength(100);

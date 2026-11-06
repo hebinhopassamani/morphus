@@ -7,6 +7,13 @@ import { environment } from '@src/environments/environment';
 
 export type ModuleResponse = Module;
 
+export interface DeleteDependenciesSummary {
+  subModules: string[];
+  roles: string[];
+  claims: string[];
+  hasDependencies: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -30,6 +37,10 @@ export class ModuleService {
     return this.http.get<SubModule[]>(`${this.apiUrl}/${moduleId}/sub-modules`);
   }
 
+  getDependencies(moduleId: string): Observable<DeleteDependenciesSummary> {
+    return this.http.get<DeleteDependenciesSummary>(`${this.apiUrl}/${moduleId}/dependencies`);
+  }
+
   getById(id: string): Observable<Module> {
     return this.http.get<Module>(`${this.apiUrl}/${id}`);
   }
@@ -42,8 +53,9 @@ export class ModuleService {
     return this.http.put<Module>(`${this.apiUrl}/${id}`, entity);
   }
 
-  delete(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  delete(id: string, force = false): Observable<void> {
+    const query = force ? '?force=true' : '';
+    return this.http.delete<void>(`${this.apiUrl}/${id}${query}`);
   }
 
   verifyModules(): Observable<{ message: string }> {

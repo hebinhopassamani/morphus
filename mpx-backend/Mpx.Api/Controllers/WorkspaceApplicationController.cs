@@ -57,4 +57,8 @@ public class WorkspaceApplicationController(WorkspaceApplicationHandler workspac
     await workspaceApplicationHandler.DeactivateAsync(workspaceApplication);
     return Ok(true);
   }
+
+  [HttpPost("start-trial")]
+  public async Task<IActionResult> StartTrial([FromBody] WorkspaceApplication workspaceApplication) =>
+      Ok(await workspaceApplicationHandler.StartTrialAsync(workspaceApplication));
 }

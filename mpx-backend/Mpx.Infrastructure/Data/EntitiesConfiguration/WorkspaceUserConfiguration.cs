@@ -8,13 +8,15 @@ public class WorkspaceUserConfiguration : IEntityTypeConfiguration<WorkspaceUser
 {
   public void Configure(EntityTypeBuilder<WorkspaceUser> builder)
   {
-    builder.ToTable("workspace_users");
+    builder.ToTable("mpx_workspace_users");
 
     builder.HasKey(wu => new { wu.WorkspaceId, wu.UserId });
 
     builder.Property(wu => wu.WorkspaceId).IsRequired();
     builder.Property(wu => wu.UserId).IsRequired();
     builder.Property(wu => wu.CorporationId).IsRequired();
+    builder.Property(wu => wu.Color).IsRequired(false).HasMaxLength(50);
+    builder.Property(wu => wu.Favorite).IsRequired().HasDefaultValue(false);
     builder.Property(wu => wu.Inactive).IsRequired().HasDefaultValue(false);
     builder.Property(wu => wu.System).IsRequired().HasDefaultValue(false);
     builder.Property(wu => wu.IsOwner).IsRequired().HasDefaultValue(false);

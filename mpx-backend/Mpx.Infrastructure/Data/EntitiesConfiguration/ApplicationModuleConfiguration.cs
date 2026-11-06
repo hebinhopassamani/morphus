@@ -8,7 +8,7 @@ public class ApplicationModuleConfiguration : IEntityTypeConfiguration<Applicati
 {
   public void Configure(EntityTypeBuilder<ApplicationModule> builder)
   {
-    builder.ToTable("application_modules");
+    builder.ToTable("mpx_application_modules");
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
     builder.Property(b => b.Label).IsRequired().HasMaxLength(150);

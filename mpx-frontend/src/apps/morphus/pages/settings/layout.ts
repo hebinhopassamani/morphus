@@ -44,6 +44,7 @@ type SettingsNavSection = {
             <img
               [src]="picture"
               alt="Avatar do usuário"
+              referrerpolicy="no-referrer"
               class="size-12 shrink-0 rounded-full object-cover ring-2 ring-neutral-a4"
             />
           } @else {

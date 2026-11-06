@@ -20,10 +20,31 @@ export interface CorporationSummary {
   name: string;
   key: string;
   icon?: string;
+  color?: string;
   description?: string;
   parentCorporationId?: string;
   isOwner: boolean;
+  favorite?: boolean;
+  inactive?: boolean;
   roles?: string[];
+}
+
+export interface SavePortalPreferenceRequest {
+  targetType: 'application' | 'workspace' | 'corporation';
+  targetId: string;
+  corporationId?: string | null;
+  workspaceId?: string | null;
+  color?: string | null;
+  favorite?: boolean | null;
+}
+
+export interface PortalPreferenceItem {
+  targetType: 'application' | 'workspace' | 'corporation';
+  targetId: string;
+  corporationId: string;
+  workspaceId?: string | null;
+  color?: string | null;
+  favorite: boolean;
 }
 
 export interface LoginRequest {
@@ -65,6 +86,7 @@ export interface OnboardingApplicationItem {
   key: string;
   icon?: string;
   description?: string;
+  availableForTrial?: boolean;
   system: boolean;
   inactive: boolean;
 }
@@ -90,7 +112,7 @@ export interface ConfirmEmailRequest {
 }
 
 export interface OnboardingCorporationStepRequest {
-  userName: string;
+  userName?: string;
   userNickName?: string;
   corporationName: string;
 }

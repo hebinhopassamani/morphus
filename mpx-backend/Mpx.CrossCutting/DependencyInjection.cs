@@ -4,12 +4,14 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 using mpx.Domain.Interfaces;
 using Mpx.Domain.Interfaces;
+using Mpx.Domain.Security;
 using Mpx.Application.Handlers;
 using Mpx.Application.Validators;
 using Mpx.Infrastructure.Data;
@@ -39,68 +41,71 @@ public static class DependencyInjection
   {
     using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<MorphusDbContext>();
+
+    if (string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB"), "true", StringComparison.OrdinalIgnoreCase))
+    {
+      dbContext.Database.ExecuteSqlRaw("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
+      Console.WriteLine(">>> SCHEMA PUBLIC RECRIADO DO ZERO! <<<");
+    }
+
     dbContext.Database.Migrate();
 
     dbContext.Database.ExecuteSqlRaw("""
-        UPDATE users SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
-        UPDATE menus SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
-        UPDATE claims SET key = UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)) WHERE key = '';
-        UPDATE menus SET url = REPLACE(url, '/admin/', '/morphus/') WHERE url LIKE '/admin/%';
-
-        INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
-        SELECT
-            gen_random_uuid(),
-            UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)),
-            true,
-            false,
-            'Corporações',
-            parent.application_id,
-            parent.id,
-            mod.id,
-            sub.id,
-            0,
-            parent.corporation_id,
-            '/morphus/corporation',
-            'building-2',
-            'Gerenciamento de corporações e filiais do sistema'
-        FROM menus parent
-        LEFT JOIN security_modules mod ON mod.corporation_id = parent.corporation_id AND mod.key = 'CORPORATION'
-        LEFT JOIN security_sub_modules sub ON sub.module_id = mod.id AND sub.key = 'REGISTER'
-        WHERE parent.menu_id IS NULL
-          AND parent.label = 'Administração e Segurança'
-          AND NOT EXISTS (
-              SELECT 1 FROM menus m
-              WHERE m.corporation_id = parent.corporation_id
-                AND m.url = '/morphus/corporation'
-          );
-
-        INSERT INTO menus (id, key, system, inactive, label, application_id, menu_id, module_id, sub_module_id, "order", corporation_id, url, icon, description)
-        SELECT
-            gen_random_uuid(),
-            UPPER(SUBSTRING(REPLACE(gen_random_uuid()::text, '-', ''), 1, 12)),
-            true,
-            false,
-            'Workspaces',
-            parent.application_id,
-            parent.id,
-            mod.id,
-            sub.id,
-            2,
-            parent.corporation_id,
-            '/morphus/workspace',
-            'layout-grid',
-            'Gerenciamento dos ambientes de trabalho (workspaces) da corporação'
-        FROM menus parent
-        LEFT JOIN security_modules mod ON mod.corporation_id = parent.corporation_id AND mod.key = 'WORKSPACE'
-        LEFT JOIN security_sub_modules sub ON sub.module_id = mod.id AND sub.key = 'REGISTER'
-        WHERE parent.menu_id IS NULL
-          AND parent.label = 'Administração e Segurança'
-          AND NOT EXISTS (
-              SELECT 1 FROM menus m
-              WHERE m.corporation_id = parent.corporation_id
-                AND m.url = '/morphus/workspace'
-          );
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_start_date timestamp with time zone NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_days integer NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_used boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS shared_with_workspace_id uuid NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS "default" boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS available_for_trial boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS "default" boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS layout_key character varying(60) NOT NULL DEFAULT 'sidebar-default';
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS custom_layout_html text NULL;
+        ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS workspace_id uuid NULL;
+        ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS color character varying(250) NULL;
+        ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS favorite boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_workspace_users ADD COLUMN IF NOT EXISTS color character varying(50) NULL;
+        ALTER TABLE mpx_workspace_users ADD COLUMN IF NOT EXISTS favorite boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_corporation_users ADD COLUMN IF NOT EXISTS color character varying(50) NULL;
+        ALTER TABLE mpx_corporation_users ADD COLUMN IF NOT EXISTS favorite boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS route_pattern character varying(150) NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS "default" boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS html_content text NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS css_content text NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS js_content text NULL;
+        UPDATE mpx_applications SET available_for_trial = true WHERE prefix IN ('FIN', 'FLW', 'MAL') OR name IN ('Morphus Financeiro', 'Morphus Flow', 'Morphus Mail');
+        UPDATE mpx_applications SET "default" = true WHERE prefix = 'FIN' OR name = 'Morphus Financeiro';
+        UPDATE mpx_applications SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;
+        ALTER TABLE mpx_applications ALTER COLUMN description TYPE character varying(120);
+        UPDATE mpx_workspaces SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;
+        ALTER TABLE mpx_workspaces ALTER COLUMN description TYPE character varying(120);
+        UPDATE mpx_corporations SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;
+        ALTER TABLE mpx_corporations ALTER COLUMN description TYPE character varying(120);
+        UPDATE mpx_modules SET description = 'Gestão granular de usuários, perfis e permissões isolados por corporação, filial, workspace e aplicação.' WHERE title = 'Acessos e Permissões';
+        UPDATE mpx_modules SET description = 'Estrutura hierárquica entre matriz e múltiplas filiais, permitindo alternar de ambiente com apenas um clique.' WHERE title = 'Corporações e Filiais';
+        UPDATE mpx_modules SET description = LEFT(description, 120) WHERE LENGTH(description) > 120;
+        ALTER TABLE mpx_modules ALTER COLUMN description TYPE character varying(120);
         """);
+
+    if (!dbContext.Features.Any() || !dbContext.ModuleCategories.Any())
+    {
+      var (features, categories) = MorphusAccountSeed.CreateDefaultShowcaseContent();
+      if (!dbContext.Features.Any())
+      {
+        dbContext.Features.AddRange(features);
+      }
+      if (!dbContext.ModuleCategories.Any())
+      {
+        dbContext.ModuleCategories.AddRange(categories);
+      }
+      dbContext.SaveChanges();
+      Console.WriteLine(">>> TABELAS SHOWCASE DA HOME (mpx_features / mpx_modules) POPULADAS COM SUCESSO! <<<");
+    }
+
+    if (string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB"), "true", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB_EXIT"), "true", StringComparison.OrdinalIgnoreCase))
+    {
+      Environment.Exit(0);
+    }
 
     return app;
   }
@@ -199,6 +204,7 @@ public static class DependencyInjection
 
     builder.Services.AddDbContext<MorphusDbContext>(options =>
              options.UseSnakeCaseNamingConvention()
+                    .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                     .UseNpgsql(connectionBuilder.ConnectionString, b => b
                     .MigrationsAssembly(typeof(MorphusDbContext)
                     .Assembly.FullName)));

@@ -26,8 +26,9 @@
   </div>
 
   <form
+    #form="ngForm"
     class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
-    (ngSubmit)="onSave()"
+    (ngSubmit)="onSave(form)"
   >
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
       <mat-form-field>
@@ -54,6 +55,7 @@
           type="email"
           name="email"
           required
+          invalid_email
           placeholder="usuario@empresa.com.br"
           [ngModel]="entity().email"
           (ngModelChange)="updateField('email', $event)"
@@ -89,37 +91,23 @@
       </mat-form-field>
     </div>
 
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-      <mat-form-field>
-        <mat-label>{{ isEditing() ? 'Nova Senha (deixe em branco para manter)' : 'Senha de Acesso' }}</mat-label>
-        <input
-          matInput
-          type="password"
-          name="password"
-          [required]="!isEditing()"
-          placeholder="••••••••"
-          [ngModel]="password()"
-          (ngModelChange)="password.set($event)"
-        />
-      </mat-form-field>
-
-      <mat-form-field
-        class="cursor-pointer"
-        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
-        (click)="copyKey(entity().key)"
-      >
-        <mat-label>
-          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
-        </mat-label>
-        <input
-          matInput
-          name="key"
-          readonly
-          class="cursor-pointer font-mono select-all opacity-75"
-          [ngModel]="entity().key"
-        />
-      </mat-form-field>
-    </div>
+    <mat-form-field>
+      <mat-label>{{ isEditing() ? 'Nova Senha (deixe em branco para manter)' : 'Senha de Acesso' }}</mat-label>
+      <input
+        matInput
+        type="password"
+        name="password"
+        [required]="!isEditing()"
+        minlength="6"
+        placeholder="••••••••"
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+        #userPassword="ngModel"
+      />
+      <mat-error class="morphus-mat-error">
+        <span class="morphus-mat-error-label">{{ validator.showErros(userPassword) }}</span>
+      </mat-error>
+    </mat-form-field>
 
     <div class="mt-2 flex items-center justify-end gap-x-3 border-t border-neutral-a4 pt-4">
       <button matButton type="button" (click)="onCancel()">

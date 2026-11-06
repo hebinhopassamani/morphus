@@ -161,18 +161,47 @@ export abstract class MorphusEntityService<
 
   public save(entity: Partial<T>): Observable<T> {
     if (this.itsNew(entity)) {
-      return this.http.post<T>(this.baseUrl, entity);
+      return this.create(entity);
     }
-    return this.http.put<T>(this.baseUrl, entity);
+    return this.update(entity);
   }
 
   public create(entity: Partial<T>): Observable<T> {
-    return this.http.post<T>(this.baseUrl, entity);
+    const payload = this.sanitizePayload(entity, true);
+    return this.http.post<T>(this.baseUrl, payload);
   }
 
   public update(entity: Partial<T>): Observable<T> {
     this.validatePrimaryKeys(entity);
-    return this.http.put<T>(this.baseUrl, entity);
+    const payload = this.sanitizePayload(entity, false);
+    return this.http.put<T>(this.baseUrl, payload);
+  }
+
+  private sanitizePayload(entity: Partial<T>, isCreate: boolean): Partial<T> {
+    if (!entity || typeof entity !== 'object') {
+      return entity;
+    }
+    const copy: Record<string, unknown> = { ...(entity as Record<string, unknown>) };
+    if (isCreate) {
+      for (const pk of this.primaryKeys) {
+        const val = copy[String(pk)];
+        if (
+          val === undefined ||
+          val === null ||
+          String(val).trim() === '' ||
+          String(val) === MORPHUS_EMPTY_GUID ||
+          String(val).startsWith('catalog-')
+        ) {
+          delete copy[String(pk)];
+        }
+      }
+    }
+    for (const [k, v] of Object.entries(copy)) {
+      if (k.endsWith('Id') && typeof v === 'string' && v.trim() === '') {
+        copy[k] = null;
+      }
+    }
+    return copy as Partial<T>;
   }
 
   public delete(...pks: [Partial<T>] | (string | number)[]): Observable<boolean> {

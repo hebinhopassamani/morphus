@@ -11,8 +11,9 @@
   </div>
 
   <form
+    #form="ngForm"
     class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
-    (ngSubmit)="onSave()"
+    (ngSubmit)="onSave(form)"
   >
     <!-- Escopo: Aplicação -> Módulo -> Submódulo -->
     <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
@@ -20,15 +21,19 @@
         <mat-label>Aplicação</mat-label>
         <mat-select
           name="applicationId"
+          required
           [disabled]="!!entity().system"
           [ngModel]="selectedApplicationId()"
           (ngModelChange)="onApplicationChange($event)"
+          #applicationId="ngModel"
         >
-          <mat-option value="">Todas as Aplicações</mat-option>
-          @for (app of applications(); track app.id) {
+          @for (app of applications(); track app.id ?? $index) {
             <mat-option [value]="app.id">{{ app.name }}</mat-option>
           }
         </mat-select>
+        <mat-error class="morphus-mat-error">
+          <span class="morphus-mat-error-label">{{ validator.showErros(applicationId) }}</span>
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field>
@@ -41,7 +46,7 @@
           (ngModelChange)="onModuleChange($event)"
           #moduleId="ngModel"
         >
-          @for (mod of availableModules(); track mod.id) {
+          @for (mod of availableModules(); track mod.id ?? $index) {
             <mat-option [value]="mod.id">{{ mod.name }}</mat-option>
           }
         </mat-select>
@@ -55,12 +60,12 @@
         <mat-select
           name="subModuleId"
           required
-          [disabled]="!!entity().system || !entity().moduleId"
+          [disabled]="!!entity().system"
           [ngModel]="entity().subModuleId"
           (ngModelChange)="updateField('subModuleId', $event)"
           #subModuleId="ngModel"
         >
-          @for (sub of availableSubModules(); track sub.id) {
+          @for (sub of availableSubModules(); track sub.id ?? $index) {
             <mat-option [value]="sub.id">{{ sub.name }}</mat-option>
           }
         </mat-select>
@@ -70,8 +75,8 @@
       </mat-form-field>
     </div>
 
-    <!-- Tipo, Valor e Chave (Key) -->
-    <div class="grid grid-cols-1 gap-5 sm:grid-cols-3">
+    <!-- Tipo e Valor -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
       <mat-form-field>
         <mat-label>Tipo (ClaimType)</mat-label>
         <input
@@ -106,23 +111,6 @@
         <mat-error class="morphus-mat-error">
           <span class="morphus-mat-error-label">{{ validator.showErros(claimValue) }}</span>
         </mat-error>
-      </mat-form-field>
-
-      <mat-form-field
-        class="cursor-pointer"
-        [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
-        (click)="copyKey(entity().key)"
-      >
-        <mat-label>
-          {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
-        </mat-label>
-        <input
-          matInput
-          name="key"
-          readonly
-          class="cursor-pointer font-mono select-all opacity-75"
-          [ngModel]="entity().key"
-        />
       </mat-form-field>
     </div>
 

@@ -10,6 +10,7 @@ import { RouterLink } from '@angular/router';
 import { Auth } from '@core/mpx-auth';
 import { Scheme, Theming } from '@core/mpx-theming';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
+import { MorphusContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   imports: [
@@ -31,6 +32,7 @@ export class MpxTopBarComponent {
 
   protected readonly auth = inject(Auth);
   protected readonly theming = inject(Theming);
+  protected readonly context = inject(MorphusContextService);
 
   protected readonly isDark = computed(() => this.theming.isDark());
   protected readonly themePresets = THEME_PRESETS;

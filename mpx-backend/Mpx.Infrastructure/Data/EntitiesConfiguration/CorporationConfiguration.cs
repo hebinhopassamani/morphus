@@ -8,6 +8,7 @@ public class CorporationConfiguration : IEntityTypeConfiguration<Corporation>
 {
   public void Configure(EntityTypeBuilder<Corporation> builder)
   {
+    builder.ToTable("mpx_corporations");
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
     builder.Property(b => b.Key).IsRequired().HasMaxLength(100);
@@ -17,7 +18,7 @@ public class CorporationConfiguration : IEntityTypeConfiguration<Corporation>
     builder.Property(b => b.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(b => b.Color).IsRequired(false).HasMaxLength(50);
     builder.Property(b => b.System).IsRequired().HasDefaultValue(false);
-    builder.Property(b => b.Description).IsRequired(false).HasColumnType("text");
+    builder.Property(b => b.Description).IsRequired(false).HasMaxLength(120);
 
     builder.HasOne(b => b.ParentCorporation)
            .WithMany(b => b.Corporations)

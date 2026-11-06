@@ -1,0 +1,180 @@
+@switch (layoutKey()) {
+  @case ('topbar-modern') {
+    <!-- LAYOUT 2: Menu Horizontal Moderno no Topo + Área Central Larga (Portal / CRM) -->
+    <div
+      class="flex min-h-dvh w-full flex-auto flex-col bg-[#F7F5FC] dark:bg-[#140A2E]"
+      [class.scheme-dark]="theming.isDark()"
+      [class.scheme-light]="!theming.isDark()"
+    >
+      <mpx-topbar [sidebarOpened]="false" />
+
+      <div class="border-b border-neutral-a4 bg-neutral-1/90 backdrop-blur-md">
+        <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-2.5">
+          <div class="flex items-center gap-x-2.5">
+            <div class="flex size-8 items-center justify-center rounded-lg bg-primary-a3 text-primary-a11">
+              <mat-icon [svgIcon]="activeApp()?.icon || 'boxes'" class="size-4" />
+            </div>
+            <span class="text-sm font-bold text-neutral-12">
+              {{ activeApp()?.name || 'Aplicação' }}
+            </span>
+          </div>
+
+          <nav class="flex flex-wrap items-center gap-1.5">
+            @for (item of navItems(); track item.id) {
+              <a
+                [routerLink]="item.url"
+                routerLinkActive="bg-primary-9 text-white shadow-xs"
+                class="inline-flex items-center gap-x-1.5 rounded-xl px-3 py-1.5 text-xs font-medium text-neutral-11 transition-colors hover:bg-neutral-a3"
+              >
+                <mat-icon [svgIcon]="item.icon" class="size-3.5" />
+                <span>{{ item.label }}</span>
+              </a>
+            }
+          </nav>
+
+          <div class="flex items-center gap-2">
+            <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
+              <mat-icon svgIcon="settings" />
+              <span>Editar Telas</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <main class="mx-auto flex w-full max-w-7xl flex-auto flex-col">
+        <router-outlet />
+      </main>
+    </div>
+  }
+
+  @case ('minimal-clean') {
+    <!-- LAYOUT 3: Minimalista Focado (Sem Sidebar, Barra Fina Superior) -->
+    <div
+      class="flex min-h-dvh w-full flex-auto flex-col bg-neutral-1 dark:bg-neutral-2"
+      [class.scheme-dark]="theming.isDark()"
+      [class.scheme-light]="!theming.isDark()"
+    >
+      <header class="sticky top-0 z-20 flex items-center justify-between border-b border-neutral-a4 bg-neutral-1/95 px-6 py-3 backdrop-blur-md">
+        <div class="flex items-center gap-x-3">
+          <button
+            type="button"
+            matButton="outlined"
+            class="tiny"
+            (click)="goToPortal()"
+          >
+            <mat-icon svgIcon="arrow-left" />
+            <span>Portal</span>
+          </button>
+          <div class="h-4 w-px bg-neutral-a4"></div>
+          <div class="flex items-center gap-x-2">
+            <mat-icon [svgIcon]="activeApp()?.icon || 'boxes'" class="size-4 text-primary-a11" />
+            <span class="text-sm font-semibold text-neutral-12">
+              {{ activeApp()?.name || 'Aplicação' }}
+            </span>
+          </div>
+        </div>
+
+        <nav class="flex flex-wrap items-center gap-1">
+          @for (item of navItems(); track item.id) {
+            <a
+              [routerLink]="item.url"
+              routerLinkActive="bg-primary-a3 text-primary-a11 font-semibold"
+              class="rounded-lg px-2.5 py-1 text-xs text-neutral-a11 transition-colors hover:bg-neutral-a3"
+            >
+              {{ item.label }}
+            </a>
+          }
+        </nav>
+
+        <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
+          <mat-icon svgIcon="settings" />
+          <span>Construtor</span>
+        </button>
+      </header>
+
+      <main class="flex flex-auto flex-col">
+        <router-outlet />
+      </main>
+    </div>
+  }
+
+  @case ('canvas-full') {
+    <!-- LAYOUT 4: Tela Cheia Livre (Canvas / Kiosk / Totem / Kalupa) -->
+    <div
+      class="relative flex min-h-dvh w-full flex-auto flex-col bg-neutral-1 dark:bg-neutral-2"
+      [class.scheme-dark]="theming.isDark()"
+      [class.scheme-light]="!theming.isDark()"
+    >
+      <main class="flex flex-auto flex-col">
+        <router-outlet />
+      </main>
+
+      <div class="fixed right-5 bottom-5 z-30 flex items-center gap-1.5 rounded-full border border-neutral-a5 bg-neutral-1/95 px-3 py-1.5 shadow-lg backdrop-blur-md">
+        <button type="button" matButton class="tiny" (click)="goToPortal()">
+          <mat-icon svgIcon="globe" />
+          <span>Portal</span>
+        </button>
+        @for (item of navItems(); track item.id) {
+          <a
+            [routerLink]="item.url"
+            routerLinkActive="bg-primary-9 text-white"
+            class="rounded-full px-2.5 py-1 text-xs font-medium text-neutral-11 transition-colors hover:bg-neutral-a3"
+          >
+            {{ item.label }}
+          </a>
+        }
+        <button type="button" matButton class="tiny" (click)="goToAppStudio()">
+          <mat-icon svgIcon="settings" />
+        </button>
+      </div>
+    </div>
+  }
+
+  @case ('custom-html') {
+    <!-- LAYOUT 5: Layout HTML Criado pelo Próprio Usuário no Banco -->
+    <div
+      class="flex min-h-dvh w-full flex-auto flex-col bg-neutral-1 dark:bg-neutral-2"
+      [class.scheme-dark]="theming.isDark()"
+      [class.scheme-light]="!theming.isDark()"
+    >
+      @if (activeApp()?.customLayoutHtml) {
+        <div class="w-full" [innerHTML]="trustedCustomLayoutHtml()"></div>
+      }
+
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-a4 bg-neutral-2/80 px-6 py-2">
+        <nav class="flex flex-wrap items-center gap-1.5">
+          @for (item of navItems(); track item.id) {
+            <a
+              [routerLink]="item.url"
+              routerLinkActive="bg-primary-9 text-white"
+              class="inline-flex items-center gap-x-1.5 rounded-lg px-2.5 py-1 text-xs font-medium text-neutral-11 transition-colors hover:bg-neutral-a3"
+            >
+              <mat-icon [svgIcon]="item.icon" class="size-3.5" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </nav>
+
+        <div class="flex items-center gap-2">
+          <button type="button" matButton="outlined" class="tiny" (click)="goToPortal()">
+            <mat-icon svgIcon="globe" />
+            <span>Portal</span>
+          </button>
+          <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
+            <mat-icon svgIcon="settings" />
+            <span>Editar Layout/Telas</span>
+          </button>
+        </div>
+      </div>
+
+      <main class="flex flex-auto flex-col">
+        <router-outlet />
+      </main>
+    </div>
+  }
+
+  @default {
+    <!-- LAYOUT 1 (Padrão): Menu Lateral Retrátil + Topbar (MorphusWorkspaceLayout) -->
+    <mpx-layout />
+  }
+}

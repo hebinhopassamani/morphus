@@ -8,6 +8,7 @@ public class UserStatusConfiguration : IEntityTypeConfiguration<UserStatus>
 {
   public void Configure(EntityTypeBuilder<UserStatus> builder)
   {
+    builder.ToTable("sec_user_statuses");
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
     builder.Property(b => b.Label).IsRequired().HasMaxLength(100).HasDefaultValue(string.Empty);

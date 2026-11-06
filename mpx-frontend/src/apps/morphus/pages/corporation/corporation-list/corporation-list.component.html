@@ -25,7 +25,7 @@
       <mat-icon svgIcon="search" matIconPrefix />
       <input
         matInput
-        placeholder="Buscar por nome, razão social, chave (Key) ou e-mail..."
+        placeholder="Buscar por nome, razão social ou e-mail..."
         autocomplete="off"
         [(ngModel)]="search"
         (ngModelChange)="loadList()"
@@ -57,19 +57,6 @@
                 }
               </div>
             </div>
-          </td>
-        </ng-container>
-
-        <!-- Coluna: Chave (Key) -->
-        <ng-container matColumnDef="key">
-          <th class="max-sm:hidden md:w-44" mat-header-cell *matHeaderCellDef>Chave (Key)</th>
-          <td class="max-sm:hidden" mat-cell *matCellDef="let row">
-            <code
-              class="cursor-pointer rounded bg-primary-a3 px-2 py-0.5 font-mono text-xs text-primary-11 transition-colors hover:bg-primary-a4"
-              (click)="copyKey(row.key)"
-            >
-              {{ row.key }}
-            </code>
           </td>
         </ng-container>
 

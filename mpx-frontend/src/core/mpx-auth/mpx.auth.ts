@@ -15,6 +15,7 @@ import {
   throwError,
 } from 'rxjs';
 import { MpxLocalStorage } from '@core/mpx-local-storage';
+import { MorphusMessageService } from '@core/mpx-message';
 import { environment } from '@/environments/environment';
 import {
   ConfirmEmailRequest,
@@ -43,6 +44,7 @@ export class MpxAuth {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly localStorage = inject(MpxLocalStorage);
+  private readonly messageService = inject(MorphusMessageService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly apiUrl = `${environment.apiUrl}/security`;
 
@@ -200,6 +202,35 @@ export class MpxAuth {
     }
   });
 
+  readonly isAdmin = computed<boolean>(() => {
+    if (!this.isAuthenticated()) {
+      return false;
+    }
+    const payload = this.decodedToken();
+    if (payload) {
+      const roleClaim =
+        payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ??
+        payload['role'] ??
+        payload['roles'];
+      if (typeof roleClaim === 'string' && roleClaim.toUpperCase() === 'ADMINISTRATOR') {
+        return true;
+      }
+      if (Array.isArray(roleClaim) && roleClaim.some((r) => String(r).toUpperCase() === 'ADMINISTRATOR')) {
+        return true;
+      }
+    }
+    const activeCorpId = this.corporation()?.id;
+    const summary = this.availableCorporations().find((c) => c.id === activeCorpId);
+    if (summary?.isOwner || summary?.roles?.some((r) => r.toUpperCase() === 'ADMINISTRATOR')) {
+      return true;
+    }
+    return false;
+  });
+
+  getPostLoginRedirectUrl(): string {
+    return this.isAdmin() ? '/morphus/admin/dashboard' : '/website/home';
+  }
+
   constructor() {
     if (this.isBrowser) {
       this.loadSessionFromStorage();
@@ -214,6 +245,14 @@ export class MpxAuth {
       }
       const parsed = JSON.parse(raw) as MorphusSession;
       if (parsed?.accessToken?.value) {
+        const nowSeconds = Math.floor(Date.now() / 1000);
+        const accessExp = parsed.accessToken.expirationTime ?? 0;
+        if (accessExp <= nowSeconds) {
+          this.localStorage.removeItem(MORPHUS_SESSION_STORAGE_KEY);
+          this.sessionState.set(null);
+          return null;
+        }
+
         this.sessionState.set(parsed);
         this.startExpirationInterval();
         return parsed;
@@ -259,7 +298,10 @@ export class MpxAuth {
       }
 
       if (accessSeconds <= 0) {
-        this.logout();
+        this.messageService.messageType = 'SESSION_EXPIRED';
+        const currentUrl = this.router.url || '';
+        const targetUrl = currentUrl.startsWith('/website') ? '/website/home' : '/security/signin';
+        this.logout(targetUrl);
       }
     };
 
@@ -515,7 +557,10 @@ export class MpxAuth {
         },
         error: () => {
           this.refreshTokenSubject.next(false);
-          this.logout();
+          this.messageService.messageType = 'SESSION_EXPIRED';
+          const currentUrl = this.router.url || '';
+          const targetUrl = currentUrl.startsWith('/website') ? '/website/home' : '/security/signin';
+          this.logout(targetUrl);
         },
       });
   }
@@ -625,10 +670,31 @@ export class MpxAuth {
     this.router.navigateByUrl('/security/signup');
   }
 
+  clearInvalidSession(): void {
+    this.stopExpirationInterval();
+    this.setSession(null);
+    const currentUrl = this.router.url || '';
+    if (!currentUrl.startsWith('/website') && !currentUrl.startsWith('/security/signin') && !currentUrl.startsWith('/security/signup')) {
+      void this.router.navigateByUrl('/website/home');
+    }
+  }
+
   logout(redirectUrl = '/security/signin'): void {
+    const isSessionExpired =
+      this.messageService.messageType === 'SESSION_EXPIRED' ||
+      this.messageService.messageType === 'expired_session' ||
+      this.messageService.messageType === 'expired';
+
+    if (!isSessionExpired) {
+      this.messageService.messageType = 'LOGOUT';
+    }
+
+    const hadValidAccessToken =
+      Boolean(this.sessionState()?.accessToken?.value) && this.accessTokenExpiresIn() > 0;
+
     this.stopExpirationInterval();
 
-    if (this.sessionState()?.accessToken?.value) {
+    if (hadValidAccessToken) {
       this.http.post(`${this.apiUrl}/revoke`, {}).subscribe({
         error: () => {
           // Ignora falha de rede no revoke pois a sessão local será limpa de qualquer forma
@@ -637,6 +703,16 @@ export class MpxAuth {
     }
 
     this.setSession(null);
-    this.router.navigateByUrl(redirectUrl);
+    void this.router.navigateByUrl(redirectUrl).finally(() => {
+      if (isSessionExpired) {
+        this.messageService.messageType = 'SESSION_EXPIRED';
+        this.messageService.showError(
+          'Sua sessão expirou por segurança. Faça login novamente para continuar.',
+          'Sessão expirada',
+        );
+      } else {
+        this.messageService.messageType = 'NORMAL';
+      }
+    });
   }
 }

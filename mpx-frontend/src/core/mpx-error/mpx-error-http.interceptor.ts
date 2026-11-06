@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { catchError, throwError } from 'rxjs';
+import { MpxAuth } from '@core/mpx-auth';
 import { MorphusHttpErrorService } from '@core/mpx-http';
 import { MorphusMessageService } from '@core/mpx-message';
 
@@ -15,6 +16,14 @@ const SILENT_AUTH_PATHS = [
   '/api/v1/auth/signup',
   '/api/v1/auth/google',
   '/api/v1/auth/refresh',
+  '/security/login',
+  '/security/google-login',
+  '/security/create-account',
+  '/security/refresh-token',
+  '/security/revoke',
+  '/security/confirm-email',
+  '/security/forgot-password',
+  '/security/reset-password',
 ];
 
 function getFriendlyErrorTitle(status: number): string {
@@ -40,6 +49,7 @@ function getFriendlyErrorTitle(status: number): string {
 }
 
 export const mpxErrorHttpInterceptor: HttpInterceptorFn = (req, next) => {
+  const auth = inject(MpxAuth);
   const messageService = inject(MorphusMessageService);
   const httpErrorService = inject(MorphusHttpErrorService);
 
@@ -50,7 +60,10 @@ export const mpxErrorHttpInterceptor: HttpInterceptorFn = (req, next) => {
           req.context.get(SKIP_GLOBAL_ERROR_MODAL) ||
           SILENT_AUTH_PATHS.some((path) => req.url.includes(path));
 
-        if (!skipModal) {
+        if (error.status === 401 && messageService.messageType !== 'SESSION_EXPIRED') {
+          auth.clearInvalidSession();
+          messageService.messageType = 'NORMAL';
+        } else if (!skipModal) {
           const serverMessage =
             error.error?.message ||
             error.error?.title ||

@@ -8,7 +8,7 @@ public class ApplicationStatusConfiguration : IEntityTypeConfiguration<Applicati
 {
   public void Configure(EntityTypeBuilder<ApplicationStatus> builder)
   {
-    builder.ToTable("application_statuses");
+    builder.ToTable("mpx_application_statuses");
 
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);

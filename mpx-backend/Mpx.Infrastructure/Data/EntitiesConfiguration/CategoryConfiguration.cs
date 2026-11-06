@@ -8,7 +8,7 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
   public void Configure(EntityTypeBuilder<Category> builder)
   {
-    builder.ToTable("categories");
+    builder.ToTable("mpx_categories");
 
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);

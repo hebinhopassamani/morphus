@@ -20,46 +20,28 @@
     <!-- =================================================================== -->
     <mat-tab label="Dados da Corporação">
       <form
+        #form="ngForm"
         class="mt-6 flex flex-col gap-y-5 rounded-xl border border-neutral-a4 bg-white p-6 dark:bg-neutral-2"
-        (ngSubmit)="onSave()"
+        (ngSubmit)="onSave(form)"
       >
-        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <mat-form-field>
-            <mat-label>
-              {{ isPj() ? 'Nome Fantasia / Corporação' : 'Nome de Exibição' }}
-            </mat-label>
-            <input
-              matInput
-              name="name"
-              required
-              minlength="3"
-              placeholder="Ex: Morphus"
-              [ngModel]="entity().name"
-              (ngModelChange)="updateField('name', $event)"
-              #corporationName="ngModel"
-            />
-            <mat-error class="morphus-mat-error">
-              <span class="morphus-mat-error-label">{{ validator.showErros(corporationName) }}</span>
-            </mat-error>
-          </mat-form-field>
-
-          <mat-form-field
-            class="cursor-pointer"
-            [matTooltip]="keyCopied() ? 'Copiado para a área de transferência!' : 'Clique para copiar a Chave Única'"
-            (click)="copyKey(entity().key)"
-          >
-            <mat-label>
-              {{ keyCopied() ? 'Chave Única (Copiada! ✓)' : 'Chave Única (SDK Key)' }}
-            </mat-label>
-            <input
-              matInput
-              name="key"
-              readonly
-              class="cursor-pointer font-mono select-all opacity-75"
-              [ngModel]="entity().key"
-            />
-          </mat-form-field>
-        </div>
+        <mat-form-field>
+          <mat-label>
+            {{ isPj() ? 'Nome Fantasia / Corporação' : 'Nome de Exibição' }}
+          </mat-label>
+          <input
+            matInput
+            name="name"
+            required
+            minlength="3"
+            placeholder="Ex: Morphus"
+            [ngModel]="entity().name"
+            (ngModelChange)="updateField('name', $event)"
+            #corporationName="ngModel"
+          />
+          <mat-error class="morphus-mat-error">
+            <span class="morphus-mat-error-label">{{ validator.showErros(corporationName) }}</span>
+          </mat-error>
+        </mat-form-field>
 
         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
           <mat-form-field>

@@ -1,13 +1,11 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
-import { MpxFilterComponent } from '@/components/morphus/filter';
+import {
+  IMorphusListComponent,
+  MorphusFilter,
+  MorphusListComponent,
+  MorphusListShared,
+} from '@core/mpx-shared/list';
 import { MorphusApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { IModule } from '@security/entities/module';
@@ -17,21 +15,7 @@ import { ModuleService } from '@security/services/module.service';
 @Component({
   selector: 'mpx-module-list',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatPrefix,
-    MatSuffix,
-    MatIcon,
-    MatSelect,
-    MatOption,
-    MatTooltip,
-    MpxFilterComponent,
-  ],
+  imports: [MorphusListShared],
   styleUrl: './module-list.component.css',
   templateUrl: './module-list.component.html',
 })
@@ -187,7 +171,7 @@ export class ModuleListComponent
     });
   }
 
-  deleteEntity(entity: IModule): void {
+  async deleteEntity(entity: IModule): Promise<void> {
     if (entity.system) {
       this.messageService.showWarn(
         'Módulos nativos do sistema não podem ser excluídos.',
@@ -195,16 +179,61 @@ export class ModuleListComponent
       );
       return;
     }
+    if (!entity.id) {
+      return;
+    }
+
+    const displayName = entity.name?.trim() || '(Módulo sem nome)';
+    const deps = await firstValueFrom(this.moduleService.getDependencies(entity.id)).catch(
+      () => ({ hasDependencies: false, subModules: [], roles: [], claims: [] }),
+    );
+
+    if (deps.hasDependencies) {
+      const lines: string[] = [
+        `O módulo "${displayName}" possui registros vinculados que também serão excluídos permanentemente:`,
+        '',
+      ];
+      if (deps.subModules.length > 0) {
+        lines.push(`• Submódulos (${deps.subModules.length}): ${deps.subModules.join(', ')}`);
+      }
+      if (deps.roles.length > 0) {
+        lines.push(`• Perfis de acesso (${deps.roles.length}): ${deps.roles.join(', ')}`);
+      }
+      if (deps.claims.length > 0) {
+        lines.push(`• Permissões (${deps.claims.length}): ${deps.claims.join(', ')}`);
+      }
+      lines.push('', 'Esta ação removerá o módulo e todos os vínculos listados acima.');
+
+      this.messageService.confirmDelete(
+        displayName,
+        async () => {
+          await firstValueFrom(this.moduleService.delete(entity.id!, true));
+          this.cachedModules = this.cachedModules.filter((m) => m.id !== entity.id);
+          this.setList(this.list().filter((m) => m.id !== entity.id));
+          setTimeout(() => {
+            this.messageService.showSuccess(
+              `O módulo "${displayName}" e todos os seus vínculos foram excluídos com sucesso!`,
+            );
+          }, 150);
+        },
+        {
+          title: 'Exclusão de Módulo e Vínculos',
+          detail: lines.join('\n'),
+          doubleCheck: false,
+          doubleCheckText: 'EXCLUIR',
+        },
+      );
+      return;
+    }
+
     this.messageService.confirmDelete(
-      entity.name,
+      displayName,
       async () => {
-        if (entity.id) {
-          await firstValueFrom(this.moduleService.delete(entity.id));
-        }
+        await firstValueFrom(this.moduleService.delete(entity.id!));
         this.cachedModules = this.cachedModules.filter((m) => m.id !== entity.id);
         this.setList(this.list().filter((m) => m.id !== entity.id));
         setTimeout(() => {
-          this.messageService.showSuccess(`O módulo "${entity.name}" foi excluído com sucesso!`);
+          this.messageService.showSuccess(`O módulo "${displayName}" foi excluído com sucesso!`);
         }, 150);
       },
       {

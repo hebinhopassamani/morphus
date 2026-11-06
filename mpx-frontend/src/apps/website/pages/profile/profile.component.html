@@ -25,7 +25,12 @@
     <div class="flex flex-col gap-y-5">
       <div class="flex items-center gap-x-4">
         @if (auth.user()?.picture; as picture) {
-          <img [src]="picture" alt="Avatar" class="size-16 rounded-2xl object-cover shadow-sm" />
+          <img
+            [src]="picture"
+            alt="Avatar"
+            referrerpolicy="no-referrer"
+            class="size-16 rounded-2xl object-cover shadow-sm"
+          />
         } @else {
           <div class="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-primary-a3 text-xl font-bold text-primary-a11 ring-1 ring-primary-a5">
             {{ userInitials() }}

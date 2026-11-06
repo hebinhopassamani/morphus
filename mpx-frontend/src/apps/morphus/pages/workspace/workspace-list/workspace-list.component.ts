@@ -6,7 +6,9 @@ import { MatDivider } from '@angular/material/divider';
 import { MatFormField, MatInput, MatPrefix, MatSuffix } from '@angular/material/input';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
+import { MatTooltip } from '@angular/material/tooltip';
 import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
 import { MpxFilterComponent } from '@/components/morphus/filter';
 import { Workspace } from '@morphus/entities/workspace';
@@ -31,6 +33,8 @@ import { WorkspaceService } from '@morphus/services/workspace.service';
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
+    MatSlideToggle,
+    MatTooltip,
     MpxFilterComponent,
   ],
   styleUrl: './workspace-list.component.css',
@@ -46,7 +50,7 @@ export class WorkspaceListComponent
   protected search = '';
   private cachedWorkspaces: Workspace[] = [];
 
-  protected readonly displayedColumns = ['name', 'key', 'description', 'actions'];
+  protected readonly displayedColumns = ['name', 'default', 'description', 'actions'];
 
   ngOnInit(): void {
     this.primaryKeys = ['id'];
@@ -148,22 +152,65 @@ export class WorkspaceListComponent
     void this.router.navigate([entity.id], { relativeTo: this.activatedRoute });
   }
 
-  async setAsDefault(entity: Workspace): Promise<void> {
-    if (!entity.id) {
+  onDefaultToggleChange(entity: Workspace, event: MatSlideToggleChange): void {
+    if (entity.default) {
+      event.source.checked = true;
+      this.messageService.showWarn(
+        'Sua corporação precisa manter um workspace padrão ativo. Para alterar, selecione outro workspace na lista.',
+        'Workspace Padrão',
+      );
       return;
     }
-    await firstValueFrom(
-      this.workspaceService.update(entity.id, {
-        ...entity,
-        default: true,
-      }),
+
+    // Mantém desmarcado até o usuário confirmar a troca no modal
+    event.source.checked = false;
+    this.setAsDefault(entity);
+  }
+
+  setAsDefault(entity: Workspace): void {
+    if (!entity.id || entity.default) {
+      return;
+    }
+
+    const currentDefault = this.cachedWorkspaces.find(
+      (w) => w.default && w.id !== entity.id,
     );
-    this.cachedWorkspaces = [];
-    await this.loadList();
-    this.context.loadWorkspaces();
-    this.messageService.showSuccess(
-      `O workspace "${entity.name}" foi definido como padrão!`,
-    );
+
+    const applyDefault = async (): Promise<void> => {
+      await firstValueFrom(
+        this.workspaceService.update(entity.id!, {
+          ...entity,
+          default: true,
+        }),
+      );
+      this.cachedWorkspaces = [];
+      await this.loadList();
+      this.context.loadWorkspaces();
+      setTimeout(() => {
+        this.messageService.showSuccess(
+          `O workspace "${entity.name}" agora é o padrão da sua corporação!`,
+        );
+      }, 150);
+    };
+
+    if (currentDefault) {
+      this.messageService.confirm(
+        {
+          severity: 'warn',
+          icon: 'star',
+          title: 'Alterar Workspace Padrão',
+          detail: `Sua corporação já possui um workspace padrão ("${currentDefault.name}"). Deseja mudar para "${entity.name}"?`,
+          confirmButtonText: 'Sim, mudar para este',
+          confirmButtonIcon: 'check',
+          cancelButtonText: 'Cancelar',
+          cancelButtonIcon: 'arrow-left',
+        },
+        applyDefault,
+      );
+      return;
+    }
+
+    void applyDefault();
   }
 
   deleteEntity(entity: Workspace): void {

@@ -1,37 +1,19 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatDivider } from '@angular/material/divider';
-import { MatFormField, MatInput, MatPrefix, MatSuffix } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { MatTableModule } from '@angular/material/table';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
+import {
+  IMorphusListComponent,
+  MorphusFilter,
+  MorphusListComponent,
+  MorphusListShared,
+} from '@core/mpx-shared/list';
 import { Corporation } from '@security/entities/corporation';
 import { CorporationFilterService } from '@security/services/corporation.filter.service';
 import { CorporationService } from '@security/services/corporation.service';
-import { MpxFilterComponent } from '@/components/morphus/filter';
 
 @Component({
   selector: 'mpx-corporation-list',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatTableModule,
-    MatButton,
-    MatIconButton,
-    MatDivider,
-    MatFormField,
-    MatInput,
-    MatPrefix,
-    MatSuffix,
-    MatIcon,
-    MatMenu,
-    MatMenuItem,
-    MatMenuTrigger,
-    MpxFilterComponent,
-  ],
+  imports: [MorphusListShared],
   styleUrl: './corporation-list.component.css',
   templateUrl: './corporation-list.component.html',
 })
@@ -41,12 +23,12 @@ export class CorporationListComponent extends MorphusListComponent<Corporation> 
   protected search = '';
   private cachedCorporations: Corporation[] = [];
 
-  protected readonly displayedColumns = ['name', 'key', 'email', 'description', 'actions'];
+  protected readonly displayedColumns = ['name', 'email', 'description', 'actions'];
 
   ngOnInit(): void {
     this.primaryKeys = ['id'];
     this.title1.set('Corporações');
-    this.title2.set('Gerencie as corporações (Tenants), chaves de identificação e proprietários.');
+    this.title2.set('Gerencie as corporações (Tenants), filiais e proprietários.');
     void this.loadList();
   }
 

@@ -1,15 +1,15 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { MatIcon } from '@angular/material/icon';
-import { MatError, MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
-import { ValidateCnpj, ValidateCpf, ValidateEmail } from '@core/mpx-validators';
+import {
+  IMorphusEditComponent,
+  MorphusEditComponent,
+  MorphusEditShared,
+  NgForm,
+} from '@core/mpx-shared/edit';
+import {
+  MorphusValidationCpfCnpjShared,
+  MorphusValidationEmailShared,
+} from '@core/mpx-shared/validators';
 import { MpxIconSelectorComponent } from '@src/components/morphus/icon-selector';
 import { Corporation } from '@security/entities/corporation';
 import { CorporationUser } from '@security/entities/corporation-user';
@@ -22,25 +22,10 @@ import { CorporationValidator } from '../validators/corporation.validator';
   selector: 'mpx-corporation-edit',
   standalone: true,
   imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatCheckbox,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatPrefix,
-    MatError,
-    MatSelect,
-    MatOption,
-    MatTabGroup,
-    MatTab,
-    MatTooltip,
+    MorphusEditShared,
+    MorphusValidationCpfCnpjShared,
+    MorphusValidationEmailShared,
     MpxIconSelectorComponent,
-    ValidateCnpj,
-    ValidateCpf,
-    ValidateEmail,
   ],
   styleUrl: './corporation-edit.component.css',
   templateUrl: './corporation-edit.component.html',
@@ -398,7 +383,11 @@ export class CorporationEditComponent
     void this.router.navigate(['/morphus/corporation']);
   }
 
-  async onSave(): Promise<void> {
+  async onSave(form?: NgForm): Promise<void> {
+    if (form && form.invalid) {
+      form.form.markAllAsTouched();
+      return;
+    }
     await this.submitForm();
   }
 

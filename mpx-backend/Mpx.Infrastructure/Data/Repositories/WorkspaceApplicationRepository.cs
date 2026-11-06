@@ -11,7 +11,7 @@ public class WorkspaceApplicationRepository(MorphusDbContext context)
   {
     var relatedApplicationIds = await _context.WorkspaceApplications
         .AsNoTracking()
-        .Where(wa => wa.WorkspaceId == workspaceId)
+        .Where(wa => wa.WorkspaceId == workspaceId && !wa.Inactive)
         .Select(wa => wa.ApplicationId)
         .ToListAsync();
 
@@ -42,6 +42,15 @@ public class WorkspaceApplicationRepository(MorphusDbContext context)
   {
     return await _context.WorkspaceApplications
         .FirstOrDefaultAsync(wa => wa.WorkspaceId == workspaceId && wa.ApplicationId == applicationId);
+  }
+
+  public async Task<WorkspaceApplication?> GetTrialHistoryByApplicationAsync(Guid applicationId)
+  {
+    return await _context.WorkspaceApplications
+        .AsNoTracking()
+        .Where(wa => wa.ApplicationId == applicationId && (wa.TrialUsed || wa.TrialStartDate != null))
+        .OrderBy(wa => wa.TrialStartDate)
+        .FirstOrDefaultAsync();
   }
 
   public async Task<WorkspaceApplication> AddRelationshipAsync(WorkspaceApplication entity)

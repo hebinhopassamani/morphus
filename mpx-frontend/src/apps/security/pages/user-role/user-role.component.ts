@@ -1,14 +1,10 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatCheckbox } from '@angular/material/checkbox';
-import { MatIcon } from '@angular/material/icon';
-import { MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusNxNComponent, MorphusNxNComponent } from '@core/mpx-base';
+import {
+  IMorphusNxNComponent,
+  MorphusNxNComponent,
+  MorphusNxNShared,
+} from '@core/mpx-shared/nxn';
 import { MorphusApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Claim } from '@security/entities/claim';
@@ -31,22 +27,7 @@ import { UserService } from '@security/services/user.service';
 @Component({
   selector: 'mpx-user-role',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatCheckbox,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatPrefix,
-    MatSelect,
-    MatOption,
-    MatTabGroup,
-    MatTab,
-    MatTooltip,
-  ],
+  imports: [MorphusNxNShared],
   styleUrl: './user-role.component.css',
   templateUrl: './user-role.component.html',
 })

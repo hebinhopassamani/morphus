@@ -25,6 +25,19 @@
 
   <div class="flex-auto"></div>
 
+  <!-- Indicador do Período de Teste Grátis dentro da Aplicação (Item 6) -->
+  @if (context.activeApplicationTrial(); as trial) {
+    @if (trial.hasStartedTrial) {
+      <div
+        class="relative z-10 hidden items-center gap-x-1.5 rounded-xl border border-primary-a5 bg-white/80 px-3 py-1 text-xs font-semibold text-primary-a11 backdrop-blur-sm sm:inline-flex dark:bg-neutral-2/80"
+        [matTooltip]="trial.detailLabel"
+      >
+        <mat-icon svgIcon="sparkles" class="size-3.5 text-primary-a11" />
+        <span>{{ trial.topbarLabel }}</span>
+      </div>
+    }
+  }
+
   <!-- Botão do Avatar + Nome + Corporação (Padrão unificado em todas as telas) -->
   <button
     type="button"
@@ -35,6 +48,7 @@
       <img
         class="size-7 shrink-0 overflow-hidden rounded-lg object-cover"
         [src]="picture"
+        referrerpolicy="no-referrer"
         alt="Avatar do usuário"
       />
     } @else {
@@ -68,6 +82,7 @@
         <img
           class="size-9 shrink-0 rounded-full object-cover"
           [src]="picture"
+          referrerpolicy="no-referrer"
           alt="Avatar do usuário"
         />
       } @else {

@@ -8,6 +8,7 @@ public class UserClaimConfiguration : IEntityTypeConfiguration<UserClaim>
 {
   public void Configure(EntityTypeBuilder<UserClaim> builder)
   {
+    builder.ToTable("sec_user_claims");
     builder.HasKey(uc => new { uc.UserId, uc.ClaimId });
 
     builder.Property(uc => uc.UserId).IsRequired();

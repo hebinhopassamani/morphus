@@ -20,7 +20,7 @@ export class MorphusMessageService {
   public readonly loading = signal<boolean>(false);
   public readonly showTechnicalError = signal<boolean>(false);
   public readonly message = signal<IMorphusMessage>({ ...DefaultMorphusMessage });
-  public messageType: MorphusMessageType = 'normal';
+  public messageType: MorphusMessageType = 'NORMAL';
 
   private afterClosedSubject?: Subject<IMorphusModalResult<unknown>>;
   private autoCloseTimer?: ReturnType<typeof setTimeout>;
@@ -182,6 +182,34 @@ export class MorphusMessageService {
   }
 
   public show<T = unknown>(options: Partial<IMorphusMessage<T>>): IMorphusMessageRef<T> {
+    const currentMessageType = this.messageType;
+    // Toda vez que tentar exibir uma mensagem, seja ela qual for, volta o status deste atributo para 'NORMAL'
+    this.messageType = 'NORMAL';
+
+    const titleText = (options.title ?? '').trim().toLowerCase();
+    const detailText = options.detail ?? options.message ?? '';
+    const detailLower = detailText.trim().toLowerCase();
+    const isSessionExpiredMessage =
+      titleText.includes('sessão expirada') ||
+      titleText.includes('sessao expirada') ||
+      detailLower.includes('sua sessão expirou') ||
+      detailLower.includes('sua sessao expirou');
+
+    const isExplicitSessionExpired =
+      currentMessageType === 'SESSION_EXPIRED' ||
+      currentMessageType === 'expired_session' ||
+      currentMessageType === 'expired';
+
+    if (isSessionExpiredMessage && !isExplicitSessionExpired) {
+      const noopSubject = new Subject<IMorphusModalResult<T>>();
+      noopSubject.complete();
+      return {
+        message: { ...(DefaultMorphusMessage as IMorphusMessage<T>), ...options },
+        afterClosed: () => noopSubject.asObservable(),
+        close: () => undefined,
+      };
+    }
+
     if (this.autoCloseTimer) {
       clearTimeout(this.autoCloseTimer);
       this.autoCloseTimer = undefined;
@@ -195,7 +223,6 @@ export class MorphusMessageService {
     this.afterClosedSubject = subject as Subject<IMorphusModalResult<unknown>>;
 
     const severity = options.severity ?? 'info';
-    const detailText = options.detail ?? options.message ?? '';
     const doubleCheck = options.doubleCheck ?? options.dobbleConfirmation ?? false;
     const doubleCheckLabel =
       options.doubleCheckLabel ??

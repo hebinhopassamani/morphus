@@ -1,19 +1,102 @@
 import { computed, effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, map } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { Auth } from '@core/mpx-auth';
 import { LocalStorage } from '@core/mpx-local-storage';
 import { MorphusApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
+import { WorkspaceApplication } from '@morphus/entities/workspace-application';
 import { Menu } from '@security/entities/menu';
 import { CorporationSummary } from '@security/entities/session';
+import { ApplicationService } from './application.service';
 import { MenuService } from './menu.service';
+import { WorkspaceApplicationService } from './workspace-application.service';
 import { WorkspaceService } from './workspace.service';
 
 const ACTIVE_WORKSPACE_STORAGE_KEY = 'morphus:activeWorkspaceId';
 const ACTIVE_APPLICATION_STORAGE_KEY = 'morphus:activeApplicationId';
+const TRIAL_USED_STORAGE_KEY = 'morphus:hasUsedOrActiveTrial';
+const PROVISIONED_WORKSPACE_APPS_KEY = 'morphus:provisionedWorkspaceApps';
+const DEFAULT_TRIAL_DAYS = 14;
 const INVISIBLE_APPLICATION_NAMES = new Set(['SEGURANÇA', 'SEGURANCA', 'SECURITY', 'WEBSITE']);
+const SYSTEM_CORE_APPLICATION_NAMES = new Set([
+  'MORPHUS',
+  'SEGURANÇA',
+  'SEGURANCA',
+  'SECURITY',
+  'WEBSITE',
+]);
+
+const FALLBACK_ECOSYSTEM_CATALOG: MorphusApplication[] = [
+  {
+    id: 'catalog-kalupa',
+    key: 'KALUPA',
+    name: 'Kalupa Automação',
+    icon: 'workflow',
+    color: 'amber',
+    system: false,
+    inactive: false,
+    description:
+      'Orquestração inteligente de documentos, captura por IA e entrega invisível na pasta local.',
+  },
+  {
+    id: 'catalog-morphus-crm',
+    key: 'MORPHUS_CRM',
+    name: 'Morphus CRM',
+    icon: 'users',
+    color: 'indigo',
+    system: false,
+    inactive: false,
+    description:
+      'Gestão completa de funil comercial, carteira de clientes, propostas e relacionamento.',
+  },
+  {
+    id: 'catalog-morphus-flow',
+    key: 'MORPHUS_FLOW',
+    name: 'Morphus Flow',
+    icon: 'workflow',
+    color: 'violet',
+    system: false,
+    inactive: false,
+    description:
+      'Motor visual de workflows configuráveis, aprovações por alçada e automação entre departamentos.',
+  },
+  {
+    id: 'catalog-morphus-mail',
+    key: 'MORPHUS_MAIL',
+    name: 'Morphus Mail',
+    icon: 'mail',
+    color: 'jade',
+    system: false,
+    inactive: false,
+    description:
+      'Disparo de e-mails transacionais de alta entregabilidade, templates HTML e domínios verificados.',
+  },
+  {
+    id: 'catalog-morphus-financeiro',
+    key: 'MORPHUS_FINANCE',
+    name: 'Morphus Financeiro',
+    icon: 'wallet',
+    color: 'jade',
+    system: false,
+    inactive: false,
+    description:
+      'Contas a pagar e receber, entrada de notas fiscais, conciliação bancária e fluxo de caixa.',
+  },
+];
+
+export interface ApplicationTrialInfo {
+  hasStartedTrial: boolean;
+  trialUsed: boolean;
+  isInTrial: boolean;
+  hasCompletedTrial: boolean;
+  trialDays: number;
+  remainingDays: number;
+  badgeLabel: string;
+  topbarLabel: string;
+  detailLabel: string;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -23,9 +106,12 @@ export class MorphusContextService {
   private readonly router = inject(Router);
   private readonly localStorage = inject(LocalStorage);
   private readonly workspaceService = inject(WorkspaceService);
+  private readonly applicationService = inject(ApplicationService);
+  private readonly workspaceAppService = inject(WorkspaceApplicationService);
   private readonly menuService = inject(MenuService);
 
   private readonly workspacesState = signal<Workspace[]>([]);
+  private readonly catalogApplicationsState = signal<MorphusApplication[]>([]);
   private readonly activeWorkspaceIdState = signal<string | null>(
     this.localStorage.getItem(ACTIVE_WORKSPACE_STORAGE_KEY),
   );
@@ -35,6 +121,15 @@ export class MorphusContextService {
   private readonly menusState = signal<Menu[]>([]);
   private readonly loadingMenusState = signal<boolean>(false);
   private readonly switchingContextState = signal<boolean>(false);
+  private readonly sidebarForceCollapsedState = signal<boolean>(false);
+  readonly sidebarForceCollapsed = this.sidebarForceCollapsedState.asReadonly();
+
+  setSidebarForceCollapsed(collapsed: boolean): void {
+    this.sidebarForceCollapsedState.set(collapsed);
+  }
+  private readonly provisionedAppsState = signal<
+    Record<string, { trialStartDate: string; trialDays: number; sharedWithWorkspaceId?: string | null }>
+  >(this.loadProvisionedAppsFromStorage());
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(
@@ -48,16 +143,23 @@ export class MorphusContextService {
     (this.currentUrl() || '').startsWith('/security'),
   );
 
+  readonly isAppRuntimeContext = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.startsWith('/app/') || url.startsWith('/morphus/app/');
+  });
+
   readonly workspaces = computed<Workspace[]>(() =>
     this.workspacesState().filter((w) => !w.inactive),
   );
-  readonly menus = computed<Menu[]>(() =>
-    this.isSecurityContext()
-      ? this.buildSecurityMenus()
-      : this.menusState().length > 0
-        ? this.menusState()
-        : this.buildMorphusMenus(),
-  );
+  readonly menus = computed<Menu[]>(() => {
+    if (this.isSecurityContext()) {
+      return this.buildSecurityMenus();
+    }
+    if (this.isAppRuntimeContext()) {
+      return this.buildOperationalAppMenus();
+    }
+    return this.menusState().length > 0 ? this.menusState() : this.buildMorphusMenus();
+  });
   readonly isLoadingMenus = this.loadingMenusState.asReadonly();
   readonly isSwitchingContext = this.switchingContextState.asReadonly();
 
@@ -85,6 +187,123 @@ export class MorphusContextService {
     );
   });
 
+  /**
+   * Lista de aplicações operacionais vinculadas ao Workspace selecionado.
+   * Nunca inclui Morphus, Segurança/Security ou Website para nenhum perfil.
+   */
+  readonly operationalApplications = computed<MorphusApplication[]>(() =>
+    this.availableApplications().filter((app) => !this.isSystemCoreApplication(app)),
+  );
+
+  readonly activeOperationalApplication = computed<MorphusApplication | null>(() => {
+    const apps = this.operationalApplications();
+    if (!apps.length) {
+      return null;
+    }
+    const savedId = this.activeApplicationIdState();
+    return apps.find((a) => a.id === savedId) ?? apps.find((a) => a.default) ?? apps[0];
+  });
+
+  isSystemCoreApplication(app?: MorphusApplication | null): boolean {
+    if (!app) {
+      return false;
+    }
+    const nameUpper = (app.name ?? '').trim().toUpperCase();
+    const keyUpper = (app.key ?? '').trim().toUpperCase();
+    const prefixUpper = (app.prefix ?? '').trim().toUpperCase();
+    return (
+      Boolean(app.system) ||
+      SYSTEM_CORE_APPLICATION_NAMES.has(nameUpper) ||
+      SYSTEM_CORE_APPLICATION_NAMES.has(keyUpper) ||
+      prefixUpper === 'MPX' ||
+      prefixUpper === 'SEC' ||
+      prefixUpper === 'WEB'
+    );
+  }
+
+  getOperationalApplicationsForWorkspace(workspace: Workspace | null): MorphusApplication[] {
+    return this.extractWorkspaceApplications(workspace).filter(
+      (app) => !app.inactive && !this.isSystemCoreApplication(app),
+    );
+  }
+
+  readonly catalogApplications = computed<MorphusApplication[]>(() => {
+    const dbApps = this.catalogApplicationsState().filter(
+      (app) =>
+        !app.inactive &&
+        !INVISIBLE_APPLICATION_NAMES.has((app.name ?? '').trim().toUpperCase()) &&
+        !INVISIBLE_APPLICATION_NAMES.has((app.key ?? '').trim().toUpperCase()),
+    );
+
+    const existingNames = new Set(
+      dbApps.map((a) => (a.name ?? '').trim().toUpperCase()).filter(Boolean),
+    );
+
+    const merged = [...dbApps];
+    for (const fallback of FALLBACK_ECOSYSTEM_CATALOG) {
+      const upper = (fallback.name ?? '').trim().toUpperCase();
+      if (!existingNames.has(upper)) {
+        merged.push(fallback);
+        existingNames.add(upper);
+      }
+    }
+    return merged;
+  });
+
+  readonly unlinkedApplications = computed<MorphusApplication[]>(() => {
+    const activeIds = new Set(
+      this.availableApplications()
+        .map((a) => a.id)
+        .filter((id): id is string => !!id),
+    );
+    const activeNames = new Set(
+      this.availableApplications()
+        .map((a) => (a.name ?? '').trim().toUpperCase())
+        .filter(Boolean),
+    );
+    const provisionedMap = this.provisionedAppsState();
+    const currentWorkspaceIds = new Set(
+      this.workspaces()
+        .map((w) => w.id)
+        .filter((id): id is string => !!id),
+    );
+
+    return this.catalogApplications()
+      .filter(
+        (app) =>
+          !!app.id &&
+          !activeIds.has(app.id) &&
+          !activeNames.has((app.name ?? '').trim().toUpperCase()),
+      )
+      .map((app) => {
+        const appNameUpper = (app.name ?? '').trim().toUpperCase();
+        const isAutoSeededCatalogApp =
+          appNameUpper.includes('KALUPA') ||
+          appNameUpper.includes('CRM') ||
+          appNameUpper.includes('FINANCEIRO') ||
+          appNameUpper.includes('FLOW') ||
+          appNameUpper.includes('MAIL');
+        const wasProvisionedInCurrentCorp = Object.keys(provisionedMap).some((k) => {
+          const [wsId, name] = k.split(':');
+          return currentWorkspaceIds.has(wsId) && name === appNameUpper;
+        });
+        const priorWa = (app.workspaceApplications ?? []).find(
+          (wa) => wa.trialUsed || !!wa.trialStartDate,
+        );
+        return {
+          ...app,
+          trialStartDate: priorWa?.trialStartDate ?? (isAutoSeededCatalogApp ? null : app.trialStartDate ?? null),
+          trialDays: priorWa?.trialDays ?? app.trialDays ?? DEFAULT_TRIAL_DAYS,
+          trialUsed: Boolean(
+            wasProvisionedInCurrentCorp ||
+              priorWa?.trialUsed ||
+              priorWa?.trialStartDate ||
+              (!isAutoSeededCatalogApp && app.trialUsed),
+          ),
+        };
+      });
+  });
+
   readonly activeApplication = computed<MorphusApplication | null>(() => {
     const apps = this.availableApplications();
     if (!apps.length) {
@@ -98,6 +317,266 @@ export class MorphusContextService {
     );
   });
 
+  readonly activeApplicationTrial = computed<ApplicationTrialInfo>(() =>
+    this.getApplicationTrialInfo(this.activeApplication()),
+  );
+
+  readonly hasUsedOrActiveTrial = computed<boolean>(() => {
+    const apps = this.availableApplications();
+    const hasTrialInWorkspace = apps.some((app) => {
+      const info = this.getApplicationTrialInfo(app);
+      return info.trialUsed || info.isInTrial || info.hasCompletedTrial;
+    });
+    if (hasTrialInWorkspace) {
+      this.localStorage.setItem(TRIAL_USED_STORAGE_KEY, 'true');
+      return true;
+    }
+    if (this.auth.isAuthenticated() && apps.length > 0) {
+      return true;
+    }
+    return this.localStorage.getItem(TRIAL_USED_STORAGE_KEY) === 'true';
+  });
+
+  getApplicationTrialInfo(app?: MorphusApplication | null): ApplicationTrialInfo {
+    const isBaseSystemApp =
+      Boolean(app?.system) ||
+      ['MORPHUS', 'SEGURANÇA', 'SEGURANCA', 'SECURITY', 'WEBSITE'].includes(
+        (app?.name ?? '').trim().toUpperCase(),
+      );
+    const configuredDays =
+      app?.trialDays && app.trialDays > 0 ? app.trialDays : DEFAULT_TRIAL_DAYS;
+    const rawStart = app?.trialStartDate;
+    const trialUsed = Boolean(app?.trialUsed || rawStart);
+
+    if (isBaseSystemApp && !rawStart) {
+      return {
+        hasStartedTrial: false,
+        trialUsed: false,
+        isInTrial: false,
+        hasCompletedTrial: false,
+        trialDays: configuredDays,
+        remainingDays: 0,
+        badgeLabel: '',
+        topbarLabel: '',
+        detailLabel: 'Aplicação nativa da plataforma Morphus',
+      };
+    }
+
+    if (!rawStart) {
+      return {
+        hasStartedTrial: false,
+        trialUsed,
+        isInTrial: false,
+        hasCompletedTrial: false,
+        trialDays: configuredDays,
+        remainingDays: configuredDays,
+        badgeLabel: `Teste grátis · ${configuredDays}d`,
+        topbarLabel: `Teste grátis · ${configuredDays} dias`,
+        detailLabel: `Disponível para teste grátis por ${configuredDays} dias`,
+      };
+    }
+
+    const startDate = new Date(rawStart);
+    if (Number.isNaN(startDate.getTime())) {
+      return {
+        hasStartedTrial: false,
+        trialUsed,
+        isInTrial: false,
+        hasCompletedTrial: false,
+        trialDays: configuredDays,
+        remainingDays: configuredDays,
+        badgeLabel: `Teste grátis · ${configuredDays}d`,
+        topbarLabel: `Teste grátis · ${configuredDays} dias`,
+        detailLabel: `Disponível para teste grátis por ${configuredDays} dias`,
+      };
+    }
+
+    const endMs = startDate.getTime() + configuredDays * 24 * 60 * 60 * 1000;
+    const diffMs = endMs - Date.now();
+    const remainingDays = Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+    const isInTrial = remainingDays > 0;
+    const hasCompletedTrial = remainingDays <= 0;
+
+    return {
+      hasStartedTrial: true,
+      trialUsed: true,
+      isInTrial,
+      hasCompletedTrial,
+      trialDays: configuredDays,
+      remainingDays,
+      badgeLabel: isInTrial ? `Teste · ${remainingDays}d` : 'Teste encerrado',
+      topbarLabel: isInTrial
+        ? `Período de teste · ${remainingDays} ${remainingDays === 1 ? 'dia restante' : 'dias restantes'}`
+        : 'Período de teste concluído',
+      detailLabel: isInTrial
+        ? `Período de teste grátis (${configuredDays} dias): restam ${remainingDays} ${remainingDays === 1 ? 'dia' : 'dias'}`
+        : `Período de teste grátis de ${configuredDays} dias já cumprido`,
+    };
+  }
+
+  getWorkspacesWithApplication(applicationId?: string | null, excludeWorkspaceId?: string | null): Workspace[] {
+    if (!applicationId) {
+      return [];
+    }
+    const targetApp =
+      this.catalogApplications().find((a) => a.id === applicationId) ??
+      FALLBACK_ECOSYSTEM_CATALOG.find((a) => a.id === applicationId);
+    const targetNameUpper = (targetApp?.name ?? '').trim().toUpperCase();
+
+    return this.workspaces().filter((ws) => {
+      if (ws.id === excludeWorkspaceId) {
+        return false;
+      }
+      const wsApps = this.extractWorkspaceApplications(ws);
+      return wsApps.some(
+        (a) =>
+          a.id === applicationId ||
+          (!!targetNameUpper && (a.name ?? '').trim().toUpperCase() === targetNameUpper),
+      );
+    });
+  }
+
+  getSharedWorkspaceName(sharedWithWorkspaceId?: string | null): string | null {
+    if (!sharedWithWorkspaceId) {
+      return null;
+    }
+    return this.workspaces().find((w) => w.id === sharedWithWorkspaceId)?.name ?? null;
+  }
+
+  provisionApplicationInWorkspace(params: {
+    applicationId: string;
+    workspaceId: string;
+    sharedWithWorkspaceId?: string | null;
+  }): Observable<WorkspaceApplication> {
+    const catalogApp =
+      this.catalogApplications().find((a) => a.id === params.applicationId) ??
+      FALLBACK_ECOSYSTEM_CATALOG.find((a) => a.id === params.applicationId);
+    const appNameUpper = (catalogApp?.name ?? '').trim().toUpperCase();
+
+    const existingDbApp = this.catalogApplicationsState().find(
+      (a) =>
+        a.id === params.applicationId ||
+        (!!appNameUpper && (a.name ?? '').trim().toUpperCase() === appNameUpper),
+    );
+
+    const ensureAppId$: Observable<string> = existingDbApp?.id
+      ? of(existingDbApp.id)
+      : params.applicationId.startsWith('catalog-') && catalogApp
+        ? this.applicationService
+            .create({
+              name: catalogApp.name,
+              icon: catalogApp.icon || 'boxes',
+              color: catalogApp.color || 'violet',
+              description: catalogApp.description,
+              system: false,
+              inactive: false,
+            })
+            .pipe(
+              map((created) => created?.id || params.applicationId),
+              catchError(() => of(params.applicationId)),
+            )
+        : of(params.applicationId);
+
+    return ensureAppId$.pipe(
+      switchMap((resolvedAppId) => {
+        if (resolvedAppId.startsWith('catalog-')) {
+          return of({
+            workspaceId: params.workspaceId,
+            applicationId: resolvedAppId,
+            trialStartDate: new Date().toISOString(),
+            trialDays: DEFAULT_TRIAL_DAYS,
+            trialUsed: true,
+            sharedWithWorkspaceId: params.sharedWithWorkspaceId ?? null,
+          } as WorkspaceApplication);
+        }
+
+        return this.workspaceAppService
+          .startTrial({
+            applicationId: resolvedAppId,
+            workspaceId: params.workspaceId,
+            sharedWithWorkspaceId: params.sharedWithWorkspaceId ?? null,
+          })
+          .pipe(
+            catchError(() =>
+              this.workspaceAppService
+                .addToWorkspace({
+                  workspaceId: params.workspaceId,
+                  applicationId: resolvedAppId,
+                  sharedWithWorkspaceId: params.sharedWithWorkspaceId ?? null,
+                  trialUsed: true,
+                })
+                .pipe(
+                  map(
+                    () =>
+                      ({
+                        workspaceId: params.workspaceId,
+                        applicationId: resolvedAppId,
+                        trialStartDate: new Date().toISOString(),
+                        trialDays: DEFAULT_TRIAL_DAYS,
+                        trialUsed: true,
+                        sharedWithWorkspaceId: params.sharedWithWorkspaceId ?? null,
+                      }) as WorkspaceApplication,
+                  ),
+                  catchError(() =>
+                    of({
+                      workspaceId: params.workspaceId,
+                      applicationId: resolvedAppId,
+                      trialStartDate: new Date().toISOString(),
+                      trialDays: DEFAULT_TRIAL_DAYS,
+                      trialUsed: true,
+                      sharedWithWorkspaceId: params.sharedWithWorkspaceId ?? null,
+                    } as WorkspaceApplication),
+                  ),
+                ),
+            ),
+          );
+      }),
+      tap(() => {
+        if (appNameUpper) {
+          this.recordProvisionedApp(
+            params.workspaceId,
+            appNameUpper,
+            params.sharedWithWorkspaceId ?? null,
+          );
+        }
+        this.loadWorkspaces();
+        this.loadCatalogApplications();
+      }),
+    );
+  }
+
+  private loadProvisionedAppsFromStorage(): Record<
+    string,
+    { trialStartDate: string; trialDays: number; sharedWithWorkspaceId?: string | null }
+  > {
+    try {
+      const raw = this.localStorage.getItem(PROVISIONED_WORKSPACE_APPS_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  private recordProvisionedApp(
+    workspaceId: string,
+    appNameUpper: string,
+    sharedWithWorkspaceId: string | null,
+  ): void {
+    const key = `${workspaceId}:${appNameUpper}`;
+    this.provisionedAppsState.update((prev) => {
+      const next = {
+        ...prev,
+        [key]: {
+          trialStartDate: prev[key]?.trialStartDate || new Date().toISOString(),
+          trialDays: DEFAULT_TRIAL_DAYS,
+          sharedWithWorkspaceId,
+        },
+      };
+      this.localStorage.setItem(PROVISIONED_WORKSPACE_APPS_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
+
   constructor() {
     // Recarrega os Workspaces sempre que a Corporação logada mudar
     effect(() => {
@@ -107,8 +586,10 @@ export class MorphusContextService {
       untracked(() => {
         if (isAuth && corpId) {
           this.loadWorkspaces();
+          this.loadCatalogApplications();
         } else {
           this.workspacesState.set([]);
+          this.catalogApplicationsState.set([]);
           this.menusState.set([]);
         }
       });
@@ -152,6 +633,17 @@ export class MorphusContextService {
     });
   }
 
+  loadCatalogApplications(): void {
+    this.applicationService.getList().subscribe({
+      next: (apps) => {
+        this.catalogApplicationsState.set(apps ?? []);
+      },
+      error: () => {
+        this.catalogApplicationsState.set([]);
+      },
+    });
+  }
+
   switchCorporation(corp: CorporationSummary): void {
     if (!corp.id || corp.id === this.auth.corporation()?.id) {
       return;
@@ -175,15 +667,15 @@ export class MorphusContextService {
     });
   }
 
-  selectWorkspace(workspace: Workspace): void {
-    if (!workspace.id || workspace.id === this.activeWorkspace()?.id) {
+  selectWorkspace(workspace: Workspace, redirect = true): void {
+    if (!workspace.id) {
       return;
     }
 
-    this.switchingContextState.set(true);
     this.activeWorkspaceIdState.set(workspace.id);
     this.localStorage.setItem(ACTIVE_WORKSPACE_STORAGE_KEY, workspace.id);
 
+    const operationalApps = this.getOperationalApplicationsForWorkspace(workspace);
     const visibleApps = this.extractWorkspaceApplications(workspace).filter(
       (app) =>
         !app.inactive &&
@@ -191,7 +683,11 @@ export class MorphusContextService {
         !INVISIBLE_APPLICATION_NAMES.has((app.key ?? '').trim().toUpperCase()),
     );
     const defaultApp =
-      visibleApps.find((a) => a.name?.trim().toUpperCase() === 'MORPHUS') ?? visibleApps[0];
+      operationalApps.find((a) => a.default) ??
+      operationalApps[0] ??
+      visibleApps.find((a) => a.default) ??
+      visibleApps.find((a) => a.name?.trim().toUpperCase() === 'MORPHUS') ??
+      visibleApps[0];
 
     if (defaultApp?.id) {
       this.activeApplicationIdState.set(defaultApp.id);
@@ -201,11 +697,14 @@ export class MorphusContextService {
       this.localStorage.removeItem(ACTIVE_APPLICATION_STORAGE_KEY);
     }
 
-    this.reRenderApplicationView(defaultApp ?? null);
+    if (redirect) {
+      this.switchingContextState.set(true);
+      this.reRenderApplicationView(defaultApp ?? null);
+    }
   }
 
   selectApplication(application: MorphusApplication): void {
-    if (!application.id || application.id === this.activeApplication()?.id) {
+    if (!application.id) {
       return;
     }
 
@@ -232,6 +731,14 @@ export class MorphusContextService {
   }
 
   private normalizeMenus(menus: Menu[]): Menu[] {
+    if (menus?.length > 0 && menus.some((m) => m.label === 'Visão Geral')) {
+      return [...menus]
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((m) => ({
+          ...m,
+          subMenus: [...(m.subMenus ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+        }));
+    }
     return this.buildMorphusMenus();
   }
 
@@ -246,13 +753,14 @@ export class MorphusContextService {
         key: 'MORPHUS_SEC_OVERVIEW',
         applicationId: '',
         label: 'Visão Geral',
-        order: 0,
+        icon: 'chart-no-axes-combined',
+        order: 1,
         subMenus: [
           {
             id: 'morphus-item-dashboard',
             key: 'MORPHUS_ITEM_DASHBOARD',
             applicationId: '',
-            label: 'Dashboard',
+            label: 'Painel Principal',
             url: '/morphus',
             icon: 'chart-no-axes-combined',
             order: 1,
@@ -266,29 +774,21 @@ export class MorphusContextService {
             icon: 'globe',
             order: 2,
           },
-          {
-            id: 'morphus-item-security-hub',
-            key: 'MORPHUS_ITEM_SECURITY_HUB',
-            applicationId: '',
-            label: 'Morphus Security (Auth0)',
-            url: '/security',
-            icon: 'shield-check',
-            order: 3,
-          },
         ],
       },
       {
         id: 'morphus-sec-platform',
         key: 'MORPHUS_SEC_PLATFORM',
         applicationId: '',
-        label: 'Organização & Apps',
-        order: 1,
+        label: 'Estrutura & Ambientes',
+        icon: 'building-2',
+        order: 2,
         subMenus: [
           {
             id: 'morphus-item-organization',
             key: 'MORPHUS_ITEM_ORGANIZATION',
             applicationId: '',
-            label: 'Organization (Corporações)',
+            label: 'Corporações',
             url: '/morphus/corporation',
             icon: 'building-2',
             order: 1,
@@ -306,136 +806,102 @@ export class MorphusContextService {
             id: 'morphus-item-applications',
             key: 'MORPHUS_ITEM_APPLICATIONS',
             applicationId: '',
-            label: 'Applications & My Apps',
+            label: 'Aplicações',
             url: '/morphus/application',
             icon: 'boxes',
             order: 3,
           },
+        ],
+      },
+      {
+        id: 'morphus-sec-security',
+        key: 'MORPHUS_SEC_SECURITY',
+        applicationId: '',
+        label: 'Segurança & Equipe',
+        icon: 'shield-check',
+        order: 3,
+        subMenus: [
           {
-            id: 'morphus-item-app-models',
-            key: 'MORPHUS_ITEM_APP_MODELS',
+            id: 'morphus-item-security-hub',
+            key: 'MORPHUS_ITEM_SECURITY_HUB',
             applicationId: '',
-            label: 'Application Templates',
-            url: '/morphus',
-            icon: 'layout-grid',
+            label: 'Painel de Segurança',
+            url: '/security',
+            icon: 'shield-check',
+            order: 1,
+          },
+          {
+            id: 'morphus-item-users',
+            key: 'MORPHUS_ITEM_USERS',
+            applicationId: '',
+            label: 'Usuários',
+            url: '/security/user',
+            icon: 'users',
+            order: 2,
+          },
+          {
+            id: 'morphus-item-roles',
+            key: 'MORPHUS_ITEM_ROLES',
+            applicationId: '',
+            label: 'Perfis de Acesso',
+            url: '/security/role',
+            icon: 'shield',
+            order: 3,
+          },
+          {
+            id: 'morphus-item-claims',
+            key: 'MORPHUS_ITEM_CLAIMS',
+            applicationId: '',
+            label: 'Permissões',
+            url: '/security/claim',
+            icon: 'key-round',
             order: 4,
           },
           {
-            id: 'morphus-item-forms-pages',
-            key: 'MORPHUS_ITEM_FORMS_PAGES',
+            id: 'morphus-item-modules',
+            key: 'MORPHUS_ITEM_MODULES',
             applicationId: '',
-            label: 'My Forms, Pages & Code Components',
-            url: '/morphus',
-            icon: 'file-text',
+            label: 'Módulos e Submódulos',
+            url: '/security/module',
+            icon: 'boxes',
             order: 5,
           },
+        ],
+      },
+      {
+        id: 'morphus-sec-settings',
+        key: 'MORPHUS_SEC_SETTINGS',
+        applicationId: '',
+        label: 'Configurações',
+        icon: 'settings',
+        order: 4,
+        subMenus: [
           {
-            id: 'morphus-item-app-profiles',
-            key: 'MORPHUS_ITEM_APP_PROFILES',
+            id: 'morphus-item-settings',
+            key: 'MORPHUS_ITEM_SETTINGS',
             applicationId: '',
-            label: 'Application Profiles',
-            url: '/morphus',
-            icon: 'sliders-horizontal',
-            order: 6,
+            label: 'Minha Conta',
+            url: '/morphus/settings',
+            icon: 'user-round',
+            order: 1,
           },
           {
             id: 'morphus-item-billing',
             key: 'MORPHUS_ITEM_BILLING',
             applicationId: '',
-            label: 'Plans & Billing',
+            label: 'Planos e Assinatura',
             url: '/morphus/settings/billing',
             icon: 'receipt-text',
-            order: 7,
-          },
-        ],
-      },
-      {
-        id: 'morphus-sec-automation',
-        key: 'MORPHUS_SEC_AUTOMATION',
-        applicationId: '',
-        label: 'IA, Fluxos & Extensões',
-        order: 2,
-        subMenus: [
-          {
-            id: 'morphus-item-agents',
-            key: 'MORPHUS_ITEM_AGENTS',
-            applicationId: '',
-            label: 'Agents (IA)',
-            url: '/morphus',
-            icon: 'sparkles',
-            order: 1,
-          },
-          {
-            id: 'morphus-item-workflows',
-            key: 'MORPHUS_ITEM_WORKFLOWS',
-            applicationId: '',
-            label: 'Workflows (Morphus Flow)',
-            url: '/morphus',
-            icon: 'workflow',
             order: 2,
           },
           {
-            id: 'morphus-item-plugins',
-            key: 'MORPHUS_ITEM_PLUGINS',
+            id: 'morphus-item-notifications',
+            key: 'MORPHUS_ITEM_NOTIFICATIONS',
             applicationId: '',
-            label: 'Plugins & Integrations',
-            url: '/morphus',
-            icon: 'rocket',
+            label: 'Notificações',
+            url: '/morphus/settings/notifications',
+            icon: 'bell',
             order: 3,
-          },
-          {
-            id: 'morphus-item-webhooks',
-            key: 'MORPHUS_ITEM_WEBHOOKS',
-            applicationId: '',
-            label: 'WebHooks',
-            url: '/morphus',
-            icon: 'link',
-            order: 4,
-          },
-        ],
-      },
-      {
-        id: 'morphus-sec-mail-obs',
-        key: 'MORPHUS_SEC_MAIL_OBS',
-        applicationId: '',
-        label: 'Comunicação & Monitoramento',
-        order: 3,
-        subMenus: [
-          {
-            id: 'morphus-item-domains',
-            key: 'MORPHUS_ITEM_DOMAINS',
-            applicationId: '',
-            label: 'Domains & Emails',
-            url: '/morphus',
-            icon: 'mail',
-            order: 1,
-          },
-          {
-            id: 'morphus-item-email-templates',
-            key: 'MORPHUS_ITEM_EMAIL_TEMPLATES',
-            applicationId: '',
-            label: 'Email Templates & Settings',
-            url: '/morphus',
-            icon: 'inbox',
-            order: 2,
-          },
-          {
-            id: 'morphus-item-monitoring',
-            key: 'MORPHUS_ITEM_MONITORING',
-            applicationId: '',
-            label: 'Monitoring & System Logs',
-            url: '/morphus',
-            icon: 'server',
-            order: 3,
-          },
-          {
-            id: 'morphus-item-settings',
-            key: 'MORPHUS_ITEM_SETTINGS',
-            applicationId: '',
-            label: 'Settings',
-            url: '/morphus/settings',
-            icon: 'settings',
-            order: 4,
           },
         ],
       },
@@ -449,13 +915,14 @@ export class MorphusContextService {
         key: 'SEC_SECTION_OVERVIEW',
         applicationId: '',
         label: 'Visão Geral',
-        order: 0,
+        icon: 'shield-check',
+        order: 1,
         subMenus: [
           {
             id: 'sec-item-dashboard',
             key: 'SEC_ITEM_DASHBOARD',
             applicationId: '',
-            label: 'Security Dashboard',
+            label: 'Painel de Segurança',
             url: '/security',
             icon: 'shield-check',
             order: 1,
@@ -484,14 +951,15 @@ export class MorphusContextService {
         id: 'sec-section-identity',
         key: 'SEC_SECTION_IDENTITY',
         applicationId: '',
-        label: 'Identidade & Controle de Acesso',
-        order: 1,
+        label: 'Controle de Acesso',
+        icon: 'users',
+        order: 2,
         subMenus: [
           {
             id: 'sec-item-user',
             key: 'SEC_ITEM_USER',
             applicationId: '',
-            label: 'Users (Usuários)',
+            label: 'Usuários',
             url: '/security/user',
             icon: 'users',
             order: 1,
@@ -500,7 +968,7 @@ export class MorphusContextService {
             id: 'sec-item-role',
             key: 'SEC_ITEM_ROLE',
             applicationId: '',
-            label: 'Roles (Perfis)',
+            label: 'Perfis (Roles)',
             url: '/security/role',
             icon: 'shield',
             order: 2,
@@ -509,109 +977,47 @@ export class MorphusContextService {
             id: 'sec-item-claim',
             key: 'SEC_ITEM_CLAIM',
             applicationId: '',
-            label: 'Claims (Permissões)',
+            label: 'Permissões (Claims)',
             url: '/security/claim',
             icon: 'key-round',
             order: 3,
           },
           {
-            id: 'sec-item-module',
-            key: 'SEC_ITEM_MODULE',
+            id: 'sec-item-user-role',
+            key: 'SEC_ITEM_USER_ROLE',
             applicationId: '',
-            label: 'Modules (Módulos)',
-            url: '/security/module',
-            icon: 'boxes',
+            label: 'Vincular Perfis e Permissões',
+            url: '/security/user-role',
+            icon: 'user-plus',
             order: 4,
           },
         ],
       },
       {
-        id: 'sec-section-auth',
-        key: 'SEC_SECTION_AUTH',
+        id: 'sec-section-modules',
+        key: 'SEC_SECTION_MODULES',
         applicationId: '',
-        label: 'Autenticação & Proteção',
-        order: 2,
-        subMenus: [
-          {
-            id: 'sec-item-how-to-auth',
-            key: 'SEC_ITEM_HOW_TO_AUTH',
-            applicationId: '',
-            label: 'How to Authenticate',
-            url: '/security',
-            icon: 'rocket',
-            order: 1,
-          },
-          {
-            id: 'sec-item-social-auth',
-            key: 'SEC_ITEM_SOCIAL_AUTH',
-            applicationId: '',
-            label: 'Social Authentication',
-            url: '/security',
-            icon: 'globe',
-            order: 2,
-          },
-          {
-            id: 'sec-item-sso',
-            key: 'SEC_ITEM_SSO',
-            applicationId: '',
-            label: 'SSO Integration',
-            url: '/security',
-            icon: 'building',
-            order: 3,
-          },
-          {
-            id: 'sec-item-mfa',
-            key: 'SEC_ITEM_MFA',
-            applicationId: '',
-            label: 'Multi-Factor Auth (MFA)',
-            url: '/security',
-            icon: 'fingerprint-pattern',
-            order: 4,
-          },
-          {
-            id: 'sec-item-attack',
-            key: 'SEC_ITEM_ATTACK',
-            applicationId: '',
-            label: 'Attack Protection',
-            url: '/security',
-            icon: 'shield',
-            order: 5,
-          },
-        ],
-      },
-      {
-        id: 'sec-section-monitoring',
-        key: 'SEC_SECTION_MONITORING',
-        applicationId: '',
-        label: 'Observabilidade & Eventos',
+        label: 'Estrutura de Módulos',
+        icon: 'boxes',
         order: 3,
         subMenus: [
           {
-            id: 'sec-item-monitoring',
-            key: 'SEC_ITEM_MONITORING',
+            id: 'sec-item-module',
+            key: 'SEC_ITEM_MODULE',
             applicationId: '',
-            label: 'Monitoring',
-            url: '/security',
-            icon: 'chart-no-axes-combined',
+            label: 'Módulos e Submódulos',
+            url: '/security/module',
+            icon: 'boxes',
             order: 1,
           },
           {
-            id: 'sec-item-logs',
-            key: 'SEC_ITEM_LOGS',
+            id: 'sec-item-application',
+            key: 'SEC_ITEM_APPLICATION',
             applicationId: '',
-            label: 'Security Logs',
-            url: '/security',
-            icon: 'file-text',
+            label: 'Aplicações',
+            url: '/morphus/application',
+            icon: 'layout-grid',
             order: 2,
-          },
-          {
-            id: 'sec-item-webhooks',
-            key: 'SEC_ITEM_WEBHOOKS',
-            applicationId: '',
-            label: 'Webhooks',
-            url: '/security',
-            icon: 'link',
-            order: 3,
           },
         ],
       },
@@ -631,19 +1037,157 @@ export class MorphusContextService {
     if (!workspace) {
       return [];
     }
-    if (workspace.workspaceApplications?.length) {
-      return workspace.workspaceApplications
-        .filter((wa) => !wa.inactive && !!wa.application)
-        .map((wa) => wa.application!);
+    const provisionedMap = this.provisionedAppsState();
+    const wsId = workspace.id || '';
+
+    const rawList: MorphusApplication[] = workspace.workspaceApplications?.length
+      ? workspace.workspaceApplications
+          .filter((wa) => !wa.inactive && !!wa.application)
+          .map((wa) => {
+            const nameUpper = (wa.application!.name ?? '').trim().toUpperCase();
+            const localProv = provisionedMap[`${wsId}:${nameUpper}`];
+            return {
+              ...wa.application!,
+              default: Boolean(wa.default || wa.application!.default),
+              trialStartDate:
+                localProv?.trialStartDate ??
+                wa.trialStartDate ??
+                wa.application!.trialStartDate ??
+                null,
+              trialDays:
+                localProv?.trialDays ??
+                wa.trialDays ??
+                wa.application!.trialDays ??
+                DEFAULT_TRIAL_DAYS,
+              trialUsed: Boolean(
+                localProv || wa.trialUsed || wa.trialStartDate || wa.application!.trialUsed,
+              ),
+              sharedWithWorkspaceId:
+                localProv?.sharedWithWorkspaceId ??
+                wa.sharedWithWorkspaceId ??
+                wa.application!.sharedWithWorkspaceId ??
+                null,
+            };
+          })
+      : [...(workspace.applications ?? [])];
+
+    const existingNames = new Set(
+      rawList.map((a) => (a.name ?? '').trim().toUpperCase()).filter(Boolean),
+    );
+
+    for (const [key, prov] of Object.entries(provisionedMap)) {
+      if (!key.startsWith(`${wsId}:`)) {
+        continue;
+      }
+      const appNameUpper = key.substring(wsId.length + 1);
+      if (existingNames.has(appNameUpper)) {
+        continue;
+      }
+      const catalogMatch = this.catalogApplications().find(
+        (c) => (c.name ?? '').trim().toUpperCase() === appNameUpper,
+      );
+      if (catalogMatch) {
+        rawList.push({
+          ...catalogMatch,
+          trialStartDate: prov.trialStartDate,
+          trialDays: prov.trialDays,
+          trialUsed: true,
+          sharedWithWorkspaceId: prov.sharedWithWorkspaceId ?? null,
+        });
+        existingNames.add(appNameUpper);
+      }
     }
-    return workspace.applications ?? [];
+
+    return rawList;
+  }
+
+  private buildOperationalAppMenus(): Menu[] {
+    const url = this.currentUrl() || '';
+    const match = url.match(/^\/(?:morphus\/)?app\/([^/?#]+)/i);
+    const urlKeyUpper = (match?.[1] || '').trim().toUpperCase();
+
+    const app =
+      this.operationalApplications().find(
+        (a) =>
+          (a.key ?? '').toUpperCase() === urlKeyUpper ||
+          (a.prefix ?? '').toUpperCase() === urlKeyUpper,
+      ) ??
+      this.activeOperationalApplication() ??
+      this.activeApplication();
+
+    const appKey = app?.key || app?.prefix || match?.[1] || 'FIN';
+    const modules = app?.applicationModules ?? [];
+
+    if (!modules.length) {
+      return [
+        {
+          id: 'app-sec-overview',
+          key: 'APP_SEC_OVERVIEW',
+          applicationId: app?.id || '',
+          label: 'Visão Geral',
+          icon: 'chart-no-axes-combined',
+          order: 0,
+          subMenus: [
+            {
+              id: 'app-item-dashboard',
+              key: 'APP_ITEM_DASHBOARD',
+              applicationId: app?.id || '',
+              label: 'Dashboard',
+              url: `/app/${appKey}/dashboard`,
+              icon: 'chart-no-axes-combined',
+              order: 1,
+            },
+          ],
+        },
+      ];
+    }
+
+    return [...modules]
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+      .map((mod, modIdx) => ({
+        id: mod.id || `app-mod-${modIdx}`,
+        key: mod.key || `APP_MOD_${modIdx}`,
+        applicationId: app?.id || '',
+        label: mod.label || mod.name,
+        icon: mod.icon || 'layers',
+        order: mod.order ?? modIdx,
+        subMenus: [...(mod.applicationSubModules ?? [])]
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map((sm, smIdx) => {
+            const slug = sm.routePattern || sm.key || 'dashboard';
+            return {
+              id: sm.id || `app-sub-${modIdx}-${smIdx}`,
+              key: sm.key || `APP_SUB_${modIdx}_${smIdx}`,
+              applicationId: app?.id || '',
+              label: sm.label || sm.name,
+              url: `/app/${appKey}/${slug}`,
+              icon: sm.icon || mod.icon || 'file-text',
+              order: sm.order ?? smIdx + 1,
+            };
+          }),
+      }));
   }
 
   private resolveApplicationEntryRoute(application: MorphusApplication | null): string {
-    const key = (application?.key ?? 'MORPHUS').trim().toUpperCase();
+    if (!application) {
+      return '/morphus/admin/dashboard';
+    }
+    const key = (application.key ?? 'MORPHUS').trim().toUpperCase();
     if (key === 'SECURITY') {
       return '/security';
     }
-    return '/morphus';
+    if (!this.isSystemCoreApplication(application)) {
+      const appKey = application.key || application.prefix || 'FIN';
+      const allSubs = (application.applicationModules ?? []).flatMap(
+        (m) => m.applicationSubModules ?? [],
+      );
+      const defSub =
+        allSubs.find((s) => s.default) ??
+        allSubs.find((s) => (s.routePattern ?? '').toLowerCase() === 'dashboard') ??
+        allSubs[0];
+      const entrySlug = defSub?.routePattern || defSub?.key || 'dashboard';
+      return `/app/${appKey}/${entrySlug}`;
+    }
+    return '/morphus/admin/dashboard';
   }
 }

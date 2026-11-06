@@ -8,6 +8,7 @@ public class EmailToConfiguration : IEntityTypeConfiguration<EmailTo>
 {
   public void Configure(EntityTypeBuilder<EmailTo> builder)
   {
+    builder.ToTable("mpx_emails_to");
     builder.HasKey(t => t.Id);
     builder.Property(t => t.Mail).HasMaxLength(150).IsRequired();
     builder.Property(t => t.Name).HasMaxLength(100);

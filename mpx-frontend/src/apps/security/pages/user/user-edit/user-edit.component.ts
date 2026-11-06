@@ -1,11 +1,12 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatIcon } from '@angular/material/icon';
-import { MatError, MatFormField, MatInput, MatLabel } from '@angular/material/input';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
+import {
+  IMorphusEditComponent,
+  MorphusEditComponent,
+  MorphusEditShared,
+  NgForm,
+} from '@core/mpx-shared/edit';
+import { MorphusValidationEmailShared } from '@core/mpx-shared/validators';
 import { User } from '@security/entities/user';
 import { UserService } from '@security/services/user.service';
 import { UserValidator } from '../validators/user.validator';
@@ -13,17 +14,7 @@ import { UserValidator } from '../validators/user.validator';
 @Component({
   selector: 'mpx-user-edit',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatIcon,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatError,
-    MatTooltip,
-  ],
+  imports: [MorphusEditShared, MorphusValidationEmailShared],
   styleUrl: './user-edit.component.css',
   templateUrl: './user-edit.component.html',
 })
@@ -144,7 +135,11 @@ export class UserEditComponent
     void this.router.navigate(['/security/user']);
   }
 
-  async onSave(): Promise<void> {
+  async onSave(form?: NgForm): Promise<void> {
+    if (form && form.invalid) {
+      form.form.markAllAsTouched();
+      return;
+    }
     await this.submitForm();
   }
 

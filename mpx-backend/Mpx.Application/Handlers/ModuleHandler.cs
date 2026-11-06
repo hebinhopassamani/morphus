@@ -23,6 +23,9 @@ public class ModuleHandler(
 
   public Task<List<SubModule>> GetSubModulesAsync(Guid id) => moduleRepository.GetSubModulesAsync(id);
 
+  public Task<DeleteDependenciesSummary> GetDependenciesSummaryAsync(Guid id) =>
+      moduleRepository.GetDependenciesSummaryAsync(id);
+
   public async Task<Module> CreateAsync(Module module)
   {
     if (module.Id == Guid.Empty)
@@ -40,7 +43,7 @@ public class ModuleHandler(
     return module;
   }
 
-  public async Task DeleteAsync(Guid id)
+  public async Task DeleteAsync(Guid id, bool force = false)
   {
     var existing = await moduleRepository.GetByIdAsync(id);
     if (existing is null)
@@ -48,6 +51,13 @@ public class ModuleHandler(
 
     if (existing.System)
       throw new InvalidOperationException("Não é permitido excluir um módulo padrão do sistema.");
+
+    if (force)
+    {
+      await moduleRepository.DeleteWithDependenciesAsync(id);
+      await unitOfWork.SaveChangesAsync();
+      return;
+    }
 
     if (await moduleRepository.HasDependenciesAsync(id))
       throw new InvalidOperationException("Não é permitido excluir este módulo pois existem submódulos, perfis ou permissões vinculados a ele.");

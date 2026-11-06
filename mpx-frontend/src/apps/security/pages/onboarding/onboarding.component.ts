@@ -37,9 +37,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   protected readonly userEmail = signal<string>('');
   protected readonly isResendingEmail = signal(false);
   protected readonly resendSuccessMessage = signal<string | null>(null);
-  protected readonly currentStep = signal<1 | 2 | 3>(1);
+  protected readonly currentStep = signal<1 | 2 | 3 | 4>(1);
 
   protected readonly corporationId = signal<string | null>(null);
+  protected readonly userProfileSaved = signal<boolean>(false);
   protected readonly workspaceId = signal<string | null>(null);
   protected readonly availableApplications = signal<OnboardingApplicationItem[]>([]);
   protected readonly selectedApplicationIds = signal<string[]>([]);
@@ -54,21 +55,19 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.availableApplications().filter((a) => a.system),
   );
 
-  protected readonly workspaceSuggestions = [
-    'Matriz',
-    'Comercial',
-    'Operações',
-    'Administrativo',
-    'Morphus Workspace',
-  ];
-
+  // ETAPA 1: Sua Matriz (apenas o nome da matriz)
   protected readonly step1Form = this.fb.nonNullable.group({
-    userName: ['', [Validators.required, Validators.minLength(2)]],
-    userNickName: [''],
     corporationName: ['', [Validators.required, Validators.minLength(2)]],
   });
 
+  // ETAPA 2: Seus Dados (Nome completo e Como gostaria de ser chamado)
   protected readonly step2Form = this.fb.nonNullable.group({
+    userName: ['', [Validators.required, Validators.minLength(2)]],
+    userNickName: [''],
+  });
+
+  // ETAPA 3: Workspace (Seu primeiro workspace)
+  protected readonly step3Form = this.fb.nonNullable.group({
     workspaceName: ['', [Validators.required, Validators.minLength(2)]],
   });
 
@@ -77,10 +76,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
     const currentUser = this.auth.user();
     if (currentUser?.name) {
-      this.step1Form.patchValue({ userName: currentUser.name });
+      this.step2Form.patchValue({ userName: currentUser.name });
     }
     if (currentUser?.nickName) {
-      this.step1Form.patchValue({ userNickName: currentUser.nickName });
+      this.step2Form.patchValue({ userNickName: currentUser.nickName });
     }
     if (currentUser?.email) {
       this.userEmail.set(currentUser.email);
@@ -103,7 +102,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       next: (state) => {
         if (state.onboardingCompleted) {
           this.stopEmailPolling();
-          this.router.navigateByUrl('/website/home');
+          this.router.navigateByUrl(this.auth.getPostLoginRedirectUrl());
           return;
         }
 
@@ -121,10 +120,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
         }
 
         if (state.userName) {
-          this.step1Form.patchValue({ userName: state.userName });
+          this.step2Form.patchValue({ userName: state.userName });
         }
         if (state.userNickName) {
-          this.step1Form.patchValue({ userNickName: state.userNickName });
+          this.step2Form.patchValue({ userNickName: state.userNickName });
         }
 
         if (state.corporationId && state.corporationName) {
@@ -134,7 +133,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
 
         if (state.workspaceId && state.workspaceName) {
           this.workspaceId.set(state.workspaceId);
-          this.step2Form.patchValue({ workspaceName: state.workspaceName });
+          this.step3Form.patchValue({ workspaceName: state.workspaceName });
         }
 
         this.availableApplications.set(state.availableApplications ?? []);
@@ -143,10 +142,14 @@ export class OnboardingComponent implements OnInit, OnDestroy {
         // Retoma exatamente da etapa em que o usuário parou antes de fechar o navegador
         if (!state.corporationId) {
           this.currentStep.set(1);
-        } else if (!state.workspaceId) {
+        } else if (!state.userName) {
           this.currentStep.set(2);
-        } else {
+        } else if (!state.workspaceId) {
+          this.userProfileSaved.set(true);
           this.currentStep.set(3);
+        } else {
+          this.userProfileSaved.set(true);
+          this.currentStep.set(4);
         }
 
         this.isLoadingState.set(false);
@@ -207,31 +210,23 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { userName, userNickName, corporationName } = this.step1Form.getRawValue();
+    const { corporationName } = this.step1Form.getRawValue();
+    const { userName, userNickName } = this.step2Form.getRawValue();
 
     this.auth
       .saveOnboardingCorporationStep({
-        userName: userName.trim(),
-        userNickName: userNickName.trim() || undefined,
         corporationName: corporationName.trim(),
+        userName: userName.trim() || undefined,
+        userNickName: userNickName.trim() || undefined,
       })
       .subscribe({
         next: (session) => {
           if (session.corporation?.id) {
             this.corporationId.set(session.corporation.id);
           }
-
-          if (!this.step2Form.controls.workspaceName.value) {
-            this.step2Form.patchValue({ workspaceName: 'Matriz' });
-          }
-
           this.currentStep.set(2);
         },
       });
-  }
-
-  protected applyWorkspaceSuggestion(suggestion: string): void {
-    this.step2Form.patchValue({ workspaceName: suggestion });
   }
 
   protected onSaveStep2(): void {
@@ -240,7 +235,33 @@ export class OnboardingComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const { workspaceName } = this.step2Form.getRawValue();
+    const { corporationName } = this.step1Form.getRawValue();
+    const { userName, userNickName } = this.step2Form.getRawValue();
+
+    this.auth
+      .saveOnboardingCorporationStep({
+        corporationName: corporationName.trim(),
+        userName: userName.trim(),
+        userNickName: userNickName.trim() || undefined,
+      })
+      .subscribe({
+        next: (session) => {
+          if (session.corporation?.id) {
+            this.corporationId.set(session.corporation.id);
+          }
+          this.userProfileSaved.set(true);
+          this.currentStep.set(3);
+        },
+      });
+  }
+
+  protected onSaveStep3(): void {
+    if (this.step3Form.invalid) {
+      this.step3Form.markAllAsTouched();
+      return;
+    }
+
+    const { workspaceName } = this.step3Form.getRawValue();
 
     this.auth
       .saveOnboardingWorkspaceStep({
@@ -251,7 +272,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
           this.workspaceId.set(state.workspaceId ?? null);
           this.availableApplications.set(state.availableApplications ?? []);
           this.selectedApplicationIds.set(state.selectedApplicationIds ?? []);
-          this.currentStep.set(3);
+          this.currentStep.set(4);
         },
       });
   }
@@ -263,7 +284,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     if (step === 2 && !this.corporationId()) {
       return;
     }
-    if (step === 3 && !this.workspaceId()) {
+    if (step === 3 && (!this.corporationId() || !this.userProfileSaved())) {
       return;
     }
     this.auth.clearError();
@@ -274,8 +295,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     return this.selectedApplicationIds().includes(appId);
   }
 
-  protected toggleApp(app: OnboardingApplicationItem): void {
-    if (app.system) {
+  protected toggleApp(app: OnboardingApplicationItem, event?: Event): void {
+    event?.stopPropagation();
+    if (app.system || !app.availableForTrial) {
       return;
     }
 
@@ -301,7 +323,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private finishOnboarding(applicationIds: string[]): void {
     this.auth.completeOnboarding({ applicationIds }).subscribe({
       next: () => {
-        this.router.navigateByUrl('/website/home');
+        this.router.navigateByUrl(this.auth.getPostLoginRedirectUrl());
       },
     });
   }

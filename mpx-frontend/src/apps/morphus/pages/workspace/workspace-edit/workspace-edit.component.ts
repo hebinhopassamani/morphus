@@ -5,7 +5,6 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatCheckbox } from '@angular/material/checkbox';
 import { MatIcon } from '@angular/material/icon';
 import { MatError, MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
-import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
 import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
@@ -35,7 +34,6 @@ import { WorkspaceValidator } from '../validators/workspace.validator';
     MatInput,
     MatPrefix,
     MatError,
-    MatSlideToggle,
     MatTabGroup,
     MatTab,
     MatTooltip,
@@ -62,6 +60,12 @@ export class WorkspaceEditComponent
   protected readonly searchAppRelated = signal<string>('');
   protected readonly selectedAppToRelateIds = signal<Set<string>>(new Set());
   protected readonly selectedAppRelatedIds = signal<Set<string>>(new Set());
+
+  // Modal de escolha de instância (Nova Instância Isolada vs. Compartilhada com Workspace Y)
+  protected readonly pendingAppForInstanceModal = signal<MorphusApplication | null>(null);
+  protected readonly otherWorkspacesForPendingApp = signal<Workspace[]>([]);
+  protected readonly instanceMode = signal<'isolated' | 'shared'>('isolated');
+  protected readonly selectedSharedWorkspaceId = signal<string | null>(null);
 
   protected readonly filteredAppsToRelate = computed(() => {
     const term = this.searchAppToRelate().toLowerCase().trim();
@@ -293,14 +297,57 @@ export class WorkspaceEditComponent
     if (!workspaceId || !app.id) {
       return;
     }
+
+    const otherWorkspaces = this.context.getWorkspacesWithApplication(app.id, workspaceId);
+    if (otherWorkspaces.length > 0) {
+      this.pendingAppForInstanceModal.set(app);
+      this.otherWorkspacesForPendingApp.set(otherWorkspaces);
+      this.instanceMode.set('isolated');
+      this.selectedSharedWorkspaceId.set(otherWorkspaces[0]?.id ?? null);
+      return;
+    }
+
+    await this.confirmLinkSingleApp(app.id, null);
+  }
+
+  protected closeInstanceModal(): void {
+    this.pendingAppForInstanceModal.set(null);
+    this.otherWorkspacesForPendingApp.set([]);
+  }
+
+  protected async confirmInstanceModal(): Promise<void> {
+    const app = this.pendingAppForInstanceModal();
+    if (!app?.id) {
+      return;
+    }
+    const sharedWithWorkspaceId =
+      this.instanceMode() === 'shared' ? this.selectedSharedWorkspaceId() : null;
+    this.closeInstanceModal();
+    await this.confirmLinkSingleApp(app.id, sharedWithWorkspaceId);
+  }
+
+  protected getSharedWorkspaceLabel(sharedWithWorkspaceId?: string | null): string | null {
+    return this.context.getSharedWorkspaceName(sharedWithWorkspaceId);
+  }
+
+  private async confirmLinkSingleApp(
+    applicationId: string,
+    sharedWithWorkspaceId: string | null,
+  ): Promise<void> {
+    const workspaceId = this.entity().id;
+    if (!workspaceId) {
+      return;
+    }
     await firstValueFrom(
       this.workspaceAppService.addRelationship({
         workspaceId,
-        applicationId: app.id,
+        applicationId,
+        sharedWithWorkspaceId,
       }),
     );
     await this.loadWorkspaceApplications(workspaceId);
     this.context.loadWorkspaces();
+    this.context.loadCatalogApplications();
   }
 
   async addSelectedApps(): Promise<void> {

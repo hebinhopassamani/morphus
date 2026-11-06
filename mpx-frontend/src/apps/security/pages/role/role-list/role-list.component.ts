@@ -1,12 +1,11 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { FormsModule } from '@angular/forms';
-import { MatButton, MatIconButton } from '@angular/material/button';
-import { MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix } from '@angular/material/input';
-import { MatIcon } from '@angular/material/icon';
-import { MatOption, MatSelect } from '@angular/material/select';
-import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
+import {
+  IMorphusListComponent,
+  MorphusFilter,
+  MorphusListComponent,
+  MorphusListShared,
+} from '@core/mpx-shared/list';
 import { MorphusApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Module } from '@security/entities/module';
@@ -19,20 +18,7 @@ import { SubModuleService } from '@security/services/sub-module.service';
 @Component({
   selector: 'mpx-role-list',
   standalone: true,
-  imports: [
-    FormsModule,
-    MatButton,
-    MatIconButton,
-    MatFormField,
-    MatLabel,
-    MatInput,
-    MatPrefix,
-    MatSuffix,
-    MatIcon,
-    MatSelect,
-    MatOption,
-    MatTooltip,
-  ],
+  imports: [MorphusListShared],
   styleUrl: './role-list.component.css',
   templateUrl: './role-list.component.html',
 })

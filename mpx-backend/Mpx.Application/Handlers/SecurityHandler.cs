@@ -425,9 +425,12 @@ public class SecurityHandler(
               Id = a.Id,
               CorporationId = a.CorporationId,
               Name = a.Name,
+              Prefix = a.Prefix,
               Key = a.Key,
               Icon = a.Icon,
+              Color = a.Color,
               Description = a.Description,
+              AvailableForTrial = a.AvailableForTrial,
               System = a.System,
               Inactive = a.Inactive
             })
@@ -442,17 +445,22 @@ public class SecurityHandler(
       Guid userId,
       OnboardingCorporationStepRequest request)
   {
-    if (string.IsNullOrWhiteSpace(request.UserName) || string.IsNullOrWhiteSpace(request.CorporationName))
-      throw new InvalidOperationException("Preencha o seu nome completo e o nome da matriz.");
+    if (string.IsNullOrWhiteSpace(request.CorporationName))
+      throw new InvalidOperationException("Preencha o nome da matriz da sua empresa.");
 
     var user = await userRepository.GetByIdWithAccessAsync(userId);
     if (user is null)
       return null;
 
-    var cleanUserName = request.UserName.Trim();
     var cleanCorpName = request.CorporationName.Trim();
+    var cleanUserName = !string.IsNullOrWhiteSpace(request.UserName)
+        ? request.UserName.Trim()
+        : (user.Name ?? string.Empty);
 
-    user.Name = cleanUserName;
+    if (!string.IsNullOrWhiteSpace(request.UserName))
+    {
+      user.Name = cleanUserName;
+    }
     if (request.UserNickName is not null)
     {
       user.NickName = string.IsNullOrWhiteSpace(request.UserNickName) ? null : request.UserNickName.Trim();
@@ -572,6 +580,8 @@ public class SecurityHandler(
         CorporationId = corpGraph.Id,
         Name = cleanWorkspaceName,
         Icon = "layout-grid",
+        Color = "violet",
+        Default = true,
         System = true,
         Inactive = false,
         Description = "Workspace principal"
@@ -590,6 +600,10 @@ public class SecurityHandler(
       });
 
       // Vincula as aplicações nativas do sistema (MORPHUS, SECURITY, WEBSITE) ao Workspace criado
+      var defaultTrialDays = int.TryParse(configuration["TrialSettings:DefaultDays"], out var parsedDays) && parsedDays > 0
+          ? parsedDays
+          : 14;
+
       foreach (var sysApp in corpGraph.Applications.Where(a => a.System))
       {
         await workspaceApplicationRepository.AddRelationshipAsync(new WorkspaceApplication
@@ -597,6 +611,9 @@ public class SecurityHandler(
           CorporationId = corpGraph.Id,
           WorkspaceId = newWorkspace.Id,
           ApplicationId = sysApp.Id,
+          TrialStartDate = null,
+          TrialDays = null,
+          TrialUsed = false,
           Inactive = false,
           System = true
         });
@@ -638,9 +655,15 @@ public class SecurityHandler(
         ?? throw new InvalidOperationException("Configure o seu Workspace antes de concluir.");
 
     var requestedIds = (request.ApplicationIds ?? []).ToHashSet();
+    var defaultTrialDays = int.TryParse(configuration["TrialSettings:DefaultDays"], out var parsedDays) && parsedDays > 0
+        ? parsedDays
+        : 14;
 
     // Garante que as aplicações nativas (System = true) estejam sempre vinculadas,
     // e vincula também as aplicações opcionais selecionadas pelo usuário para teste
+    var hasDefaultAppAssigned = corpGraph.WorkspaceApplications
+        .Any(wa => wa.WorkspaceId == workspace.Id && !wa.Inactive && wa.Default);
+
     foreach (var app in corpGraph.Applications.Where(a => !a.Inactive))
     {
       var shouldBeLinked = app.System || requestedIds.Contains(app.Id);
@@ -649,6 +672,14 @@ public class SecurityHandler(
 
       if (shouldBeLinked)
       {
+        var isTrialApp = !app.System;
+        var markAsDefault = isTrialApp && !hasDefaultAppAssigned;
+        if (markAsDefault)
+        {
+          hasDefaultAppAssigned = true;
+          app.Default = true;
+        }
+
         if (existingWa is null)
         {
           await workspaceApplicationRepository.AddRelationshipAsync(new WorkspaceApplication
@@ -656,14 +687,42 @@ public class SecurityHandler(
             CorporationId = corpGraph.Id,
             WorkspaceId = workspace.Id,
             ApplicationId = app.Id,
+            Default = markAsDefault,
+            TrialStartDate = isTrialApp ? DateTime.UtcNow : null,
+            TrialDays = isTrialApp ? defaultTrialDays : null,
+            TrialUsed = isTrialApp,
             Inactive = false,
             System = app.System
           });
         }
-        else if (existingWa.Inactive)
+        else
         {
-          existingWa.Inactive = false;
-          workspaceApplicationRepository.Update(existingWa);
+          var updatedWa = false;
+          if (markAsDefault && !existingWa.Default)
+          {
+            existingWa.Default = true;
+            updatedWa = true;
+          }
+          if (existingWa.Inactive)
+          {
+            existingWa.Inactive = false;
+            updatedWa = true;
+          }
+          if (isTrialApp && existingWa.TrialStartDate is null)
+          {
+            existingWa.TrialStartDate = DateTime.UtcNow;
+            existingWa.TrialDays ??= defaultTrialDays;
+            updatedWa = true;
+          }
+          if (isTrialApp && !existingWa.TrialUsed)
+          {
+            existingWa.TrialUsed = true;
+            updatedWa = true;
+          }
+          if (updatedWa)
+          {
+            workspaceApplicationRepository.Update(existingWa);
+          }
         }
 
         var existingAu = corpGraph.ApplicationUsers
@@ -674,8 +733,10 @@ public class SecurityHandler(
           await applicationUserRepository.AddRelationshipAsync(new ApplicationUser
           {
             CorporationId = corpGraph.Id,
+            WorkspaceId = workspace.Id,
             ApplicationId = app.Id,
             UserId = user.Id,
+            Color = app.Color,
             IsOwner = true,
             Inactive = false,
             System = app.System
@@ -689,7 +750,16 @@ public class SecurityHandler(
       }
       else if (existingWa is not null && !existingWa.System)
       {
-        workspaceApplicationRepository.RemoveRelationship(existingWa);
+        if (existingWa.TrialUsed || existingWa.TrialStartDate is not null)
+        {
+          existingWa.Inactive = true;
+          existingWa.TrialUsed = true;
+          workspaceApplicationRepository.Update(existingWa);
+        }
+        else
+        {
+          workspaceApplicationRepository.RemoveRelationship(existingWa);
+        }
       }
     }
 
@@ -970,17 +1040,20 @@ public class SecurityHandler(
         ExpirationDate = refreshExpiresUtc,
         ExpirationTime = new DateTimeOffset(refreshExpiresUtc).ToUnixTimeSeconds()
       },
-      AvailableCorporations = activeCorporationUsers
-          .Where(cu => cu.Corporation is not null)
+      AvailableCorporations = (user.CorporationUsers.Count > 0 ? user.CorporationUsers : activeCorporationUsers)
+          .Where(cu => cu.Corporation is not null && !cu.Corporation.Inactive)
           .Select(cu => new CorporationSummary
           {
             Id = cu.Corporation!.Id,
             Name = cu.Corporation.Name,
             Key = cu.Corporation.Key,
             Icon = cu.Corporation.Icon,
+            Color = !string.IsNullOrWhiteSpace(cu.Color) ? cu.Color : cu.Corporation.Color,
             Description = cu.Corporation.Description,
             ParentCorporationId = cu.Corporation.CorporationId,
             IsOwner = cu.IsOwner,
+            Favorite = cu.Favorite,
+            Inactive = cu.Inactive,
             Roles = user.UserRoles
                 .Where(ur => !ur.Inactive && ur.CorporationId == cu.Corporation.Id && ur.Role is not null && !string.IsNullOrWhiteSpace(ur.Role.Name))
                 .Select(ur => ur.Role!.Name.Trim())

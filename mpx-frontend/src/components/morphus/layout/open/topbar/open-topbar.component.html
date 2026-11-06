@@ -15,36 +15,90 @@
       </div>
     </a>
 
-    <!-- Links rápidos no Desktop quando autenticado (Minhas Apps, Workspaces, Corporações) -->
+    <!-- 3 Menus na Topbar (Somente o nome selecionado + lista dropdown de troca) -->
     @if (auth.isAuthenticated()) {
-      <nav class="ms-6 hidden items-center gap-x-1 lg:flex">
+      <nav class="ms-6 hidden items-center gap-x-1.5 lg:flex">
+        <!-- 1. Minhas Aplicações (vinculadas ao workspace selecionado, sem Morphus/Security/Website) -->
         <button
           type="button"
           matButton
           class="tertiary small"
-          (click)="navigateToSection('minhas-apps')"
+          [matMenuTriggerFor]="topbarAppsMenu"
         >
-          <mat-icon svgIcon="boxes" class="size-4" />
-          Minhas Apps
+          <mat-icon svgIcon="boxes" class="size-4 text-primary-a11" />
+          <span class="max-w-44 truncate">{{ context.activeOperationalApplication()?.name || 'Minhas Aplicações' }}</span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5! text-neutral-a10" iconPositionEnd />
         </button>
+
+        <mat-menu #topbarAppsMenu="matMenu" class="min-w-60">
+          @if (context.operationalApplications().length > 0) {
+            @for (app of context.operationalApplications(); track app.id) {
+              <button mat-menu-item (click)="selectTopbarApplication(app)">
+                <mat-icon [svgIcon]="app.icon || 'boxes'" />
+                <span class="flex-auto truncate">{{ app.name }}</span>
+                @if (context.activeOperationalApplication()?.id === app.id) {
+                  <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
+                }
+              </button>
+            }
+          } @else {
+            <div class="px-4 py-2.5 text-xs text-neutral-a10 select-none">
+              Nenhuma aplicação vinculada a este workspace
+            </div>
+          }
+        </mat-menu>
+
+        <!-- 2. Meus Workspaces (workspace selecionado por default + lista de troca) -->
         <button
           type="button"
           matButton
           class="tertiary small"
-          (click)="navigateToSection('meus-workspaces')"
+          [matMenuTriggerFor]="topbarWorkspacesMenu"
         >
-          <mat-icon svgIcon="layout-grid" class="size-4" />
-          Meus Workspaces
+          <mat-icon svgIcon="layout-grid" class="size-4 text-indigo-a11" />
+          <span class="max-w-44 truncate">{{ context.activeWorkspace()?.name || 'Meus Workspaces' }}</span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5! text-neutral-a10" iconPositionEnd />
         </button>
+
+        <mat-menu #topbarWorkspacesMenu="matMenu" class="min-w-60">
+          @for (ws of context.workspaces(); track ws.id) {
+            <button mat-menu-item (click)="selectTopbarWorkspace(ws)">
+              <mat-icon [svgIcon]="ws.icon || 'layout-grid'" />
+              <span class="flex-auto truncate">{{ ws.name }}</span>
+              @if (context.activeWorkspace()?.id === ws.id) {
+                <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
+              }
+            </button>
+          }
+        </mat-menu>
+
+        <!-- 3. Minhas Corporações (corporação selecionada + lista de troca) -->
         <button
           type="button"
           matButton
           class="tertiary small"
-          (click)="navigateToSection('minhas-corporacoes')"
+          [matMenuTriggerFor]="topbarCorporationsMenu"
         >
-          <mat-icon svgIcon="building-2" class="size-4" />
-          Minhas Corporações
+          <mat-icon svgIcon="building-2" class="size-4 text-violet-a11" />
+          <span class="max-w-44 truncate">{{ auth.corporation()?.name || 'Minhas Corporações' }}</span>
+          <mat-icon svgIcon="chevron-down" class="size-3.5! text-neutral-a10" iconPositionEnd />
         </button>
+
+        <mat-menu #topbarCorporationsMenu="matMenu" class="min-w-60">
+          @for (corp of auth.availableCorporations(); track corp.id) {
+            <button
+              mat-menu-item
+              [disabled]="corp.inactive"
+              (click)="selectTopbarCorporation(corp)"
+            >
+              <mat-icon [svgIcon]="corp.icon || 'building-2'" />
+              <span class="flex-auto truncate">{{ corp.name }}</span>
+              @if (auth.corporation()?.id === corp.id) {
+                <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
+              }
+            </button>
+          }
+        </mat-menu>
       </nav>
     }
 
@@ -53,10 +107,12 @@
     <!-- Botões de ação alinhados à direita -->
     <div class="flex items-center gap-x-2 sm:gap-x-3">
       @if (auth.isAuthenticated() && auth.user(); as user) {
-        <a matButton class="primary small hidden sm:inline-flex" routerLink="/morphus">
-          <mat-icon svgIcon="layout-grid" />
-          Acessar painel
-        </a>
+        @if (auth.isAdmin()) {
+          <a matButton class="primary small hidden sm:inline-flex" routerLink="/morphus/admin/dashboard">
+            <mat-icon svgIcon="layout-grid" />
+            Painel Administrativo
+          </a>
+        }
 
         <button
           type="button"
@@ -67,6 +123,7 @@
             <img
               class="size-7 shrink-0 overflow-hidden rounded-lg object-cover"
               [src]="picture"
+              referrerpolicy="no-referrer"
               alt="Avatar do usuário"
             />
           } @else {
@@ -95,6 +152,7 @@
               <img
                 class="size-9 shrink-0 rounded-full object-cover"
                 [src]="picture"
+                referrerpolicy="no-referrer"
                 alt="Avatar do usuário"
               />
             } @else {
@@ -127,7 +185,6 @@
 
           <mat-divider />
 
-          <!-- Bloco 1 (Estilo GitHub): Perfil, Aplicações, Workspaces, Corporações, Painel -->
           <a mat-menu-item routerLink="/website/profile">
             <mat-icon svgIcon="user-round" />
             <span>Meu Perfil</span>
@@ -135,7 +192,7 @@
 
           <button mat-menu-item (click)="navigateToSection('minhas-apps')">
             <mat-icon svgIcon="boxes" />
-            <span>Minhas Apps</span>
+            <span>Minhas Aplicações</span>
           </button>
 
           <button mat-menu-item (click)="navigateToSection('meus-workspaces')">
@@ -155,14 +212,15 @@
             </button>
           }
 
-          <a mat-menu-item routerLink="/morphus">
-            <mat-icon svgIcon="layout-grid" />
-            <span>Administrar Corporação</span>
-          </a>
+          @if (auth.isAdmin()) {
+            <a mat-menu-item routerLink="/morphus/admin/dashboard">
+              <mat-icon svgIcon="layout-grid" />
+              <span>Painel Administrativo</span>
+            </a>
+          }
 
           <mat-divider />
 
-          <!-- Bloco 2 (Estilo GitHub): Settings, Tema, Aparência -->
           <a mat-menu-item routerLink="/morphus/settings">
             <mat-icon svgIcon="settings" />
             <span>Configurações (Settings)</span>
@@ -238,9 +296,11 @@
           Entrar
         </a>
 
-        <a matButton class="primary small" routerLink="/security/signup">
-          Teste grátis
-        </a>
+        @if (!context.hasUsedOrActiveTrial()) {
+          <a matButton class="primary small" routerLink="/security/signup">
+            Teste grátis
+          </a>
+        }
 
         <div class="mx-0.5 h-5 w-px bg-neutral-a5"></div>
 

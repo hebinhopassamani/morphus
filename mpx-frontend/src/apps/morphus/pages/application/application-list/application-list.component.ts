@@ -42,13 +42,13 @@ export class ApplicationListComponent
   protected search = '';
   private cachedApplications: MorphusApplication[] = [];
 
-  protected readonly displayedColumns = ['name', 'key', 'description', 'origin', 'actions'];
+  protected readonly displayedColumns = ['name', 'description', 'origin', 'actions'];
 
   ngOnInit(): void {
     this.primaryKeys = ['id'];
     this.title1.set('Aplicações (Applications & My Apps)');
     this.title2.set(
-      'Gerencie as aplicações da corporação, suas chaves SDK e os usuários autorizados.',
+      'Gerencie as aplicações da corporação e os usuários autorizados.',
     );
     void this.loadList();
   }
@@ -81,6 +81,13 @@ export class ApplicationListComponent
 
   editEntity(entity: MorphusApplication): void {
     void this.router.navigate([entity.id], { relativeTo: this.activatedRoute });
+  }
+
+  openApplicationPages(entity: MorphusApplication): void {
+    void this.router.navigate([entity.id], {
+      relativeTo: this.activatedRoute,
+      queryParams: { tab: 'pages' },
+    });
   }
 
   openApplicationUsers(entity: MorphusApplication): void {

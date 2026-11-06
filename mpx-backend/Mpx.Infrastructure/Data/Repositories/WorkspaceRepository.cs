@@ -1,14 +1,45 @@
 using Microsoft.EntityFrameworkCore;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Domain.Security;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
 public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<Workspace>(context), IWorkspaceRepository
 {
+  private static bool _trialSchemaEnsured;
+
+  private async Task EnsureTrialSchemaAndBackfillAsync()
+  {
+    if (_trialSchemaEnsured)
+      return;
+
+    try
+    {
+      await _context.Database.ExecuteSqlRawAsync(@"
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_start_date timestamp with time zone NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_days integer NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_used boolean NOT NULL DEFAULT false;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS shared_with_workspace_id uuid NULL;
+        ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS ""default"" boolean NOT NULL DEFAULT false;
+
+        UPDATE mpx_applications
+        SET system = false
+        WHERE UPPER(name) NOT IN ('MORPHUS', 'SEGURANÇA', 'SEGURANCA', 'SECURITY', 'WEBSITE');
+      ");
+      _trialSchemaEnsured = true;
+    }
+    catch
+    {
+      // Ignora caso o banco ainda esteja em inicialização
+    }
+  }
+
   public async Task<List<Workspace>> GetListAsync()
   {
+    await EnsureTrialSchemaAndBackfillAsync();
     await EnsureCorporationCatalogBackfillAsync();
+    await EnsureFinanceiroProvisionedAndDashboardHtmlAsync();
 
     return await _context.Workspaces
         .AsNoTracking()
@@ -191,17 +222,6 @@ public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<W
     if (newApps.Count > 0)
     {
       await _context.Applications.AddRangeAsync(newApps);
-      foreach (var app in newApps)
-      {
-        await _context.WorkspaceApplications.AddAsync(new WorkspaceApplication
-        {
-          CorporationId = corporationId,
-          WorkspaceId = defaultWs.Id,
-          ApplicationId = app.Id,
-          Inactive = false,
-          System = true
-        });
-      }
     }
 
     if (!hasAppModules)
@@ -239,6 +259,147 @@ public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<W
     }
 
     await _context.SaveChangesAsync();
+  }
+
+  private async Task EnsureFinanceiroProvisionedAndDashboardHtmlAsync()
+  {
+    var defaultWs = await _context.Workspaces
+        .OrderByDescending(w => w.Default)
+        .FirstOrDefaultAsync(w => !w.Inactive);
+
+    if (defaultWs is null || defaultWs.CorporationId == Guid.Empty)
+      return;
+
+    var corporationId = defaultWs.CorporationId;
+    var financeApp = await _context.Applications
+        .FirstOrDefaultAsync(a => a.Prefix == "FIN" || a.Name.Contains("Financeiro") || a.Name.Contains("Finanças"));
+
+    if (financeApp is null)
+      return;
+
+    var changed = false;
+
+    if (!financeApp.Default)
+    {
+      financeApp.Default = true;
+      changed = true;
+    }
+
+    var wsLink = await _context.WorkspaceApplications
+        .FirstOrDefaultAsync(wa => wa.WorkspaceId == defaultWs.Id && wa.ApplicationId == financeApp.Id);
+
+    if (wsLink is null)
+    {
+      _context.WorkspaceApplications.Add(new WorkspaceApplication
+      {
+        CorporationId = corporationId,
+        WorkspaceId = defaultWs.Id,
+        ApplicationId = financeApp.Id,
+        Default = true,
+        TrialStartDate = DateTime.UtcNow,
+        TrialDays = 14,
+        TrialUsed = true,
+        Inactive = false,
+        System = false
+      });
+      changed = true;
+    }
+    else if (wsLink.Inactive || !wsLink.TrialUsed)
+    {
+      wsLink.Inactive = false;
+      wsLink.Default = true;
+      wsLink.TrialUsed = true;
+      wsLink.TrialStartDate ??= DateTime.UtcNow;
+      wsLink.TrialDays ??= 14;
+      changed = true;
+    }
+
+    var overviewMod = await _context.ApplicationModules
+        .FirstOrDefaultAsync(m => m.ApplicationId == financeApp.Id && m.Name == "Visão Geral");
+
+    if (overviewMod is null)
+    {
+      overviewMod = new ApplicationModule
+      {
+        Id = Guid.NewGuid(),
+        CorporationId = corporationId,
+        ApplicationId = financeApp.Id,
+        Name = "Visão Geral",
+        Label = "Visão Geral",
+        Icon = "chart-no-axes-combined",
+        Color = "jade",
+        Order = 0,
+        System = true,
+        Description = "Painel inicial do Morphus Financeiro"
+      };
+      _context.ApplicationModules.Add(overviewMod);
+      changed = true;
+    }
+
+    var dashboardSub = await _context.ApplicationSubModules
+        .FirstOrDefaultAsync(sm => sm.ApplicationModuleId == overviewMod.Id && sm.Name == "Dashboard");
+
+    var (dashRoute, dashDefault, defaultDashboardHtml) =
+        MorphusFinanceiroTemplates.ResolveForSubModule("Dashboard", "Dashboard", "Visão geral financeira");
+
+    if (dashboardSub is null)
+    {
+      dashboardSub = new ApplicationSubModule
+      {
+        Id = Guid.NewGuid(),
+        CorporationId = corporationId,
+        ApplicationModuleId = overviewMod.Id,
+        Name = "Dashboard",
+        Label = "Dashboard",
+        Icon = "chart-no-axes-combined",
+        Color = "jade",
+        Order = 1,
+        RoutePattern = dashRoute,
+        Default = dashDefault,
+        HtmlContent = defaultDashboardHtml,
+        System = true,
+        Description = "Visão geral financeira carregada dinamicamente do banco de dados"
+      };
+      _context.ApplicationSubModules.Add(dashboardSub);
+      changed = true;
+    }
+    else if (string.IsNullOrWhiteSpace(dashboardSub.HtmlContent) ||
+             string.IsNullOrWhiteSpace(dashboardSub.RoutePattern) ||
+             dashboardSub.HtmlContent.Contains("Bem-vindo ao Dashboard do Morphus Finanças!"))
+    {
+      dashboardSub.RoutePattern = dashRoute;
+      dashboardSub.Default = dashDefault;
+      dashboardSub.HtmlContent = defaultDashboardHtml;
+      changed = true;
+    }
+
+    var otherSubs = await _context.ApplicationSubModules
+        .Include(sm => sm.ApplicationModule)
+        .Where(sm => sm.ApplicationModule!.ApplicationId == financeApp.Id && sm.Id != dashboardSub.Id)
+        .ToListAsync();
+
+    foreach (var sub in otherSubs)
+    {
+      var (resolvedRoute, _, resolvedHtml) =
+          MorphusFinanceiroTemplates.ResolveForSubModule(sub.Name, sub.Label, sub.Description);
+
+      if (string.IsNullOrWhiteSpace(sub.RoutePattern))
+      {
+        sub.RoutePattern = resolvedRoute;
+        changed = true;
+      }
+      if (string.IsNullOrWhiteSpace(sub.HtmlContent) ||
+          sub.HtmlContent.Contains("Conteúdo HTML carregado diretamente do banco de dados."))
+      {
+        sub.HtmlContent = resolvedHtml;
+        changed = true;
+      }
+    }
+
+    if (changed)
+    {
+      await _context.SaveChangesAsync();
+    }
   }
 
   public async Task<Workspace?> GetByKeyAsync(string key)

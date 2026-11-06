@@ -8,7 +8,7 @@ public class WorkspaceConfiguration : IEntityTypeConfiguration<Workspace>
 {
   public void Configure(EntityTypeBuilder<Workspace> builder)
   {
-    builder.ToTable("workspaces");
+    builder.ToTable("mpx_workspaces");
 
     builder.HasKey(w => w.Id);
     builder.Property(w => w.Name).IsRequired().HasMaxLength(150);
@@ -19,7 +19,7 @@ public class WorkspaceConfiguration : IEntityTypeConfiguration<Workspace>
     builder.Property(w => w.System).IsRequired().HasDefaultValue(false);
     builder.Property(w => w.Inactive).IsRequired().HasDefaultValue(false);
     builder.Property(w => w.CorporationId).IsRequired();
-    builder.Property(w => w.Description).IsRequired(false).HasColumnType("text");
+    builder.Property(w => w.Description).IsRequired(false).HasMaxLength(120);
 
     builder.HasIndex(w => w.CorporationId)
            .IsUnique()

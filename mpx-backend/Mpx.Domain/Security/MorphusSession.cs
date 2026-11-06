@@ -79,7 +79,7 @@ public class ConfirmEmailRequest
 
 public class OnboardingCorporationStepRequest
 {
-  public required string UserName { get; set; }
+  public string? UserName { get; set; }
   public string? UserNickName { get; set; }
   public required string CorporationName { get; set; }
 }
@@ -129,8 +129,31 @@ public class CorporationSummary
   public required string Name { get; set; }
   public required string Key { get; set; }
   public string? Icon { get; set; }
+  public string? Color { get; set; }
   public string? Description { get; set; }
   public Guid? ParentCorporationId { get; set; }
   public bool IsOwner { get; set; }
+  public bool Favorite { get; set; }
+  public bool Inactive { get; set; }
   public List<string> Roles { get; set; } = [];
+}
+
+public class SavePortalPreferenceRequest
+{
+  public required string TargetType { get; set; } // "application" | "workspace" | "corporation"
+  public required Guid TargetId { get; set; }
+  public Guid? CorporationId { get; set; }
+  public Guid? WorkspaceId { get; set; }
+  public string? Color { get; set; }
+  public bool? Favorite { get; set; }
+}
+
+public class PortalPreferenceItem
+{
+  public required string TargetType { get; set; }
+  public Guid TargetId { get; set; }
+  public Guid CorporationId { get; set; }
+  public Guid? WorkspaceId { get; set; }
+  public string? Color { get; set; }
+  public bool Favorite { get; set; }
 }

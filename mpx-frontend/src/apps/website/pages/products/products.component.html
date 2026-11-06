@@ -1,0 +1,134 @@
+<section
+  class="relative overflow-hidden rounded-3xl border border-neutral-a4 bg-white px-6 py-12 text-center shadow-lg sm:px-10 lg:py-16 dark:bg-[#0D061A] dark:text-white"
+>
+  <img
+    src="/brand/bg-crystal-wave-light.jpg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-70 dark:hidden"
+  />
+  <img
+    src="/brand/bg-crystal-wave.jpg"
+    alt=""
+    aria-hidden="true"
+    class="pointer-events-none absolute inset-0 hidden h-full w-full object-cover opacity-45 mix-blend-screen dark:block"
+  />
+  <div
+    class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/50 via-white/75 to-white/95 dark:from-[#0D061A]/60 dark:via-[#0D061A]/80 dark:to-[#0D061A]"
+  ></div>
+
+  <div class="relative mx-auto flex max-w-3xl flex-col items-center">
+    <div class="inline-flex items-center gap-x-2 rounded-full border border-[#00E5FF]/45 bg-[#00E5FF]/10 px-4 py-1 text-xs font-semibold tracking-wider uppercase text-[#0088A8] dark:text-cyan-300">
+      <mat-icon svgIcon="boxes" class="size-3.5" />
+      <span>Catálogo de Aplicações Morphus</span>
+    </div>
+
+    <h1
+      class="mt-5 text-3xl font-extrabold tracking-tight text-neutral-12 sm:text-4xl lg:text-5xl dark:text-white"
+      style="font-family: var(--mpx-font-display);"
+    >
+      Veja tudo o que o
+      <span class="bg-gradient-to-r from-[#00B8D9] via-[#A855F7] to-[#FF007A] bg-clip-text text-transparent dark:from-[#00E5FF] dark:via-[#B558FF] dark:to-[#FF007A]">
+        Morphus pode oferecer
+      </span>
+      para a sua empresa
+    </h1>
+
+    <p class="mt-4 max-w-2xl text-base leading-relaxed text-neutral-11 sm:text-lg dark:text-[#E2E8F0]">
+      Conheça as aplicações do nosso ecossistema. Todas funcionam de forma integrada dentro dos seus espaços de trabalho (workspaces), obedecendo rigorosamente às regras de acesso da sua corporação.
+    </p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+      <a
+        matButton
+        class="primary large font-semibold tracking-wider uppercase"
+        routerLink="/security/signup"
+      >
+        Comece grátis no Morphus
+        <mat-icon svgIcon="arrow-right" iconPositionEnd />
+      </a>
+      <a
+        matButton
+        class="secondary large border border-neutral-a5 bg-white/80 font-semibold tracking-wider uppercase text-neutral-12! hover:bg-neutral-a3 dark:border-white/20 dark:bg-white/10 dark:text-white! dark:hover:bg-white/20"
+        routerLink="/website/home"
+      >
+        <mat-icon svgIcon="arrow-left" />
+        Voltar para o início
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Grid de Cards de Aplicações (Sem botão de teste grátis individual por card) -->
+<section class="flex flex-col gap-y-8">
+  <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    @for (product of products(); track product.id; let idx = $index) {
+      @let accent = accentClasses(product.color || product.categoryColor, idx);
+
+      <mat-card
+        appearance="filled"
+        class="group relative flex flex-col transition-all duration-200 hover:shadow-[0_22px_44px_-8px_rgba(0,0,0,0.22),0_10px_20px_-6px_rgba(0,0,0,0.14)]!"
+      >
+        <mat-card-content class="relative flex flex-auto flex-col gap-y-4 overflow-clip p-6">
+          <div
+            class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b opacity-80 transition-opacity duration-200 group-hover:opacity-100"
+            [class]="accent.bannerClass"
+          ></div>
+
+          <div class="relative flex items-start justify-between gap-x-3">
+            <div
+              class="flex size-12 shrink-0 items-center justify-center rounded-xl shadow-2xs"
+              [class]="accent.iconBoxClass"
+            >
+              <mat-icon [svgIcon]="product.icon || 'boxes'" class="size-6" />
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-1.5">
+              @if (product.prefix) {
+                <span class="inline-flex items-center rounded-lg border border-neutral-a4 bg-neutral-a3 px-2 py-0.5 font-mono text-xs font-semibold text-neutral-11">
+                  {{ product.prefix }}
+                </span>
+              }
+              <span
+                class="inline-flex items-center rounded-lg px-2.5 py-0.5 text-xs font-medium"
+                [class]="accent.badgeClass"
+              >
+                {{ product.categoryLabel || product.categoryName || 'Ecossistema' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="relative mt-1 flex flex-col gap-y-2">
+            <h2 class="text-xl font-bold tracking-tight text-neutral-12">
+              {{ product.name }}
+            </h2>
+
+            <p class="text-sm leading-relaxed text-neutral-a11">
+              {{ product.description }}
+            </p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+  </div>
+
+  <!-- CTA Único de Teste Grátis do Morphus no final da página -->
+  <div class="mt-4 flex flex-col items-center justify-between gap-6 rounded-2xl border border-neutral-a4 bg-white p-8 text-center sm:flex-row sm:text-start dark:bg-neutral-2">
+    <div>
+      <h3 class="text-2xl font-bold text-neutral-12">
+        Pronto para experimentar o Morphus na sua empresa?
+      </h3>
+      <p class="mt-1 text-sm text-neutral-a11 sm:text-base">
+        Crie sua conta gratuita e estruture sua matriz, filiais e espaços de trabalho em poucos minutos.
+      </p>
+    </div>
+    <a
+      matButton
+      class="primary large shrink-0 font-semibold tracking-wider uppercase"
+      routerLink="/security/signup"
+    >
+      Comece grátis
+      <mat-icon svgIcon="arrow-right" iconPositionEnd />
+    </a>
+  </div>
+</section>

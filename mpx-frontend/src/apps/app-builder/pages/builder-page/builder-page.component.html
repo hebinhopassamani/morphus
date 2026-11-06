@@ -1,0 +1,26 @@
+@if (isLoading()) {
+  <div class="flex items-center gap-3 rounded-2xl border border-neutral-a4 bg-neutral-1 p-6 text-sm text-neutral-a11">
+    <span class="size-4 shrink-0 animate-spin rounded-full border-2 border-primary-9 border-t-transparent"></span>
+    <span>Carregando página da aplicação no banco de dados...</span>
+  </div>
+} @else if (matchedPage(); as matched) {
+  <div class="flex flex-col gap-y-5">
+    @if (matched.subModule.htmlContent) {
+      <!-- Conteúdo HTML vindo diretamente do Banco de Dados (mpx_application_sub_modules.html_content) -->
+      <div class="w-full" [innerHTML]="trustedHtml()"></div>
+    } @else {
+      <div class="rounded-3xl border border-jade-a5 bg-jade-a2 p-8 shadow-sm">
+        <h1 class="text-2xl font-bold text-neutral-12">
+          {{ matched.subModule.label || 'Dashboard' }}
+        </h1>
+        <p class="mt-2 text-base text-neutral-a11">
+          Carregado do banco de dados.
+        </p>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-6 text-sm text-neutral-a11">
+    Página não encontrada para a rota informada nesta aplicação.
+  </div>
+}

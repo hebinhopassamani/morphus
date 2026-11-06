@@ -16,7 +16,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261103184314_SepararSecurityModulesEApplicationModules";
+    public override string LastMigrationId => "20261105171501_PadronizarPrefixosTabelasEShowcaseHome";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -98,19 +98,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_application_modules");
+                    .HasName("pk_mpx_application_modules");
 
                 b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_application_modules_application_id");
+                    .HasDatabaseName("ix_mpx_application_modules_application_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_application_modules_corporation_id");
+                    .HasDatabaseName("ix_mpx_application_modules_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_application_modules_key");
+                    .HasDatabaseName("ix_mpx_application_modules_key");
 
-                b.ToTable("application_modules");
+                b.ToTable("mpx_application_modules");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.ApplicationStatus", b =>
@@ -168,16 +168,16 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_application_statuses");
+                    .HasName("pk_mpx_application_statuses");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_application_statuses_corporation_id");
+                    .HasDatabaseName("ix_mpx_application_statuses_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_application_statuses_key");
+                    .HasDatabaseName("ix_mpx_application_statuses_key");
 
-                b.ToTable("application_statuses");
+                b.ToTable("mpx_application_statuses");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.ApplicationSubModule", b =>
@@ -248,19 +248,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_application_sub_modules");
+                    .HasName("pk_mpx_application_sub_modules");
 
                 b.HasIndex("ApplicationModuleId")
-                    .HasDatabaseName("ix_application_sub_modules_application_module_id");
+                    .HasDatabaseName("ix_mpx_application_sub_modules_application_module_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_application_sub_modules_corporation_id");
+                    .HasDatabaseName("ix_mpx_application_sub_modules_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_application_sub_modules_key");
+                    .HasDatabaseName("ix_mpx_application_sub_modules_key");
 
-                b.ToTable("application_sub_modules");
+                b.ToTable("mpx_application_sub_modules");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.ApplicationUser", b =>
@@ -296,15 +296,15 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("ApplicationId", "UserId")
-                    .HasName("pk_application_users");
+                    .HasName("pk_mpx_application_users");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_application_users_corporation_id");
+                    .HasDatabaseName("ix_mpx_application_users_corporation_id");
 
                 b.HasIndex("UserId")
-                    .HasDatabaseName("ix_application_users_user_id");
+                    .HasDatabaseName("ix_mpx_application_users_user_id");
 
-                b.ToTable("application_users");
+                b.ToTable("mpx_application_users");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Category", b =>
@@ -362,16 +362,16 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_categories");
+                    .HasName("pk_mpx_categories");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_categories_corporation_id");
+                    .HasDatabaseName("ix_mpx_categories_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_categories_key");
+                    .HasDatabaseName("ix_mpx_categories_key");
 
-                b.ToTable("categories");
+                b.ToTable("mpx_categories");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Claim", b =>
@@ -430,22 +430,22 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_claims");
+                    .HasName("pk_sec_claims");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_claims_corporation_id");
+                    .HasDatabaseName("ix_sec_claims_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_claims_key");
+                    .HasDatabaseName("ix_sec_claims_key");
 
                 b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_claims_module_id");
+                    .HasDatabaseName("ix_sec_claims_module_id");
 
                 b.HasIndex("SubModuleId")
-                    .HasDatabaseName("ix_claims_sub_module_id");
+                    .HasDatabaseName("ix_sec_claims_sub_module_id");
 
-                b.ToTable("claims");
+                b.ToTable("sec_claims");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Corporation", b =>
@@ -523,16 +523,16 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_corporations");
+                    .HasName("pk_mpx_corporations");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_corporations_corporation_id");
+                    .HasDatabaseName("ix_mpx_corporations_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_corporations_key");
+                    .HasDatabaseName("ix_mpx_corporations_key");
 
-                b.ToTable("corporations");
+                b.ToTable("mpx_corporations");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.CorporationUser", b =>
@@ -564,12 +564,12 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("CorporationId", "UserId")
-                    .HasName("pk_corporation_users");
+                    .HasName("pk_mpx_corporation_users");
 
                 b.HasIndex("UserId")
-                    .HasDatabaseName("ix_corporation_users_user_id");
+                    .HasDatabaseName("ix_mpx_corporation_users_user_id");
 
-                b.ToTable("corporation_users");
+                b.ToTable("mpx_corporation_users");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Email", b =>
@@ -625,16 +625,16 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("text_body");
 
                 b.HasKey("Id")
-                    .HasName("pk_emails");
+                    .HasName("pk_mpx_emails");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_emails_corporation_id");
+                    .HasDatabaseName("ix_mpx_emails_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_emails_key");
+                    .HasDatabaseName("ix_mpx_emails_key");
 
-                b.ToTable("emails");
+                b.ToTable("mpx_emails");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.EmailBcc", b =>
@@ -684,19 +684,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_emails_bcc");
+                    .HasName("pk_mpx_emails_bcc");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_emails_bcc_corporation_id");
+                    .HasDatabaseName("ix_mpx_emails_bcc_corporation_id");
 
                 b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_emails_bcc_email_id");
+                    .HasDatabaseName("ix_mpx_emails_bcc_email_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_emails_bcc_key");
+                    .HasDatabaseName("ix_mpx_emails_bcc_key");
 
-                b.ToTable("emails_bcc");
+                b.ToTable("mpx_emails_bcc");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.EmailCc", b =>
@@ -746,19 +746,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_emails_cc");
+                    .HasName("pk_mpx_emails_cc");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_emails_cc_corporation_id");
+                    .HasDatabaseName("ix_mpx_emails_cc_corporation_id");
 
                 b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_emails_cc_email_id");
+                    .HasDatabaseName("ix_mpx_emails_cc_email_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_emails_cc_key");
+                    .HasDatabaseName("ix_mpx_emails_cc_key");
 
-                b.ToTable("emails_cc");
+                b.ToTable("mpx_emails_cc");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.EmailFrom", b =>
@@ -808,19 +808,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_emails_from");
+                    .HasName("pk_mpx_emails_from");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_emails_from_corporation_id");
+                    .HasDatabaseName("ix_mpx_emails_from_corporation_id");
 
                 b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_emails_from_email_id");
+                    .HasDatabaseName("ix_mpx_emails_from_email_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_emails_from_key");
+                    .HasDatabaseName("ix_mpx_emails_from_key");
 
-                b.ToTable("emails_from");
+                b.ToTable("mpx_emails_from");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.EmailTo", b =>
@@ -870,19 +870,151 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_emails_to");
+                    .HasName("pk_mpx_emails_to");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_emails_to_corporation_id");
+                    .HasDatabaseName("ix_mpx_emails_to_corporation_id");
 
                 b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_emails_to_email_id");
+                    .HasDatabaseName("ix_mpx_emails_to_email_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_emails_to_key");
+                    .HasDatabaseName("ix_mpx_emails_to_key");
 
-                b.ToTable("emails_to");
+                b.ToTable("mpx_emails_to");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.Feature", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("HighlightPhrase")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("highlight_phrase");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("title");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_features");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_features_key");
+
+                b.ToTable("mpx_features");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.FeatureHighlight", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("FeatureId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("feature_id");
+
+                b.Property<string>("Highlight")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("highlight");
+
+                b.Property<string>("HighlightIcon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("highlight_icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("title");
+
+                b.Property<string>("TitleIcon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("title_icon");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_feature_highlights");
+
+                b.HasIndex("FeatureId")
+                    .HasDatabaseName("ix_mpx_feature_highlights_feature_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_feature_highlights_key");
+
+                b.ToTable("mpx_feature_highlights");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
@@ -959,28 +1091,28 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("url");
 
                 b.HasKey("Id")
-                    .HasName("pk_menus");
+                    .HasName("pk_mpx_menus");
 
                 b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_menus_application_id");
+                    .HasDatabaseName("ix_mpx_menus_application_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_menus_corporation_id");
+                    .HasDatabaseName("ix_mpx_menus_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_menus_key");
+                    .HasDatabaseName("ix_mpx_menus_key");
 
                 b.HasIndex("MenuId")
-                    .HasDatabaseName("ix_menus_menu_id");
+                    .HasDatabaseName("ix_mpx_menus_menu_id");
 
                 b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_menus_module_id");
+                    .HasDatabaseName("ix_mpx_menus_module_id");
 
                 b.HasIndex("SubModuleId")
-                    .HasDatabaseName("ix_menus_sub_module_id");
+                    .HasDatabaseName("ix_mpx_menus_sub_module_id");
 
-                b.ToTable("menus");
+                b.ToTable("mpx_menus");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Module", b =>
@@ -1029,19 +1161,73 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_security_modules");
+                    .HasName("pk_sec_modules");
 
                 b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_security_modules_application_id");
+                    .HasDatabaseName("ix_sec_modules_application_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_security_modules_corporation_id");
+                    .HasDatabaseName("ix_sec_modules_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_security_modules_key");
+                    .HasDatabaseName("ix_sec_modules_key");
 
-                b.ToTable("security_modules");
+                b.ToTable("sec_modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.ModuleCategory", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_module_categories");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_module_categories_key");
+
+                b.ToTable("mpx_module_categories");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.MorphusApplication", b =>
@@ -1097,6 +1283,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(150)")
                     .HasColumnName("name");
 
+                b.Property<string>("Prefix")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(3)
+                    .HasColumnType("character varying(3)")
+                    .HasDefaultValue("")
+                    .HasColumnName("prefix");
+
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -1104,22 +1298,23 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_applications");
+                    .HasName("pk_mpx_applications");
 
                 b.HasIndex("ApplicationStatusId")
-                    .HasDatabaseName("ix_applications_application_status_id");
+                    .HasDatabaseName("ix_mpx_applications_application_status_id");
 
                 b.HasIndex("CategoryId")
-                    .HasDatabaseName("ix_applications_category_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_applications_corporation_id");
+                    .HasDatabaseName("ix_mpx_applications_category_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_applications_key");
+                    .HasDatabaseName("ix_mpx_applications_key");
 
-                b.ToTable("applications");
+                b.HasIndex("CorporationId", "Prefix")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_applications_corporation_id_prefix");
+
+                b.ToTable("mpx_applications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
@@ -1172,22 +1367,22 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_roles");
+                    .HasName("pk_sec_roles");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_roles_corporation_id");
+                    .HasDatabaseName("ix_sec_roles_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_roles_key");
+                    .HasDatabaseName("ix_sec_roles_key");
 
                 b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_roles_module_id");
+                    .HasDatabaseName("ix_sec_roles_module_id");
 
                 b.HasIndex("SubModuleId")
-                    .HasDatabaseName("ix_roles_sub_module_id");
+                    .HasDatabaseName("ix_sec_roles_sub_module_id");
 
-                b.ToTable("roles");
+                b.ToTable("sec_roles");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.RoleClaim", b =>
@@ -1217,15 +1412,87 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("RoleId", "ClaimId")
-                    .HasName("pk_role_claims");
+                    .HasName("pk_sec_role_claims");
 
                 b.HasIndex("ClaimId")
-                    .HasDatabaseName("ix_role_claims_claim_id");
+                    .HasDatabaseName("ix_sec_role_claims_claim_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_role_claims_corporation_id");
+                    .HasDatabaseName("ix_sec_role_claims_corporation_id");
 
-                b.ToTable("role_claims");
+                b.ToTable("sec_role_claims");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.ShowcaseModule", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ActionText")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("action_text");
+
+                b.Property<Guid>("CategoryId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("category_id");
+
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("title");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_modules");
+
+                b.HasIndex("CategoryId")
+                    .HasDatabaseName("ix_mpx_modules_category_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_modules_key");
+
+                b.ToTable("mpx_modules");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.SubModule", b =>
@@ -1274,19 +1541,19 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_security_sub_modules");
+                    .HasName("pk_sec_sub_modules");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_security_sub_modules_corporation_id");
+                    .HasDatabaseName("ix_sec_sub_modules_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_security_sub_modules_key");
+                    .HasDatabaseName("ix_sec_sub_modules_key");
 
                 b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_security_sub_modules_module_id");
+                    .HasDatabaseName("ix_sec_sub_modules_module_id");
 
-                b.ToTable("security_sub_modules");
+                b.ToTable("sec_sub_modules");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.User", b =>
@@ -1409,23 +1676,23 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("website");
 
                 b.HasKey("Id")
-                    .HasName("pk_users");
+                    .HasName("pk_sec_users");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_users_corporation_id");
+                    .HasDatabaseName("ix_sec_users_corporation_id");
 
                 b.HasIndex("Email")
                     .IsUnique()
-                    .HasDatabaseName("ix_users_email");
+                    .HasDatabaseName("ix_sec_users_email");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_users_key");
+                    .HasDatabaseName("ix_sec_users_key");
 
                 b.HasIndex("UserStatusId")
-                    .HasDatabaseName("ix_users_user_status_id");
+                    .HasDatabaseName("ix_sec_users_user_status_id");
 
-                b.ToTable("users");
+                b.ToTable("sec_users");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.UserClaim", b =>
@@ -1455,15 +1722,15 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("UserId", "ClaimId")
-                    .HasName("pk_user_claims");
+                    .HasName("pk_sec_user_claims");
 
                 b.HasIndex("ClaimId")
-                    .HasDatabaseName("ix_user_claims_claim_id");
+                    .HasDatabaseName("ix_sec_user_claims_claim_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_user_claims_corporation_id");
+                    .HasDatabaseName("ix_sec_user_claims_corporation_id");
 
-                b.ToTable("user_claims");
+                b.ToTable("sec_user_claims");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.UserRole", b =>
@@ -1493,15 +1760,15 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("UserId", "RoleId")
-                    .HasName("pk_user_roles");
+                    .HasName("pk_sec_user_roles");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_user_roles_corporation_id");
+                    .HasDatabaseName("ix_sec_user_roles_corporation_id");
 
                 b.HasIndex("RoleId")
-                    .HasDatabaseName("ix_user_roles_role_id");
+                    .HasDatabaseName("ix_sec_user_roles_role_id");
 
-                b.ToTable("user_roles");
+                b.ToTable("sec_user_roles");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.UserStatus", b =>
@@ -1559,16 +1826,16 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_user_status");
+                    .HasName("pk_sec_user_statuses");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_user_status_corporation_id");
+                    .HasDatabaseName("ix_sec_user_statuses_corporation_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_user_status_key");
+                    .HasDatabaseName("ix_sec_user_statuses_key");
 
-                b.ToTable("user_status");
+                b.ToTable("sec_user_statuses");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Workspace", b =>
@@ -1629,18 +1896,18 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_workspaces");
+                    .HasName("pk_mpx_workspaces");
 
                 b.HasIndex("CorporationId")
                     .IsUnique()
-                    .HasDatabaseName("ix_workspaces_corporation_id")
+                    .HasDatabaseName("ix_mpx_workspaces_corporation_id")
                     .HasFilter("\"default\" = true");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_workspaces_key");
+                    .HasDatabaseName("ix_mpx_workspaces_key");
 
-                b.ToTable("workspaces");
+                b.ToTable("mpx_workspaces");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceApplication", b =>
@@ -1663,22 +1930,40 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("inactive");
 
+                b.Property<Guid?>("SharedWithWorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("shared_with_workspace_id");
+
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<int?>("TrialDays")
+                    .HasColumnType("integer")
+                    .HasColumnName("trial_days");
+
+                b.Property<DateTime?>("TrialStartDate")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("trial_start_date");
+
+                b.Property<bool>("TrialUsed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("trial_used");
+
                 b.HasKey("WorkspaceId", "ApplicationId")
-                    .HasName("pk_workspace_applications");
+                    .HasName("pk_mpx_workspace_applications");
 
                 b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_workspace_applications_application_id");
+                    .HasDatabaseName("ix_mpx_workspace_applications_application_id");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_workspace_applications_corporation_id");
+                    .HasDatabaseName("ix_mpx_workspace_applications_corporation_id");
 
-                b.ToTable("workspace_applications");
+                b.ToTable("mpx_workspace_applications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceUser", b =>
@@ -1714,15 +1999,15 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("WorkspaceId", "UserId")
-                    .HasName("pk_workspace_users");
+                    .HasName("pk_mpx_workspace_users");
 
                 b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_workspace_users_corporation_id");
+                    .HasDatabaseName("ix_mpx_workspace_users_corporation_id");
 
                 b.HasIndex("UserId")
-                    .HasDatabaseName("ix_workspace_users_user_id");
+                    .HasDatabaseName("ix_mpx_workspace_users_user_id");
 
-                b.ToTable("workspace_users");
+                b.ToTable("mpx_workspace_users");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.ApplicationModule", b =>
@@ -1732,14 +2017,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_modules_applications_application_id");
+                    .HasConstraintName("fk_mpx_application_modules_mpx_applications_application_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("ApplicationModules")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_modules_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_application_modules_corporations_corporation_id");
 
                 b.Navigation("Application");
 
@@ -1753,7 +2038,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_statuses_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_application_statuses_corporations_corporation_id");
 
                 b.Navigation("Corporation");
             });
@@ -1765,14 +2050,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationModuleId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_sub_modules_application_modules_application_mod");
+                    .HasConstraintName("fk_mpx_application_sub_modules_mpx_application_modules_applica");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("ApplicationSubModules")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_sub_modules_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_application_sub_modules_corporations_corporation_id");
 
                 b.Navigation("ApplicationModule");
 
@@ -1786,21 +2071,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_application_users_applications_application_id");
+                    .HasConstraintName("fk_mpx_application_users_mpx_applications_application_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("ApplicationUsers")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_application_users_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_application_users_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.User", "User")
                     .WithMany("ApplicationUsers")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_application_users_users_user_id");
+                    .HasConstraintName("fk_mpx_application_users_users_user_id");
 
                 b.Navigation("Application");
 
@@ -1816,7 +2101,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_categories_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_categories_corporations_corporation_id");
 
                 b.Navigation("Corporation");
             });
@@ -1828,21 +2113,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_claims_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_claims_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Module", "Module")
                     .WithMany("Claims")
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_claims_modules_module_id");
+                    .HasConstraintName("fk_sec_claims_modules_module_id");
 
                 b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
                     .WithMany("Claims")
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_claims_sub_modules_sub_module_id");
+                    .HasConstraintName("fk_sec_claims_sub_modules_sub_module_id");
 
                 b.Navigation("Corporation");
 
@@ -1857,7 +2142,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Corporations")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_corporations_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_corporations_mpx_corporations_corporation_id");
 
                 b.Navigation("ParentCorporation");
             });
@@ -1869,14 +2154,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_corporation_users_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_corporation_users_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.User", "User")
                     .WithMany("CorporationUsers")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_corporation_users_users_user_id");
+                    .HasConstraintName("fk_mpx_corporation_users_users_user_id");
 
                 b.Navigation("Corporation");
 
@@ -1890,7 +2175,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_emails_mpx_corporations_corporation_id");
 
                 b.Navigation("Corporation");
             });
@@ -1902,14 +2187,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_bcc_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_emails_bcc_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Email", "Email")
                     .WithMany("EmailBcc")
                     .HasForeignKey("EmailId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_bcc_emails_email_id");
+                    .HasConstraintName("fk_mpx_emails_bcc_emails_email_id");
 
                 b.Navigation("Corporation");
 
@@ -1923,14 +2208,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_cc_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_emails_cc_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Email", "Email")
                     .WithMany("EmailCc")
                     .HasForeignKey("EmailId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_cc_emails_email_id");
+                    .HasConstraintName("fk_mpx_emails_cc_emails_email_id");
 
                 b.Navigation("Corporation");
 
@@ -1944,14 +2229,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_from_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_emails_from_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Email", "Email")
                     .WithMany("EmailFrom")
                     .HasForeignKey("EmailId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_from_emails_email_id");
+                    .HasConstraintName("fk_mpx_emails_from_mpx_emails_email_id");
 
                 b.Navigation("Corporation");
 
@@ -1965,18 +2250,30 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_to_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_emails_to_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Email", "Email")
                     .WithMany("EmailTo")
                     .HasForeignKey("EmailId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_emails_to_emails_email_id");
+                    .HasConstraintName("fk_mpx_emails_to_mpx_emails_email_id");
 
                 b.Navigation("Corporation");
 
                 b.Navigation("Email");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.FeatureHighlight", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Feature", "Feature")
+                    .WithMany("Highlights")
+                    .HasForeignKey("FeatureId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_feature_highlights_mpx_features_feature_id");
+
+                b.Navigation("Feature");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
@@ -1986,32 +2283,32 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_menus_applications_application_id");
+                    .HasConstraintName("fk_mpx_menus_mpx_applications_application_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("Menus")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_menus_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_menus_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Menu", "ParentMenu")
                     .WithMany("SubMenus")
                     .HasForeignKey("MenuId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_menus_menus_menu_id");
+                    .HasConstraintName("fk_mpx_menus_mpx_menus_menu_id");
 
                 b.HasOne("Mpx.Domain.Entities.Module", "Module")
                     .WithMany()
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_menus_modules_module_id");
+                    .HasConstraintName("fk_mpx_menus_modules_module_id");
 
                 b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
                     .WithMany()
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_menus_sub_modules_sub_module_id");
+                    .HasConstraintName("fk_mpx_menus_sub_modules_sub_module_id");
 
                 b.Navigation("Application");
 
@@ -2031,14 +2328,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_security_modules_applications_application_id");
+                    .HasConstraintName("fk_sec_modules_mpx_applications_application_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("Modules")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_security_modules_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_modules_mpx_corporations_corporation_id");
 
                 b.Navigation("Application");
 
@@ -2051,20 +2348,20 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Applications")
                     .HasForeignKey("ApplicationStatusId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_applications_application_statuses_application_status_id");
+                    .HasConstraintName("fk_mpx_applications_application_statuses_application_status_id");
 
                 b.HasOne("Mpx.Domain.Entities.Category", "Category")
                     .WithMany("Applications")
                     .HasForeignKey("CategoryId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_applications_categories_category_id");
+                    .HasConstraintName("fk_mpx_applications_categories_category_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("Applications")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_applications_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_applications_corporations_corporation_id");
 
                 b.Navigation("ApplicationStatus");
 
@@ -2080,21 +2377,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_roles_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_roles_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Module", "Module")
                     .WithMany("Roles")
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_roles_modules_module_id");
+                    .HasConstraintName("fk_sec_roles_sec_modules_module_id");
 
                 b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
                     .WithMany("Roles")
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_roles_sub_modules_sub_module_id");
+                    .HasConstraintName("fk_sec_roles_sub_modules_sub_module_id");
 
                 b.Navigation("Corporation");
 
@@ -2110,27 +2407,39 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ClaimId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_role_claims_claims_claim_id");
+                    .HasConstraintName("fk_sec_role_claims_sec_claims_claim_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("RoleClaims")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_role_claims_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_role_claims_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Role", "Role")
                     .WithMany("RoleClaims")
                     .HasForeignKey("RoleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_role_claims_roles_role_id");
+                    .HasConstraintName("fk_sec_role_claims_roles_role_id");
 
                 b.Navigation("Claim");
 
                 b.Navigation("Corporation");
 
                 b.Navigation("Role");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.ShowcaseModule", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.ModuleCategory", "Category")
+                    .WithMany("Modules")
+                    .HasForeignKey("CategoryId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_modules_mpx_module_categories_category_id");
+
+                b.Navigation("Category");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.SubModule", b =>
@@ -2140,14 +2449,14 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_security_sub_modules_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_sub_modules_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Module", "Module")
                     .WithMany("SubModules")
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_security_sub_modules_security_modules_module_id");
+                    .HasConstraintName("fk_sec_sub_modules_sec_modules_module_id");
 
                 b.Navigation("Corporation");
 
@@ -2160,13 +2469,13 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .WithMany("Users")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_users_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_users_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.UserStatus", "UserStatus")
                     .WithMany("Users")
                     .HasForeignKey("UserStatusId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_users_user_status_user_status_id");
+                    .HasConstraintName("fk_sec_users_user_status_user_status_id");
 
                 b.Navigation("Corporation");
 
@@ -2180,21 +2489,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ClaimId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_user_claims_claims_claim_id");
+                    .HasConstraintName("fk_sec_user_claims_sec_claims_claim_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("UserClaims")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_user_claims_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_user_claims_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.User", "User")
                     .WithMany("UserClaims")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_user_claims_users_user_id");
+                    .HasConstraintName("fk_sec_user_claims_users_user_id");
 
                 b.Navigation("Claim");
 
@@ -2210,21 +2519,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_user_roles_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_user_roles_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Role", "Role")
                     .WithMany("UserRoles")
                     .HasForeignKey("RoleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_user_roles_roles_role_id");
+                    .HasConstraintName("fk_sec_user_roles_sec_roles_role_id");
 
                 b.HasOne("Mpx.Domain.Entities.User", "User")
                     .WithMany("UserRoles")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_user_roles_users_user_id");
+                    .HasConstraintName("fk_sec_user_roles_sec_users_user_id");
 
                 b.Navigation("Corporation");
 
@@ -2240,7 +2549,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_user_status_corporations_corporation_id");
+                    .HasConstraintName("fk_sec_user_statuses_mpx_corporations_corporation_id");
 
                 b.Navigation("Corporation");
             });
@@ -2252,7 +2561,7 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_workspaces_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_workspaces_mpx_corporations_corporation_id");
 
                 b.Navigation("Corporation");
             });
@@ -2264,21 +2573,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_applications_applications_application_id");
+                    .HasConstraintName("fk_mpx_workspace_applications_mpx_applications_application_id");
 
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
                     .WithMany("WorkspaceApplications")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_applications_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_workspace_applications_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
                     .WithMany("WorkspaceApplications")
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_applications_workspaces_workspace_id");
+                    .HasConstraintName("fk_mpx_workspace_applications_workspaces_workspace_id");
 
                 b.Navigation("Application");
 
@@ -2294,21 +2603,21 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_users_corporations_corporation_id");
+                    .HasConstraintName("fk_mpx_workspace_users_mpx_corporations_corporation_id");
 
                 b.HasOne("Mpx.Domain.Entities.User", "User")
                     .WithMany("WorkspaceUsers")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_users_users_user_id");
+                    .HasConstraintName("fk_mpx_workspace_users_sec_users_user_id");
 
                 b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
                     .WithMany("WorkspaceUsers")
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_workspace_users_workspaces_workspace_id");
+                    .HasConstraintName("fk_mpx_workspace_users_mpx_workspaces_workspace_id");
 
                 b.Navigation("Corporation");
 
@@ -2405,6 +2714,11 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("EmailTo");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.Feature", b =>
+            {
+                b.Navigation("Highlights");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
             {
                 b.Navigation("SubMenus");
@@ -2417,6 +2731,11 @@ partial class MorphusDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Roles");
 
                 b.Navigation("SubModules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.ModuleCategory", b =>
+            {
+                b.Navigation("Modules");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.MorphusApplication", b =>

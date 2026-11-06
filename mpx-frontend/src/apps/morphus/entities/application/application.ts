@@ -28,6 +28,11 @@ export interface MorphusApplicationSubModuleRef {
   icon?: string | null;
   color?: string | null;
   order?: number;
+  routePattern?: string | null;
+  default?: boolean;
+  htmlContent?: string | null;
+  cssContent?: string | null;
+  jsContent?: string | null;
   description?: string | null;
 }
 
@@ -49,4 +54,8 @@ export interface MorphusApplication extends IMorphusApplicationReflected {
   applicationModules?: MorphusApplicationModuleRef[];
   workspace?: Workspace;
   workspaceApplications?: WorkspaceApplication[];
+  trialStartDate?: string | null;
+  trialDays?: number | null;
+  trialUsed?: boolean;
+  sharedWithWorkspaceId?: string | null;
 }

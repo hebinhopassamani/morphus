@@ -159,6 +159,11 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
   public DbSet<EmailCc> EmailsCc { get; set; }
   public DbSet<EmailBcc> EmailsBcc { get; set; }
 
+  public DbSet<Feature> Features { get; set; }
+  public DbSet<FeatureHighlight> FeatureHighlights { get; set; }
+  public DbSet<ModuleCategory> ModuleCategories { get; set; }
+  public DbSet<ShowcaseModule> ShowcaseModules { get; set; }
+
   public async Task<IMorphusTransaction> BeginTransactionAsync()
   {
     var efTransaction = await Database.BeginTransactionAsync();

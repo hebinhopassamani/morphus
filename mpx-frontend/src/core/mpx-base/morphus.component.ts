@@ -128,6 +128,7 @@ export abstract class MorphusComponent<
         val !== undefined &&
         val !== null &&
         val !== '' &&
+        String(val).toLowerCase() !== 'new' &&
         String(val) !== MORPHUS_EMPTY_GUID
       );
     });
@@ -187,7 +188,7 @@ export abstract class MorphusComponent<
         map.get(routeParamName) ??
         map.get(String(key)) ??
         (map.keys[index] ? map.get(map.keys[index]) : null);
-      if (val !== null) {
+      if (val !== null && val.toLowerCase() !== 'new' && val !== MORPHUS_EMPTY_GUID) {
         pkObject[key] = val as T[keyof T];
       }
     });

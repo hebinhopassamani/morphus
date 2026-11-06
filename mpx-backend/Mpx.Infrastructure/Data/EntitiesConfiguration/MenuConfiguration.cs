@@ -8,6 +8,7 @@ public class MenuConfiguration : IEntityTypeConfiguration<Menu>
 {
   public void Configure(EntityTypeBuilder<Menu> builder)
   {
+    builder.ToTable("mpx_menus");
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Label).IsRequired().HasMaxLength(150);
     builder.Property(b => b.ApplicationId).IsRequired();

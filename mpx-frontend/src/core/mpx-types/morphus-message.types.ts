@@ -18,6 +18,10 @@ export type ResultType = 'CONFIRM' | 'CLOSE';
 export type MessageResult = 'confirm' | 'close' | ResultType;
 
 export type MorphusMessageType =
+  | 'NORMAL'
+  | 'SESSION_EXPIRED'
+  | 'LOGIN'
+  | 'LOGOUT'
   | 'normal'
   | 'none'
   | 'login'

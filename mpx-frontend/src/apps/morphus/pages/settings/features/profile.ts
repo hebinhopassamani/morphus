@@ -72,6 +72,7 @@ import { SettingsUpdateEmail } from '@morphus/pages/settings/ui/update-email';
               <img
                 class="size-16 shrink-0 rounded-full object-cover"
                 [src]="profileForm.photo().value()"
+                referrerpolicy="no-referrer"
                 alt="Profile photo"
               />
             } @else {

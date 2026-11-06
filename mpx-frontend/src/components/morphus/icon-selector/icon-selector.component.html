@@ -1,10 +1,14 @@
 <mat-form-field
   class="mpx-icon-field"
+  [class.small]="!label()"
+   subscriptSizing="dynamic"
   [matMenuTriggerFor]="iconSelectorMenu"
   (mousedown)="syncPanelWidth()"
   (menuOpened)="syncPanelWidth()"
 >
-  <mat-label>{{ label() }}</mat-label>
+  @if (label()) {
+    <mat-label>{{ label() }}</mat-label>
+  }
   <mat-icon
     matIconPrefix
     [svgIcon]="value() || defaultIcon()"
