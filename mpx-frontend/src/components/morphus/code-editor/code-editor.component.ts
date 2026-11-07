@@ -178,6 +178,20 @@ export class MpxCodeEditorComponent implements AfterViewInit, OnChanges, OnDestr
     this.recalculateHeight();
   }
 
+  @HostListener('keydown', ['$event'])
+  protected onHostKeydown(event: KeyboardEvent): void {
+    const key = (event.key || '').toLowerCase();
+    // Atalho padrão VS Code (Shift + Alt + F) ou alternativo (Ctrl + Shift + F) para Formatar com Prettier
+    if (
+      (event.shiftKey && event.altKey && key === 'f') ||
+      ((event.ctrlKey || event.metaKey) && event.shiftKey && key === 'f')
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      void this.formatDocument();
+    }
+  }
+
   protected togglePrettierConfig(forceValue?: boolean): void {
     const next = forceValue !== undefined ? forceValue : !this.showPrettierConfig();
     this.showPrettierConfig.set(next);
@@ -482,6 +496,21 @@ export class MpxCodeEditorComponent implements AfterViewInit, OnChanges, OnDestr
         this.value = val;
         this.valueChange.emit(val);
       });
+
+      if (monaco.KeyMod && monaco.KeyCode) {
+        this.editorInstance.addCommand(
+          monaco.KeyMod.Shift | monaco.KeyMod.Alt | monaco.KeyCode.KeyF,
+          () => {
+            void this.formatDocument();
+          },
+        );
+        this.editorInstance.addCommand(
+          monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF,
+          () => {
+            void this.formatDocument();
+          },
+        );
+      }
 
       this.monacoReady.set(true);
     } catch {

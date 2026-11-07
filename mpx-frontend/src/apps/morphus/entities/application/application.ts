@@ -25,6 +25,7 @@ export interface MorphusApplicationSubModuleRef {
   key: string;
   name: string;
   label: string;
+  applicationModuleId?: string | null;
   icon?: string | null;
   color?: string | null;
   order?: number;

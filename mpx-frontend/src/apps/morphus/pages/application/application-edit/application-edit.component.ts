@@ -1,4 +1,15 @@
-import { computed, Component, HostListener, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  computed,
+  Component,
+  effect,
+  ElementRef,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  ViewChild,
+} from '@angular/core';
 import { SafeHtml } from '@angular/platform-browser';
 import { firstValueFrom } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -23,9 +34,21 @@ import { ApplicationUser } from '@morphus/entities/application-user';
 import { ApplicationUserService } from '@morphus/services/application-user.service';
 import { ApplicationService } from '@morphus/services/application.service';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { AppBuilderSanitizerService } from '@app-builder/services';
+import { AppBuilderRuntimeStoreService, AppBuilderSanitizerService } from '@app-builder/services';
 import { User } from '@security/entities/user';
 import { ApplicationValidator } from '../validators/application.validator';
+
+export type VisualInspectorTargetType = 'field' | 'form' | 'table' | 'kpi' | 'hero';
+export type VisualFieldType =
+  | 'text'
+  | 'currency'
+  | 'number'
+  | 'date'
+  | 'select'
+  | 'checkbox'
+  | 'radio'
+  | 'textarea';
+
 
 @Component({
   selector: 'mpx-application-edit',
@@ -63,6 +86,70 @@ export class ApplicationEditComponent
   private readonly applicationUserService = inject(ApplicationUserService);
   private readonly context = inject(MorphusContextService);
   private readonly sanitizer = inject(AppBuilderSanitizerService);
+  private readonly runtimeStore = inject(AppBuilderRuntimeStoreService);
+
+  @ViewChild('visualPreviewCanvas') private visualPreviewCanvasRef?: ElementRef<HTMLElement>;
+
+  // Estado do Construtor Visual para Leigos (Inspector no Preview)
+  protected readonly visualInspectorOpen = signal<boolean>(true);
+  protected readonly visualTargetType = signal<VisualInspectorTargetType | null>(null);
+  protected readonly visualFormIndex = signal<number>(0);
+  protected readonly visualFieldIndex = signal<number>(0);
+  protected readonly visualTableIndex = signal<number>(0);
+  protected readonly visualKpiIndex = signal<number>(0);
+  protected readonly visualHeroIndex = signal<number>(0);
+
+  // Propriedades editáveis do Campo selecionado no Formulário
+  protected readonly vFieldLabel = signal<string>('Título');
+  protected readonly vFieldPlaceholder = signal<string>('Digite aqui...');
+  protected readonly vFieldType = signal<VisualFieldType>('text');
+  protected readonly vFieldColSpan = signal<number>(6);
+  protected readonly vFieldRequired = signal<boolean>(false);
+  protected readonly vFieldOptions = signal<string[]>([]);
+  protected readonly vFieldNewOption = signal<string>('');
+  protected readonly vFieldKey = signal<string>('titulo');
+
+  // Propriedades editáveis do Formulário selecionado
+  protected readonly vFormTitle = signal<string>('Novo Registro');
+  protected readonly vFormCollection = signal<string>('contas-pagar');
+  protected readonly vFormButtonText = signal<string>('Salvar Registro');
+
+  // Propriedades editáveis da Tabela selecionada
+  protected readonly vTableCollection = signal<string>('contas-pagar');
+  protected readonly vTableColumns = signal<{ header: string; fieldKey: string }[]>([]);
+  protected readonly vTableNewColHeader = signal<string>('');
+
+  // Propriedades editáveis do Card KPI selecionado
+  protected readonly vKpiTitle = signal<string>('Indicador');
+  protected readonly vKpiValue = signal<string>('R$ 0,00');
+  protected readonly vKpiMode = signal<'sum' | 'count' | 'pending' | 'static'>('sum');
+  protected readonly vKpiColor = signal<'neutral' | 'jade' | 'amber' | 'violet' | 'red'>('neutral');
+
+  // Propriedades editáveis do Cabeçalho (Hero) selecionado
+  protected readonly vHeroBadge = signal<string>('Módulo Ativo');
+  protected readonly vHeroTitle = signal<string>('Título Principal da Página');
+  protected readonly vHeroSubtitle = signal<string>(
+    'Subtítulo explicativo desta área da aplicação.',
+  );
+
+  protected readonly availableCollections = computed(() => this.runtimeStore.defaultCollections);
+  protected readonly colSpanChoices: { span: number; label: string; desc: string }[] = [
+    { span: 3, label: '25%', desc: '4 por linha' },
+    { span: 4, label: '33%', desc: '3 por linha' },
+    { span: 6, label: '50%', desc: '2 por linha' },
+    { span: 9, label: '75%', desc: '3/4 da linha' },
+    { span: 12, label: '100%', desc: 'Linha inteira' },
+  ];
+  protected readonly fieldTypeChoices: { type: VisualFieldType; label: string }[] = [
+    { type: 'text', label: 'Texto Curto' },
+    { type: 'currency', label: 'Moeda (R$)' },
+    { type: 'number', label: 'Número' },
+    { type: 'date', label: 'Data' },
+    { type: 'select', label: 'Combo (Lista com botão +)' },
+    { type: 'checkbox', label: 'Checkbox (Sim / Não)' },
+    { type: 'radio', label: 'Radio (Escolha Única)' },
+    { type: 'textarea', label: 'Texto Longo (Observações)' },
+  ];
 
   protected readonly selectedTabIndex = signal<number>(0);
   protected readonly existingApplications = signal<MorphusApplication[]>([]);
@@ -71,7 +158,7 @@ export class ApplicationEditComponent
   protected readonly expandedModuleIds = signal<Set<string>>(new Set());
   protected readonly selectedModuleId = signal<string>('');
   protected readonly newModuleName = signal<string>('');
-  protected readonly newModuleIcon = signal<string>('layers');
+  protected readonly newModuleIcon = signal<string>('');
   protected readonly editingModule = signal<Partial<MorphusApplicationModuleRef> | null>(null);
   protected readonly savingModule = signal<boolean>(false);
   protected readonly inlineEditPage = signal<
@@ -79,6 +166,29 @@ export class ApplicationEditComponent
   >(null);
   protected readonly inlineRouteManuallyEdited = signal<boolean>(false);
   protected readonly selectedPage = signal<Partial<MorphusApplicationSubModuleRef> | null>(null);
+
+  // Estado de Drag & Drop e Histórico (Ctrl+Z / Ctrl+Y) da árvore de Menus
+  protected readonly draggingMenuItem = signal<{
+    type: 'module' | 'submodule';
+    id: string;
+    parentModuleId?: string;
+  } | null>(null);
+  protected readonly dragOverMenuTarget = signal<{
+    type: 'module' | 'submodule';
+    id: string;
+    parentModuleId?: string;
+    position: 'before' | 'after';
+  } | null>(null);
+  protected readonly menuUndoStack = signal<MorphusApplicationModuleRef[][]>([]);
+  protected readonly menuRedoStack = signal<MorphusApplicationModuleRef[][]>([]);
+  private dragAutoScrollTimer: any = null;
+  private lastDragClientY = 0;
+
+  protected readonly canCreateModule = computed(() => {
+    const icon = (this.newModuleIcon() ?? '').trim();
+    const name = (this.newModuleName() ?? '').trim();
+    return icon.length > 0 && name.length > 0 && name.length <= 20 && !this.savingModule();
+  });
 
   protected readonly inlinePageNameConflict = computed(() => {
     const row = this.inlineEditPage();
@@ -137,7 +247,12 @@ export class ApplicationEditComponent
   });
   protected readonly menusPanelOpen = signal<boolean>(false);
   protected readonly pageConfigOpen = signal<boolean>(false);
-  protected readonly studioViewMode = signal<'code' | 'split' | 'preview'>('code');
+  protected readonly studioViewMode = signal<'code' | 'split' | 'preview'>('preview');
+  protected readonly visualDragSource = signal<{
+    kind: 'block' | 'field' | 'kpi';
+    formIdx?: number;
+    index: number;
+  } | null>(null);
   protected readonly htmlUndoStack = signal<string[]>([]);
   protected readonly htmlRedoStack = signal<string[]>([]);
   protected readonly initialPageHtml = signal<string>('');
@@ -150,6 +265,9 @@ export class ApplicationEditComponent
     }
     const tabIdx = this.selectedTabIndex();
     const appName = this.entity().name || 'Aplicação';
+    if (tabIdx === 1) {
+      return 'Gerenciar usuários da aplicação';
+    }
     if (tabIdx === 2) {
       return 'Monte o menu de sua aplicação';
     }
@@ -158,6 +276,20 @@ export class ApplicationEditComponent
       return `Você está editando a página ${pageName} da aplicação ${appName}`;
     }
     return `Editar Aplicação: ${appName}`;
+  });
+
+  protected readonly dynamicHeaderSubtitle = computed(() => {
+    if (this.isNew) {
+      return this.title2();
+    }
+    const tabIdx = this.selectedTabIndex();
+    if (tabIdx === 1) {
+      return 'Defina aqui quais usuários podem acessar esta aplicação.';
+    }
+    if (tabIdx === 2) {
+      return 'E vincule-o a uma pagina.';
+    }
+    return this.title2();
   });
 
   protected readonly selectedModule = computed(() => {
@@ -267,6 +399,16 @@ export class ApplicationEditComponent
 
   constructor() {
     super(ApplicationValidator);
+    effect(() => {
+      const _html = this.livePreviewHtml();
+      const _mode = this.studioViewMode();
+      const _type = this.visualTargetType();
+      const _fIdx = this.visualFieldIndex();
+      const _kIdx = this.visualKpiIndex();
+      setTimeout(() => {
+        this.applyVisualPreviewHighlight();
+      }, 30);
+    });
   }
 
   ngOnInit(): void {
@@ -284,6 +426,7 @@ export class ApplicationEditComponent
   }
 
   ngOnDestroy(): void {
+    this.stopDragAutoScroll();
     this.context.setSidebarForceCollapsed(false);
     this.destroySubscriptions();
   }
@@ -697,6 +840,11 @@ export class ApplicationEditComponent
 
   toggleRelated(rel: ApplicationUser): void {
     if (!this.canRemoveUser(rel) || !rel.userId) {
+      if (rel.isOwner || rel.system) {
+        this.messageService.showWarn(
+          'O proprietário ou usuário de sistema da aplicação não pode ter o acesso removido.',
+        );
+      }
       return;
     }
     this.selectedRelatedIds.update((curr) => {
@@ -717,6 +865,12 @@ export class ApplicationEditComponent
 
   toggleSelectAllRelated(): void {
     const removable = this.filteredRelatedUsers().filter((r) => this.canRemoveUser(r));
+    if (removable.length === 0 && this.filteredRelatedUsers().length > 0) {
+      this.messageService.showWarn(
+        'Apenas usuários não proprietários podem ser selecionados para remoção de acesso.',
+      );
+      return;
+    }
     const allSelected = this.areAllRelatedSelected();
     this.selectedRelatedIds.update((curr) => {
       const next = new Set(curr);
@@ -762,6 +916,9 @@ export class ApplicationEditComponent
 
   async removeSingleUser(rel: ApplicationUser): Promise<void> {
     if (!this.canRemoveUser(rel)) {
+      this.messageService.showWarn(
+        'O proprietário ou usuário de sistema da aplicação não pode ter o acesso removido.',
+      );
       return;
     }
     await firstValueFrom(
@@ -942,6 +1099,7 @@ export class ApplicationEditComponent
       name: mod.label || mod.name,
       icon: mod.icon || 'layers',
     });
+    this.focusInlineMenuInput();
   }
 
   protected cancelModuleEdit(): void {
@@ -958,6 +1116,7 @@ export class ApplicationEditComponent
       name: sub.label || sub.name,
       icon: sub.icon || 'file-text',
     });
+    this.focusInlineMenuInput();
   }
 
   protected startInlineNewPage(modId: string): void {
@@ -977,6 +1136,22 @@ export class ApplicationEditComponent
       description: 'Página da aplicação carregada do banco de dados',
       htmlContent: defaultHtml,
     });
+    this.focusInlineMenuInput(true);
+  }
+
+  private focusInlineMenuInput(scrollIntoView = false): void {
+    setTimeout(() => {
+      const inputEl = document.querySelector<HTMLInputElement>(
+        'input[placeholder*="Nome do menu"], input[placeholder*="Nome do submenu"], input[placeholder*="Nome do novo submenu"]',
+      );
+      if (inputEl) {
+        if (scrollIntoView) {
+          inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        inputEl.focus();
+        inputEl.select();
+      }
+    }, 30);
   }
 
   protected cancelInlinePageEdit(): void {
@@ -988,15 +1163,16 @@ export class ApplicationEditComponent
     if (field === 'routePattern') {
       this.inlineRouteManuallyEdited.set(value.trim().length > 0);
     }
+    const cleanVal = field === 'name' ? (value ?? '').slice(0, 20) : value;
     this.inlineEditPage.update((curr) => {
       if (!curr) {
         return curr;
       }
-      const next = { ...curr, [field]: value };
+      const next = { ...curr, [field]: cleanVal };
       if (field === 'name') {
-        next.label = value;
+        next.label = cleanVal;
         if (!this.inlineRouteManuallyEdited()) {
-          const slug = (value || '')
+          const slug = (cleanVal || '')
             .normalize('NFD')
             .replace(/[\u0300-\u036f]/g, '')
             .toLowerCase()
@@ -1017,10 +1193,12 @@ export class ApplicationEditComponent
     }
     this.savingPage.set(true);
     try {
+      const cleanName = (row.name ?? '').trim().slice(0, 20);
       const saved = await firstValueFrom(
         this.applicationService.savePage(row.moduleId, {
           ...row,
-          label: row.name,
+          name: cleanName,
+          label: cleanName,
         }),
       );
       this.inlineEditPage.set(null);
@@ -1028,7 +1206,6 @@ export class ApplicationEditComponent
       this.syncModulesAndDefaultPage(reloaded.applicationModules ?? []);
       this.selectPageForEdit(row.moduleId, saved);
       this.context.loadWorkspaces();
-      this.messageService.showSuccess(`Página "${saved.label || saved.name}" salva com sucesso!`);
     } finally {
       this.savingPage.set(false);
     }
@@ -1043,13 +1220,15 @@ export class ApplicationEditComponent
     field: K,
     value: MorphusApplicationModuleRef[K],
   ): void {
+    const cleanVal =
+      field === 'name' ? (String(value ?? '').slice(0, 20) as MorphusApplicationModuleRef[K]) : value;
     this.editingModule.update((curr) => {
       if (!curr) {
         return curr;
       }
-      const next = { ...curr, [field]: value };
+      const next = { ...curr, [field]: cleanVal };
       if (field === 'name') {
-        next.label = String(value || '');
+        next.label = String(cleanVal || '');
       }
       return next;
     });
@@ -1063,10 +1242,12 @@ export class ApplicationEditComponent
     }
     this.savingModule.set(true);
     try {
-      const saved = await firstValueFrom(
+      const cleanName = mod.name.trim().slice(0, 20);
+      await firstValueFrom(
         this.applicationService.saveModule(appId, {
           ...mod,
-          label: mod.name,
+          name: cleanName,
+          label: cleanName,
         }),
       );
       const reloaded = await firstValueFrom(this.applicationService.getById(appId));
@@ -1075,7 +1256,6 @@ export class ApplicationEditComponent
       );
       this.editingModule.set(null);
       this.context.loadWorkspaces();
-      this.messageService.showSuccess(`Menu "${saved.label || saved.name}" salvo com sucesso!`);
     } finally {
       this.savingModule.set(false);
     }
@@ -1095,9 +1275,6 @@ export class ApplicationEditComponent
         const reloaded = await firstValueFrom(this.applicationService.getById(appId));
         this.syncModulesAndDefaultPage(reloaded.applicationModules ?? []);
         this.context.loadWorkspaces();
-        setTimeout(() => {
-          this.messageService.showSuccess(`O menu "${menuName}" foi excluído com sucesso!`);
-        }, 150);
       },
     );
   }
@@ -1236,14 +1413,39 @@ export class ApplicationEditComponent
 
   @HostListener('window:keydown', ['$event'])
   protected onGlobalKeydown(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+      return;
+    }
+    if (this.selectedTabIndex() === 2) {
+      this.onMenusKeydown(event);
+      return;
+    }
     if (this.selectedTabIndex() !== 3 || !this.selectedPage()) {
       return;
     }
-    const target = event.target as HTMLElement | null;
-    if (target && target.tagName === 'INPUT') {
+    this.onHtmlEditorKeydown(event);
+  }
+
+  protected onMenusKeydown(event: KeyboardEvent): void {
+    const isCtrlOrMeta = event.ctrlKey || event.metaKey;
+    if (!isCtrlOrMeta) {
       return;
     }
-    this.onHtmlEditorKeydown(event);
+    const key = event.key.toLowerCase();
+    if (key === 'z') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.shiftKey) {
+        void this.redoMenuStructure();
+      } else {
+        void this.undoMenuStructure();
+      }
+    } else if (key === 'y') {
+      event.preventDefault();
+      event.stopPropagation();
+      void this.redoMenuStructure();
+    }
   }
 
   protected onHtmlEditorKeydown(event: KeyboardEvent): void {
@@ -1298,11 +1500,12 @@ export class ApplicationEditComponent
   }
 
   protected insertHtmlBlock(blockType: 'hero' | 'kpi' | 'table' | 'form'): void {
+    const defaultCol = this.inferPageDefaultCollection();
     const blocks: Record<'hero' | 'kpi' | 'table' | 'form', string> = {
-      hero: `\n<div class="rounded-3xl border border-primary-a5 bg-primary-a2 p-8 shadow-sm">\n  <div class="inline-flex items-center gap-2 rounded-full bg-primary-a3 px-3 py-1 text-xs font-semibold text-primary-a11">Módulo Ativo</div>\n  <h1 class="mt-3 text-2xl font-bold text-neutral-12">Título Principal da Página</h1>\n  <p class="mt-1 text-sm text-neutral-a11">Subtítulo explicativo desta área da aplicação.</p>\n</div>\n`,
-      kpi: `\n<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">\n  <div class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Indicador 1</span>\n    <div class="mt-2 text-2xl font-bold text-neutral-12">R$ 128.450,00</div>\n  </div>\n  <div class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Indicador 2</span>\n    <div class="mt-2 text-2xl font-bold text-jade-a11">42 concluídos</div>\n  </div>\n  <div class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Indicador 3</span>\n    <div class="mt-2 text-2xl font-bold text-amber-a11">5 pendentes</div>\n  </div>\n</div>\n`,
-      table: `\n<div class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-neutral-1">\n  <table class="w-full text-left text-sm">\n    <thead class="border-b border-neutral-a4 bg-neutral-a2 text-xs uppercase text-neutral-a11">\n      <tr>\n        <th class="px-4 py-3">Código</th>\n        <th class="px-4 py-3">Descrição</th>\n        <th class="px-4 py-3">Status</th>\n      </tr>\n    </thead>\n    <tbody class="divide-y divide-neutral-a3">\n      <tr>\n        <td class="px-4 py-3 font-mono text-xs">#001</td>\n        <td class="px-4 py-3 font-medium text-neutral-12">Registro Exemplo</td>\n        <td class="px-4 py-3"><span class="rounded-md bg-jade-a3 px-2 py-0.5 text-xs font-semibold text-jade-a11">Ativo</span></td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n`,
-      form: `\n<form class="mt-6 flex flex-col gap-4 rounded-2xl border border-neutral-a4 bg-neutral-1 p-6">\n  <h3 class="text-lg font-bold text-neutral-12">Novo Registro</h3>\n  <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">\n    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Título\n      <input type="text" placeholder="Digite aqui..." class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />\n    </label>\n    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Valor\n      <input type="text" placeholder="R$ 0,00" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />\n    </label>\n  </div>\n  <div class="flex justify-end">\n    <button type="button" class="rounded-xl bg-primary-9 px-4 py-2 text-xs font-semibold text-white">Salvar</button>\n  </div>\n</form>\n`,
+      hero: `\n<div data-mpx-block="hero" class="rounded-3xl border border-primary-a5 bg-primary-a2 p-8 shadow-sm">\n  <div class="inline-flex items-center gap-2 rounded-full bg-primary-a3 px-3 py-1 text-xs font-semibold text-primary-a11">Módulo Ativo</div>\n  <h1 class="mt-3 text-2xl font-bold text-neutral-12">Título Principal da Página</h1>\n  <p class="mt-1 text-sm text-neutral-a11">Subtítulo explicativo desta área da aplicação.</p>\n</div>\n`,
+      kpi: `\n<div data-mpx-block="kpi" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">\n  <div data-mpx-kpi-mode="sum" data-mpx-kpi-field="valor" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Total Financeiro</span>\n    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-neutral-12">R$ 24.670,00</div>\n  </div>\n  <div data-mpx-kpi-mode="count" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Total de Registros</span>\n    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-jade-a11">3 registro(s)</div>\n  </div>\n  <div data-mpx-kpi-mode="pending" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">\n    <span class="text-xs font-medium text-neutral-a10">Pendentes de Aprovação</span>\n    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-amber-a11">1 pendente(s)</div>\n  </div>\n</div>\n`,
+      table: `\n<div data-mpx-block="table" data-mpx-collection="${defaultCol}" class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-neutral-1">\n  <table data-mpx-collection="${defaultCol}" class="w-full text-left text-sm">\n    <thead class="border-b border-neutral-a4 bg-neutral-a2 text-xs uppercase text-neutral-a11">\n      <tr>\n        <th data-mpx-field="codigo" class="px-4 py-3">Código</th>\n        <th data-mpx-field="titulo" class="px-4 py-3">Título</th>\n        <th data-mpx-field="categoria" class="px-4 py-3">Categoria</th>\n        <th data-mpx-field="vencimento" class="px-4 py-3">Vencimento</th>\n        <th data-mpx-field="valor" class="px-4 py-3">Valor</th>\n        <th data-mpx-field="status" class="px-4 py-3">Status</th>\n      </tr>\n    </thead>\n    <tbody class="divide-y divide-neutral-a3">\n      <tr>\n        <td class="px-4 py-3 font-mono text-xs">#001</td>\n        <td class="px-4 py-3 font-medium text-neutral-12">Fatura Servidores Cloud AWS</td>\n        <td class="px-4 py-3 text-neutral-11">Infraestrutura Cloud</td>\n        <td class="px-4 py-3 text-neutral-11">2026-11-15</td>\n        <td class="px-4 py-3 font-semibold text-neutral-12">R$ 14.850,00</td>\n        <td class="px-4 py-3"><span class="rounded-md bg-jade-a3 px-2 py-0.5 text-xs font-semibold text-jade-a11">Pago</span></td>\n      </tr>\n    </tbody>\n  </table>\n</div>\n`,
+      form: `\n<form data-mpx-block="form" data-mpx-collection="${defaultCol}" class="mt-6 flex flex-col gap-4 rounded-2xl border border-neutral-a4 bg-neutral-1 p-6">\n  <h3 class="text-lg font-bold text-neutral-12">Novo Registro</h3>\n  <div data-mpx-form-grid class="grid grid-cols-12 gap-4">\n    <label data-mpx-col-span="6" class="col-span-12 sm:col-span-6 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Título *\n      <input type="text" name="titulo" data-mpx-field="titulo" data-mpx-type="text" required placeholder="Ex: Fatura Servidores Cloud..." class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />\n    </label>\n    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Categoria\n      <select name="categoria" data-mpx-field="categoria" data-mpx-combo-key="categoria" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">\n        <option value="Infraestrutura Cloud">Infraestrutura Cloud</option>\n        <option value="Licenças de Software">Licenças de Software</option>\n        <option value="Serviços Contábeis">Serviços Contábeis</option>\n      </select>\n    </label>\n    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Valor (R$) *\n      <input type="text" name="valor" data-mpx-field="valor" data-mpx-type="currency" required placeholder="R$ 0,00" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />\n    </label>\n    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Vencimento\n      <input type="date" name="vencimento" data-mpx-field="vencimento" data-mpx-type="date" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />\n    </label>\n    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Forma de Pagamento\n      <select name="forma_pagamento" data-mpx-field="forma_pagamento" data-mpx-combo-key="forma_pagamento" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">\n        <option value="PIX Corporativo">PIX Corporativo</option>\n        <option value="Boleto Bancário">Boleto Bancário</option>\n        <option value="Transferência TED">Transferência TED</option>\n      </select>\n    </label>\n    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">\n      Status\n      <select name="status" data-mpx-field="status" data-mpx-combo-key="status" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">\n        <option value="Pendente">Pendente</option>\n        <option value="Aprovado">Aprovado</option>\n        <option value="Pago">Pago</option>\n      </select>\n    </label>\n  </div>\n  <div class="flex justify-end">\n    <button type="submit" class="rounded-xl bg-primary-9 px-4 py-2 text-xs font-semibold text-white">Salvar Registro</button>\n  </div>\n</form>\n`,
     };
 
     this.selectedPage.update((curr) => {
@@ -1315,30 +1518,1725 @@ export class ApplicationEditComponent
       const blockClean = blocks[blockType].trim();
       return {
         ...curr,
-        htmlContent: base ? `${base}\n\n${blockClean}\n` : `${blockClean}\n`,
+        htmlContent: formatHtmlPretty(base ? `${base}\n\n${blockClean}\n` : `${blockClean}\n`),
       };
     });
+
+    setTimeout(() => {
+      if (blockType === 'form') {
+        this.selectVisualForm(0);
+      } else if (blockType === 'table') {
+        this.selectVisualTable(0);
+      } else if (blockType === 'kpi') {
+        this.selectVisualKpi(0);
+      } else if (blockType === 'hero') {
+        this.selectVisualHero(0);
+      }
+    }, 50);
+  }
+
+  // ============================================================================
+  // MOTOR DO CONSTRUTOR VISUAL PARA LEIGOS (EDIÇÃO DIRETA NO PREVIEW SEM HTML)
+  // ============================================================================
+
+  private inferPageDefaultCollection(): string {
+    const slug = (
+      this.selectedPage()?.routePattern ||
+      this.selectedPage()?.name ||
+      ''
+    ).toLowerCase();
+    if (slug.includes('nota') || slug.includes('nf')) {
+      return 'notas-fiscais';
+    }
+    if (slug.includes('fornecedor')) {
+      return 'fornecedores';
+    }
+    return 'contas-pagar';
+  }
+
+  protected generateCompleteStarterTemplate(templateKind: 'contas-pagar' | 'notas-fiscais'): void {
+    const isNF = templateKind === 'notas-fiscais';
+    const colKey = isNF ? 'notas-fiscais' : 'contas-pagar';
+    const badge = isNF ? 'Módulo Fiscal & Entrada' : 'Módulo Financeiro';
+    const title = isNF ? 'Gestão de Notas Fiscais' : 'Contas a Pagar';
+    const subtitle = isNF
+      ? 'Cadastre notas fiscais, gerencie fornecedores e acompanhe os valores aprovados.'
+      : 'Controle vencimentos, categorias, formas de pagamento e baixas financeiras.';
+
+    const html = `
+<div data-mpx-block="hero" class="rounded-3xl border border-primary-a5 bg-primary-a2 p-8 shadow-sm">
+  <div class="inline-flex items-center gap-2 rounded-full bg-primary-a3 px-3 py-1 text-xs font-semibold text-primary-a11">${badge}</div>
+  <h1 class="mt-3 text-2xl font-bold text-neutral-12">${title}</h1>
+  <p class="mt-1 text-sm text-neutral-a11">${subtitle}</p>
+</div>
+
+<div data-mpx-block="kpi" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+  <div data-mpx-kpi-mode="sum" data-mpx-kpi-field="valor" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">
+    <span class="text-xs font-medium text-neutral-a10">Volume Financeiro Total</span>
+    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-neutral-12">R$ 24.670,00</div>
+  </div>
+  <div data-mpx-kpi-mode="count" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">
+    <span class="text-xs font-medium text-neutral-a10">${isNF ? 'Notas Lançadas' : 'Títulos Cadastrados'}</span>
+    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-jade-a11">3 registro(s)</div>
+  </div>
+  <div data-mpx-kpi-mode="pending" class="rounded-2xl border border-neutral-a4 bg-neutral-1 p-5">
+    <span class="text-xs font-medium text-neutral-a10">Pendentes</span>
+    <div data-mpx-kpi-value class="mt-2 text-2xl font-bold text-amber-a11">1 pendente(s)</div>
+  </div>
+</div>
+
+<form data-mpx-block="form" data-mpx-collection="${colKey}" class="mt-6 flex flex-col gap-4 rounded-2xl border border-neutral-a4 bg-neutral-1 p-6">
+  <h3 class="text-lg font-bold text-neutral-12">${isNF ? 'Lançar Nova Nota Fiscal' : 'Novo Lançamento no Contas a Pagar'}</h3>
+  <div data-mpx-form-grid class="grid grid-cols-12 gap-4">
+    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      ${isNF ? 'Número da NF *' : 'Título / Descrição *'}
+      <input type="text" name="${isNF ? 'numero_nf' : 'titulo'}" data-mpx-field="${isNF ? 'numero_nf' : 'titulo'}" data-mpx-type="text" required placeholder="${isNF ? 'Ex: NF-2026/00485' : 'Ex: Fatura Cloud AWS'}" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />
+    </label>
+    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      Fornecedor *
+      <select name="fornecedor" data-mpx-field="fornecedor" data-mpx-combo-key="fornecedor" data-mpx-type="select" required class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">
+        <option value="Amazon AWS Brasil">Amazon AWS Brasil</option>
+        <option value="Microsoft Cloud">Microsoft Cloud</option>
+        <option value="Contabilidade Prime">Contabilidade Prime</option>
+      </select>
+    </label>
+    <label data-mpx-col-span="4" class="col-span-12 sm:col-span-4 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      Categoria
+      <select name="categoria" data-mpx-field="categoria" data-mpx-combo-key="categoria" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">
+        <option value="Infraestrutura Cloud">Infraestrutura Cloud</option>
+        <option value="Licenças de Software">Licenças de Software</option>
+        <option value="Serviços Contábeis">Serviços Contábeis</option>
+      </select>
+    </label>
+    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      ${isNF ? 'CNPJ do Emitente' : 'Forma de Pagamento'}
+      ${
+        isNF
+          ? '<input type="text" name="cnpj" data-mpx-field="cnpj" data-mpx-type="text" placeholder="00.000.000/0001-00" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />'
+          : '<select name="forma_pagamento" data-mpx-field="forma_pagamento" data-mpx-combo-key="forma_pagamento" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12"><option value="PIX Corporativo">PIX Corporativo</option><option value="Boleto Bancário">Boleto Bancário</option><option value="Transferência TED">Transferência TED</option></select>'
+      }
+    </label>
+    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      ${isNF ? 'Data de Emissão' : 'Vencimento'}
+      <input type="date" name="${isNF ? 'data_emissao' : 'vencimento'}" data-mpx-field="${isNF ? 'data_emissao' : 'vencimento'}" data-mpx-type="date" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />
+    </label>
+    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      Valor (R$) *
+      <input type="text" name="valor" data-mpx-field="valor" data-mpx-type="currency" required placeholder="R$ 0,00" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12" />
+    </label>
+    <label data-mpx-col-span="3" class="col-span-12 sm:col-span-3 flex flex-col gap-1 text-xs font-semibold text-neutral-a11">
+      Status
+      <select name="status" data-mpx-field="status" data-mpx-combo-key="status" data-mpx-type="select" class="rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12">
+        <option value="Pendente">Pendente</option>
+        <option value="Aprovado">Aprovado</option>
+        <option value="Pago">Pago</option>
+      </select>
+    </label>
+  </div>
+  <div class="flex justify-end">
+    <button type="submit" class="rounded-xl bg-primary-9 px-4 py-2 text-xs font-semibold text-white">Salvar Registro</button>
+  </div>
+</form>
+
+<div data-mpx-block="table" data-mpx-collection="${colKey}" class="mt-6 overflow-hidden rounded-2xl border border-neutral-a4 bg-neutral-1">
+  <table data-mpx-collection="${colKey}" class="w-full text-left text-sm">
+    <thead class="border-b border-neutral-a4 bg-neutral-a2 text-xs uppercase text-neutral-a11">
+      <tr>
+        <th data-mpx-field="codigo" class="px-4 py-3">Código</th>
+        <th data-mpx-field="${isNF ? 'numero_nf' : 'titulo'}" class="px-4 py-3">${isNF ? 'Número da NF' : 'Título'}</th>
+        <th data-mpx-field="fornecedor" class="px-4 py-3">Fornecedor</th>
+        <th data-mpx-field="categoria" class="px-4 py-3">Categoria</th>
+        <th data-mpx-field="${isNF ? 'data_emissao' : 'vencimento'}" class="px-4 py-3">${isNF ? 'Emissão' : 'Vencimento'}</th>
+        <th data-mpx-field="valor" class="px-4 py-3">Valor</th>
+        <th data-mpx-field="status" class="px-4 py-3">Status</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-neutral-a3">
+      <tr>
+        <td class="px-4 py-3 font-mono text-xs">#001</td>
+        <td class="px-4 py-3 font-medium text-neutral-12">${isNF ? 'NF-2026/00481' : 'Fatura Servidores Cloud AWS'}</td>
+        <td class="px-4 py-3 text-neutral-11">Amazon AWS Brasil</td>
+        <td class="px-4 py-3 text-neutral-11">Infraestrutura Cloud</td>
+        <td class="px-4 py-3 text-neutral-11">${isNF ? '2026-11-02' : '2026-11-15'}</td>
+        <td class="px-4 py-3 font-semibold text-neutral-12">R$ 14.850,00</td>
+        <td class="px-4 py-3"><span class="rounded-md bg-jade-a3 px-2 py-0.5 text-xs font-semibold text-jade-a11">Aprovado</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+`;
+    this.commitVisualHtmlMutation(formatHtmlPretty(html.trim()));
+    if (this.studioViewMode() === 'code') {
+      this.studioViewMode.set('preview');
+    }
+    setTimeout(() => {
+      this.selectVisualField(0, 0);
+    }, 50);
+  }
+
+  protected onVisualPreviewSubmit(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  protected onVisualPreviewClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement | null;
+    const canvas = this.visualPreviewCanvasRef?.nativeElement;
+    if (!target || !canvas) {
+      return;
+    }
+
+    // Bloqueia 100% qualquer redirecionamento por link <a> ou submit de <button> dentro do Preview
+    const anchorOrButton = target.closest('a, button');
+    if (anchorOrButton) {
+      event.preventDefault();
+    }
+
+    // 1. Clicou em um Campo (<label>) dentro de um <form>?
+    const labelEl = target.closest('form label') as HTMLLabelElement | null;
+    if (labelEl) {
+      event.stopPropagation();
+      const formEl = labelEl.closest('form')!;
+      const allForms = Array.from(canvas.querySelectorAll('form'));
+      const formIdx = Math.max(0, allForms.indexOf(formEl));
+      const allLabels = Array.from(formEl.querySelectorAll('label'));
+      const fieldIdx = Math.max(0, allLabels.indexOf(labelEl));
+      this.selectVisualField(formIdx, fieldIdx);
+      return;
+    }
+
+    // 2. Clicou em um <form> (fora de um label)?
+    const formEl = target.closest('form') as HTMLFormElement | null;
+    if (formEl) {
+      event.stopPropagation();
+      const allForms = Array.from(canvas.querySelectorAll('form'));
+      const formIdx = Math.max(0, allForms.indexOf(formEl));
+      this.selectVisualForm(formIdx);
+      return;
+    }
+
+    // 3. Clicou em uma <table>?
+    const tableEl = target.closest('table') as HTMLTableElement | null;
+    if (tableEl) {
+      event.stopPropagation();
+      const allTables = Array.from(canvas.querySelectorAll('table'));
+      const tableIdx = Math.max(0, allTables.indexOf(tableEl));
+      this.selectVisualTable(tableIdx);
+      return;
+    }
+
+    // 4. Clicou em um Card KPI?
+    const kpiGrid = target.closest(
+      '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+    ) as HTMLElement | null;
+    if (kpiGrid) {
+      event.stopPropagation();
+      const cards = Array.from(kpiGrid.children) as HTMLElement[];
+      const clickedCard = cards.find((c) => c.contains(target));
+      const kpiIdx = clickedCard ? cards.indexOf(clickedCard) : 0;
+      this.selectVisualKpi(Math.max(0, kpiIdx));
+      return;
+    }
+
+    // 5. Clicou no Cabeçalho (Hero)?
+    const heroEl = target.closest(
+      '[data-mpx-block="hero"], .rounded-3xl',
+    ) as HTMLElement | null;
+    if (heroEl && heroEl.querySelector('h1')) {
+      event.stopPropagation();
+      this.selectVisualHero(0);
+      return;
+    }
+  }
+
+  protected selectVisualField(formIdx: number, fieldIdx: number): void {
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[formIdx] ?? forms[0];
+    if (!form) {
+      return;
+    }
+    const labels = Array.from(form.querySelectorAll('label'));
+    const label = labels[fieldIdx] ?? labels[0];
+    if (!label) {
+      this.selectVisualForm(formIdx);
+      return;
+    }
+
+    this.visualTargetType.set('field');
+    this.visualFormIndex.set(formIdx);
+    this.visualFieldIndex.set(labels.indexOf(label));
+    this.visualInspectorOpen.set(true);
+
+    const rawTitle = this.extractCleanLabelText(label);
+    this.vFieldLabel.set(rawTitle || 'Campo');
+
+    const ctrl = label.querySelector('input, select, textarea') as HTMLElement | null;
+    const colSpan = this.detectElementColSpan(label);
+    this.vFieldColSpan.set(colSpan);
+
+    const isReq =
+      ctrl?.hasAttribute('required') ||
+      ctrl?.getAttribute('data-mpx-required') === 'true' ||
+      rawTitle.endsWith('*');
+    this.vFieldRequired.set(!!isReq);
+
+    const fType = this.detectVisualFieldType(label, ctrl);
+    this.vFieldType.set(fType);
+
+    const key =
+      ctrl?.getAttribute('data-mpx-field') ||
+      ctrl?.getAttribute('name') ||
+      this.runtimeStore.normalizeFieldKey(rawTitle);
+    this.vFieldKey.set(key);
+
+    this.vFieldPlaceholder.set(ctrl?.getAttribute('placeholder') || '');
+
+    if (fType === 'select') {
+      const domOpts = Array.from(label.querySelectorAll('select option'))
+        .map((o) => (o.getAttribute('value') || o.textContent || '').trim())
+        .filter((s) => s.length > 0 && !s.toLowerCase().startsWith('selecione'));
+      const opts = this.runtimeStore.getComboOptions(key, domOpts);
+      this.vFieldOptions.set(opts);
+    } else if (fType === 'radio') {
+      const radios = Array.from(label.querySelectorAll('input[type="radio"]'));
+      const opts = radios
+        .map((r) => (r.getAttribute('value') || '').trim())
+        .filter(Boolean);
+      this.vFieldOptions.set(opts.length > 0 ? opts : ['Opção A', 'Opção B']);
+    } else {
+      this.vFieldOptions.set([]);
+    }
+  }
+
+  protected selectVisualForm(formIdx: number): void {
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[formIdx] ?? forms[0];
+    if (!form) {
+      return;
+    }
+
+    this.visualTargetType.set('form');
+    this.visualFormIndex.set(forms.indexOf(form));
+    this.visualInspectorOpen.set(true);
+
+    const h3 = form.querySelector('h3, h2, h4');
+    this.vFormTitle.set((h3?.textContent || 'Novo Registro').trim());
+
+    const col = form.getAttribute('data-mpx-collection') || this.inferPageDefaultCollection();
+    this.vFormCollection.set(col);
+
+    const btn = Array.from(form.querySelectorAll('button')).find(
+      (b) => !b.hasAttribute('data-mpx-combo-manage'),
+    );
+    this.vFormButtonText.set((btn?.textContent || 'Salvar Registro').trim());
+  }
+
+  protected selectVisualTable(tableIdx: number): void {
+    const doc = this.parseCurrentPageDom();
+    const tables = Array.from(doc.body.querySelectorAll('table'));
+    const table = tables[tableIdx] ?? tables[0];
+    if (!table) {
+      return;
+    }
+
+    this.visualTargetType.set('table');
+    this.visualTableIndex.set(tables.indexOf(table));
+    this.visualInspectorOpen.set(true);
+
+    const wrapper = table.closest('[data-mpx-collection]');
+    const col =
+      table.getAttribute('data-mpx-collection') ||
+      wrapper?.getAttribute('data-mpx-collection') ||
+      this.inferPageDefaultCollection();
+    this.vTableCollection.set(col);
+
+    const ths = Array.from(table.querySelectorAll('thead th')).filter(
+      (th) => !th.hasAttribute('data-mpx-actions-col'),
+    );
+    this.vTableColumns.set(
+      ths.map((th) => {
+        const header = (th.textContent || '').trim();
+        const fieldKey =
+          th.getAttribute('data-mpx-field') || this.runtimeStore.normalizeFieldKey(header);
+        return { header, fieldKey };
+      }),
+    );
+  }
+
+  protected selectVisualKpi(kpiIdx: number): void {
+    const doc = this.parseCurrentPageDom();
+    const grid = doc.body.querySelector(
+      '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+    );
+    if (!grid) {
+      return;
+    }
+    const cards = Array.from(grid.children) as HTMLElement[];
+    const card = cards[kpiIdx] ?? cards[0];
+    if (!card) {
+      return;
+    }
+
+    this.visualTargetType.set('kpi');
+    this.visualKpiIndex.set(cards.indexOf(card));
+    this.visualInspectorOpen.set(true);
+
+    const span = card.querySelector('span');
+    const valDiv = (card.querySelector('[data-mpx-kpi-value]') ||
+      card.querySelector('.text-2xl')) as HTMLElement | null;
+
+    this.vKpiTitle.set((span?.textContent || 'Indicador').trim());
+    this.vKpiValue.set((valDiv?.textContent || 'R$ 0,00').trim());
+
+    const modeAttr = card.getAttribute('data-mpx-kpi-mode') as
+      | 'sum'
+      | 'count'
+      | 'pending'
+      | 'static'
+      | null;
+    this.vKpiMode.set(modeAttr || 'sum');
+
+    const cls = valDiv?.className || '';
+    if (cls.includes('jade')) {
+      this.vKpiColor.set('jade');
+    } else if (cls.includes('amber')) {
+      this.vKpiColor.set('amber');
+    } else if (cls.includes('primary') || cls.includes('violet')) {
+      this.vKpiColor.set('violet');
+    } else if (cls.includes('red')) {
+      this.vKpiColor.set('red');
+    } else {
+      this.vKpiColor.set('neutral');
+    }
+  }
+
+  protected selectVisualHero(heroIdx: number): void {
+    const doc = this.parseCurrentPageDom();
+    const hero =
+      doc.body.querySelector('[data-mpx-block="hero"]') || doc.body.querySelector('.rounded-3xl');
+    if (!hero) {
+      return;
+    }
+
+    this.visualTargetType.set('hero');
+    this.visualHeroIndex.set(heroIdx);
+    this.visualInspectorOpen.set(true);
+
+    const badge = hero.querySelector('.rounded-full');
+    const h1 = hero.querySelector('h1');
+    const p = hero.querySelector('p');
+
+    this.vHeroBadge.set((badge?.textContent || 'Módulo Ativo').trim());
+    this.vHeroTitle.set((h1?.textContent || 'Título Principal').trim());
+    this.vHeroSubtitle.set((p?.textContent || '').trim());
+  }
+
+  protected applyVisualFieldChanges(overrides?: {
+    label?: string;
+    placeholder?: string;
+    type?: VisualFieldType;
+    colSpan?: number;
+    required?: boolean;
+    options?: string[];
+  }): void {
+    if (overrides?.label !== undefined) this.vFieldLabel.set(overrides.label);
+    if (overrides?.placeholder !== undefined) this.vFieldPlaceholder.set(overrides.placeholder);
+    if (overrides?.type !== undefined) this.vFieldType.set(overrides.type);
+    if (overrides?.colSpan !== undefined) this.vFieldColSpan.set(overrides.colSpan);
+    if (overrides?.required !== undefined) this.vFieldRequired.set(overrides.required);
+    if (overrides?.options !== undefined) this.vFieldOptions.set(overrides.options);
+
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[this.visualFormIndex()] ?? forms[0];
+    if (!form) {
+      return;
+    }
+
+    // Garante que o container dos campos use grid de 12 colunas (para 25%, 33%, 50%, 75%, 100%)
+    this.upgradeFormGridTo12Cols(form);
+
+    const labels = Array.from(form.querySelectorAll('label'));
+    const label = labels[this.visualFieldIndex()];
+    if (!label) {
+      return;
+    }
+
+    const cleanLabel = this.vFieldLabel().replace(/\*/g, '').trim() || 'Campo';
+    const fieldKey = this.runtimeStore.normalizeFieldKey(cleanLabel);
+    this.vFieldKey.set(fieldKey);
+
+    const fType = this.vFieldType();
+    const span = this.vFieldColSpan();
+    const isReq = this.vFieldRequired();
+    const placeholder =
+      this.vFieldPlaceholder() ||
+      (fType === 'currency' ? 'R$ 0,00' : 'Digite aqui...');
+
+    let options = this.vFieldOptions();
+    if ((fType === 'select' || fType === 'radio') && options.length === 0) {
+      options = this.runtimeStore.getComboOptions(fieldKey, ['Opção 1', 'Opção 2', 'Opção 3']);
+      this.vFieldOptions.set(options);
+    }
+    if (fType === 'select') {
+      this.runtimeStore.saveComboOptions(fieldKey, options);
+    }
+
+    const newLabelEl = this.buildFormFieldElement(doc, {
+      label: cleanLabel,
+      fieldKey,
+      type: fType,
+      colSpan: span,
+      required: isReq,
+      placeholder,
+      options,
+    });
+
+    label.replaceWith(newLabelEl);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected addComboOptionInInspector(): void {
+    const val = this.vFieldNewOption().trim();
+    if (!val) {
+      return;
+    }
+    const next = Array.from(new Set([...this.vFieldOptions(), val]));
+    this.vFieldNewOption.set('');
+    this.applyVisualFieldChanges({ options: next });
+  }
+
+  protected removeComboOptionInInspector(opt: string): void {
+    const next = this.vFieldOptions().filter((o) => o !== opt);
+    this.applyVisualFieldChanges({ options: next });
+  }
+
+  protected addNewFieldToForm(): void {
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[this.visualFormIndex()] ?? forms[0];
+    if (!form) {
+      this.insertHtmlBlock('form');
+      return;
+    }
+
+    const grid = this.upgradeFormGridTo12Cols(form);
+    const count = grid.querySelectorAll('label').length + 1;
+    const labelName = `Novo Campo ${count}`;
+    const fieldKey = this.runtimeStore.normalizeFieldKey(labelName);
+
+    const newField = this.buildFormFieldElement(doc, {
+      label: labelName,
+      fieldKey,
+      type: 'text',
+      colSpan: 6,
+      required: false,
+      placeholder: 'Digite aqui...',
+      options: [],
+    });
+
+    grid.appendChild(newField);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+
+    const newIdx = grid.querySelectorAll('label').length - 1;
+    setTimeout(() => {
+      this.selectVisualField(this.visualFormIndex(), newIdx);
+    }, 30);
+  }
+
+  protected moveSelectedField(direction: -1 | 1): void {
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[this.visualFormIndex()] ?? forms[0];
+    if (!form) {
+      return;
+    }
+    const labels = Array.from(form.querySelectorAll('label'));
+    const idx = this.visualFieldIndex();
+    const targetIdx = idx + direction;
+    if (idx < 0 || targetIdx < 0 || targetIdx >= labels.length) {
+      return;
+    }
+
+    const currentEl = labels[idx];
+    const targetEl = labels[targetIdx];
+    const parent = currentEl.parentElement;
+    if (!parent) {
+      return;
+    }
+
+    if (direction === -1) {
+      parent.insertBefore(currentEl, targetEl);
+    } else {
+      parent.insertBefore(targetEl, currentEl);
+    }
+
+    this.visualFieldIndex.set(targetIdx);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected removeSelectedField(): void {
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[this.visualFormIndex()] ?? forms[0];
+    if (!form) {
+      return;
+    }
+    const labels = Array.from(form.querySelectorAll('label'));
+    const label = labels[this.visualFieldIndex()];
+    if (!label) {
+      return;
+    }
+    label.remove();
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+
+    const remaining = form.querySelectorAll('label').length;
+    if (remaining > 0) {
+      this.selectVisualField(this.visualFormIndex(), Math.max(0, this.visualFieldIndex() - 1));
+    } else {
+      this.selectVisualForm(this.visualFormIndex());
+    }
+  }
+
+  protected applyVisualFormChanges(overrides?: {
+    title?: string;
+    collection?: string;
+    buttonText?: string;
+  }): void {
+    if (overrides?.title !== undefined) this.vFormTitle.set(overrides.title);
+    if (overrides?.collection !== undefined) this.vFormCollection.set(overrides.collection);
+    if (overrides?.buttonText !== undefined) this.vFormButtonText.set(overrides.buttonText);
+
+    const doc = this.parseCurrentPageDom();
+    const forms = Array.from(doc.body.querySelectorAll('form'));
+    const form = forms[this.visualFormIndex()] ?? forms[0];
+    if (!form) {
+      return;
+    }
+
+    form.setAttribute('data-mpx-collection', this.vFormCollection());
+    const h3 = form.querySelector('h3, h2, h4');
+    if (h3) {
+      h3.textContent = this.vFormTitle();
+    }
+    const btn = Array.from(form.querySelectorAll('button')).find(
+      (b) => !b.hasAttribute('data-mpx-combo-manage'),
+    );
+    if (btn) {
+      btn.textContent = this.vFormButtonText();
+    }
+
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected syncTableWithFormFields(): void {
+    const doc = this.parseCurrentPageDom();
+    const form = doc.body.querySelector('form');
+    const table = doc.body.querySelectorAll('table')[this.visualTableIndex()] ?? doc.body.querySelector('table');
+    if (!form || !table) {
+      this.messageService.showWarn(
+        'Certifique-se de que a página possui um Formulário e uma Tabela para espelhar as colunas.',
+      );
+      return;
+    }
+
+    const formCol = form.getAttribute('data-mpx-collection') || this.inferPageDefaultCollection();
+    table.setAttribute('data-mpx-collection', formCol);
+    const wrapper = table.closest('[data-mpx-block="table"]');
+    wrapper?.setAttribute('data-mpx-collection', formCol);
+
+    const labels = Array.from(form.querySelectorAll('label'));
+    const cols: { header: string; key: string }[] = [{ header: 'Código', key: 'codigo' }];
+    for (const label of labels) {
+      const cleanTitle = this.extractCleanLabelText(label);
+      const ctrl = label.querySelector('input, select, textarea');
+      const key =
+        ctrl?.getAttribute('data-mpx-field') ||
+        ctrl?.getAttribute('name') ||
+        this.runtimeStore.normalizeFieldKey(cleanTitle);
+      if (cleanTitle) {
+        cols.push({ header: cleanTitle, key });
+      }
+    }
+
+    this.rebuildTableColumnsInDom(doc, table, cols);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+    this.selectVisualTable(this.visualTableIndex());
+  }
+
+  protected applyVisualTableCollection(collection: string): void {
+    this.vTableCollection.set(collection);
+    const doc = this.parseCurrentPageDom();
+    const table =
+      doc.body.querySelectorAll('table')[this.visualTableIndex()] ??
+      doc.body.querySelector('table');
+    if (!table) {
+      return;
+    }
+    table.setAttribute('data-mpx-collection', collection);
+    table.closest('[data-mpx-block="table"]')?.setAttribute('data-mpx-collection', collection);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected addTableColumnInInspector(): void {
+    const header = this.vTableNewColHeader().trim();
+    if (!header) {
+      return;
+    }
+    const key = this.runtimeStore.normalizeFieldKey(header);
+    const nextCols = [...this.vTableColumns(), { header, fieldKey: key }];
+    this.vTableNewColHeader.set('');
+    this.updateTableColumnsList(nextCols);
+  }
+
+  protected removeTableColumnInInspector(idx: number): void {
+    const nextCols = this.vTableColumns().filter((_, i) => i !== idx);
+    this.updateTableColumnsList(nextCols);
+  }
+
+  protected moveTableColumnInInspector(idx: number, direction: -1 | 1): void {
+    const cols = [...this.vTableColumns()];
+    const target = idx + direction;
+    if (idx < 0 || target < 0 || target >= cols.length) {
+      return;
+    }
+    const [moved] = cols.splice(idx, 1);
+    cols.splice(target, 0, moved);
+    this.updateTableColumnsList(cols);
+  }
+
+  private updateTableColumnsList(cols: { header: string; fieldKey: string }[]): void {
+    const doc = this.parseCurrentPageDom();
+    const table =
+      doc.body.querySelectorAll('table')[this.visualTableIndex()] ??
+      doc.body.querySelector('table');
+    if (!table) {
+      return;
+    }
+    this.vTableColumns.set(cols);
+    this.rebuildTableColumnsInDom(
+      doc,
+      table,
+      cols.map((c) => ({ header: c.header, key: c.fieldKey })),
+    );
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected applyVisualKpiChanges(overrides?: {
+    title?: string;
+    value?: string;
+    mode?: 'sum' | 'count' | 'pending' | 'static';
+    color?: 'neutral' | 'jade' | 'amber' | 'violet' | 'red';
+  }): void {
+    if (overrides?.title !== undefined) this.vKpiTitle.set(overrides.title);
+    if (overrides?.value !== undefined) this.vKpiValue.set(overrides.value);
+    if (overrides?.mode !== undefined) this.vKpiMode.set(overrides.mode);
+    if (overrides?.color !== undefined) this.vKpiColor.set(overrides.color);
+
+    const doc = this.parseCurrentPageDom();
+    const grid = doc.body.querySelector(
+      '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+    );
+    if (!grid) {
+      return;
+    }
+    const cards = Array.from(grid.children) as HTMLElement[];
+    const card = cards[this.visualKpiIndex()] ?? cards[0];
+    if (!card) {
+      return;
+    }
+
+    card.setAttribute('data-mpx-kpi-mode', this.vKpiMode());
+    const span = card.querySelector('span');
+    if (span) {
+      span.textContent = this.vKpiTitle();
+    }
+
+    const valDiv = (card.querySelector('[data-mpx-kpi-value]') ||
+      card.querySelector('.text-2xl')) as HTMLElement | null;
+    if (valDiv) {
+      valDiv.setAttribute('data-mpx-kpi-value', '');
+      const colorMap: Record<string, string> = {
+        neutral: 'text-neutral-12',
+        jade: 'text-jade-a11',
+        amber: 'text-amber-a11',
+        violet: 'text-primary-11',
+        red: 'text-red-a11',
+      };
+      valDiv.className = `mt-2 text-2xl font-bold ${colorMap[this.vKpiColor()] || 'text-neutral-12'}`;
+      if (this.vKpiMode() === 'static') {
+        valDiv.textContent = this.vKpiValue();
+      } else if (this.vKpiMode() === 'sum') {
+        valDiv.textContent = 'R$ 24.670,00 (Soma Automática)';
+      } else if (this.vKpiMode() === 'count') {
+        valDiv.textContent = '3 registro(s)';
+      } else {
+        valDiv.textContent = '1 pendente(s)';
+      }
+    }
+
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected applyVisualHeroChanges(overrides?: {
+    badge?: string;
+    title?: string;
+    subtitle?: string;
+  }): void {
+    if (overrides?.badge !== undefined) this.vHeroBadge.set(overrides.badge);
+    if (overrides?.title !== undefined) this.vHeroTitle.set(overrides.title);
+    if (overrides?.subtitle !== undefined) this.vHeroSubtitle.set(overrides.subtitle);
+
+    const doc = this.parseCurrentPageDom();
+    const hero =
+      doc.body.querySelector('[data-mpx-block="hero"]') || doc.body.querySelector('.rounded-3xl');
+    if (!hero) {
+      return;
+    }
+
+    const badge = hero.querySelector('.rounded-full');
+    if (badge) badge.textContent = this.vHeroBadge();
+    const h1 = hero.querySelector('h1');
+    if (h1) h1.textContent = this.vHeroTitle();
+    const p = hero.querySelector('p');
+    if (p) p.textContent = this.vHeroSubtitle();
+
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  protected removeSelectedVisualBlock(): void {
+    const doc = this.parseCurrentPageDom();
+    const type = this.visualTargetType();
+    if (type === 'form') {
+      doc.body.querySelectorAll('form')[this.visualFormIndex()]?.remove();
+    } else if (type === 'table') {
+      const table = doc.body.querySelectorAll('table')[this.visualTableIndex()];
+      (table?.closest('[data-mpx-block="table"]') || table?.parentElement || table)?.remove();
+    } else if (type === 'kpi') {
+      const grid = doc.body.querySelector(
+        '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+      );
+      grid?.remove();
+    } else if (type === 'hero') {
+      const hero =
+        doc.body.querySelector('[data-mpx-block="hero"]') || doc.body.querySelector('.rounded-3xl');
+      hero?.remove();
+    }
+    this.visualTargetType.set(null);
+    this.commitVisualHtmlMutation(doc.body.innerHTML);
+  }
+
+  private parseCurrentPageDom(): Document {
+    const parser = new DOMParser();
+    const raw = this.selectedPage()?.htmlContent || '';
+    return parser.parseFromString(raw, 'text/html');
+  }
+
+  private commitVisualHtmlMutation(rawHtml: string): void {
+    const pretty = formatHtmlPretty(rawHtml);
+    this.updateSelectedPageField('htmlContent', pretty);
+  }
+
+  private upgradeFormGridTo12Cols(form: HTMLElement): HTMLElement {
+    let grid =
+      (form.querySelector('[data-mpx-form-grid]') as HTMLElement | null) ||
+      (form.querySelector('.grid') as HTMLElement | null);
+    if (!grid) {
+      grid = form.ownerDocument.createElement('div');
+      form.insertBefore(grid, form.lastElementChild);
+    }
+    grid.setAttribute('data-mpx-form-grid', '');
+    grid.className = 'grid grid-cols-12 gap-4';
+
+    const labels = Array.from(grid.querySelectorAll('label'));
+    for (const lbl of labels) {
+      const span = this.detectElementColSpan(lbl);
+      lbl.setAttribute('data-mpx-col-span', String(span));
+      if (!lbl.className.includes('sm:col-span-')) {
+        lbl.className = `${this.getColSpanClassString(span)} flex flex-col gap-1 text-xs font-semibold text-neutral-a11`;
+      }
+    }
+    return grid;
+  }
+
+  private detectElementColSpan(el: HTMLElement): number {
+    const attr = Number(el.getAttribute('data-mpx-col-span'));
+    if ([3, 4, 6, 9, 12].includes(attr)) {
+      return attr;
+    }
+    const cls = el.className || '';
+    if (cls.includes('sm:col-span-3')) return 3;
+    if (cls.includes('sm:col-span-4')) return 4;
+    if (cls.includes('sm:col-span-6')) return 6;
+    if (cls.includes('sm:col-span-9')) return 9;
+    if (cls.includes('sm:col-span-12')) return 12;
+    return 6;
+  }
+
+  private getColSpanClassString(span: number): string {
+    if (span === 3) return 'col-span-12 sm:col-span-3';
+    if (span === 4) return 'col-span-12 sm:col-span-4';
+    if (span === 9) return 'col-span-12 sm:col-span-9';
+    if (span === 12) return 'col-span-12 sm:col-span-12';
+    return 'col-span-12 sm:col-span-6';
+  }
+
+  private detectVisualFieldType(
+    label: HTMLElement,
+    ctrl: HTMLElement | null,
+  ): VisualFieldType {
+    if (!ctrl) return 'text';
+    const explicit = ctrl.getAttribute('data-mpx-type') as VisualFieldType | null;
+    if (explicit) return explicit;
+    const tag = ctrl.tagName.toLowerCase();
+    if (tag === 'select') return 'select';
+    if (tag === 'textarea') return 'textarea';
+    const typeAttr = (ctrl.getAttribute('type') || 'text').toLowerCase();
+    if (typeAttr === 'date') return 'date';
+    if (typeAttr === 'number') return 'number';
+    if (typeAttr === 'checkbox') return 'checkbox';
+    if (typeAttr === 'radio') return 'radio';
+    if ((ctrl.getAttribute('placeholder') || '').includes('R$')) return 'currency';
+    return 'text';
+  }
+
+  private extractCleanLabelText(label: HTMLElement): string {
+    const clone = label.cloneNode(true) as HTMLElement;
+    clone.querySelectorAll('input, select, textarea, button, div, span').forEach((e) => e.remove());
+    return (clone.textContent || '').replace(/\*/g, '').trim();
+  }
+
+  private buildFormFieldElement(
+    doc: Document,
+    cfg: {
+      label: string;
+      fieldKey: string;
+      type: VisualFieldType;
+      colSpan: number;
+      required: boolean;
+      placeholder: string;
+      options: string[];
+    },
+  ): HTMLElement {
+    const labelEl = doc.createElement('label');
+    labelEl.setAttribute('data-mpx-col-span', String(cfg.colSpan));
+    labelEl.className = `${this.getColSpanClassString(cfg.colSpan)} flex flex-col gap-1 text-xs font-semibold text-neutral-a11`;
+
+    const displayTitle = cfg.required ? `${cfg.label} *` : cfg.label;
+    labelEl.appendChild(doc.createTextNode(`\n      ${displayTitle}\n      `));
+
+    const inputClasses =
+      'rounded-xl border border-neutral-a5 bg-transparent px-3.5 py-2 text-sm text-neutral-12';
+
+    if (cfg.type === 'select') {
+      const select = doc.createElement('select');
+      select.setAttribute('name', cfg.fieldKey);
+      select.setAttribute('data-mpx-field', cfg.fieldKey);
+      select.setAttribute('data-mpx-combo-key', cfg.fieldKey);
+      select.setAttribute('data-mpx-type', 'select');
+      if (cfg.required) select.setAttribute('required', '');
+      select.className = inputClasses;
+
+      for (const optVal of cfg.options) {
+        const opt = doc.createElement('option');
+        opt.setAttribute('value', optVal);
+        opt.textContent = optVal;
+        select.appendChild(opt);
+      }
+      labelEl.appendChild(select);
+    } else if (cfg.type === 'textarea') {
+      const area = doc.createElement('textarea');
+      area.setAttribute('name', cfg.fieldKey);
+      area.setAttribute('data-mpx-field', cfg.fieldKey);
+      area.setAttribute('data-mpx-type', 'textarea');
+      area.setAttribute('rows', '3');
+      area.setAttribute('placeholder', cfg.placeholder);
+      if (cfg.required) area.setAttribute('required', '');
+      area.className = inputClasses;
+      labelEl.appendChild(area);
+    } else if (cfg.type === 'checkbox') {
+      const wrap = doc.createElement('div');
+      wrap.className =
+        'mt-1 flex h-10 items-center gap-2.5 rounded-xl border border-neutral-a5 px-3.5';
+      const chk = doc.createElement('input');
+      chk.setAttribute('type', 'checkbox');
+      chk.setAttribute('name', cfg.fieldKey);
+      chk.setAttribute('data-mpx-field', cfg.fieldKey);
+      chk.setAttribute('data-mpx-type', 'checkbox');
+      chk.className = 'size-4 accent-violet-600';
+      const txt = doc.createElement('span');
+      txt.className = 'text-sm font-medium text-neutral-12';
+      txt.textContent = cfg.placeholder || 'Sim / Ativo';
+      wrap.appendChild(chk);
+      wrap.appendChild(txt);
+      labelEl.appendChild(wrap);
+    } else if (cfg.type === 'radio') {
+      const wrap = doc.createElement('div');
+      wrap.className =
+        'mt-1 flex flex-wrap items-center gap-4 rounded-xl border border-neutral-a5 px-3.5 py-2';
+      const radioOpts = cfg.options.length > 0 ? cfg.options : ['Sim', 'Não'];
+      radioOpts.forEach((optText, i) => {
+        const itemSpan = doc.createElement('span');
+        itemSpan.className = 'inline-flex items-center gap-1.5 text-sm font-normal text-neutral-12';
+        const rad = doc.createElement('input');
+        rad.setAttribute('type', 'radio');
+        rad.setAttribute('name', cfg.fieldKey);
+        rad.setAttribute('data-mpx-field', cfg.fieldKey);
+        rad.setAttribute('data-mpx-type', 'radio');
+        rad.setAttribute('value', optText);
+        if (i === 0) rad.setAttribute('checked', '');
+        if (cfg.required) rad.setAttribute('required', '');
+        rad.className = 'size-4 accent-violet-600';
+        itemSpan.appendChild(rad);
+        itemSpan.appendChild(doc.createTextNode(optText));
+        wrap.appendChild(itemSpan);
+      });
+      labelEl.appendChild(wrap);
+    } else {
+      const inp = doc.createElement('input');
+      const htmlInputType =
+        cfg.type === 'date' ? 'date' : cfg.type === 'number' ? 'number' : 'text';
+      inp.setAttribute('type', htmlInputType);
+      inp.setAttribute('name', cfg.fieldKey);
+      inp.setAttribute('data-mpx-field', cfg.fieldKey);
+      inp.setAttribute('data-mpx-type', cfg.type);
+      inp.setAttribute(
+        'placeholder',
+        cfg.type === 'currency' && !cfg.placeholder.includes('R$') ? 'R$ 0,00' : cfg.placeholder,
+      );
+      if (cfg.required) inp.setAttribute('required', '');
+      inp.className = inputClasses;
+      labelEl.appendChild(inp);
+    }
+
+    return labelEl;
+  }
+
+  private rebuildTableColumnsInDom(
+    doc: Document,
+    table: Element,
+    cols: { header: string; key: string }[],
+  ): void {
+    let theadRow = table.querySelector('thead tr');
+    if (!theadRow) {
+      const thead = doc.createElement('thead');
+      thead.className = 'border-b border-neutral-a4 bg-neutral-a2 text-xs uppercase text-neutral-a11';
+      theadRow = doc.createElement('tr');
+      thead.appendChild(theadRow);
+      table.prepend(thead);
+    }
+    theadRow.innerHTML = '';
+
+    let tbodyRow = table.querySelector('tbody tr');
+    if (!tbodyRow) {
+      const tbody = table.querySelector('tbody') || doc.createElement('tbody');
+      tbody.className = 'divide-y divide-neutral-a3';
+      tbodyRow = doc.createElement('tr');
+      tbody.appendChild(tbodyRow);
+      table.appendChild(tbody);
+    }
+    tbodyRow.innerHTML = '';
+
+    for (const col of cols) {
+      const th = doc.createElement('th');
+      th.setAttribute('data-mpx-field', col.key);
+      th.className = 'px-4 py-3';
+      th.textContent = col.header;
+      theadRow.appendChild(th);
+
+      const td = doc.createElement('td');
+      td.className = 'px-4 py-3 text-sm text-neutral-12';
+      if (col.key === 'codigo') {
+        td.className = 'px-4 py-3 font-mono text-xs';
+        td.textContent = '#001';
+      } else if (col.key.includes('valor')) {
+        td.className = 'px-4 py-3 font-semibold text-neutral-12';
+        td.textContent = 'R$ 1.500,00';
+      } else if (col.key.includes('status')) {
+        td.innerHTML =
+          '<span class="rounded-md bg-jade-a3 px-2 py-0.5 text-xs font-semibold text-jade-a11">Ativo</span>';
+      } else {
+        td.textContent = `Exemplo ${col.header}`;
+      }
+      tbodyRow.appendChild(td);
+    }
+  }
+
+  private applyVisualPreviewHighlight(): void {
+    const canvas = this.visualPreviewCanvasRef?.nativeElement;
+    if (!canvas) {
+      return;
+    }
+    canvas.querySelectorAll('.mpx-visual-selected').forEach((el) => {
+      el.classList.remove('mpx-visual-selected');
+    });
+
+    // Torna os Blocos principais, Cards KPI e Campos de Formulário arrastáveis (Drag & Drop) no Editor de Página
+    Array.from(canvas.children).forEach((child, idx) => {
+      const el = child as HTMLElement;
+      el.setAttribute('draggable', 'true');
+      el.setAttribute('data-mpx-drag-block', String(idx));
+    });
+    canvas.querySelectorAll('form').forEach((formEl, fIdx) => {
+      Array.from(formEl.querySelectorAll('label')).forEach((lbl, lIdx) => {
+        lbl.setAttribute('draggable', 'true');
+        lbl.setAttribute('data-mpx-drag-form', String(fIdx));
+        lbl.setAttribute('data-mpx-drag-field', String(lIdx));
+      });
+    });
+    canvas
+      .querySelectorAll('[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4')
+      .forEach((grid) => {
+        Array.from(grid.children).forEach((card, kIdx) => {
+          (card as HTMLElement).setAttribute('draggable', 'true');
+          (card as HTMLElement).setAttribute('data-mpx-drag-kpi', String(kIdx));
+        });
+      });
+
+    const type = this.visualTargetType();
+    if (!type) {
+      return;
+    }
+
+    if (type === 'field') {
+      const form = canvas.querySelectorAll('form')[this.visualFormIndex()];
+      const label = form?.querySelectorAll('label')[this.visualFieldIndex()];
+      label?.classList.add('mpx-visual-selected');
+    } else if (type === 'form') {
+      const form = canvas.querySelectorAll('form')[this.visualFormIndex()];
+      form?.classList.add('mpx-visual-selected');
+    } else if (type === 'table') {
+      const table = canvas.querySelectorAll('table')[this.visualTableIndex()];
+      (table?.closest('[data-mpx-block="table"]') || table)?.classList.add('mpx-visual-selected');
+    } else if (type === 'kpi') {
+      const grid = canvas.querySelector(
+        '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+      );
+      const card = grid?.children[this.visualKpiIndex()];
+      card?.classList.add('mpx-visual-selected');
+    } else if (type === 'hero') {
+      const hero =
+        canvas.querySelector('[data-mpx-block="hero"]') || canvas.querySelector('.rounded-3xl');
+      hero?.classList.add('mpx-visual-selected');
+    }
+  }
+
+  protected onVisualPreviewDragStart(event: DragEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (!target) {
+      return;
+    }
+    const fieldEl = target.closest('[data-mpx-drag-field]') as HTMLElement | null;
+    if (fieldEl) {
+      event.stopPropagation();
+      this.visualDragSource.set({
+        kind: 'field',
+        formIdx: Number(fieldEl.getAttribute('data-mpx-drag-form') || 0),
+        index: Number(fieldEl.getAttribute('data-mpx-drag-field') || 0),
+      });
+      return;
+    }
+    const kpiEl = target.closest('[data-mpx-drag-kpi]') as HTMLElement | null;
+    if (kpiEl) {
+      event.stopPropagation();
+      this.visualDragSource.set({
+        kind: 'kpi',
+        index: Number(kpiEl.getAttribute('data-mpx-drag-kpi') || 0),
+      });
+      return;
+    }
+    const blockEl = target.closest('[data-mpx-drag-block]') as HTMLElement | null;
+    if (blockEl) {
+      this.visualDragSource.set({
+        kind: 'block',
+        index: Number(blockEl.getAttribute('data-mpx-drag-block') || 0),
+      });
+    }
+  }
+
+  protected onVisualPreviewDragOver(event: DragEvent): void {
+    if (!this.visualDragSource()) {
+      return;
+    }
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  protected onVisualPreviewDrop(event: DragEvent): void {
+    const src = this.visualDragSource();
+    this.visualDragSource.set(null);
+    const target = event.target as HTMLElement | null;
+    if (!src || !target) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+
+    const doc = this.parseCurrentPageDom();
+
+    if (src.kind === 'field') {
+      const destField = target.closest('[data-mpx-drag-field]') as HTMLElement | null;
+      if (!destField) return;
+      const fIdx = src.formIdx ?? 0;
+      const toIdx = Number(destField.getAttribute('data-mpx-drag-field') || 0);
+      if (src.index === toIdx) return;
+
+      const form = doc.body.querySelectorAll('form')[fIdx];
+      const labels = Array.from(form?.querySelectorAll('label') ?? []);
+      const fromEl = labels[src.index];
+      const toEl = labels[toIdx];
+      if (!fromEl || !toEl || !fromEl.parentElement) return;
+
+      if (src.index < toIdx) {
+        fromEl.parentElement.insertBefore(fromEl, toEl.nextSibling);
+      } else {
+        fromEl.parentElement.insertBefore(fromEl, toEl);
+      }
+      this.visualFieldIndex.set(toIdx);
+      this.commitVisualHtmlMutation(doc.body.innerHTML);
+      return;
+    }
+
+    if (src.kind === 'kpi') {
+      const destKpi = target.closest('[data-mpx-drag-kpi]') as HTMLElement | null;
+      if (!destKpi) return;
+      const toIdx = Number(destKpi.getAttribute('data-mpx-drag-kpi') || 0);
+      if (src.index === toIdx) return;
+
+      const grid = doc.body.querySelector(
+        '[data-mpx-block="kpi"], .sm\\:grid-cols-3, .sm\\:grid-cols-4',
+      );
+      const cards = Array.from(grid?.children ?? []);
+      const fromEl = cards[src.index];
+      const toEl = cards[toIdx];
+      if (!fromEl || !toEl || !grid) return;
+
+      if (src.index < toIdx) {
+        grid.insertBefore(fromEl, toEl.nextSibling);
+      } else {
+        grid.insertBefore(fromEl, toEl);
+      }
+      this.visualKpiIndex.set(toIdx);
+      this.commitVisualHtmlMutation(doc.body.innerHTML);
+      return;
+    }
+
+    if (src.kind === 'block') {
+      const destBlock = target.closest('[data-mpx-drag-block]') as HTMLElement | null;
+      if (!destBlock) return;
+      const toIdx = Number(destBlock.getAttribute('data-mpx-drag-block') || 0);
+      if (src.index === toIdx) return;
+
+      const blocks = Array.from(doc.body.children);
+      const fromEl = blocks[src.index];
+      const toEl = blocks[toIdx];
+      if (!fromEl || !toEl) return;
+
+      if (src.index < toIdx) {
+        doc.body.insertBefore(fromEl, toEl.nextSibling);
+      } else {
+        doc.body.insertBefore(fromEl, toEl);
+      }
+      this.commitVisualHtmlMutation(doc.body.innerHTML);
+    }
   }
 
   protected async createModule(): Promise<void> {
     const appId = this.entity().id;
-    const name = this.newModuleName().trim();
-    if (!appId || !name) {
+    const rawName = this.newModuleName().trim();
+    const icon = this.newModuleIcon().trim();
+    if (!appId || !rawName || !icon) {
+      if (!icon) {
+        this.messageService.showWarn('Selecione um ícone antes de adicionar o menu.');
+      }
       return;
     }
-    await firstValueFrom(
-      this.applicationService.saveModule(appId, {
-        name,
-        label: name,
-        icon: this.newModuleIcon() || 'layers',
-      }),
-    );
-    this.newModuleName.set('');
-    this.newModuleIcon.set('layers');
-    const reloaded = await firstValueFrom(this.applicationService.getById(appId));
-    this.syncModulesAndDefaultPage(reloaded.applicationModules ?? []);
+    const name = rawName.slice(0, 20);
+    this.savingModule.set(true);
+    try {
+      this.pushMenuHistorySnapshot();
+      const existingMods = [...this.appModules()].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      const created = await firstValueFrom(
+        this.applicationService.saveModule(appId, {
+          name,
+          label: name,
+          icon,
+          order: 0,
+        }),
+      );
+      // Garante que o novo Menu Pai fique na primeira posição (topo) deslocando os demais
+      for (let i = 0; i < existingMods.length; i++) {
+        const m = existingMods[i];
+        await firstValueFrom(
+          this.applicationService.saveModule(appId, {
+            ...m,
+            order: i + 1,
+          }),
+        );
+      }
+      if (created?.id) {
+        await firstValueFrom(
+          this.applicationService.saveModule(appId, {
+            ...created,
+            name,
+            label: name,
+            icon,
+            order: 0,
+          }),
+        );
+      }
+      this.newModuleName.set('');
+      this.newModuleIcon.set('');
+      const reloaded = await firstValueFrom(this.applicationService.getById(appId));
+      this.syncModulesAndDefaultPage(reloaded.applicationModules ?? []);
+      this.context.loadWorkspaces();
+    } finally {
+      this.savingModule.set(false);
+    }
+  }
+
+  private cloneModulesSnapshot(
+    mods: MorphusApplicationModuleRef[],
+  ): MorphusApplicationModuleRef[] {
+    return mods.map((m) => ({
+      ...m,
+      applicationSubModules: (m.applicationSubModules ?? []).map((s) => ({ ...s })),
+    }));
+  }
+
+  private pushMenuHistorySnapshot(): void {
+    const snap = this.cloneModulesSnapshot(this.appModules());
+    this.menuUndoStack.update((stack) => [...stack.slice(-30), snap]);
+    this.menuRedoStack.set([]);
+  }
+
+  protected async undoMenuStructure(): Promise<void> {
+    const stack = this.menuUndoStack();
+    if (stack.length === 0) {
+      return;
+    }
+    const prevSnap = stack[stack.length - 1];
+    const currentSnap = this.cloneModulesSnapshot(this.appModules());
+    this.menuUndoStack.set(stack.slice(0, -1));
+    this.menuRedoStack.update((r) => [...r, currentSnap]);
+    this.appModules.set(prevSnap);
+    await this.persistFullMenuHierarchy(prevSnap);
+  }
+
+  protected async redoMenuStructure(): Promise<void> {
+    const redo = this.menuRedoStack();
+    if (redo.length === 0) {
+      return;
+    }
+    const nextSnap = redo[redo.length - 1];
+    const currentSnap = this.cloneModulesSnapshot(this.appModules());
+    this.menuRedoStack.set(redo.slice(0, -1));
+    this.menuUndoStack.update((s) => [...s, currentSnap]);
+    this.appModules.set(nextSnap);
+    await this.persistFullMenuHierarchy(nextSnap);
+  }
+
+  private async persistFullMenuHierarchy(
+    modules: MorphusApplicationModuleRef[],
+  ): Promise<void> {
+    const appId = this.entity().id;
+    if (!appId) {
+      return;
+    }
+    for (let mIdx = 0; mIdx < modules.length; mIdx++) {
+      const mod = modules[mIdx];
+      await firstValueFrom(
+        this.applicationService.saveModule(appId, {
+          ...mod,
+          order: mIdx + 1,
+        }),
+      );
+      const subs = mod.applicationSubModules ?? [];
+      for (let sIdx = 0; sIdx < subs.length; sIdx++) {
+        const sub = subs[sIdx];
+        await firstValueFrom(
+          this.applicationService.savePage(mod.id, {
+            ...sub,
+            applicationModuleId: mod.id,
+            order: sIdx + 1,
+          }),
+        );
+      }
+    }
     this.context.loadWorkspaces();
-    this.messageService.showSuccess(`Menu "${name}" adicionado!`);
+  }
+
+  @HostListener('window:dragover', ['$event'])
+  protected onWindowDragOver(event: DragEvent): void {
+    if (!this.draggingMenuItem()) {
+      return;
+    }
+    this.lastDragClientY = event.clientY;
+  }
+
+  private startDragAutoScroll(): void {
+    this.stopDragAutoScroll();
+    this.dragAutoScrollTimer = setInterval(() => {
+      if (!this.draggingMenuItem() || this.lastDragClientY <= 0) {
+        return;
+      }
+      const edgeThreshold = 140;
+      const vh = window.innerHeight;
+      let delta = 0;
+      if (this.lastDragClientY < edgeThreshold) {
+        delta = -Math.max(4, Math.ceil((edgeThreshold - this.lastDragClientY) / 5));
+      } else if (vh - this.lastDragClientY < edgeThreshold) {
+        delta = Math.max(4, Math.ceil((edgeThreshold - (vh - this.lastDragClientY)) / 5));
+      }
+      if (delta !== 0) {
+        window.scrollBy({ top: delta, behavior: 'auto' });
+        document.scrollingElement?.scrollBy({ top: delta, behavior: 'auto' });
+        const scrollContainers = document.querySelectorAll(
+          '.mat-drawer-content, .mat-sidenav-content, main, [class*="overflow-y-auto"]',
+        );
+        scrollContainers.forEach((el) => {
+          (el as HTMLElement).scrollTop += delta;
+        });
+      }
+    }, 16);
+  }
+
+  private stopDragAutoScroll(): void {
+    if (this.dragAutoScrollTimer) {
+      clearInterval(this.dragAutoScrollTimer);
+      this.dragAutoScrollTimer = null;
+    }
+    this.lastDragClientY = 0;
+  }
+
+  protected isDropLineTopForModule(mod: MorphusApplicationModuleRef): boolean {
+    const target = this.dragOverMenuTarget();
+    return (
+      this.draggingMenuItem()?.type === 'module' &&
+      target?.type === 'module' &&
+      target.id === mod.id &&
+      target.position === 'before'
+    );
+  }
+
+  protected isDropLineBottomForModule(mod: MorphusApplicationModuleRef): boolean {
+    const dragging = this.draggingMenuItem();
+    const target = this.dragOverMenuTarget();
+    if (!dragging || !target) {
+      return false;
+    }
+    if (dragging.type === 'submodule') {
+      return target.type === 'module' && target.id === mod.id;
+    }
+    const hasVisibleSubs =
+      this.isModuleExpanded(mod.id) && (mod.applicationSubModules ?? []).length > 0;
+    return (
+      !hasVisibleSubs &&
+      target.type === 'module' &&
+      target.id === mod.id &&
+      target.position === 'after'
+    );
+  }
+
+  protected isDropLineTopForSubModule(sub: MorphusApplicationSubModuleRef): boolean {
+    const target = this.dragOverMenuTarget();
+    return (
+      this.draggingMenuItem()?.type === 'submodule' &&
+      target?.type === 'submodule' &&
+      target.id === sub.id &&
+      target.position === 'before'
+    );
+  }
+
+  protected isDropLineBottomForSubModule(
+    mod: MorphusApplicationModuleRef,
+    sub: MorphusApplicationSubModuleRef,
+    isLastSub: boolean,
+  ): boolean {
+    const dragging = this.draggingMenuItem();
+    const target = this.dragOverMenuTarget();
+    if (!dragging || !target) {
+      return false;
+    }
+    if (dragging.type === 'submodule') {
+      return target.type === 'submodule' && target.id === sub.id && target.position === 'after';
+    }
+    return (
+      dragging.type === 'module' &&
+      isLastSub &&
+      target.type === 'module' &&
+      target.id === mod.id &&
+      target.position === 'after'
+    );
+  }
+
+  protected onModuleDragStart(event: DragEvent, mod: MorphusApplicationModuleRef): void {
+    this.draggingMenuItem.set({ type: 'module', id: mod.id });
+    this.lastDragClientY = event.clientY;
+    this.startDragAutoScroll();
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', mod.id);
+    }
+  }
+
+  protected onSubModuleDragStart(
+    event: DragEvent,
+    parentModuleId: string,
+    sub: MorphusApplicationSubModuleRef,
+  ): void {
+    event.stopPropagation();
+    this.draggingMenuItem.set({ type: 'submodule', id: sub.id, parentModuleId });
+    this.lastDragClientY = event.clientY;
+    this.startDragAutoScroll();
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', sub.id);
+    }
+  }
+
+  protected onMenuDragOver(
+    event: DragEvent,
+    targetType: 'module' | 'submodule',
+    targetId: string,
+    parentModuleId?: string,
+  ): void {
+    const dragging = this.draggingMenuItem();
+    if (!dragging) {
+      return;
+    }
+    this.lastDragClientY = event.clientY;
+
+    const rowEl = event.currentTarget as HTMLElement | null;
+    const rect = rowEl?.getBoundingClientRect();
+    const isTopHalf = rect ? event.clientY < rect.top + rect.height / 2 : true;
+
+    if (dragging.type === 'module') {
+      const effectiveModId = targetType === 'module' ? targetId : parentModuleId;
+      if (!effectiveModId || effectiveModId === dragging.id) {
+        return;
+      }
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+      // Se passar o mouse na linha do Menu Pai (ou se estiver subindo sobre os filhos), decide 'before' (linha no topo do Menu Pai) ou 'after' (linha após o bloco do Menu Pai)
+      const mods = this.appModules();
+      const fromIdx = mods.findIndex((m) => m.id === dragging.id);
+      const toIdx = mods.findIndex((m) => m.id === effectiveModId);
+      let position: 'before' | 'after';
+      if (targetType === 'module') {
+        position = isTopHalf || fromIdx > toIdx ? 'before' : 'after';
+      } else {
+        position = fromIdx > toIdx && isTopHalf ? 'before' : 'after';
+      }
+
+      const curr = this.dragOverMenuTarget();
+      if (
+        !curr ||
+        curr.type !== 'module' ||
+        curr.id !== effectiveModId ||
+        curr.position !== position
+      ) {
+        this.dragOverMenuTarget.set({
+          type: 'module',
+          id: effectiveModId,
+          position,
+        });
+      }
+      return;
+    }
+
+    if (dragging.type === 'submodule') {
+      if (targetType === 'submodule' && targetId === dragging.id) {
+        return;
+      }
+      event.preventDefault();
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = 'move';
+      }
+      const position: 'before' | 'after' =
+        targetType === 'module' ? 'after' : isTopHalf ? 'before' : 'after';
+      const curr = this.dragOverMenuTarget();
+      if (
+        !curr ||
+        curr.type !== targetType ||
+        curr.id !== targetId ||
+        curr.position !== position
+      ) {
+        this.dragOverMenuTarget.set({
+          type: targetType,
+          id: targetId,
+          parentModuleId,
+          position,
+        });
+      }
+    }
+  }
+
+  protected onMenuDragEnd(): void {
+    this.stopDragAutoScroll();
+    this.draggingMenuItem.set(null);
+    this.dragOverMenuTarget.set(null);
+  }
+
+  protected async onMenuDrop(
+    event: DragEvent,
+    targetType: 'module' | 'submodule',
+    targetId: string,
+    targetParentModuleId?: string,
+  ): Promise<void> {
+    event.preventDefault();
+    event.stopPropagation();
+    const dragging = this.draggingMenuItem();
+    const dropTarget = this.dragOverMenuTarget();
+    this.stopDragAutoScroll();
+    this.draggingMenuItem.set(null);
+    this.dragOverMenuTarget.set(null);
+
+    if (!dragging) {
+      return;
+    }
+
+    const appId = this.entity().id;
+    if (!appId) {
+      return;
+    }
+
+    if (dragging.type === 'module') {
+      const effectiveModId =
+        dropTarget?.type === 'module'
+          ? dropTarget.id
+          : targetType === 'module'
+            ? targetId
+            : targetParentModuleId;
+      const position = dropTarget?.position ?? 'before';
+      if (!effectiveModId || effectiveModId === dragging.id) {
+        return;
+      }
+
+      const currentMods = this.cloneModulesSnapshot(this.appModules());
+      const fromIdx = currentMods.findIndex((m) => m.id === dragging.id);
+      const origToIdx = currentMods.findIndex((m) => m.id === effectiveModId);
+      if (fromIdx === -1 || origToIdx === -1 || fromIdx === origToIdx) {
+        return;
+      }
+
+      const prevOrderById = new Map(currentMods.map((m) => [m.id, m.order]));
+      this.pushMenuHistorySnapshot();
+      const [movedMod] = currentMods.splice(fromIdx, 1);
+      const newTargetIdx = currentMods.findIndex((m) => m.id === effectiveModId);
+      const insertIdx = position === 'after' ? newTargetIdx + 1 : newTargetIdx;
+      currentMods.splice(insertIdx, 0, movedMod);
+
+      currentMods.forEach((m, idx) => {
+        m.order = idx + 1;
+      });
+      this.appModules.set(currentMods);
+
+      for (let i = 0; i < currentMods.length; i++) {
+        const modItem = currentMods[i];
+        if (prevOrderById.get(modItem.id) !== modItem.order || modItem.id === movedMod.id) {
+          await firstValueFrom(
+            this.applicationService.saveModule(appId, {
+              ...modItem,
+              order: i + 1,
+            }),
+          );
+        }
+      }
+      this.context.loadWorkspaces();
+      return;
+    }
+
+    if (dragging.type === 'submodule') {
+      const sourceModId = dragging.parentModuleId;
+      const destModId = targetType === 'module' ? targetId : targetParentModuleId;
+      const position = dropTarget?.position ?? 'after';
+      if (!sourceModId || !destModId) {
+        return;
+      }
+
+      const currentMods = this.cloneModulesSnapshot(this.appModules());
+      const sourceMod = currentMods.find((m) => m.id === sourceModId);
+      const destMod = currentMods.find((m) => m.id === destModId);
+      if (!sourceMod || !destMod) {
+        return;
+      }
+
+      const sourceSubs = sourceMod.applicationSubModules ?? [];
+      const fromSubIdx = sourceSubs.findIndex((s) => s.id === dragging.id);
+      if (fromSubIdx === -1) {
+        return;
+      }
+
+      const prevSubState = new Map<string, { order?: number; modId: string }>();
+      for (const s of sourceSubs) {
+        prevSubState.set(s.id, { order: s.order, modId: sourceModId });
+      }
+      for (const s of destMod.applicationSubModules ?? []) {
+        prevSubState.set(s.id, { order: s.order, modId: destModId });
+      }
+
+      this.pushMenuHistorySnapshot();
+      const [movedSub] = sourceSubs.splice(fromSubIdx, 1);
+      movedSub.applicationModuleId = destModId;
+
+      const destSubs = destMod.applicationSubModules ?? [];
+      if (targetType === 'submodule') {
+        const newTargetSubIdx = destSubs.findIndex((s) => s.id === targetId);
+        if (newTargetSubIdx !== -1) {
+          const insertSubIdx = position === 'after' ? newTargetSubIdx + 1 : newTargetSubIdx;
+          destSubs.splice(insertSubIdx, 0, movedSub);
+        } else {
+          destSubs.push(movedSub);
+        }
+      } else {
+        // Soltou diretamente na linha do Menu Pai: entra logo abaixo da linha do Menu Pai (1º filho)
+        destSubs.unshift(movedSub);
+      }
+
+      sourceMod.applicationSubModules = sourceSubs.map((s, idx) => ({ ...s, order: idx + 1 }));
+      destMod.applicationSubModules = destSubs.map((s, idx) => ({
+        ...s,
+        applicationModuleId: destModId,
+        order: idx + 1,
+      }));
+
+      this.expandedModuleIds.update((set) => new Set(set).add(destModId));
+      this.appModules.set(currentMods);
+
+      // Persiste apenas os itens cujo order ou Menu Pai mudou (suporta 50+ menus sem gargalo!)
+      for (const s of destMod.applicationSubModules) {
+        const prev = prevSubState.get(s.id);
+        if (!prev || prev.order !== s.order || prev.modId !== destModId || s.id === movedSub.id) {
+          await firstValueFrom(
+            this.applicationService.savePage(destModId, {
+              ...s,
+              applicationModuleId: destModId,
+            }),
+          );
+        }
+      }
+      if (sourceModId !== destModId) {
+        for (const s of sourceMod.applicationSubModules) {
+          const prev = prevSubState.get(s.id);
+          if (!prev || prev.order !== s.order) {
+            await firstValueFrom(
+              this.applicationService.savePage(sourceModId, {
+                ...s,
+                applicationModuleId: sourceModId,
+              }),
+            );
+          }
+        }
+      }
+      this.context.loadWorkspaces();
+    }
   }
 
   protected async saveCurrentPage(): Promise<void> {
@@ -1374,9 +3272,6 @@ export class ApplicationEditComponent
         const reloaded = await firstValueFrom(this.applicationService.getById(appId));
         this.syncModulesAndDefaultPage(reloaded.applicationModules ?? []);
         this.context.loadWorkspaces();
-        setTimeout(() => {
-          this.messageService.showSuccess(`A página "${pageName}" foi excluída com sucesso!`);
-        }, 150);
       },
     );
   }

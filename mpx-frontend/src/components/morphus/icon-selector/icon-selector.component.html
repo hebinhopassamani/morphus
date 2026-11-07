@@ -1,29 +1,65 @@
-<mat-form-field
-  class="mpx-icon-field"
-  [class.small]="!label()"
-   subscriptSizing="dynamic"
-  [matMenuTriggerFor]="iconSelectorMenu"
-  (mousedown)="syncPanelWidth()"
-  (menuOpened)="syncPanelWidth()"
->
-  @if (label()) {
-    <mat-label>{{ label() }}</mat-label>
-  }
-  <mat-icon
-    matIconPrefix
-    [svgIcon]="value() || defaultIcon()"
-  />
-  <input
-    matInput
-    readonly
-    class="mpx-icon-input"
-    [value]="baseIconName()"
-  />
-  <mat-icon
-    matIconSuffix
-    svgIcon="chevron-down"
-  />
-</mat-form-field>
+@if (inlinePill()) {
+  <button
+    type="button"
+    class="inline-flex h-6 shrink-0 cursor-pointer items-center gap-0.5 rounded-md bg-black/15 px-1.5 py-0.5 text-current transition hover:bg-black/25 dark:bg-white/15 dark:hover:bg-white/25"
+    [matMenuTriggerFor]="iconSelectorMenu"
+    matTooltip="Escolher ícone"
+    (mousedown)="syncPanelWidth(); $event.stopPropagation()"
+    (click)="$event.stopPropagation()"
+    (menuOpened)="syncPanelWidth()"
+  >
+    <mat-icon
+      class="!size-4 shrink-0 !text-current"
+      [svgIcon]="(value() || defaultIcon()) || 'layers'"
+    />
+    <mat-icon
+      class="!size-3 shrink-0 !text-current opacity-80"
+      svgIcon="chevron-down"
+    />
+  </button>
+} @else {
+  <mat-form-field
+    class="mpx-icon-field"
+    [class.small]="!label()"
+    subscriptSizing="dynamic"
+    [matMenuTriggerFor]="iconSelectorMenu"
+    (mousedown)="syncPanelWidth()"
+    (menuOpened)="syncPanelWidth()"
+  >
+    @if (label()) {
+      <mat-label>{{ label() }}</mat-label>
+    }
+    <mat-icon
+      matIconPrefix
+      [class.opacity-45]="!hasSelectedIcon()"
+      [svgIcon]="(value() || defaultIcon()) || 'layers'"
+    />
+    <input
+      matInput
+      readonly
+      class="mpx-icon-input"
+      [class.!font-sans]="!hasSelectedIcon()"
+      [class.text-neutral-a10]="!hasSelectedIcon()"
+      [value]="displayValue()"
+    />
+    @if (allowClear() && (value() ?? '').trim() !== '') {
+      <button
+        type="button"
+        matIconSuffix
+        class="me-1 inline-flex size-5 items-center justify-center rounded-full text-neutral-a10 transition hover:bg-neutral-a4 hover:text-neutral-12"
+        matTooltip="Remover ícone selecionado"
+        (mousedown)="$event.stopPropagation()"
+        (click)="clearSelection($event)"
+      >
+        <mat-icon class="!size-3.5" svgIcon="x" />
+      </button>
+    }
+    <mat-icon
+      matIconSuffix
+      svgIcon="chevron-down"
+    />
+  </mat-form-field>
+}
 
 <mat-menu
   class="max-w-none! min-w-0! overflow-x-hidden p-0!"
@@ -35,6 +71,16 @@
     (click)="$event.stopPropagation()"
     (keydown)="$event.stopPropagation()"
   >
+    @if (allowClear() && (value() ?? '').trim() !== '') {
+      <button
+        type="button"
+        (click)="clearSelection($event)"
+        class="mb-2 flex w-full items-center justify-center gap-1.5 rounded-lg border border-red-a5 bg-red-a2 px-2.5 py-1.5 text-xs font-semibold text-red-a11 transition hover:bg-red-a3"
+      >
+        <mat-icon class="!size-3.5" svgIcon="x" />
+        <span>Limpar ícone ({{ placeholder() }})</span>
+      </button>
+    }
     <div class="mpx-icon-search-box">
       <mat-icon class="size-4 opacity-60" svgIcon="search" />
       <input

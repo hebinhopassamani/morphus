@@ -3,3 +3,31 @@
   flex: 1 1 auto;
   flex-direction: column;
 }
+
+/* Construtor Visual na Página ao Vivo (/app/:appKey/:slug) */
+:host ::ng-deep .mpx-live-builder-active label,
+:host ::ng-deep .mpx-live-builder-active form,
+:host ::ng-deep .mpx-live-builder-active table,
+:host ::ng-deep .mpx-live-builder-active th,
+:host ::ng-deep .mpx-live-builder-active [data-mpx-block],
+:host ::ng-deep .mpx-live-builder-active .rounded-3xl,
+:host ::ng-deep .mpx-live-builder-active .rounded-2xl {
+  cursor: pointer;
+  transition: box-shadow 140ms ease, outline 140ms ease;
+}
+
+:host ::ng-deep .mpx-live-builder-active label:hover,
+:host ::ng-deep .mpx-live-builder-active th:hover,
+:host ::ng-deep .mpx-live-builder-active .rounded-3xl:hover,
+:host ::ng-deep .mpx-live-builder-active .rounded-2xl:hover {
+  outline: 2px dashed rgba(124, 58, 237, 0.65);
+  outline-offset: 3px;
+  border-radius: 0.75rem;
+}
+
+:host ::ng-deep .mpx-live-selected {
+  outline: 2.5px solid #7c3aed !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.18) !important;
+  border-radius: 0.75rem;
+}

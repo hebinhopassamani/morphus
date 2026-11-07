@@ -2,11 +2,8 @@
   <!-- Barra superior estilo VS Code -->
   <div class="flex items-center justify-between border-b border-white/10 bg-[#252526] px-3.5 py-1.5 text-[11px] text-white/80">
     <div class="flex items-center gap-2">
-      <span class="size-2.5 rounded-full bg-[#ff5f56]"></span>
-      <span class="size-2.5 rounded-full bg-[#ffbd2e]"></span>
-      <span class="size-2.5 rounded-full bg-[#27c93f]"></span>
-      <span class="ms-2 font-mono font-semibold text-white">
-        VS Code Monaco Editor · {{ language.toUpperCase() }}
+      <span class="font-mono font-semibold text-white">
+        Editar Html
       </span>
     </div>
     <div class="flex flex-wrap items-center gap-2">
@@ -33,9 +30,10 @@
       <button
         type="button"
         (click)="formatDocument()"
+        title="Atalho: Shift + Alt + F (ou Ctrl + Shift + F)"
         class="rounded bg-primary-9 px-2.5 py-0.5 text-[11px] font-semibold text-white transition hover:bg-primary-10"
       >
-        Formatar (Prettier)
+        Formatar (Prettier · Shift+Alt+F)
       </button>
     </div>
   </div>

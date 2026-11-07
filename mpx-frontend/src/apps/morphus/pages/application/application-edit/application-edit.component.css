@@ -1,1 +1,36 @@
 /* Application Edit Styles */
+tr.mpx-drop-line-top > td {
+  box-shadow: inset 0 3px 0 0 #7c3aed !important;
+}
+
+tr.mpx-drop-line-bottom > td {
+  box-shadow: inset 0 -3px 0 0 #7c3aed !important;
+}
+
+/* Construtor Visual Interativo (Preview e Página ao Vivo em Modo Construtor) */
+:host ::ng-deep .mpx-visual-preview-canvas label,
+:host ::ng-deep .mpx-visual-preview-canvas form,
+:host ::ng-deep .mpx-visual-preview-canvas table,
+:host ::ng-deep .mpx-visual-preview-canvas th,
+:host ::ng-deep .mpx-visual-preview-canvas [data-mpx-block],
+:host ::ng-deep .mpx-visual-preview-canvas .rounded-3xl,
+:host ::ng-deep .mpx-visual-preview-canvas .rounded-2xl {
+  cursor: pointer;
+  transition: box-shadow 140ms ease, outline 140ms ease;
+}
+
+:host ::ng-deep .mpx-visual-preview-canvas label:hover,
+:host ::ng-deep .mpx-visual-preview-canvas th:hover,
+:host ::ng-deep .mpx-visual-preview-canvas .rounded-3xl:hover,
+:host ::ng-deep .mpx-visual-preview-canvas .rounded-2xl:hover {
+  outline: 2px dashed rgba(124, 58, 237, 0.65);
+  outline-offset: 3px;
+  border-radius: 0.75rem;
+}
+
+:host ::ng-deep .mpx-visual-selected {
+  outline: 2.5px solid #7c3aed !important;
+  outline-offset: 3px !important;
+  box-shadow: 0 0 0 5px rgba(124, 58, 237, 0.18) !important;
+  border-radius: 0.75rem;
+}

@@ -25,6 +25,10 @@ const ALL_ICON_NAMES = Object.keys(MPX_ICONS).filter((key) => key !== 'default-i
   ],
   styleUrl: './icon-selector.component.css',
   templateUrl: './icon-selector.component.html',
+  host: {
+    '[class.!w-auto]': 'inlinePill()',
+    '[class.!inline-flex]': 'inlinePill()',
+  },
 })
 export class MpxIconSelectorComponent {
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -33,6 +37,9 @@ export class MpxIconSelectorComponent {
   public readonly label = input<string>('Ícone');
   public readonly value = input<string | null | undefined>('building-2');
   public readonly defaultIcon = input<string>('building-2');
+  public readonly placeholder = input<string>('Selecione um ícone');
+  public readonly allowClear = input<boolean>(false);
+  public readonly inlinePill = input<boolean>(false);
 
   public readonly valueChange = output<string>();
 
@@ -44,14 +51,38 @@ export class MpxIconSelectorComponent {
   protected syncPanelWidth(): void {
     const rect = this.hostRef.nativeElement.getBoundingClientRect();
     if (rect.width > 0) {
-      this.panelWidth.set(Math.round(rect.width));
+      this.panelWidth.set(Math.max(280, Math.round(rect.width)));
+    } else {
+      this.panelWidth.set(280);
     }
   }
 
+  protected hasSelectedIcon(): boolean {
+    const raw = (this.value() ?? '').trim();
+    if (raw.length > 0) {
+      return true;
+    }
+    return (this.defaultIcon() ?? '').trim().length > 0;
+  }
+
   protected baseIconName(): string {
-    const raw = this.value() || this.defaultIcon();
+    const raw = (this.value() || this.defaultIcon() || '').trim();
+    if (!raw) {
+      return '';
+    }
     const hashIdx = raw.indexOf('#');
     return hashIdx !== -1 ? raw.substring(0, hashIdx) : raw;
+  }
+
+  protected displayValue(): string {
+    const name = this.baseIconName();
+    return name || this.placeholder();
+  }
+
+  protected clearSelection(event: Event): void {
+    event.stopPropagation();
+    this.valueChange.emit('');
+    this.menuTrigger()?.closeMenu();
   }
 
   protected activeColor(): string {
