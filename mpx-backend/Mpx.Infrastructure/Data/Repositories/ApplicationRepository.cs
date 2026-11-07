@@ -159,13 +159,24 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
     var app = await _context.Applications.FirstOrDefaultAsync(a => a.Id == applicationId)
         ?? throw new InvalidOperationException("Aplicação não encontrada.");
 
+    var cleanName = (module.Name ?? string.Empty).Trim();
+    if (cleanName.Length > 20)
+    {
+      cleanName = cleanName[..20];
+    }
+    var cleanLabel = string.IsNullOrWhiteSpace(module.Label) ? cleanName : module.Label.Trim();
+    if (cleanLabel.Length > 20)
+    {
+      cleanLabel = cleanLabel[..20];
+    }
+
     if (module.Id != Guid.Empty)
     {
       var existing = await _context.ApplicationModules.FirstOrDefaultAsync(m => m.Id == module.Id);
       if (existing is not null)
       {
-        existing.Name = module.Name.Trim();
-        existing.Label = string.IsNullOrWhiteSpace(module.Label) ? module.Name.Trim() : module.Label.Trim();
+        existing.Name = cleanName;
+        existing.Label = cleanLabel;
         existing.Icon = string.IsNullOrWhiteSpace(module.Icon) ? "layers" : module.Icon.Trim();
         existing.Color = module.Color ?? app.Color ?? "violet";
         existing.Order = module.Order;
@@ -175,17 +186,26 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
       }
     }
 
-    var count = await _context.ApplicationModules.CountAsync(m => m.ApplicationId == applicationId);
+    var existingModules = await _context.ApplicationModules
+        .Where(m => m.ApplicationId == applicationId)
+        .OrderBy(m => m.Order)
+        .ToListAsync();
+
+    for (var i = 0; i < existingModules.Count; i++)
+    {
+      existingModules[i].Order = i + 1;
+    }
+
     var created = new ApplicationModule
     {
       Id = Guid.NewGuid(),
       CorporationId = app.CorporationId,
       ApplicationId = applicationId,
-      Name = module.Name.Trim(),
-      Label = string.IsNullOrWhiteSpace(module.Label) ? module.Name.Trim() : module.Label.Trim(),
+      Name = cleanName,
+      Label = cleanLabel,
       Icon = string.IsNullOrWhiteSpace(module.Icon) ? "layers" : module.Icon.Trim(),
       Color = module.Color ?? app.Color ?? "violet",
-      Order = module.Order > 0 ? module.Order : count + 1,
+      Order = 0,
       System = false,
       Description = module.Description
     };
@@ -235,14 +255,25 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
       }
     }
 
+    var cleanSubName = (page.Name ?? string.Empty).Trim();
+    if (cleanSubName.Length > 20)
+    {
+      cleanSubName = cleanSubName[..20];
+    }
+    var cleanSubLabel = string.IsNullOrWhiteSpace(page.Label) ? cleanSubName : page.Label.Trim();
+    if (cleanSubLabel.Length > 20)
+    {
+      cleanSubLabel = cleanSubLabel[..20];
+    }
+
     if (page.Id != Guid.Empty)
     {
       var existing = await _context.ApplicationSubModules.FirstOrDefaultAsync(sm => sm.Id == page.Id);
       if (existing is not null)
       {
         existing.ApplicationModuleId = moduleId;
-        existing.Name = page.Name.Trim();
-        existing.Label = string.IsNullOrWhiteSpace(page.Label) ? page.Name.Trim() : page.Label.Trim();
+        existing.Name = cleanSubName;
+        existing.Label = cleanSubLabel;
         existing.Icon = string.IsNullOrWhiteSpace(page.Icon) ? "file-text" : page.Icon.Trim();
         existing.Color = page.Color ?? mod.Color ?? "violet";
         existing.Order = page.Order;
@@ -263,8 +294,8 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
       Id = Guid.NewGuid(),
       CorporationId = mod.CorporationId,
       ApplicationModuleId = moduleId,
-      Name = page.Name.Trim(),
-      Label = string.IsNullOrWhiteSpace(page.Label) ? page.Name.Trim() : page.Label.Trim(),
+      Name = cleanSubName,
+      Label = cleanSubLabel,
       Icon = string.IsNullOrWhiteSpace(page.Icon) ? "file-text" : page.Icon.Trim(),
       Color = page.Color ?? mod.Color ?? "violet",
       Order = page.Order > 0 ? page.Order : count + 1,

@@ -11,15 +11,23 @@ namespace Mpx.Api.Controllers;
 public class WorkspaceUserController(WorkspaceUserHandler workspaceUserHandler) : ControllerBase
 {
   [HttpGet("entities-to-relate")]
+  [Authorize(Policy = "WORKSPACE_USER_LIST")]
+  public async Task<IActionResult> GetEntitiesToRelate([FromQuery] Guid workspaceId) =>
+      Ok(await workspaceUserHandler.GetEntitiesToRelateAsync(workspaceId));
+
   [HttpGet("entities-to-relate/{workspaceId:guid}")]
   [Authorize(Policy = "WORKSPACE_USER_LIST")]
-  public async Task<IActionResult> GetEntitiesToRelate(Guid workspaceId) =>
+  public async Task<IActionResult> GetEntitiesToRelateByRoute([FromRoute] Guid workspaceId) =>
       Ok(await workspaceUserHandler.GetEntitiesToRelateAsync(workspaceId));
 
   [HttpGet("related-entities")]
+  [Authorize(Policy = "WORKSPACE_USER_LIST")]
+  public async Task<IActionResult> GetRelatedEntities([FromQuery] Guid workspaceId) =>
+      Ok(await workspaceUserHandler.GetRelatedEntitiesAsync(workspaceId));
+
   [HttpGet("related-entities/{workspaceId:guid}")]
   [Authorize(Policy = "WORKSPACE_USER_LIST")]
-  public async Task<IActionResult> GetRelatedEntities(Guid workspaceId) =>
+  public async Task<IActionResult> GetRelatedEntitiesByRoute([FromRoute] Guid workspaceId) =>
       Ok(await workspaceUserHandler.GetRelatedEntitiesAsync(workspaceId));
 
   [HttpPost("add-relationship")]

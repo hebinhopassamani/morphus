@@ -11,15 +11,23 @@ namespace Mpx.Api.Controllers;
 public class ApplicationUserController(ApplicationUserHandler applicationUserHandler) : ControllerBase
 {
   [HttpGet("entities-to-relate")]
+  [Authorize(Policy = "APPLICATION_USER_LIST")]
+  public async Task<IActionResult> GetEntitiesToRelate([FromQuery] Guid applicationId) =>
+      Ok(await applicationUserHandler.GetEntitiesToRelateAsync(applicationId));
+
   [HttpGet("entities-to-relate/{applicationId:guid}")]
   [Authorize(Policy = "APPLICATION_USER_LIST")]
-  public async Task<IActionResult> GetEntitiesToRelate(Guid applicationId) =>
+  public async Task<IActionResult> GetEntitiesToRelateByRoute([FromRoute] Guid applicationId) =>
       Ok(await applicationUserHandler.GetEntitiesToRelateAsync(applicationId));
 
   [HttpGet("related-entities")]
+  [Authorize(Policy = "APPLICATION_USER_LIST")]
+  public async Task<IActionResult> GetRelatedEntities([FromQuery] Guid applicationId) =>
+      Ok(await applicationUserHandler.GetRelatedEntitiesAsync(applicationId));
+
   [HttpGet("related-entities/{applicationId:guid}")]
   [Authorize(Policy = "APPLICATION_USER_LIST")]
-  public async Task<IActionResult> GetRelatedEntities(Guid applicationId) =>
+  public async Task<IActionResult> GetRelatedEntitiesByRoute([FromRoute] Guid applicationId) =>
       Ok(await applicationUserHandler.GetRelatedEntitiesAsync(applicationId));
 
   [HttpPost("add-relationship")]

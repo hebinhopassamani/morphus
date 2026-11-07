@@ -84,6 +84,14 @@ public static class DependencyInjection
         UPDATE mpx_modules SET description = 'Estrutura hierárquica entre matriz e múltiplas filiais, permitindo alternar de ambiente com apenas um clique.' WHERE title = 'Corporações e Filiais';
         UPDATE mpx_modules SET description = LEFT(description, 120) WHERE LENGTH(description) > 120;
         ALTER TABLE mpx_modules ALTER COLUMN description TYPE character varying(120);
+        UPDATE mpx_application_modules SET name = LEFT(name, 20) WHERE LENGTH(name) > 20;
+        UPDATE mpx_application_modules SET label = LEFT(label, 20) WHERE LENGTH(label) > 20;
+        ALTER TABLE mpx_application_modules ALTER COLUMN name TYPE character varying(20);
+        ALTER TABLE mpx_application_modules ALTER COLUMN label TYPE character varying(20);
+        UPDATE mpx_application_sub_modules SET name = LEFT(name, 20) WHERE LENGTH(name) > 20;
+        UPDATE mpx_application_sub_modules SET label = LEFT(label, 20) WHERE LENGTH(label) > 20;
+        ALTER TABLE mpx_application_sub_modules ALTER COLUMN name TYPE character varying(20);
+        ALTER TABLE mpx_application_sub_modules ALTER COLUMN label TYPE character varying(20);
         """);
 
     if (!dbContext.Features.Any() || !dbContext.ModuleCategories.Any())

@@ -11,6 +11,7 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
     var currentCorpId = _context.CurrentCorporationId;
 
     var relatedUserIds = await _context.ApplicationUsers
+        .IgnoreQueryFilters()
         .AsNoTracking()
         .Where(au => au.ApplicationId == applicationId)
         .Select(au => au.UserId)
@@ -31,6 +32,7 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
   public async Task<List<ApplicationUser>> GetRelatedEntitiesAsync(Guid applicationId)
   {
     return await _context.ApplicationUsers
+        .IgnoreQueryFilters()
         .AsNoTracking()
         .Include(au => au.User)
         .Include(au => au.Application)
@@ -42,6 +44,7 @@ public class ApplicationUserRepository(MorphusDbContext context) : MorphusReposi
   public async Task<ApplicationUser?> GetByKeysAsync(Guid applicationId, Guid userId)
   {
     return await _context.ApplicationUsers
+        .IgnoreQueryFilters()
         .FirstOrDefaultAsync(au => au.ApplicationId == applicationId && au.UserId == userId);
   }
 

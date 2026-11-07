@@ -10,8 +10,8 @@ public class ApplicationModuleConfiguration : IEntityTypeConfiguration<Applicati
   {
     builder.ToTable("mpx_application_modules");
     builder.HasKey(b => b.Id);
-    builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
-    builder.Property(b => b.Label).IsRequired().HasMaxLength(150);
+    builder.Property(b => b.Name).IsRequired().HasMaxLength(20);
+    builder.Property(b => b.Label).IsRequired().HasMaxLength(20);
     builder.Property(b => b.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(b => b.Color).IsRequired(false).HasMaxLength(50);
     builder.Property(b => b.Order).IsRequired().HasDefaultValue(0);
