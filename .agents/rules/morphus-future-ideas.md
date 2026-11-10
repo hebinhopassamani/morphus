@@ -118,6 +118,11 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
   - `Monitoring` & `System Logs` (Observabilidade e auditoria operacional da corporação).
 - **Layouts e Comportamento de Telas no Banco de Dados**:
   - Definir e cadastrar no banco de dados **quais layouts** existem (`Default`, `Clean`, `Enterprise`, `Mail`, etc.) e qual layout/comportamento cada `Application`, `Module` ou `SubModule` (tela) utiliza, permitindo que o front-end resolva dinamicamente a casca visual e o comportamento da tela a partir dos metadados vindos da API.
+- **Camuflagem Visual No-Code para Usuário Leigo no AppBuilder (Sobre o Motor HTML)**:
+  - A base técnica (`HTML + data-mpx-* + {{variavel}}`) já resolve para desenvolvedores/técnicos, mas para o **usuário 100% leigo**, o sistema vai **camuflar o código por trás de uma interface visual clicável no próprio Preview**:
+    1. O usuário clica direto em cima do Card de KPI, da Tabela ou do Campo de Formulário no Preview;
+    2. Abre uma caixinha simples em português claro (*"O que você quer mostrar aqui?"* -> Combo: `Total de Contas a Pagar`, `Quantidade de Notas Fiscais`, etc.; ou *"Este campo é obrigatório?"* -> Chave Liga/Desliga);
+    3. Por trás dos panos, o próprio Morphus escreve/atualiza o `{{ ... }}` e o `data-mpx-*` no HTML sem o usuário leigo jamais precisar ver uma chave `{{ }}` ou tag HTML se não quiser!
 - **Governança e Cotas de Envio de E-mail**:
   - Controlar rigorosamente **quem pode enviar e-mails** (quais `Corporations`, `Applications`, `Users`, `Roles` ou `SecretKeys`), **como** pode enviar (via SMTP próprio, relay do Morphus, template obrigatório ou HTML livre) e **quantos e-mails pode enviar** (cotas diárias/mensais por plano, rate-limiting por minuto/segundo e bloqueio automático ao atingir o limite do Trial/Plano).
 - **Motor de Criação e Disparo de Webhooks (`Webhooks Engine`)**:

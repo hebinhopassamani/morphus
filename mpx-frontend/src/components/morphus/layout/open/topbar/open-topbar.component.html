@@ -18,7 +18,7 @@
     <!-- 3 Menus na Topbar (Somente o nome selecionado + lista dropdown de troca) -->
     @if (auth.isAuthenticated()) {
       <nav class="ms-6 hidden items-center gap-x-1.5 lg:flex">
-        <!-- 1. Minhas Aplicações (vinculadas ao workspace selecionado, sem Morphus/Security/Website) -->
+        <!-- 1. Minhas Aplicações (vinculadas ao espaço de trabalho selecionado, sem a aplicação já selecionada) -->
         <button
           type="button"
           matButton
@@ -31,24 +31,21 @@
         </button>
 
         <mat-menu #topbarAppsMenu="matMenu" class="min-w-60">
-          @if (context.operationalApplications().length > 0) {
-            @for (app of context.operationalApplications(); track app.id) {
+          @if (topbarOtherApplications().length > 0) {
+            @for (app of topbarOtherApplications(); track app.id) {
               <button mat-menu-item (click)="selectTopbarApplication(app)">
                 <mat-icon [svgIcon]="app.icon || 'boxes'" />
                 <span class="flex-auto truncate">{{ app.name }}</span>
-                @if (context.activeOperationalApplication()?.id === app.id) {
-                  <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
-                }
               </button>
             }
           } @else {
             <div class="px-4 py-2.5 text-xs text-neutral-a10 select-none">
-              Nenhuma aplicação vinculada a este workspace
+              Nenhuma outra aplicação neste espaço de trabalho
             </div>
           }
         </mat-menu>
 
-        <!-- 2. Meus Workspaces (workspace selecionado por default + lista de troca) -->
+        <!-- 2. Meus Espaços de trabalho (sem o espaço de trabalho já selecionado) -->
         <button
           type="button"
           matButton
@@ -56,23 +53,26 @@
           [matMenuTriggerFor]="topbarWorkspacesMenu"
         >
           <mat-icon svgIcon="layout-grid" class="size-4 text-indigo-a11" />
-          <span class="max-w-44 truncate">{{ context.activeWorkspace()?.name || 'Meus Workspaces' }}</span>
+          <span class="max-w-44 truncate">{{ context.activeWorkspace()?.name || 'Meus Espaços de trabalho' }}</span>
           <mat-icon svgIcon="chevron-down" class="size-3.5! text-neutral-a10" iconPositionEnd />
         </button>
 
         <mat-menu #topbarWorkspacesMenu="matMenu" class="min-w-60">
-          @for (ws of context.workspaces(); track ws.id) {
-            <button mat-menu-item (click)="selectTopbarWorkspace(ws)">
-              <mat-icon [svgIcon]="ws.icon || 'layout-grid'" />
-              <span class="flex-auto truncate">{{ ws.name }}</span>
-              @if (context.activeWorkspace()?.id === ws.id) {
-                <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
-              }
-            </button>
+          @if (topbarOtherWorkspaces().length > 0) {
+            @for (ws of topbarOtherWorkspaces(); track ws.id) {
+              <button mat-menu-item (click)="selectTopbarWorkspace(ws)">
+                <mat-icon [svgIcon]="ws.icon || 'layout-grid'" />
+                <span class="flex-auto truncate">{{ ws.name }}</span>
+              </button>
+            }
+          } @else {
+            <div class="px-4 py-2.5 text-xs text-neutral-a10 select-none">
+              Nenhum outro espaço de trabalho disponível
+            </div>
           }
         </mat-menu>
 
-        <!-- 3. Minhas Corporações (corporação selecionada + lista de troca) -->
+        <!-- 3. Minhas Corporações (sem a corporação já selecionada) -->
         <button
           type="button"
           matButton
@@ -85,18 +85,21 @@
         </button>
 
         <mat-menu #topbarCorporationsMenu="matMenu" class="min-w-60">
-          @for (corp of auth.availableCorporations(); track corp.id) {
-            <button
-              mat-menu-item
-              [disabled]="corp.inactive"
-              (click)="selectTopbarCorporation(corp)"
-            >
-              <mat-icon [svgIcon]="corp.icon || 'building-2'" />
-              <span class="flex-auto truncate">{{ corp.name }}</span>
-              @if (auth.corporation()?.id === corp.id) {
-                <mat-icon svgIcon="check" class="ms-2 size-4! text-jade-a11" />
-              }
-            </button>
+          @if (topbarOtherCorporations().length > 0) {
+            @for (corp of topbarOtherCorporations(); track corp.id) {
+              <button
+                mat-menu-item
+                [disabled]="corp.inactive"
+                (click)="selectTopbarCorporation(corp)"
+              >
+                <mat-icon [svgIcon]="corp.icon || 'building-2'" />
+                <span class="flex-auto truncate">{{ corp.name }}</span>
+              </button>
+            }
+          } @else {
+            <div class="px-4 py-2.5 text-xs text-neutral-a10 select-none">
+              Nenhuma outra corporação disponível
+            </div>
           }
         </mat-menu>
       </nav>
@@ -193,16 +196,6 @@
           <button mat-menu-item (click)="navigateToSection('minhas-apps')">
             <mat-icon svgIcon="boxes" />
             <span>Minhas Aplicações</span>
-          </button>
-
-          <button mat-menu-item (click)="navigateToSection('meus-workspaces')">
-            <mat-icon svgIcon="layers" />
-            <span>Meus Workspaces</span>
-          </button>
-
-          <button mat-menu-item (click)="navigateToSection('minhas-corporacoes')">
-            <mat-icon svgIcon="building-2" />
-            <span>Minhas Corporações</span>
           </button>
 
           @if (auth.availableCorporations().length > 1) {

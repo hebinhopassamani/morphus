@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
-import { MatDivider } from '@angular/material/divider';
 import { MatIcon } from '@angular/material/icon';
 import {
   MatMenu,
@@ -167,7 +166,6 @@ const CARD_ACCENT_MAP: Record<CardColorKey, CardAccent> = {
     MatMenu,
     MatMenuItem,
     MatMenuTrigger,
-    MatDivider,
     RouterLink,
     MpxPortalCardComponent,
   ],
@@ -277,6 +275,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
 
   protected selectWorkspaceFilter(wsId: string): void {
     this.selectedWorkspaceFilterId.set(wsId);
+    this.selectedAppFilterId.set('all');
     if (wsId !== 'all') {
       const ws = this.context.workspaces().find((w) => w.id === wsId);
       if (ws && ws.id !== this.context.activeWorkspace()?.id) {
@@ -521,7 +520,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     {
       title: 'Acessos e Permissões',
       description:
-        'Gestão granular de usuários, perfis (roles) e permissões (claims) isolados por corporação, filial, workspace e aplicação.',
+        'Gestão granular de usuários, perfis (roles) e permissões (claims) isolados por corporação, filial, espaço de trabalho e aplicação.',
       icon: 'shield-check',
       categoryName: 'Segurança',
       categoryColor: 'violet',
@@ -603,8 +602,8 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
   protected readonly showcaseFeatures = signal<ShowcaseFeatureItem[]>([
     {
       order: 1,
-      highlightPhrase: 'Arquitetura Multi-Corporação',
-      title: 'Uma única conta. Múltiplas corporações, filiais e workspaces.',
+      highlightPhrase: 'Arquitetura Multi - Corporação',
+      title: 'Uma única conta. Múltiplas corporações, filiais e espaços de trabalho.',
       description:
         'O Morphus foi desenhado para grupos empresariais reais. Um mesmo usuário pode atuar em diferentes organizações e filiais mantendo cada base de dados 100% isolada e segura.',
       highlights: [
@@ -618,7 +617,7 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
         {
           title: 'Destaques da arquitetura',
           titleIcon: 'layers',
-          highlight: 'Workspaces e aplicações sob medida para cada departamento',
+          highlight: 'Espaços de trabalho e aplicações sob medida para cada departamento',
           highlightIcon: 'check',
           order: 2,
         },

@@ -398,7 +398,7 @@
               <input
                 type="text"
                 maxlength="20"
-                placeholder="Nome do novo Menu (máx. 20)..."
+                placeholder="Nome do novo Menu"
                 [ngModel]="newModuleName()"
                 (ngModelChange)="newModuleName.set($event)"
                 (keydown.enter)="canCreateModule() && createModule()"
@@ -422,11 +422,10 @@
             <table class="w-full text-left text-sm">
               <thead class="border-b border-neutral-a4 bg-neutral-a2 text-xs font-semibold uppercase tracking-wider text-neutral-a11">
                 <tr>
-                  <th class="px-4 py-3">Menu</th>
-                  <th class="w-64 px-4 py-3">Rota</th>
-                  <th class="w-64 px-4 py-3 text-end">
-                    <span class="pe-3">Ações</span>
-                  </th>
+                  <th class="px-4 py-3 text-left">Menu</th>
+                  <th class="w-56 px-4 py-3 text-center">Rota</th>
+                  <th class="w-44 px-4 py-3 text-center">Página</th>
+                  <th class="w-28 px-4 py-3 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-neutral-a4">
@@ -444,17 +443,14 @@
                     (dragend)="onMenuDragEnd()"
                   >
                     <!-- COLUNA 1: Seta + Ícone + Nome do Menu dentro do Pill (Com cor distinta entre Aberto, Fechado e Filho!) -->
-                    <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                    <td class="px-4 py-1.5 text-left align-middle whitespace-nowrap">
                       <div class="flex items-center gap-2.5">
-                        <!-- Cápsula do Menu Pai: Roxo Royal quando Aberto | Azul-Ardosia Escuro quando Fechado -->
+                        <!-- Cápsula do Menu Pai: Roxo Royal (#6d28d9) quando Aberto | Ardósia Escura (#334155) quando Fechado (Sempre 100% visível!) -->
                         <div
-                          class="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-bold shadow-2xs transition"
-                          [class.border-primary-9]="isModuleExpanded(mod.id)"
-                          [class.bg-primary-9]="isModuleExpanded(mod.id)"
-                          [class.text-white]="isModuleExpanded(mod.id)"
-                          [class.border-slate-700]="!isModuleExpanded(mod.id)"
-                          [class.bg-slate-800]="!isModuleExpanded(mod.id)"
-                          [class.text-white]="!isModuleExpanded(mod.id)"
+                          class="inline-flex items-center gap-2 rounded-lg border px-2.5 py-1 text-xs font-bold text-white shadow-2xs transition"
+                          [style.backgroundColor]="isModuleExpanded(mod.id) ? '#6d28d9' : '#334155'"
+                          [style.borderColor]="isModuleExpanded(mod.id) ? '#6d28d9' : '#475569'"
+                          [style.color]="'#ffffff'"
                         >
                           <button
                             type="button"
@@ -484,7 +480,8 @@
                               (keydown.escape)="cancelModuleEdit()"
                               (click)="$event.stopPropagation()"
                               placeholder="Nome do menu..."
-                              class="h-6 w-40 rounded bg-white px-2 text-xs font-bold text-neutral-900 outline-none ring-2 ring-white/40"
+                              style="color: #111827; background-color: #ffffff"
+                              class="h-6 w-40 rounded bg-white px-2 text-xs font-bold text-neutral-12 outline-none ring-2 ring-white/40"
                             />
                           } @else {
                             <!-- MODO VISUALIZAÇÃO: Ícone escolhido + Nome do Menu -->
@@ -495,6 +492,7 @@
                             />
                             <span
                               class="cursor-pointer select-none text-xs font-bold tracking-wide text-white"
+                              style="color: #ffffff"
                               (click)="toggleModuleExpand(mod.id)"
                               (dblclick)="$event.stopPropagation(); selectModuleForEdit(mod)"
                             >
@@ -509,27 +507,45 @@
                       </div>
                     </td>
 
-                    <!-- COLUNA 2: Rota (Com caixinha preenchida escrito Menu Pai) -->
-                    <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                    <!-- COLUNA 2: Rota (Centralizada com o título da coluna) -->
+                    <td class="w-56 px-4 py-1.5 text-center align-middle whitespace-nowrap">
                       <code class="inline-block whitespace-nowrap rounded bg-neutral-a3 px-2.5 py-0.5 font-mono text-xs text-neutral-11">
                         Menu Pai
                       </code>
                     </td>
 
-                    <!-- COLUNA 3: Ações -->
-                    <td class="px-4 py-1.5 text-end align-middle whitespace-nowrap">
+                    <!-- COLUNA 3: Página (Nova Página / Salvar Edição Inline) -->
+                    <td class="w-44 px-4 py-1.5 text-center align-middle whitespace-nowrap">
                       @if (editingModule()?.id === mod.id && editingModule(); as modEdit) {
-                        <div class="inline-flex items-center justify-end gap-1.5">
-                          <button
-                            matButton
-                            type="button"
-                            class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
-                            [disabled]="savingModule() || !modEdit.name?.trim()"
-                            (click)="saveCurrentModule()"
-                          >
-                            <mat-icon svgIcon="check" />
-                            Salvar
-                          </button>
+                        <button
+                          matButton
+                          type="button"
+                          class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
+                          matTooltip="Salvar alterações"
+                          [disabled]="savingModule() || !modEdit.name?.trim()"
+                          (click)="saveCurrentModule()"
+                        >
+                          <mat-icon svgIcon="check" />
+                          Salvar
+                        </button>
+                      } @else {
+                        <button
+                          matButton
+                          type="button"
+                          class="tertiary small !w-36 !min-w-36 !max-w-36 justify-center"
+                          [matTooltip]="'Adicionar um Submenu dentro do menu ' + (mod.label || mod.name)"
+                          (click)="startInlineNewPage(mod.id)"
+                        >
+                          <mat-icon svgIcon="plus" />
+                          Nova Página
+                        </button>
+                      }
+                    </td>
+
+                    <!-- COLUNA 4: Ações (Botões de Ícone centralizados com o título Ações) -->
+                    <td class="w-28 px-4 py-1.5 text-center align-middle whitespace-nowrap">
+                      @if (editingModule()?.id === mod.id) {
+                        <div class="inline-flex items-center justify-center gap-1.5">
                           <button
                             matIconButton
                             type="button"
@@ -539,32 +555,14 @@
                           >
                             <mat-icon svgIcon="x" />
                           </button>
-                          <button
-                            matIconButton
-                            type="button"
-                            class="tiny pointer-events-none invisible"
-                            tabindex="-1"
-                          >
-                            <mat-icon svgIcon="trash" />
-                          </button>
                         </div>
                       } @else {
-                        <div class="inline-flex items-center justify-end gap-1.5">
-                          <button
-                            matButton
-                            type="button"
-                            class="tertiary small !w-36 !min-w-36 !max-w-36 justify-center"
-                            matTooltip="Adicionar um Submenu (Página filha) dentro deste Menu Pai"
-                            (click)="startInlineNewPage(mod.id)"
-                          >
-                            <mat-icon svgIcon="plus" />
-                            Nova Página
-                          </button>
+                        <div class="inline-flex items-center justify-center gap-1.5">
                           <button
                             matIconButton
                             type="button"
                             class="tiny"
-                            matTooltip="Editar Ícone e Nome deste Menu na própria linha"
+                            [matTooltip]="'Editar menu pai ' + (mod.label || mod.name)"
                             (click)="selectModuleForEdit(mod)"
                           >
                             <mat-icon svgIcon="square-pen" />
@@ -599,7 +597,7 @@
                         (dragend)="onMenuDragEnd()"
                       >
                         <!-- COLUNA 1: Curva L + Cápsula do Submenu (Sem seta, com Ícone escolhido + Nome do Submenu ou Edição Inline!) -->
-                        <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                        <td class="px-4 py-1.5 text-left align-middle whitespace-nowrap">
                           <div class="inline-flex items-center gap-1.5">
                             <span
                               class="ms-4 h-3.5 w-3.5 shrink-0 -translate-y-0.5 rounded-bl-md border-b-2 border-s-2 border-primary-9"
@@ -625,7 +623,8 @@
                                   (keydown.escape)="cancelInlinePageEdit()"
                                   [matTooltip]="inlinePageNameConflict()"
                                   placeholder="Nome do submenu..."
-                                  class="h-6 w-40 rounded border bg-white px-2 text-xs font-semibold text-neutral-900 outline-none"
+                                  style="color: #111827; background-color: #ffffff"
+                                  class="h-6 w-40 rounded border bg-white px-2 text-xs font-semibold text-neutral-12 outline-none"
                                   [class.border-red-9]="!!inlinePageNameConflict()"
                                   [class.border-primary-8]="!inlinePageNameConflict()"
                                 />
@@ -645,8 +644,8 @@
                           </div>
                         </td>
 
-                        <!-- COLUNA 2: Rota -->
-                        <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                        <!-- COLUNA 2: Rota (Centralizada com o título da coluna) -->
+                        <td class="w-56 px-4 py-1.5 text-center align-middle whitespace-nowrap">
                           @if (inlineEditPage()?.id === sub.id && inlineEditPage(); as rowEdit) {
                             <input
                               type="text"
@@ -656,7 +655,7 @@
                               (keydown.escape)="cancelInlinePageEdit()"
                               [matTooltip]="inlinePageRouteConflict()"
                               placeholder="ex: dashboard"
-                              class="h-7 w-48 rounded-lg border bg-white px-2.5 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+                              class="h-7 w-48 rounded-lg border bg-white px-2.5 text-center font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
                               [class.border-red-9]="!!inlinePageRouteConflict()"
                               [class.border-primary-8]="!inlinePageRouteConflict()"
                             />
@@ -667,20 +666,38 @@
                           }
                         </td>
 
-                        <!-- COLUNA 3: Ações -->
-                        <td class="px-4 py-1.5 text-end align-middle whitespace-nowrap">
+                        <!-- COLUNA 3: Página (Editar Página / Salvar Edição Inline) -->
+                        <td class="w-44 px-4 py-1.5 text-center align-middle whitespace-nowrap">
                           @if (inlineEditPage()?.id === sub.id) {
-                            <div class="inline-flex items-center justify-end gap-1.5">
-                              <button
-                                matButton
-                                type="button"
-                                class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
-                                [disabled]="!canSaveInlinePage()"
-                                (click)="saveInlinePageRow()"
-                              >
-                                <mat-icon svgIcon="check" />
-                                Salvar
-                              </button>
+                            <button
+                              matButton
+                              type="button"
+                              class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
+                              matTooltip="Salvar alterações"
+                              [disabled]="!canSaveInlinePage()"
+                              (click)="saveInlinePageRow()"
+                            >
+                              <mat-icon svgIcon="check" />
+                              Salvar
+                            </button>
+                          } @else {
+                            <button
+                              matButton
+                              type="button"
+                              class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
+                              (click)="openPageInHtmlEditor(mod.id, sub)"
+                              matTooltip="Clique para editar esta página"
+                            >
+                              <mat-icon svgIcon="square-pen" />
+                              Editar Página
+                            </button>
+                          }
+                        </td>
+
+                        <!-- COLUNA 4: Ações (Botões de Ícone centralizados com o título Ações) -->
+                        <td class="w-28 px-4 py-1.5 text-center align-middle whitespace-nowrap">
+                          @if (inlineEditPage()?.id === sub.id) {
+                            <div class="inline-flex items-center justify-center gap-1.5">
                               <button
                                 matIconButton
                                 type="button"
@@ -690,32 +707,14 @@
                               >
                                 <mat-icon svgIcon="x" />
                               </button>
-                              <button
-                                matIconButton
-                                type="button"
-                                class="tiny pointer-events-none invisible"
-                                tabindex="-1"
-                              >
-                                <mat-icon svgIcon="trash" />
-                              </button>
                             </div>
                           } @else {
-                            <div class="inline-flex items-center justify-end gap-1.5">
-                                <button
-                                matButton
-                                type="button"
-                                class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
-                                (click)="openPageInHtmlEditor(mod.id, sub)"
-                                matTooltip="Selecionar esta página e abrir o Editor de Página"
-                              >
-                                <mat-icon svgIcon="square-pen" />
-                                Editar Página
-                              </button>
+                            <div class="inline-flex items-center justify-center gap-1.5">
                               <button
                                 matIconButton
                                 type="button"
                                 class="tiny"
-                                matTooltip="Editar Ícone, Nome e Rota na própria linha"
+                                [matTooltip]="'Editar Submenu ' + (sub.label || sub.name)"
                                 (click)="startInlinePageEdit(mod.id, sub)"
                               >
                                 <mat-icon svgIcon="settings" />
@@ -738,7 +737,7 @@
                     <!-- LINHA DE CRIAÇÃO INLINE DE NOVO SUBMENU DENTRO DESTE MENU PAI -->
                     @if (inlineEditPage()?.id === '' && inlineEditPage()?.moduleId === mod.id && inlineEditPage(); as newRow) {
                       <tr class="h-13 bg-primary-a2/60">
-                        <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                        <td class="px-4 py-1.5 text-left align-middle whitespace-nowrap">
                           <div class="inline-flex items-center gap-1.5">
                             <span
                               class="ms-4 h-3.5 w-3.5 shrink-0 -translate-y-0.5 rounded-bl-md border-b-2 border-s-2 border-primary-9"
@@ -761,14 +760,15 @@
                                 (keydown.escape)="cancelInlinePageEdit()"
                                 [matTooltip]="inlinePageNameConflict()"
                                 placeholder="Nome do novo submenu..."
-                                class="h-6 w-44 rounded border bg-white px-2 text-xs font-semibold text-neutral-900 outline-none"
+                                style="color: #111827; background-color: #ffffff"
+                                class="h-6 w-44 rounded border bg-white px-2 text-xs font-semibold text-neutral-12 outline-none"
                                 [class.border-red-9]="!!inlinePageNameConflict()"
                                 [class.border-primary-8]="!inlinePageNameConflict()"
                               />
                             </div>
                           </div>
                         </td>
-                        <td class="px-4 py-1.5 align-middle whitespace-nowrap">
+                        <td class="w-56 px-4 py-1.5 text-center align-middle whitespace-nowrap">
                           <input
                             type="text"
                             [ngModel]="newRow.routePattern"
@@ -777,23 +777,26 @@
                             (keydown.escape)="cancelInlinePageEdit()"
                             [matTooltip]="inlinePageRouteConflict()"
                             placeholder="ex: dashboard"
-                            class="h-7 w-48 rounded-lg border bg-white px-2.5 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+                            class="h-7 w-48 rounded-lg border bg-white px-2.5 text-center font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
                             [class.border-red-9]="!!inlinePageRouteConflict()"
                             [class.border-primary-8]="!inlinePageRouteConflict()"
                           />
                         </td>
-                        <td class="px-4 py-1.5 text-end align-middle whitespace-nowrap">
-                          <div class="inline-flex items-center justify-end gap-1.5">
-                            <button
-                              matButton
-                              type="button"
-                              class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
-                              [disabled]="!canSaveInlinePage()"
-                              (click)="saveInlinePageRow()"
-                            >
-                              <mat-icon svgIcon="check" />
-                              Salvar
-                            </button>
+                        <td class="w-44 px-4 py-1.5 text-center align-middle whitespace-nowrap">
+                          <button
+                            matButton
+                            type="button"
+                            class="primary small !w-36 !min-w-36 !max-w-36 justify-center"
+                            matTooltip="Salvar alterações"
+                            [disabled]="!canSaveInlinePage()"
+                            (click)="saveInlinePageRow()"
+                          >
+                            <mat-icon svgIcon="check" />
+                            Salvar
+                          </button>
+                        </td>
+                        <td class="w-28 px-4 py-1.5 text-center align-middle whitespace-nowrap">
+                          <div class="inline-flex items-center justify-center gap-1.5">
                             <button
                               matIconButton
                               type="button"
@@ -802,14 +805,6 @@
                               (click)="cancelInlinePageEdit()"
                             >
                               <mat-icon svgIcon="x" />
-                            </button>
-                            <button
-                              matIconButton
-                              type="button"
-                              class="tiny pointer-events-none invisible"
-                              tabindex="-1"
-                            >
-                              <mat-icon svgIcon="trash" />
                             </button>
                           </div>
                         </td>
@@ -864,51 +859,6 @@
                     Html + Preview
                   </button>
                 </div>
-
-                <button
-                  matButton
-                  type="button"
-                  class="tertiary small"
-                  [matMenuTriggerFor]="htmlBlocksMenu"
-                >
-                  Inserir Bloco
-                  <mat-icon svgIcon="chevron-down" />
-                </button>
-                <mat-menu #htmlBlocksMenu="matMenu">
-                  <button mat-menu-item type="button" (click)="insertHtmlBlock('hero')">
-                    <mat-icon svgIcon="sparkles" />
-                    <span>Inserir Cabeçalho</span>
-                  </button>
-                  <button mat-menu-item type="button" (click)="insertHtmlBlock('kpi')">
-                    <mat-icon svgIcon="boxes" />
-                    <span>Inserir Indicadores KPI</span>
-                  </button>
-                  <button mat-menu-item type="button" (click)="insertHtmlBlock('table')">
-                    <mat-icon svgIcon="layers" />
-                    <span>Inserir Tabela de dados</span>
-                  </button>
-                  <button mat-menu-item type="button" (click)="insertHtmlBlock('form')">
-                    <mat-icon svgIcon="file-text" />
-                    <span>Inserir Formulário de cadastro</span>
-                  </button>
-                  <div class="my-1 border-t border-neutral-a4"></div>
-                  <button
-                    mat-menu-item
-                    type="button"
-                    (click)="generateCompleteStarterTemplate('contas-pagar')"
-                  >
-                    <mat-icon svgIcon="sparkles" />
-                    <span>Página Completa: Contas a Pagar</span>
-                  </button>
-                  <button
-                    mat-menu-item
-                    type="button"
-                    (click)="generateCompleteStarterTemplate('notas-fiscais')"
-                  >
-                    <mat-icon svgIcon="sparkles" />
-                    <span>Página Completa: Notas Fiscais</span>
-                  </button>
-                </mat-menu>
               </div>
 
               <div class="flex flex-wrap items-center gap-1.5">
@@ -932,15 +882,6 @@
                 >
                   <mat-icon svgIcon="arrow-right" />
                 </button>
-                <button
-                  matButton
-                  type="button"
-                  class="tertiary small"
-                  [disabled]="(page.htmlContent || '') === initialPageHtml()"
-                  (click)="resetPageHtmlToSaved()"
-                >
-                  Restaurar Salvo
-                </button>
                 @if (page.id) {
                   <button
                     matButton
@@ -962,6 +903,38 @@
                   <mat-icon svgIcon="check" />
                   {{ savingPage() ? 'Salvando...' : 'Salvar' }}
                 </button>
+                <button
+                  matButton
+                  type="button"
+                  class="tertiary small"
+                  matTooltip="Cancelar alterações e voltar para a listagem de aplicações"
+                  (click)="confirmCancelPageEditor()"
+                >
+                  <mat-icon svgIcon="x" />
+                  Cancelar
+                </button>
+                <button
+                  matButton
+                  type="button"
+                  class="tertiary small"
+                  matTooltip="Voltar a pagina como estava antes de salvar"
+                  [disabled]="(page.htmlContent || '') === initialPageHtml()"
+                  (click)="confirmResetPageHtmlToSaved()"
+                >
+                  Resetar Página
+                </button>
+                @if (studioViewMode() === 'preview') {
+                  <button
+                    matIconButton
+                    type="button"
+                    class="tiny text-neutral-11 hover:text-primary-11"
+                    [class.text-primary-11]="visualInspectorOpen()"
+                    [matTooltip]="visualInspectorOpen() ? 'Recolher menu de Propriedades' : 'Abrir menu de Propriedades'"
+                    (click)="toggleVisualInspector()"
+                  >
+                    <mat-icon [svgIcon]="visualInspectorOpen() ? 'panel-right-open' : 'panel-left-open'" />
+                  </button>
+                }
               </div>
             </div>
 
@@ -990,68 +963,787 @@
                   <!-- Canvas Visual Clicável e Arrastável -->
                   <div
                     #visualPreviewCanvas
-                    class="mpx-visual-preview-canvas overflow-y-auto rounded-xl border border-neutral-a4 bg-neutral-1 p-5"
+                    class="mpx-visual-preview-canvas overflow-y-auto rounded-xl border border-neutral-a4 bg-neutral-1 p-5 transition"
+                    [class.border-primary-8]="!!visualDragSource()"
                     [class.md:col-span-8]="studioViewMode() === 'preview' && visualInspectorOpen()"
                     [class.md:col-span-12]="studioViewMode() !== 'preview' || !visualInspectorOpen()"
                     style="height: calc(100dvh - 230px)"
                     [innerHTML]="livePreviewHtml()"
+                    (mouseenter)="onVisualPreviewMouseEnter()"
                     (click)="onVisualPreviewClick($event)"
                     (submit)="onVisualPreviewSubmit($event)"
                     (dragstart)="onVisualPreviewDragStart($event)"
                     (dragover)="onVisualPreviewDragOver($event)"
+                    (dragleave)="onVisualPreviewDragLeave($event)"
+                    (dragend)="onVisualPreviewDragEnd()"
                     (drop)="onVisualPreviewDrop($event)"
                   ></div>
 
-                  <!-- Painel Construtor Visual para Leigos (Exibido no modo Editor de Página) -->
+                  <!-- Painel de Propriedades, Blocos e Objetos do Editor de Página -->
                   @if (studioViewMode() === 'preview' && visualInspectorOpen()) {
                     <div
-                      class="flex flex-col gap-3.5 overflow-y-auto rounded-xl border border-primary-a5 bg-white p-4 shadow-sm dark:bg-neutral-2"
+                      class="flex flex-col gap-3 overflow-y-auto rounded-xl border border-primary-a5 bg-white p-4 shadow-sm dark:bg-neutral-2"
                       [class.md:col-span-4]="studioViewMode() === 'preview'"
                       style="height: calc(100dvh - 230px)"
                     >
-                      <div class="flex items-center justify-between border-b border-neutral-a4 pb-2.5">
-                        <div class="flex items-center gap-2">
-                          <span class="inline-flex size-6 items-center justify-center rounded-lg bg-primary-9 text-white">
+                      <!-- Cabeçalho: Propriedades -->
+                      <div class="flex items-start justify-between border-b border-neutral-a4 pb-2.5">
+                        <div class="flex items-start gap-2">
+                          <span class="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary-9 text-white">
                             <mat-icon svgIcon="sparkles" class="!size-3.5 !text-white" />
                           </span>
                           <div>
                             <h4 class="text-xs font-bold uppercase tracking-wider text-primary-11">
-                              Construtor Visual
+                              Propriedades
                             </h4>
-                            <p class="text-[11px] text-neutral-a11">
-                              Clique em qualquer item no Preview para configurar sem código
+                            <p class="text-[11px] leading-snug text-neutral-a11">
+                              Selecione um bloco ou objeto ao lado para modificar seu comportamento
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      <!-- Atalhos Rápidos de Construção -->
-                      <div class="flex flex-wrap items-center gap-1.5 rounded-xl border border-neutral-a4 bg-neutral-a2/50 p-2">
+                      <!-- 3 Abas: Propriedades | Blocos | Objetos -->
+                      <div class="grid grid-cols-3 gap-1 rounded-xl border border-neutral-a4 bg-neutral-a2 p-1 text-xs">
                         <button
                           type="button"
-                          (click)="addNewFieldToForm()"
-                          class="inline-flex items-center gap-1 rounded-lg bg-primary-9 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-primary-10"
+                          (click)="visualInspectorTab.set('properties')"
+                          class="rounded-lg py-1.5 font-semibold transition"
+                          [class.bg-primary-9]="visualInspectorTab() === 'properties'"
+                          [class.text-white]="visualInspectorTab() === 'properties'"
+                          [class.text-neutral-11]="visualInspectorTab() !== 'properties'"
                         >
-                          <mat-icon svgIcon="plus" class="!size-3.5 !text-white" />
-                          Novo Campo
+                          Propriedades
                         </button>
                         <button
                           type="button"
-                          (click)="syncTableWithFormFields()"
-                          class="inline-flex items-center gap-1 rounded-lg border border-primary-a6 bg-primary-a2 px-2.5 py-1 text-[11px] font-semibold text-primary-11 transition hover:bg-primary-a3"
-                          matTooltip="Copia todos os campos do Formulário para as colunas da Tabela automaticamente"
+                          (click)="visualInspectorTab.set('blocks')"
+                          class="rounded-lg py-1.5 font-semibold transition"
+                          [class.bg-primary-9]="visualInspectorTab() === 'blocks'"
+                          [class.text-white]="visualInspectorTab() === 'blocks'"
+                          [class.text-neutral-11]="visualInspectorTab() !== 'blocks'"
                         >
-                          <mat-icon svgIcon="layers" class="!size-3.5" />
-                          Espelhar Form na Tabela
+                          Blocos
+                        </button>
+                        <button
+                          type="button"
+                          (click)="visualInspectorTab.set('objects')"
+                          class="rounded-lg py-1.5 font-semibold transition"
+                          [class.bg-primary-9]="visualInspectorTab() === 'objects'"
+                          [class.text-white]="visualInspectorTab() === 'objects'"
+                          [class.text-neutral-11]="visualInspectorTab() !== 'objects'"
+                        >
+                          Objetos
                         </button>
                       </div>
 
-                      @if (visualTargetType() === 'field') {
-                        <!-- INSPETOR DE CAMPO DO FORMULÁRIO -->
+                      @if (visualInspectorTab() === 'blocks') {
+                        <!-- ABA BLOCOS (Arrastar e Soltar ou Clicar para inserir na página) -->
+                        <div class="flex flex-col gap-3">
+                          <p class="text-[11px] text-neutral-a11">
+                            Arraste qualquer bloco para a página ao lado ou clique nele para inserir imediatamente:
+                          </p>
+
+                          <!-- Categoria 1: Estruturas & Layouts -->
+                          <div class="flex flex-col gap-1.5">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-primary-11">
+                              Estruturas & Layouts da Página
+                            </span>
+                            <div class="grid grid-cols-1 gap-1.5">
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'grid')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('grid')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'grid'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'grid'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/30 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/40"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                                    <mat-icon svgIcon="boxes" class="!size-4 !text-white" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Grid de Blocos (Linhas × Colunas)</div>
+                                    <div class="text-[11px] text-neutral-a11">Cria espaços automáticos por linha e coluna para posicionar itens</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'hero')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('hero')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'hero'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'hero'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                                    <mat-icon svgIcon="sparkles" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Cabeçalho da Página</div>
+                                    <div class="text-[11px] text-neutral-a11">Selo superior, título principal e subtítulo</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'kpi')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('kpi')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'kpi'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'kpi'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-jade-a3 text-jade-a11">
+                                    <mat-icon svgIcon="chart-no-axes-combined" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Indicadores KPI</div>
+                                    <div class="text-[11px] text-neutral-a11">Cards de soma automática, contagem e pendentes</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'form')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('form')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'form'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'form'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                                    <mat-icon svgIcon="file-text" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Formulário de Cadastro</div>
+                                    <div class="text-[11px] text-neutral-a11">Grade de campos 25%, 50%, 100% com botão Salvar</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'table')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('table')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'table'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'table'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-indigo-a3 text-indigo-11">
+                                    <mat-icon svgIcon="layers" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Tabela de Dados</div>
+                                    <div class="text-[11px] text-neutral-a11">Listagem conectada ao cadastro com colunas editáveis</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'section')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('section')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'section'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'section'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-neutral-a3 text-neutral-12">
+                                    <mat-icon svgIcon="boxes" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Seção Livre para Objetos</div>
+                                    <div class="text-[11px] text-neutral-a11">Container limpo para soltar botões, combos e textos</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Categoria 2: Módulos Prontos da Aplicação -->
+                          <div class="flex flex-col gap-1.5 pt-1">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-primary-11">
+                              Módulos Prontos da Aplicação
+                            </span>
+                            <div class="grid grid-cols-1 gap-1.5">
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'contas-pagar')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="generateCompleteStarterTemplate('contas-pagar')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'contas-pagar'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'contas-pagar'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/40 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/50"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                                    <mat-icon svgIcon="wallet" class="!size-4 !text-white" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Página Completa: Contas a Pagar</div>
+                                    <div class="text-[11px] text-neutral-a11">Cabeçalho + KPIs + Formulário + Tabela Financeira</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="sparkles" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'notas-fiscais')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="generateCompleteStarterTemplate('notas-fiscais')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'notas-fiscais'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'notas-fiscais'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/40 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/50"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                                    <mat-icon svgIcon="receipt-text" class="!size-4 !text-white" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Página Completa: Notas Fiscais</div>
+                                    <div class="text-[11px] text-neutral-a11">Cabeçalho + KPIs + Entrada de NF + Tabela Fiscal</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="sparkles" class="!size-4 text-primary-11" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Categoria 3: Blocos de Ação & Avisos -->
+                          <div class="flex flex-col gap-1.5 pt-1">
+                            <span class="text-[11px] font-bold uppercase tracking-wider text-primary-11">
+                              Blocos Complementares
+                            </span>
+                            <div class="grid grid-cols-1 gap-1.5">
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'quick-actions')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('quick-actions')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'quick-actions'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'quick-actions'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                                    <mat-icon svgIcon="repeat" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Barra de Ações Rápidas</div>
+                                    <div class="text-[11px] text-neutral-a11">Bloco com botões de ação configuráveis</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteBlockDragStart($event, 'alert')"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertHtmlBlock('alert')"
+                                [class.opacity-40]="visualDragSource()?.paletteBlockType === 'alert'"
+                                [class.scale-95]="visualDragSource()?.paletteBlockType === 'alert'"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 items-center justify-center rounded-lg bg-amber-a3 text-amber-a11">
+                                    <mat-icon svgIcon="shield-check" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">Aviso Operacional / Alerta</div>
+                                    <div class="text-[11px] text-neutral-a11">Faixa de destaque com etiqueta de status</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      } @else if (visualInspectorTab() === 'objects') {
+                        <!-- ABA OBJETOS (8 Tipos Universais: Arrastar e Soltar ou Clicar para inserir) -->
+                        <div class="flex flex-col gap-2.5">
+                          <p class="text-[11px] text-neutral-a11">
+                            Arraste qualquer objeto para dentro de um bloco da página ou clique para adicioná-lo:
+                          </p>
+
+                          <div class="grid grid-cols-1 gap-1.5">
+                            @for (obj of visualObjectChoices; track obj.type) {
+                              <button
+                                type="button"
+                                draggable="true"
+                                (dragstart)="onPaletteObjectDragStart($event, obj.type)"
+                                (dragend)="onPaletteDragEnd()"
+                                (click)="insertVisualObjectFromPalette(obj.type)"
+                                [class.opacity-40]="visualDragSource()?.paletteObjectType === obj.type"
+                                [class.scale-95]="visualDragSource()?.paletteObjectType === obj.type"
+                                class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                              >
+                                <div class="flex items-center gap-2.5">
+                                  <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                                    <mat-icon [svgIcon]="obj.icon" class="!size-4" />
+                                  </span>
+                                  <div>
+                                    <div class="text-xs font-bold text-neutral-12">{{ obj.label }}</div>
+                                    <div class="text-[11px] text-neutral-a11">{{ obj.desc }}</div>
+                                  </div>
+                                </div>
+                                <mat-icon svgIcon="plus" class="!size-4 shrink-0 text-primary-11" />
+                              </button>
+                            }
+                          </div>
+                        </div>
+                      } @else {
+                        <!-- ABA PROPRIEDADES (Mostra claramente o Bloco ou Objeto selecionado e suas propriedades) -->
+                        <div class="flex flex-wrap items-center gap-1.5 rounded-xl border border-neutral-a4 bg-neutral-a2/50 p-2">
+                          @if (visualTargetType() && visualTargetType() !== 'grid') {
+                            <button
+                              type="button"
+                              (click)="selectParentGridOfCurrentBlock()"
+                              class="inline-flex items-center gap-1 rounded-lg border border-indigo-500/40 bg-indigo-500/10 px-2.5 py-1 text-[11px] font-bold text-indigo-700 transition hover:bg-indigo-500/20 dark:text-indigo-300"
+                              matTooltip="Seleciona o Grid pai desta linha da página para configurar Linhas × Colunas ou mover o Grid"
+                            >
+                              <mat-icon svgIcon="boxes" class="!size-3.5" />
+                              Selecionar Grid #{{ visualGridBlockIndex() + 1 }}
+                            </button>
+                          }
+                          <button
+                            type="button"
+                            (click)="addNewFieldToForm()"
+                            class="inline-flex items-center gap-1 rounded-lg bg-primary-9 px-2.5 py-1 text-[11px] font-semibold text-white transition hover:bg-primary-10"
+                          >
+                            <mat-icon svgIcon="plus" class="!size-3.5 !text-white" />
+                            Novo Campo
+                          </button>
+                          <button
+                            type="button"
+                            (click)="addEmptySlotToCurrentBlock()"
+                            class="inline-flex items-center gap-1 rounded-lg border border-primary-a6 bg-white px-2.5 py-1 text-[11px] font-semibold text-primary-11 transition hover:bg-primary-a2 dark:bg-neutral-1"
+                            matTooltip="Adiciona um espaço vazio na linha/grid para posicionar itens em qualquer coluna"
+                          >
+                            <mat-icon svgIcon="boxes" class="!size-3.5" />
+                            + Espaço Vazio
+                          </button>
+                          <button
+                            type="button"
+                            (click)="syncTableWithFormFields()"
+                            class="inline-flex items-center gap-1 rounded-lg border border-primary-a6 bg-primary-a2 px-2.5 py-1 text-[11px] font-semibold text-primary-11 transition hover:bg-primary-a3"
+                            matTooltip="Copia todos os campos do Formulário para as colunas da Tabela automaticamente"
+                          >
+                            <mat-icon svgIcon="layers" class="!size-3.5" />
+                            Espelhar Form na Tabela
+                          </button>
+                        </div>
+
+                        @if (visualTargetType() === 'object') {
+                          <!-- INSPETOR DE OBJETO UNIVERSAL (Com Combo de Troca de Tipo e Memória por Tipo!) -->
+                          <div class="flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                              <span class="inline-flex items-center gap-1.5 rounded-md bg-primary-9 px-2.5 py-0.5 text-[11px] font-bold text-white">
+                                Objeto Selecionado
+                              </span>
+                              <button
+                                matIconButton
+                                type="button"
+                                class="tiny text-red-a11"
+                                matTooltip="Excluir este objeto"
+                                (click)="removeSelectedVisualObject()"
+                              >
+                                <mat-icon svgIcon="trash" />
+                              </button>
+                            </div>
+
+                            <!-- Combo Tipo do Objeto (Permite transformar Botão <-> Combo <-> Link <-> Campo mantendo memória!) -->
+                            <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                              Tipo do Objeto
+                              <select
+                                [ngModel]="visualObjectType()"
+                                (ngModelChange)="onChangeVisualObjectType($event)"
+                                class="h-9 rounded-lg border border-primary-8 bg-white px-2.5 text-xs font-bold text-primary-11 outline-none dark:bg-neutral-1"
+                              >
+                                @for (ch of visualObjectChoices; track ch.type) {
+                                  <option [value]="ch.type">{{ ch.label }}</option>
+                                }
+                              </select>
+                            </label>
+
+                            <!-- Rótulo / Texto Principal -->
+                            <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                              Texto / Rótulo Exibido
+                              <input
+                                type="text"
+                                [ngModel]="vObjLabel()"
+                                (ngModelChange)="applyVisualObjectChanges({ label: $event })"
+                                class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none focus:border-primary-8"
+                              />
+                            </label>
+
+                            <!-- Largura na Linha (25%, 33%, 50%, 67%, 75%, 100%) -->
+                            <div class="flex flex-col gap-1.5">
+                              <span class="text-xs font-semibold text-neutral-11">
+                                Largura do Objeto na Linha (Flex Row)
+                              </span>
+                              <div class="grid grid-cols-6 gap-1">
+                                @for (choice of colSpanChoices; track choice.span) {
+                                  <button
+                                    type="button"
+                                    (click)="applyVisualObjectChanges({ colSpan: choice.span })"
+                                    class="flex flex-col items-center justify-center rounded-lg border py-1.5 text-center transition"
+                                    [class.border-primary-9]="vObjColSpan() === choice.span"
+                                    [class.bg-primary-9]="vObjColSpan() === choice.span"
+                                    [class.text-white]="vObjColSpan() === choice.span"
+                                    [class.border-neutral-a5]="vObjColSpan() !== choice.span"
+                                    [class.bg-neutral-1]="vObjColSpan() !== choice.span"
+                                    [class.text-neutral-12]="vObjColSpan() !== choice.span"
+                                    [matTooltip]="choice.desc"
+                                  >
+                                    <span class="text-xs font-bold">{{ choice.label }}</span>
+                                  </button>
+                                }
+                              </div>
+                            </div>
+
+                            <!-- Propriedades específicas de BOTÃO DE AÇÃO -->
+                            @if (visualObjectType() === 'button') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Estilo Visual do Botão
+                                <select
+                                  [ngModel]="vObjVariant()"
+                                  (ngModelChange)="applyVisualObjectChanges({ variant: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="primary">Destaque Principal (Roxo)</option>
+                                  <option value="secondary">Secundário (Neutro)</option>
+                                  <option value="outline">Contorno Discreto</option>
+                                  <option value="success">Confirmação (Verde)</option>
+                                  <option value="danger">Alerta / Exclusão (Vermelho)</option>
+                                </select>
+                              </label>
+
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Ação ao Clicar
+                                <select
+                                  [ngModel]="vObjActionKind()"
+                                  (ngModelChange)="applyVisualObjectChanges({ actionKind: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="submit">Salvar Registro do Formulário</option>
+                                  <option value="navigate">Abrir Outra Página / Rota</option>
+                                  <option value="reset">Limpar Campos da Tela</option>
+                                </select>
+                              </label>
+
+                              @if (vObjActionKind() === 'navigate') {
+                                <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                  Rota ou Endereço de Destino
+                                  <input
+                                    type="text"
+                                    [ngModel]="vObjHref()"
+                                    (ngModelChange)="applyVisualObjectChanges({ href: $event })"
+                                    placeholder="/website/home"
+                                    class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                                  />
+                                </label>
+                              }
+                            }
+
+                            <!-- Propriedades específicas de TÍTULO / TEXTO -->
+                            @if (visualObjectType() === 'heading') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Tamanho do Texto
+                                <select
+                                  [ngModel]="vObjTextSize()"
+                                  (ngModelChange)="applyVisualObjectChanges({ textSize: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="h1">Título Grande Principal</option>
+                                  <option value="h2">Subtítulo de Seção</option>
+                                  <option value="h3">Título Compacto</option>
+                                  <option value="p">Parágrafo Explicativo</option>
+                                </select>
+                              </label>
+
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Alinhamento
+                                <select
+                                  [ngModel]="vObjAlign()"
+                                  (ngModelChange)="applyVisualObjectChanges({ align: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="left">Alinhado à Esquerda</option>
+                                  <option value="center">Centralizado</option>
+                                  <option value="right">Alinhado à Direita</option>
+                                </select>
+                              </label>
+                            }
+
+                            <!-- Propriedades específicas de CAMPO DE DIGITAÇÃO -->
+                            @if (visualObjectType() === 'input') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Formato de Preenchimento
+                                <select
+                                  [ngModel]="vObjInputKind()"
+                                  (ngModelChange)="applyVisualObjectChanges({ inputKind: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="text">Texto Curto</option>
+                                  <option value="currency">Moeda (R$)</option>
+                                  <option value="number">Número</option>
+                                  <option value="date">Data</option>
+                                  <option value="textarea">Texto Longo (Observações)</option>
+                                </select>
+                              </label>
+
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Texto de Ajuda (Placeholder)
+                                <input
+                                  type="text"
+                                  [ngModel]="vObjPlaceholder()"
+                                  (ngModelChange)="applyVisualObjectChanges({ placeholder: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                                />
+                              </label>
+
+                              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
+                                <span>Preenchimento Obrigatório (*)</span>
+                                <input
+                                  type="checkbox"
+                                  [ngModel]="vObjRequired()"
+                                  (ngModelChange)="applyVisualObjectChanges({ required: $event })"
+                                  class="size-4 accent-violet-600"
+                                />
+                              </label>
+                            }
+
+                            <!-- Propriedades específicas de LISTA DE SELEÇÃO (COMBO) -->
+                            @if (visualObjectType() === 'select') {
+                              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
+                                <span>Preenchimento Obrigatório (*)</span>
+                                <input
+                                  type="checkbox"
+                                  [ngModel]="vObjRequired()"
+                                  (ngModelChange)="applyVisualObjectChanges({ required: $event })"
+                                  class="size-4 accent-violet-600"
+                                />
+                              </label>
+
+                              <div class="flex flex-col gap-2 rounded-xl border border-primary-a5 bg-primary-a2/30 p-3">
+                                <div class="flex items-center justify-between">
+                                  <span class="text-xs font-bold text-primary-11">
+                                    Opções da Lista ({{ vObjOptions().length }})
+                                  </span>
+                                  <span class="text-[10px] font-medium text-neutral-a11">
+                                    Terá botão [+] na tela!
+                                  </span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                  <input
+                                    type="text"
+                                    [ngModel]="vObjNewOption()"
+                                    (ngModelChange)="vObjNewOption.set($event)"
+                                    (keydown.enter)="addVisualObjectComboOption()"
+                                    placeholder="Nova opção..."
+                                    class="h-8 flex-1 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+                                  />
+                                  <button
+                                    type="button"
+                                    (click)="addVisualObjectComboOption()"
+                                    class="rounded-lg bg-primary-9 px-2.5 py-1.5 text-xs font-semibold text-white"
+                                  >
+                                    + Incluir
+                                  </button>
+                                </div>
+                                <div class="max-h-36 overflow-y-auto divide-y divide-neutral-a3 rounded-lg border border-neutral-a4 bg-white dark:bg-neutral-1">
+                                  @for (opt of vObjOptions(); track opt) {
+                                    <div class="flex items-center justify-between px-2.5 py-1.5 text-xs text-neutral-12">
+                                      <span>{{ opt }}</span>
+                                      <button
+                                        type="button"
+                                        (click)="removeVisualObjectComboOption(opt)"
+                                        class="text-red-a11 hover:underline"
+                                      >
+                                        Remover
+                                      </button>
+                                    </div>
+                                  }
+                                </div>
+                              </div>
+                            }
+
+                            <!-- Propriedades específicas de CAIXA DE MARCAÇÃO -->
+                            @if (visualObjectType() === 'checkbox') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Texto ao lado da marcação
+                                <input
+                                  type="text"
+                                  [ngModel]="vObjPlaceholder()"
+                                  (ngModelChange)="applyVisualObjectChanges({ placeholder: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                                />
+                              </label>
+
+                              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
+                                <span>Exibir como Chave Liga / Desliga</span>
+                                <input
+                                  type="checkbox"
+                                  [ngModel]="vObjSwitchStyle()"
+                                  (ngModelChange)="applyVisualObjectChanges({ switchStyle: $event })"
+                                  class="size-4 accent-violet-600"
+                                />
+                              </label>
+                            }
+
+                            <!-- Propriedades específicas de ETIQUETA DE STATUS (BADGE) -->
+                            @if (visualObjectType() === 'badge') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Cor da Etiqueta
+                                <select
+                                  [ngModel]="vObjColorTone()"
+                                  (ngModelChange)="applyVisualObjectChanges({ colorTone: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="violet">Roxo (Destaque)</option>
+                                  <option value="jade">Verde (Pago / Concluído)</option>
+                                  <option value="amber">Amarelo (Pendente / Em Análise)</option>
+                                  <option value="red">Vermelho (Cancelado / Urgente)</option>
+                                  <option value="neutral">Cinza (Neutro)</option>
+                                </select>
+                              </label>
+                            }
+
+                            <!-- Propriedades específicas de LINK DE NAVEGAÇÃO -->
+                            @if (visualObjectType() === 'link') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Endereço ou Rota de Destino
+                                <input
+                                  type="text"
+                                  [ngModel]="vObjHref()"
+                                  (ngModelChange)="applyVisualObjectChanges({ href: $event })"
+                                  placeholder="/website/home ou https://..."
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                                />
+                              </label>
+
+                              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
+                                <span>Abrir em nova guia</span>
+                                <input
+                                  type="checkbox"
+                                  [ngModel]="vObjOpenNewTab()"
+                                  (ngModelChange)="applyVisualObjectChanges({ openNewTab: $event })"
+                                  class="size-4 accent-violet-600"
+                                />
+                              </label>
+                            }
+
+                            <!-- Propriedades específicas de IMAGEM / BANNER -->
+                            @if (visualObjectType() === 'image') {
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Endereço (URL) da Imagem
+                                <input
+                                  type="text"
+                                  [ngModel]="vObjImageUrl()"
+                                  (ngModelChange)="applyVisualObjectChanges({ imageUrl: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                                />
+                              </label>
+
+                              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                                Largura da Imagem
+                                <select
+                                  [ngModel]="vObjImageWidth()"
+                                  (ngModelChange)="applyVisualObjectChanges({ imageWidth: $event })"
+                                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                                >
+                                  <option value="100%">Largura Total (100%)</option>
+                                  <option value="75%">Grande (75%)</option>
+                                  <option value="50%">Média (50%)</option>
+                                  <option value="240px">Compacta / Logo (240px)</option>
+                                </select>
+                              </label>
+                            }
+                          </div>
+                        } @else if (visualTargetType() === 'section') {
+                          <!-- INSPETOR DE BLOCO: SEÇÃO PERSONALIZADA -->
+                          <div class="flex flex-col gap-3">
+                            <div class="flex items-center justify-between">
+                              <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
+                                Bloco Selecionado: Seção da Página
+                              </span>
+                              <button
+                                matIconButton
+                                type="button"
+                                class="tiny text-red-a11"
+                                matTooltip="Remover Seção"
+                                (click)="removeSelectedVisualBlock()"
+                              >
+                                <mat-icon svgIcon="trash" />
+                              </button>
+                            </div>
+
+                            <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                              Título da Seção
+                              <input
+                                type="text"
+                                [ngModel]="vSectionTitle()"
+                                (ngModelChange)="applyVisualSectionChanges({ title: $event })"
+                                class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                              />
+                            </label>
+
+                            <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                              Descrição / Subtítulo
+                              <input
+                                type="text"
+                                [ngModel]="vSectionSubtitle()"
+                                (ngModelChange)="applyVisualSectionChanges({ subtitle: $event })"
+                                class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                              />
+                            </label>
+
+                            <button
+                              matButton
+                              type="button"
+                              class="tertiary small w-full justify-center"
+                              (click)="visualInspectorTab.set('objects')"
+                            >
+                              <mat-icon svgIcon="plus" />
+                              Inserir Objeto nesta Seção
+                            </button>
+                          </div>
+                        } @else if (visualTargetType() === 'field') {
+                        <!-- INSPETOR DE OBJETO: CAMPO DO FORMULÁRIO -->
                         <div class="flex flex-col gap-3">
                           <div class="flex items-center justify-between">
-                            <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                              Editando Campo #{{ visualFieldIndex() + 1 }}
+                            <span class="rounded-md bg-primary-9 px-2.5 py-0.5 text-[11px] font-bold text-white">
+                              Objeto Selecionado: Campo #{{ visualFieldIndex() + 1 }}
                             </span>
                             <div class="inline-flex items-center gap-1">
                               <button
@@ -1094,12 +1786,12 @@
                             />
                           </label>
 
-                          <!-- Seletor Visual de Largura na Linha (25%, 33%, 50%, 75%, 100%) -->
+                          <!-- Seletor Visual de Largura na Linha (25%, 33%, 50%, 67%, 75%, 100%) -->
                           <div class="flex flex-col gap-1.5">
                             <span class="text-xs font-semibold text-neutral-11">
-                              Largura do Campo na Linha
+                              Largura do Campo na Linha (Flex Row)
                             </span>
-                            <div class="grid grid-cols-5 gap-1">
+                            <div class="grid grid-cols-6 gap-1">
                               @for (choice of colSpanChoices; track choice.span) {
                                 <button
                                   type="button"
@@ -1206,7 +1898,7 @@
                         <div class="flex flex-col gap-3">
                           <div class="flex items-center justify-between">
                             <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                              Configurando Formulário
+                              Bloco Selecionado: Formulário
                             </span>
                             <button
                               matIconButton
@@ -1267,7 +1959,7 @@
                         <div class="flex flex-col gap-3">
                           <div class="flex items-center justify-between">
                             <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                              Configurando Tabela de Dados
+                              Bloco Selecionado: Tabela de Dados
                             </span>
                             <button
                               matIconButton
@@ -1361,16 +2053,72 @@
                         <div class="flex flex-col gap-3">
                           <div class="flex items-center justify-between">
                             <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                              Indicador KPI #{{ visualKpiIndex() + 1 }}
+                              Bloco Selecionado: Indicador KPI #{{ visualKpiIndex() + 1 }}
                             </span>
                             <button
                               matIconButton
                               type="button"
                               class="tiny text-red-a11"
-                              matTooltip="Remover bloco de KPIs"
-                              (click)="removeSelectedVisualBlock()"
+                              matTooltip="Excluir este Bloco (deixa espaço vazio no Grid)"
+                              (click)="removeSelectedVisualBlock(false)"
                             >
                               <mat-icon svgIcon="trash" />
+                            </button>
+                          </div>
+
+                          <!-- Largura do Bloco na Linha (Flex Row: 25%, 33%, 50%, 67%, 75%, 100%) -->
+                          <div class="flex flex-col gap-1.5">
+                            <span class="text-xs font-semibold text-neutral-11">
+                              Largura do Bloco na Linha (Flex Row)
+                            </span>
+                            <div class="grid grid-cols-6 gap-1">
+                              @for (choice of colSpanChoices; track choice.span) {
+                                <button
+                                  type="button"
+                                  (click)="applyVisualBlockColSpan(choice.span)"
+                                  class="flex flex-col items-center justify-center rounded-lg border py-1.5 text-center transition"
+                                  [class.border-primary-9]="vBlockColSpan() === choice.span"
+                                  [class.bg-primary-9]="vBlockColSpan() === choice.span"
+                                  [class.text-white]="vBlockColSpan() === choice.span"
+                                  [class.border-neutral-a5]="vBlockColSpan() !== choice.span"
+                                  [class.bg-neutral-1]="vBlockColSpan() !== choice.span"
+                                  [class.text-neutral-12]="vBlockColSpan() !== choice.span"
+                                  [matTooltip]="choice.desc"
+                                >
+                                  <span class="text-xs font-bold">{{ choice.label }}</span>
+                                </button>
+                              }
+                            </div>
+                          </div>
+
+                          <!-- Controle de Linhas e Colunas do Grid Pai -->
+                          <div class="flex flex-col gap-2 rounded-xl border border-primary-a5 bg-primary-a2/25 p-2.5">
+                            <span class="text-[11px] font-bold text-primary-11">
+                              Matriz do Grid (Linhas × Colunas)
+                            </span>
+                            <div class="grid grid-cols-2 gap-2">
+                              <div class="flex items-center justify-between rounded-lg border border-neutral-a4 bg-white px-2 py-1 dark:bg-neutral-1">
+                                <span class="text-[11px] font-semibold text-neutral-11">Linhas: {{ vGridRows() }}</span>
+                                <div class="inline-flex items-center gap-1">
+                                  <button type="button" (click)="applyVisualGridDimensions(-1, 0)" class="rounded bg-neutral-a3 px-1.5 py-0.5 text-xs font-bold text-neutral-12 hover:bg-primary-a3">-</button>
+                                  <button type="button" (click)="applyVisualGridDimensions(1, 0)" class="rounded bg-primary-9 px-1.5 py-0.5 text-xs font-bold text-white hover:bg-primary-10">+</button>
+                                </div>
+                              </div>
+                              <div class="flex items-center justify-between rounded-lg border border-neutral-a4 bg-white px-2 py-1 dark:bg-neutral-1">
+                                <span class="text-[11px] font-semibold text-neutral-11">Colunas: {{ vGridCols() }}</span>
+                                <div class="inline-flex items-center gap-1">
+                                  <button type="button" (click)="applyVisualGridDimensions(0, -1)" class="rounded bg-neutral-a3 px-1.5 py-0.5 text-xs font-bold text-neutral-12 hover:bg-primary-a3">-</button>
+                                  <button type="button" (click)="applyVisualGridDimensions(0, 1)" class="rounded bg-primary-9 px-1.5 py-0.5 text-xs font-bold text-white hover:bg-primary-10">+</button>
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              (click)="removeSelectedVisualBlock(true)"
+                              class="mt-0.5 inline-flex items-center justify-center gap-1 rounded-lg border border-red-a6 bg-red-a2/50 py-1 text-[11px] font-semibold text-red-a11 transition hover:bg-red-a3"
+                            >
+                              <mat-icon svgIcon="trash" class="!size-3.5" />
+                              Excluir o conjunto de blocos inteiro
                             </button>
                           </div>
 
@@ -1385,22 +2133,33 @@
                           </label>
 
                           <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                            Etiqueta / Selo Superior (ex.: Prioridade)
+                            <input
+                              type="text"
+                              [ngModel]="vKpiBadge()"
+                              (ngModelChange)="applyVisualKpiChanges({ badge: $event })"
+                              placeholder="Ex.: Prioridade, 28 títulos..."
+                              class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                            />
+                          </label>
+
+                          <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
                             Como calcular o valor?
                             <select
                               [ngModel]="vKpiMode()"
                               (ngModelChange)="applyVisualKpiChanges({ mode: $event })"
                               class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
                             >
+                              <option value="static">Valor Fixo digitado manualmente</option>
                               <option value="sum">Soma Automática (R$) do campo Valor</option>
                               <option value="count">Contagem Total de Registros</option>
                               <option value="pending">Contagem de Registros Pendentes</option>
-                              <option value="static">Valor Fixo digitado manualmente</option>
                             </select>
                           </label>
 
                           @if (vKpiMode() === 'static') {
                             <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                              Valor Fixo Exibido
+                              Valor Exibido
                               <input
                                 type="text"
                                 [ngModel]="vKpiValue()"
@@ -1409,6 +2168,17 @@
                               />
                             </label>
                           }
+
+                          <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                            Texto Inferior / Descrição do Card
+                            <input
+                              type="text"
+                              [ngModel]="vKpiSubtitle()"
+                              (ngModelChange)="applyVisualKpiChanges({ subtitle: $event })"
+                              placeholder="Ex.: 4 boletos/PIX aguardando baixa hoje"
+                              class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                            />
+                          </label>
 
                           <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
                             Cor de Destaque
@@ -1425,12 +2195,86 @@
                             </select>
                           </label>
                         </div>
+                      } @else if (visualTargetType() === 'grid') {
+                        <!-- INSPETOR DO GRID (CONJUNTO DE LINHAS × COLUNAS / ESPAÇOS VAZIOS) -->
+                        <div class="flex flex-col gap-3">
+                          <div class="flex items-center justify-between">
+                            <span class="rounded-md bg-primary-9 px-2.5 py-0.5 text-[11px] font-bold text-white">
+                              Grid Selecionado ({{ vGridRows() }} Linhas × {{ vGridCols() }} Colunas)
+                            </span>
+                            <button
+                              matIconButton
+                              type="button"
+                              class="tiny text-red-a11"
+                              matTooltip="Excluir o conjunto de blocos"
+                              (click)="removeSelectedVisualBlock(true)"
+                            >
+                              <mat-icon svgIcon="trash" />
+                            </button>
+                          </div>
+
+                          <p class="text-[11px] text-neutral-a11">
+                            Aumente o número de <strong>Linhas</strong> ou <strong>Colunas</strong> e o próprio Grid criará automaticamente os espaços vazios até a posição desejada. Depois, basta arrastar o item para lá!
+                          </p>
+
+                          <div class="grid grid-cols-2 gap-2.5">
+                            <div class="flex flex-col gap-1.5 rounded-xl border border-neutral-a4 bg-neutral-1 p-3">
+                              <span class="text-xs font-bold text-neutral-12">Linhas: {{ vGridRows() }}</span>
+                              <div class="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  (click)="applyVisualGridDimensions(-1, 0)"
+                                  class="flex-1 rounded-lg border border-neutral-a5 bg-neutral-2 py-1.5 text-xs font-bold text-neutral-12 transition hover:bg-neutral-a3"
+                                >
+                                  - Linha
+                                </button>
+                                <button
+                                  type="button"
+                                  (click)="applyVisualGridDimensions(1, 0)"
+                                  class="flex-1 rounded-lg bg-primary-9 py-1.5 text-xs font-bold text-white transition hover:bg-primary-10"
+                                >
+                                  + Linha
+                                </button>
+                              </div>
+                            </div>
+
+                            <div class="flex flex-col gap-1.5 rounded-xl border border-neutral-a4 bg-neutral-1 p-3">
+                              <span class="text-xs font-bold text-neutral-12">Colunas: {{ vGridCols() }}</span>
+                              <div class="flex items-center gap-1.5">
+                                <button
+                                  type="button"
+                                  (click)="applyVisualGridDimensions(0, -1)"
+                                  class="flex-1 rounded-lg border border-neutral-a5 bg-neutral-2 py-1.5 text-xs font-bold text-neutral-12 transition hover:bg-neutral-a3"
+                                >
+                                  - Coluna
+                                </button>
+                                <button
+                                  type="button"
+                                  (click)="applyVisualGridDimensions(0, 1)"
+                                  class="flex-1 rounded-lg bg-primary-9 py-1.5 text-xs font-bold text-white transition hover:bg-primary-10"
+                                >
+                                  + Coluna
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button
+                            matButton
+                            type="button"
+                            class="tertiary small w-full justify-center"
+                            (click)="visualInspectorTab.set('blocks')"
+                          >
+                            <mat-icon svgIcon="plus" />
+                            Escolher Bloco para preencher Espaço Vazio
+                          </button>
+                        </div>
                       } @else if (visualTargetType() === 'hero') {
                         <!-- INSPETOR DO CABEÇALHO (HERO) -->
                         <div class="flex flex-col gap-3">
                           <div class="flex items-center justify-between">
                             <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                              Cabeçalho da Página
+                              Bloco Selecionado: Cabeçalho da Página
                             </span>
                             <button
                               matIconButton
@@ -1481,16 +2325,17 @@
                           </p>
                           <ol class="list-decimal space-y-1.5 ps-4">
                             <li>
-                              Clique em <strong>Inserir Bloco</strong> no topo (ou gere uma página completa de <strong>Contas a Pagar</strong> / <strong>Notas Fiscais</strong> com 1 clique!).
+                              Use a aba <strong>Blocos</strong> acima para arrastar ou inserir estruturas prontas (ou gerar páginas completas de <strong>Contas a Pagar</strong> e <strong>Notas Fiscais</strong>).
                             </li>
                             <li>
-                              <strong>Clique diretamente em cima</strong> de qualquer Campo, Formulário, Tabela, KPI ou Cabeçalho no Preview ao lado.
+                              Use a aba <strong>Objetos</strong> para arrastar botões, campos, combos, etiquetas e títulos para dentro dos blocos.
                             </li>
                             <li>
-                              Escolha se o campo ocupa <strong>25%</strong>, <strong>50%</strong> ou <strong>100%</strong> da linha, mude para <strong>Combo com botão [+]</strong>, marque como <strong>Obrigatório</strong> e clique em <strong>Visualizar Pagina</strong> para usar de verdade!
+                              <strong>Clique diretamente em cima</strong> de qualquer Bloco ou Objeto ao lado para editar suas <strong>Propriedades</strong> e clique em <strong>Visualizar Pagina</strong>!
                             </li>
                           </ol>
                         </div>
+                      }
                       }
                     </div>
                   }

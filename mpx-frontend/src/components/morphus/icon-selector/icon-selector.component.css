@@ -9,8 +9,16 @@
 }
 
 .mpx-icon-field.small {
-  --mat-form-field-container-height: 40px;
-  --mat-form-field-container-vertical-padding: 8px;
+  --form-field-padding-y: 0.5625rem;
+  --form-field-padding-x: 0.75rem;
+}
+
+.mpx-icon-field.small ::ng-deep .mat-mdc-text-field-wrapper {
+  height: 2.5rem !important;
+  min-height: 2.5rem !important;
+  border-radius: 0.75rem !important;
+  display: flex;
+  align-items: center;
 }
 
 .mpx-icon-input {

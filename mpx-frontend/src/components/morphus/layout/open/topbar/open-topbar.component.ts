@@ -62,6 +62,21 @@ export class WebTopBarComponent {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   });
 
+  protected readonly topbarOtherApplications = computed(() => {
+    const activeId = this.context.activeOperationalApplication()?.id;
+    return this.context.operationalApplications().filter((app) => app.id !== activeId);
+  });
+
+  protected readonly topbarOtherWorkspaces = computed(() => {
+    const activeId = this.context.activeWorkspace()?.id;
+    return this.context.workspaces().filter((ws) => ws.id !== activeId);
+  });
+
+  protected readonly topbarOtherCorporations = computed(() => {
+    const activeId = this.auth.corporation()?.id;
+    return this.auth.availableCorporations().filter((corp) => corp.id !== activeId);
+  });
+
   protected selectTopbarApplication(app: MorphusApplication): void {
     this.context.selectApplication(app);
   }

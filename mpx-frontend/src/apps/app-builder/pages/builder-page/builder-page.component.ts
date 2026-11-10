@@ -15,8 +15,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
-import { MatTooltip } from '@angular/material/tooltip';
 import { formatHtmlPretty } from '@src/components/morphus/code-editor';
 import {
   MorphusApplication,
@@ -51,10 +49,6 @@ type LiveFieldType =
     MatButton,
     MatIconButton,
     MatIcon,
-    MatMenu,
-    MatMenuItem,
-    MatMenuTrigger,
-    MatTooltip,
   ],
   host: {
     class: 'flex flex-auto flex-col p-6 lg:p-8',
@@ -83,7 +77,7 @@ export class AppBuilderPageComponent {
   // =========================================================================
   // MODO CONSTRUTOR VISUAL DIRETO NA PÁGINA AO VIVO (/app/:appKey/:slug)
   // =========================================================================
-  protected readonly liveBuilderMode = signal<boolean>(true);
+  protected readonly liveBuilderMode = signal<boolean>(false);
   protected readonly liveDraftHtml = signal<string>('');
   protected readonly savingLivePage = signal<boolean>(false);
   protected readonly liveSaveSuccess = signal<boolean>(false);
@@ -275,11 +269,15 @@ export class AppBuilderPageComponent {
       });
     });
 
-    // Sincroniza o HTML inicial quando troca de página
+    // Sincroniza o HTML inicial quando troca de página (priorizando rascunho não salvo vindo do Editor de Página)
     effect(() => {
       const matched = this.matchedPage();
       untracked(() => {
-        this.liveDraftHtml.set(matched?.subModule.htmlContent || '');
+        const pendingDraft =
+          this.runtimeStore.getPageDraftHtml(matched?.subModule.id || '') ??
+          this.runtimeStore.getPageDraftHtml(matched?.subModule.routePattern || '') ??
+          this.runtimeStore.getPageDraftHtml(this.subPath() || '');
+        this.liveDraftHtml.set(pendingDraft ?? (matched?.subModule.htmlContent || ''));
         this.vTargetType.set(null);
       });
     });
@@ -314,6 +312,21 @@ export class AppBuilderPageComponent {
     }
   }
 
+  protected returnToEditor(): void {
+    const app = this.activeApp();
+    const matched = this.matchedPage();
+    if (app?.id) {
+      void this.router.navigate(['/morphus/application', app.id], {
+        queryParams: {
+          tab: 'editor',
+          pageId: matched?.subModule.id || undefined,
+        },
+      });
+      return;
+    }
+    void this.router.navigateByUrl('/morphus/application');
+  }
+
   protected async saveLivePageToDatabase(): Promise<void> {
     const matched = this.matchedPage();
     if (!matched?.module.id || !matched.subModule) {
@@ -330,6 +343,8 @@ export class AppBuilderPageComponent {
       );
       matched.subModule.htmlContent = saved.htmlContent || htmlToSave;
       this.liveDraftHtml.set(saved.htmlContent || htmlToSave);
+      this.runtimeStore.clearPageDraftHtml(matched.subModule.id);
+      this.runtimeStore.clearPageDraftHtml(matched.subModule.routePattern);
       this.liveSaveSuccess.set(true);
       setTimeout(() => this.liveSaveSuccess.set(false), 2500);
     } finally {

@@ -35,7 +35,7 @@
     <div class="relative isolate overflow-hidden rounded-lg border border-neutral-a4">
       <table class="w-full" mat-table [dataSource]="list()">
         <ng-container matColumnDef="name">
-          <th class="md:w-64 whitespace-nowrap" mat-header-cell *matHeaderCellDef>Aplicação</th>
+          <th class="md:w-64 whitespace-nowrap !text-center" mat-header-cell *matHeaderCellDef>Aplicação</th>
           <td class="whitespace-nowrap" mat-cell *matCellDef="let row">
             <div class="flex items-center gap-x-3">
               <div class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-neutral-a3 text-neutral-a11">
@@ -53,14 +53,14 @@
         </ng-container>
 
         <ng-container matColumnDef="description">
-          <th class="max-md:hidden" mat-header-cell *matHeaderCellDef>Descrição</th>
+          <th class="max-md:hidden !text-center" mat-header-cell *matHeaderCellDef>Descrição</th>
           <td class="max-md:hidden whitespace-normal break-words py-2.5" mat-cell *matCellDef="let row">
             <span class="mpx-body-small text-neutral-a11">{{ row.description || '—' }}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="origin">
-          <th class="w-36 whitespace-nowrap max-md:hidden" mat-header-cell *matHeaderCellDef>Origem</th>
+          <th class="w-36 whitespace-nowrap max-md:hidden !text-center" mat-header-cell *matHeaderCellDef>Origem</th>
           <td class="whitespace-nowrap max-md:hidden" mat-cell *matCellDef="let row">
             <div class="inline-flex items-center gap-x-1.5">
               <div

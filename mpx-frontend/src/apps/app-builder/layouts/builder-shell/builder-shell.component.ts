@@ -137,7 +137,7 @@ export class AppBuilderShellComponent {
     const appId = this.activeApp()?.id;
     if (appId) {
       void this.router.navigate(['/morphus/application', appId], {
-        queryParams: { tab: 'pages' },
+        queryParams: { tab: 'editor' },
       });
       return;
     }

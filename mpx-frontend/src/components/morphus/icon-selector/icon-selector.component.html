@@ -3,7 +3,7 @@
     type="button"
     class="inline-flex h-6 shrink-0 cursor-pointer items-center gap-0.5 rounded-md bg-black/15 px-1.5 py-0.5 text-current transition hover:bg-black/25 dark:bg-white/15 dark:hover:bg-white/25"
     [matMenuTriggerFor]="iconSelectorMenu"
-    matTooltip="Escolher ícone"
+    matTooltip="Escolher ícone do menu"
     (mousedown)="syncPanelWidth(); $event.stopPropagation()"
     (click)="$event.stopPropagation()"
     (menuOpened)="syncPanelWidth()"

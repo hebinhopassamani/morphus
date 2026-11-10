@@ -5,82 +5,23 @@
   </div>
 } @else if (matchedPage(); as matched) {
   <div class="flex flex-col gap-y-4">
-    <!-- BARRA DE COMANDO DO CONSTRUTOR VISUAL AO VIVO -->
-    <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-neutral-a4 bg-white px-4 py-2.5 shadow-2xs dark:bg-neutral-2">
-      <div class="flex flex-wrap items-center gap-2">
-        <!-- Alternador entre Modo Construtor Visual e Modo Usar Página -->
-        <div class="inline-flex items-center rounded-xl border border-neutral-a4 bg-neutral-a2 p-0.5 text-xs">
-          <button
-            type="button"
-            (click)="liveBuilderMode() && toggleLiveBuilderMode()"
-            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold transition"
-            [class.bg-jade-9]="!liveBuilderMode()"
-            [class.text-white]="!liveBuilderMode()"
-            [class.text-neutral-11]="liveBuilderMode()"
-          >
-            <mat-icon svgIcon="check" class="!size-3.5" [class.!text-white]="!liveBuilderMode()" />
-            Usar Página (Cadastrar Dados)
-          </button>
-          <button
-            type="button"
-            (click)="!liveBuilderMode() && toggleLiveBuilderMode()"
-            class="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold transition"
-            [class.bg-primary-9]="liveBuilderMode()"
-            [class.text-white]="liveBuilderMode()"
-            [class.text-neutral-11]="!liveBuilderMode()"
-          >
-            <mat-icon svgIcon="sparkles" class="!size-3.5" [class.!text-white]="liveBuilderMode()" />
-            Construtor Visual (Montar Tela)
-          </button>
-        </div>
-
-        @if (liveBuilderMode()) {
-          <button
-            matButton
-            type="button"
-            class="tertiary small"
-            [matMenuTriggerFor]="liveBlocksMenu"
-          >
-            <mat-icon svgIcon="plus" />
-            Inserir Bloco
-            <mat-icon svgIcon="chevron-down" />
-          </button>
-          <mat-menu #liveBlocksMenu="matMenu">
-            <button mat-menu-item type="button" (click)="generateLiveStarterTemplate('contas-pagar')">
-              <mat-icon svgIcon="sparkles" />
-              <span>Página Completa: Contas a Pagar</span>
-            </button>
-            <button mat-menu-item type="button" (click)="generateLiveStarterTemplate('notas-fiscais')">
-              <mat-icon svgIcon="sparkles" />
-              <span>Página Completa: Notas Fiscais</span>
-            </button>
-            <div class="my-1 border-t border-neutral-a4"></div>
-            <button mat-menu-item type="button" (click)="insertLiveBlock('hero')">
-              <mat-icon svgIcon="sparkles" />
-              <span>Inserir Cabeçalho</span>
-            </button>
-            <button mat-menu-item type="button" (click)="insertLiveBlock('kpi')">
-              <mat-icon svgIcon="boxes" />
-              <span>Inserir Indicadores KPI</span>
-            </button>
-            <button mat-menu-item type="button" (click)="insertLiveBlock('form')">
-              <mat-icon svgIcon="file-text" />
-              <span>Inserir Formulário de Cadastro</span>
-            </button>
-            <button mat-menu-item type="button" (click)="insertLiveBlock('table')">
-              <mat-icon svgIcon="layers" />
-              <span>Inserir Tabela de Dados</span>
-            </button>
-          </mat-menu>
-        }
-      </div>
-
+    <!-- BARRA DE COMANDO DE VISUALIZAÇÃO DA PÁGINA: APENAS RETORNAR AO EDITOR E SALVAR -->
+    <div class="flex flex-wrap items-center justify-end gap-2 rounded-2xl border border-neutral-a4 bg-white px-4 py-2.5 shadow-2xs dark:bg-neutral-2">
       <div class="flex items-center gap-2">
         @if (liveSaveSuccess()) {
           <span class="rounded-lg bg-jade-a3 px-2.5 py-1 text-xs font-semibold text-jade-a11">
-            Página salva no PostgreSQL!
+            Página salva no banco!
           </span>
         }
+        <button
+          matButton
+          type="button"
+          class="tertiary small"
+          (click)="returnToEditor()"
+        >
+          <mat-icon svgIcon="arrow-left" />
+          Retornar ao Editor
+        </button>
         <button
           matButton
           type="button"
@@ -89,393 +30,29 @@
           (click)="saveLivePageToDatabase()"
         >
           <mat-icon svgIcon="check" />
-          {{ savingLivePage() ? 'Salvando...' : 'Salvar Página no Banco' }}
+          {{ savingLivePage() ? 'Salvando...' : 'Salvar' }}
         </button>
       </div>
     </div>
 
-    <!-- ÁREA PRINCIPAL: CANVAS DA PÁGINA + PAINEL CONSTRUTOR VISUAL À DIREITA -->
-    <div
-      class="grid grid-cols-1 gap-5"
-      [class.md:grid-cols-12]="liveBuilderMode()"
-    >
-      <!-- CANVAS DA PÁGINA -->
-      <div
-        [class.md:col-span-8]="liveBuilderMode()"
-        [class.md:col-span-12]="!liveBuilderMode()"
-      >
-        @if (currentRawHtml()) {
-          <div
-            #runtimeRoot
-            class="w-full"
-            [class.mpx-live-builder-active]="liveBuilderMode()"
-            [innerHTML]="trustedHtml()"
-            (submit)="onRuntimeSubmit($event)"
-            (click)="onRuntimeClick($event)"
-            (dragstart)="onLiveDragStart($event)"
-            (dragover)="onLiveDragOver($event)"
-            (drop)="onLiveDrop($event)"
-          ></div>
-        } @else {
-          <div class="rounded-3xl border border-jade-a5 bg-jade-a2 p-8 shadow-sm">
-            <h1 class="text-2xl font-bold text-neutral-12">
-              {{ matched.subModule.label || 'Dashboard' }}
-            </h1>
-            <p class="mt-2 text-base text-neutral-a11">
-              Clique em <strong>Inserir Bloco</strong> na barra superior para montar sua tela.
-            </p>
-          </div>
-        }
-      </div>
-
-      <!-- PAINEL LATERAL DO CONSTRUTOR VISUAL PARA LEIGOS -->
-      @if (liveBuilderMode()) {
-        <div class="flex flex-col gap-3.5 rounded-2xl border border-primary-a5 bg-white p-4 shadow-sm dark:bg-neutral-2 md:col-span-4">
-          <div class="flex items-center justify-between border-b border-neutral-a4 pb-2.5">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex size-6 items-center justify-center rounded-lg bg-primary-9 text-white">
-                <mat-icon svgIcon="sparkles" class="!size-3.5 !text-white" />
-              </span>
-              <div>
-                <h4 class="text-xs font-bold uppercase tracking-wider text-primary-11">
-                  Construtor Visual
-                </h4>
-                <p class="text-[11px] text-neutral-a11">
-                  Clique em qualquer item na página à esquerda para editar
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Atalhos rápidos -->
-          <div class="flex flex-wrap items-center gap-1.5 rounded-xl border border-neutral-a4 bg-neutral-a2/50 p-2">
-            <button
-              type="button"
-              (click)="addNewFieldToLiveForm()"
-              class="inline-flex items-center gap-1 rounded-lg bg-primary-9 px-2.5 py-1.5 text-xs font-semibold text-white transition hover:bg-primary-10"
-            >
-              + Novo Campo
-            </button>
-            <button
-              type="button"
-              (click)="syncLiveTableWithForm()"
-              class="inline-flex items-center gap-1 rounded-lg border border-primary-a6 bg-primary-a2 px-2.5 py-1.5 text-xs font-semibold text-primary-11 transition hover:bg-primary-a3"
-              matTooltip="Copia todos os campos do Formulário para as colunas da Tabela"
-            >
-              Espelhar Form na Tabela
-            </button>
-          </div>
-
-          @if (vTargetType() === 'field') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                  Editando Campo #{{ vFieldIdx() + 1 }}
-                </span>
-                <div class="inline-flex items-center gap-1">
-                  <button
-                    matIconButton
-                    type="button"
-                    class="tiny"
-                    matTooltip="Mover para trás"
-                    (click)="moveLiveField(-1)"
-                  >
-                    <mat-icon svgIcon="arrow-left" />
-                  </button>
-                  <button
-                    matIconButton
-                    type="button"
-                    class="tiny"
-                    matTooltip="Mover para frente"
-                    (click)="moveLiveField(1)"
-                  >
-                    <mat-icon svgIcon="arrow-right" />
-                  </button>
-                  <button
-                    matIconButton
-                    type="button"
-                    class="tiny text-red-a11"
-                    matTooltip="Excluir campo"
-                    (click)="removeLiveField()"
-                  >
-                    <mat-icon svgIcon="trash" />
-                  </button>
-                </div>
-              </div>
-
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Nome do Campo (Rótulo)
-                <input
-                  type="text"
-                  [ngModel]="vFieldLabel()"
-                  (ngModelChange)="applyLiveFieldChanges({ label: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none focus:border-primary-8"
-                />
-              </label>
-
-              <div class="flex flex-col gap-1.5">
-                <span class="text-xs font-semibold text-neutral-11">
-                  Largura do Campo na Linha
-                </span>
-                <div class="grid grid-cols-5 gap-1">
-                  @for (choice of colSpanChoices; track choice.span) {
-                    <button
-                      type="button"
-                      (click)="applyLiveFieldChanges({ colSpan: choice.span })"
-                      class="flex flex-col items-center justify-center rounded-lg border py-1.5 text-center transition"
-                      [class.border-primary-9]="vFieldColSpan() === choice.span"
-                      [class.bg-primary-9]="vFieldColSpan() === choice.span"
-                      [class.text-white]="vFieldColSpan() === choice.span"
-                      [class.border-neutral-a5]="vFieldColSpan() !== choice.span"
-                      [class.bg-neutral-1]="vFieldColSpan() !== choice.span"
-                      [class.text-neutral-12]="vFieldColSpan() !== choice.span"
-                      [matTooltip]="choice.desc"
-                    >
-                      <span class="text-xs font-bold">{{ choice.label }}</span>
-                    </button>
-                  }
-                </div>
-              </div>
-
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Tipo de Componente
-                <select
-                  [ngModel]="vFieldType()"
-                  (ngModelChange)="applyLiveFieldChanges({ type: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
-                >
-                  @for (ft of fieldTypeChoices; track ft.type) {
-                    <option [value]="ft.type">{{ ft.label }}</option>
-                  }
-                </select>
-              </label>
-
-              @if (vFieldType() !== 'select' && vFieldType() !== 'radio') {
-                <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                  Texto de Ajuda (Placeholder)
-                  <input
-                    type="text"
-                    [ngModel]="vFieldPlaceholder()"
-                    (ngModelChange)="applyLiveFieldChanges({ placeholder: $event })"
-                    class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none focus:border-primary-8"
-                  />
-                </label>
-              }
-
-              <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
-                <span>Preenchimento Obrigatório (*)</span>
-                <input
-                  type="checkbox"
-                  [ngModel]="vFieldRequired()"
-                  (ngModelChange)="applyLiveFieldChanges({ required: $event })"
-                  class="size-4 accent-violet-600"
-                />
-              </label>
-
-              @if (vFieldType() === 'select') {
-                <button
-                  matButton
-                  type="button"
-                  class="tertiary small w-full justify-center"
-                  (click)="openComboManager(vFieldKey(), vFieldLabel())"
-                >
-                  <mat-icon svgIcon="plus" />
-                  Gerenciar Opções deste Combo (+)
-                </button>
-              }
-            </div>
-          } @else if (vTargetType() === 'form') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                  Configurando Formulário
-                </span>
-                <button
-                  matIconButton
-                  type="button"
-                  class="tiny text-red-a11"
-                  (click)="removeSelectedLiveBlock()"
-                >
-                  <mat-icon svgIcon="trash" />
-                </button>
-              </div>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Título do Formulário
-                <input
-                  type="text"
-                  [ngModel]="vFormTitle()"
-                  (ngModelChange)="applyLiveFormChanges({ title: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Onde Salvar os Registros
-                <select
-                  [ngModel]="vFormCollection()"
-                  (ngModelChange)="applyLiveFormChanges({ collection: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
-                >
-                  @for (c of availableCollections(); track c.key) {
-                    <option [value]="c.key">{{ c.label }} ({{ c.key }})</option>
-                  }
-                </select>
-              </label>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Texto do Botão de Salvar
-                <input
-                  type="text"
-                  [ngModel]="vFormButtonText()"
-                  (ngModelChange)="applyLiveFormChanges({ buttonText: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-            </div>
-          } @else if (vTargetType() === 'table') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                  Configurando Tabela
-                </span>
-                <button
-                  matIconButton
-                  type="button"
-                  class="tiny text-red-a11"
-                  (click)="removeSelectedLiveBlock()"
-                >
-                  <mat-icon svgIcon="trash" />
-                </button>
-              </div>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                De qual Cadastro listar os dados?
-                <select
-                  [ngModel]="vTableCollection()"
-                  (ngModelChange)="applyLiveTableCollection($event)"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
-                >
-                  @for (c of availableCollections(); track c.key) {
-                    <option [value]="c.key">{{ c.label }} ({{ c.key }})</option>
-                  }
-                </select>
-              </label>
-              <button
-                matButton
-                type="button"
-                class="primary small w-full justify-center"
-                (click)="syncLiveTableWithForm()"
-              >
-                <mat-icon svgIcon="sparkles" />
-                Espelhar Campos do Formulário na Tabela
-              </button>
-            </div>
-          } @else if (vTargetType() === 'kpi') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                  Indicador KPI #{{ vKpiIdx() + 1 }}
-                </span>
-                <button
-                  matIconButton
-                  type="button"
-                  class="tiny text-red-a11"
-                  (click)="removeSelectedLiveBlock()"
-                >
-                  <mat-icon svgIcon="trash" />
-                </button>
-              </div>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Título do Indicador
-                <input
-                  type="text"
-                  [ngModel]="vKpiTitle()"
-                  (ngModelChange)="applyLiveKpiChanges({ title: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Cálculo do Valor
-                <select
-                  [ngModel]="vKpiMode()"
-                  (ngModelChange)="applyLiveKpiChanges({ mode: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
-                >
-                  <option value="sum">Soma Automática (R$) do campo Valor</option>
-                  <option value="count">Contagem Total de Registros</option>
-                  <option value="pending">Contagem de Registros Pendentes</option>
-                  <option value="static">Valor Fixo</option>
-                </select>
-              </label>
-            </div>
-          } @else if (vTargetType() === 'hero') {
-            <div class="flex flex-col gap-3">
-              <div class="flex items-center justify-between">
-                <span class="rounded-md bg-primary-a3 px-2 py-0.5 text-[11px] font-bold text-primary-11">
-                  Cabeçalho da Página
-                </span>
-                <button
-                  matIconButton
-                  type="button"
-                  class="tiny text-red-a11"
-                  (click)="removeSelectedLiveBlock()"
-                >
-                  <mat-icon svgIcon="trash" />
-                </button>
-              </div>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Selo Superior
-                <input
-                  type="text"
-                  [ngModel]="vHeroBadge()"
-                  (ngModelChange)="applyLiveHeroChanges({ badge: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Título Principal
-                <input
-                  type="text"
-                  [ngModel]="vHeroTitle()"
-                  (ngModelChange)="applyLiveHeroChanges({ title: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-              <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
-                Subtítulo
-                <input
-                  type="text"
-                  [ngModel]="vHeroSubtitle()"
-                  (ngModelChange)="applyLiveHeroChanges({ subtitle: $event })"
-                  class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
-                />
-              </label>
-            </div>
-          } @else {
-            <div class="flex flex-col gap-3 rounded-xl border border-dashed border-neutral-a5 bg-neutral-1 p-4 text-xs text-neutral-a11">
-              <p class="font-semibold text-neutral-12">
-                Construa esta página em menos de 1 minuto:
-              </p>
-              <div class="flex flex-col gap-2">
-                <button
-                  type="button"
-                  (click)="generateLiveStarterTemplate('contas-pagar')"
-                  class="flex items-center justify-between rounded-xl border border-primary-a6 bg-primary-a2 px-3 py-2.5 text-left text-xs font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
-                >
-                  <span>Gerar Página: Contas a Pagar</span>
-                  <span>→</span>
-                </button>
-                <button
-                  type="button"
-                  (click)="generateLiveStarterTemplate('notas-fiscais')"
-                  class="flex items-center justify-between rounded-xl border border-jade-a6 bg-jade-a2 px-3 py-2.5 text-left text-xs font-bold text-jade-11 transition hover:bg-jade-9 hover:text-white"
-                >
-                  <span>Gerar Página: Notas Fiscais</span>
-                  <span>→</span>
-                </button>
-              </div>
-              <p class="text-[11px] leading-relaxed">
-                Ou clique em <strong>qualquer elemento da página à esquerda</strong> para alterar largura (<strong>25%</strong>, <strong>50%</strong>, <strong>100%</strong>), tipo de campo, obrigatoriedade e opções!
-              </p>
-            </div>
-          }
+    <!-- ÁREA PRINCIPAL DA VISUALIZAÇÃO: LIMPA SEM BORDAS DE EDIÇÃO -->
+    <div class="w-full">
+      @if (currentRawHtml()) {
+        <div
+          #runtimeRoot
+          class="w-full"
+          [innerHTML]="trustedHtml()"
+          (submit)="onRuntimeSubmit($event)"
+          (click)="onRuntimeClick($event)"
+        ></div>
+      } @else {
+        <div class="rounded-3xl border border-jade-a5 bg-jade-a2 p-8 shadow-sm">
+          <h1 class="text-2xl font-bold text-neutral-12">
+            {{ matched.subModule.label || 'Dashboard' }}
+          </h1>
+          <p class="mt-2 text-base text-neutral-a11">
+            Retorne ao Editor de Página para adicionar blocos e objetos a esta tela.
+          </p>
         </div>
       }
     </div>

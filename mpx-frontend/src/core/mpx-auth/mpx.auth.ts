@@ -228,7 +228,7 @@ export class MpxAuth {
   });
 
   getPostLoginRedirectUrl(): string {
-    return this.isAdmin() ? '/morphus/admin/dashboard' : '/website/home';
+    return '/website/home';
   }
 
   constructor() {

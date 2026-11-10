@@ -24,6 +24,25 @@ export class AppBuilderRuntimeStoreService {
   /** Incrementado sempre que qualquer registro ou lista de opções é alterada, permitindo re-hidratação reativa */
   readonly version = signal<number>(0);
 
+  /** Armazena rascunhos não salvos por página (id ou routePattern) para que Visualizar Página e Retornar ao Editor mantenham as edições em memória até Salvar ou Resetar */
+  private readonly pageDraftHtmlMap = new Map<string, string>();
+
+  setPageDraftHtml(pageKey: string, html: string): void {
+    if (!pageKey) return;
+    this.pageDraftHtmlMap.set(pageKey, html);
+  }
+
+  getPageDraftHtml(pageKey?: string | null): string | null {
+    if (!pageKey) return null;
+    return this.pageDraftHtmlMap.get(pageKey) ?? null;
+  }
+
+  clearPageDraftHtml(pageKey?: string | null): void {
+    if (!pageKey) return;
+    this.pageDraftHtmlMap.delete(pageKey);
+  }
+
+
   readonly defaultCollections: AppBuilderCollectionMeta[] = [
     {
       key: 'contas-pagar',
