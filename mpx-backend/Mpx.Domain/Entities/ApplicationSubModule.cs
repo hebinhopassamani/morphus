@@ -12,8 +12,11 @@ public class ApplicationSubModule : MorphusEntity, IMorphusTenant
   public string? RoutePattern { get; set; }
   public bool Default { get; set; } = false;
   public string? HtmlContent { get; set; }
+  public string? CustomHtmlContent { get; set; }
   public string? CssContent { get; set; }
+  public string? TsContent { get; set; }
   public string? JsContent { get; set; }
+  public bool IsCustomHtml { get; set; } = false;
   public Guid ApplicationModuleId { get; set; }
   public Guid CorporationId { get; set; }
   public string? Description { get; set; }

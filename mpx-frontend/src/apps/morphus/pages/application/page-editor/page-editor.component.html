@@ -1,0 +1,925 @@
+<div class="mt-2 flex flex-col gap-2">
+  <!-- Barra Superior do Editor de Página -->
+  <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral-a4 bg-white px-3.5 py-2 dark:bg-neutral-2">
+    <div class="flex flex-wrap items-center gap-2.5">
+      <!-- Seletor do Modo de Construção da Página (Fluxo: Editor de Páginas => Editor HTML) -->
+      <div class="inline-flex items-center rounded-lg border border-neutral-a4 bg-neutral-a2 p-0.5 text-xs">
+        <button
+          type="button"
+          (click)="setPageBuildMode(false)"
+          class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-semibold transition"
+          [class.bg-primary-9]="!isCustomHtmlMode()"
+          [class.text-white]="!isCustomHtmlMode()"
+          [class.text-neutral-11]="isCustomHtmlMode()"
+          matTooltip="Montar página visualmente por Containers, Linhas, Blocos e Objetos"
+        >
+          <span>1 - Editor de Páginas</span>
+        </button>
+        <button
+          type="button"
+          (click)="setPageBuildMode(true)"
+          class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 font-semibold transition"
+          [class.bg-primary-9]="isCustomHtmlMode()"
+          [class.text-white]="isCustomHtmlMode()"
+          [class.text-neutral-11]="!isCustomHtmlMode()"
+          matTooltip="Continuar edição com HTML customizado (mantendo o último ponto do Editor de Páginas salvo separadamente)"
+        >
+          <span>2 - Editor HTML</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botões de Ação da Página (Padrão: Botões Específicos -> Cancelar/Voltar -> Salvar) -->
+    <div class="flex flex-wrap items-center gap-1.5">
+      <button
+        matButton
+        type="button"
+        class="tertiary small"
+        matTooltip="Voltar a pagina como estava antes de salvar"
+        [disabled]="(page?.htmlContent || '') === initialHtml"
+        (click)="resetPage.emit()"
+      >
+        Resetar Página
+      </button>
+      @if (page?.id) {
+        <button
+          matButton
+          type="button"
+          class="tertiary small"
+          (click)="openLivePreview.emit()"
+        >
+          <mat-icon svgIcon="arrow-right" />
+          Visualizar Pagina
+        </button>
+      }
+      <button
+        matButton
+        type="button"
+        class="tertiary small"
+        matTooltip="Cancelar alterações e voltar para a listagem de aplicações"
+        (click)="cancelEditor.emit()"
+      >
+        <mat-icon svgIcon="x" />
+        Cancelar
+      </button>
+      <button
+        matButton
+        type="button"
+        class="primary small"
+        [disabled]="saving || !page?.name?.trim()"
+        (click)="savePage.emit()"
+      >
+        <mat-icon svgIcon="check" />
+        {{ saving ? 'Salvando...' : 'Salvar' }}
+      </button>
+      @if (!isCustomHtmlMode()) {
+        <button
+          matIconButton
+          type="button"
+          class="tiny text-neutral-11 hover:text-primary-11"
+          [class.text-primary-11]="visualInspectorOpen()"
+          [matTooltip]="visualInspectorOpen() ? 'Recolher Recursos e Propriedades' : 'Abrir Recursos e Propriedades'"
+          (click)="toggleVisualInspector()"
+        >
+          <mat-icon [svgIcon]="visualInspectorOpen() ? 'panel-right-open' : 'panel-left-open'" />
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODO 1: EDITOR VISUAL (4 Níveis por Duplo Clique: Container -> Linha -> Bloco -> Objeto)
+       ======================================================================== -->
+  @if (!isCustomHtmlMode()) {
+    <div
+      class="grid grid-cols-1 gap-4"
+      [class.md:grid-cols-12]="visualInspectorOpen()"
+    >
+      <!-- Canvas Visual com Apenas 1 Nível Ativo por Vez -->
+      <div
+        #visualPreviewCanvas
+        class="mpx-visual-preview-canvas overflow-y-auto rounded-xl border border-neutral-a4 bg-neutral-1 p-5 transition"
+        [attr.data-mpx-active-level]="activeLevel()"
+        [class.md:col-span-8]="visualInspectorOpen()"
+        [class.md:col-span-12]="!visualInspectorOpen()"
+        style="height: calc(100dvh - 230px)"
+        [innerHTML]="livePreviewHtml()"
+        (click)="onCanvasClick($event)"
+        (dblclick)="onCanvasDblClick($event)"
+        (submit)="onCanvasSubmit($event)"
+        (dragstart)="onCanvasDragStart($event)"
+        (dragover)="onCanvasDragOver($event)"
+        (dragleave)="onCanvasDragLeave($event)"
+        (dragend)="onCanvasDragEnd()"
+        (drop)="onCanvasDrop($event)"
+      ></div>
+
+      <!-- Painel Lateral Direito: Recursos e Propriedades -->
+      @if (visualInspectorOpen()) {
+        <div
+          class="flex flex-col gap-3 overflow-y-auto rounded-xl border border-primary-a5 bg-white p-4 shadow-sm md:col-span-4 dark:bg-neutral-2"
+          style="height: calc(100dvh - 230px)"
+        >
+          <!-- Cabeçalho Limpo: "Recursos e Propriedades" + Ícone ? no canto superior direito -->
+          <div class="flex items-center justify-between border-b border-neutral-a4 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary-9 text-white">
+                <mat-icon svgIcon="sparkles" class="!size-3.5 !text-white" />
+              </span>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-primary-11">
+                Recursos e Propriedades
+              </h4>
+            </div>
+            <button
+              type="button"
+              (click)="toggleHelpGuide()"
+              matTooltip="Como Montar sua página"
+              class="inline-flex size-6 items-center justify-center rounded-full border border-primary-a6 bg-primary-a2 text-xs font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
+            >
+              ?
+            </button>
+          </div>
+
+          <!-- Popover / Guia Rápido acionado pelo ícone "?" -->
+          @if (helpGuideOpen()) {
+            <div class="flex flex-col gap-2 rounded-xl border border-primary-a5 bg-primary-a2/35 p-3 text-xs text-neutral-12">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-primary-11">Como Montar sua página (4 Níveis):</span>
+                <button type="button" (click)="helpGuideOpen.set(false)" class="text-[11px] font-bold text-neutral-a11 hover:text-neutral-12">✕</button>
+              </div>
+              <ol class="list-decimal space-y-1 ps-4 text-[11px] text-neutral-11">
+                <li><strong>Nível 1 (Container)</strong>: 1 clique seleciona o Container (move ↕). <strong>Duplo clique</strong> abre suas Linhas.</li>
+                <li><strong>Nível 2 (Linhas)</strong>: 1 clique seleciona a Linha (define quantas colunas ela tem). <strong>Duplo clique</strong> abre seus Blocos.</li>
+                <li><strong>Nível 3 (Blocos)</strong>: 1 clique seleciona o Bloco ou Espaço Vazio (move ↔). <strong>Duplo clique</strong> abre seus Objetos.</li>
+                <li><strong>Nível 4 (Objetos)</strong>: Edite campos, botões, textos e colunas ou pressione <strong>Esc</strong> para subir um nível.</li>
+              </ol>
+            </div>
+          }
+
+          <!-- Apenas as 3 Abas: Propriedades | Blocos | Objetos -->
+          <div class="grid grid-cols-3 gap-1 rounded-xl border border-neutral-a4 bg-neutral-a2 p-1 text-xs">
+            <button
+              type="button"
+              (click)="inspectorTab.set('properties')"
+              class="rounded-lg py-1.5 font-semibold transition"
+              [class.bg-primary-9]="inspectorTab() === 'properties'"
+              [class.text-white]="inspectorTab() === 'properties'"
+              [class.text-neutral-11]="inspectorTab() !== 'properties'"
+            >
+              Propriedades
+            </button>
+            <button
+              type="button"
+              (click)="inspectorTab.set('blocks')"
+              class="rounded-lg py-1.5 font-semibold transition"
+              [class.bg-primary-9]="inspectorTab() === 'blocks'"
+              [class.text-white]="inspectorTab() === 'blocks'"
+              [class.text-neutral-11]="inspectorTab() !== 'blocks'"
+            >
+              Blocos
+            </button>
+            <button
+              type="button"
+              (click)="inspectorTab.set('objects')"
+              class="rounded-lg py-1.5 font-semibold transition"
+              [class.bg-primary-9]="inspectorTab() === 'objects'"
+              [class.text-white]="inspectorTab() === 'objects'"
+              [class.text-neutral-11]="inspectorTab() !== 'objects'"
+            >
+              Objetos
+            </button>
+          </div>
+
+          <!-- ================================================================
+               ABA 1: PROPRIEDADES (Contextual ao Nível Ativo!)
+               ================================================================ -->
+          @if (inspectorTab() === 'properties') {
+            @if (containerCount() === 0) {
+              <div class="flex flex-col gap-3 rounded-xl border border-dashed border-neutral-a5 bg-neutral-a2/20 p-4 text-center">
+                <span class="text-xs font-bold text-neutral-12">Esta é sua nova página</span>
+                <button
+                  type="button"
+                  (click)="addNewContainer()"
+                  class="w-full rounded-xl bg-primary-9 py-2.5 text-xs font-bold text-white transition hover:bg-primary-10"
+                >
+                  + Adicionar Novo Container (1 Linha × 2 Colunas)
+                </button>
+              </div>
+            } @else {
+              <!-- CABEÇALHO UNIFICADO DE TRILHA E RENOMEAÇÃO (Em 2 linhas: 1ª Linha = Nomes Alinhados | 2ª Linha = Botões de Ação) -->
+              <div class="flex flex-col gap-2 rounded-lg bg-primary-a2/50 px-3 py-2.5">
+                <!-- Linha 1: Trilha de Nomes Alinhados Horizontalmente -->
+                <div class="flex items-center gap-1 overflow-x-auto whitespace-nowrap text-xs">
+                  @if (activeLevel() !== 'container') {
+                    <button
+                      type="button"
+                      (click)="navigateToLevel('container')"
+                      class="shrink-0 font-bold text-neutral-11 transition hover:text-primary-11 hover:underline"
+                      matTooltip="Voltar para este Container"
+                    >
+                      {{ activeContainerDisplayName() }}
+                    </button>
+                    <span class="shrink-0 font-bold text-neutral-a9">=&gt;</span>
+                  }
+
+                  @if (activeLevel() === 'block' || activeLevel() === 'object') {
+                    <button
+                      type="button"
+                      (click)="navigateToLevel('row')"
+                      class="shrink-0 font-bold text-neutral-11 transition hover:text-primary-11 hover:underline"
+                      matTooltip="Voltar para esta Linha"
+                    >
+                      {{ activeRowDisplayName() }}
+                    </button>
+                    <span class="shrink-0 font-bold text-neutral-a9">=&gt;</span>
+                  }
+
+                  @if (activeLevel() === 'object') {
+                    <button
+                      type="button"
+                      (click)="navigateToLevel('block')"
+                      class="shrink-0 font-bold text-neutral-11 transition hover:text-primary-11 hover:underline"
+                      matTooltip="Voltar para este Bloco"
+                    >
+                      {{ activeBlockDisplayName() }}
+                    </button>
+                    <span class="shrink-0 font-bold text-neutral-a9">=&gt;</span>
+                  }
+
+                  <input
+                    #levelNameInput
+                    type="text"
+                    [value]="currentEditableName()"
+                    (keydown.enter)="renameActiveLevelElement(levelNameInput.value, levelNameInput)"
+                    (keydown.escape)="cancelLevelNameEdit(levelNameInput, $event)"
+                    (blur)="renameActiveLevelElement(levelNameInput.value)"
+                    matTooltip="Digite o nome (Enter ou sair salva | Esc cancela e volta ao nome anterior)"
+                    class="min-w-28 flex-1 rounded border border-neutral-a4/40 bg-transparent px-1.5 py-0.5 text-xs font-bold text-primary-11 outline-none transition hover:border-primary-a6 hover:bg-white/70 focus:border-primary-8 focus:bg-white dark:focus:bg-neutral-1"
+                  />
+                </div>
+
+                <!-- Linha 2: Botões de Ordem (PageUp / PageDown) e Excluir (Del) -->
+                <div class="flex items-center justify-end gap-1 border-t border-primary-a4/40 pt-1.5">
+                  <button
+                    type="button"
+                    (click)="moveActiveLevelItem(-1)"
+                    matTooltip="Mover anterior (Atalho: PageUp)"
+                    class="rounded border border-neutral-a5 bg-white px-2.5 py-1 text-xs font-bold text-neutral-12 hover:bg-neutral-a2 dark:bg-neutral-1"
+                  >
+                    {{ activeLevel() === 'container' || activeLevel() === 'row' ? '↑' : '←' }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="moveActiveLevelItem(1)"
+                    matTooltip="Mover próximo (Atalho: PageDown)"
+                    class="rounded border border-neutral-a5 bg-white px-2.5 py-1 text-xs font-bold text-neutral-12 hover:bg-neutral-a2 dark:bg-neutral-1"
+                  >
+                    {{ activeLevel() === 'container' || activeLevel() === 'row' ? '↓' : '→' }}
+                  </button>
+                  <button
+                    type="button"
+                    (click)="deleteActiveLevelItem()"
+                    matTooltip="Excluir / Limpar selecionado (Atalho: Del)"
+                    class="rounded border border-red-a6 bg-red-a2 px-2.5 py-1 text-xs font-bold text-red-a11 hover:bg-red-a3"
+                  >
+                    {{ activeLevel() === 'block' ? 'Limpar' : 'Excluir' }}
+                  </button>
+                </div>
+              </div>
+
+            <!-- NÍVEL 1: PROPRIEDADES DO CONTAINER -->
+            @if (activeLevel() === 'container') {
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-neutral-1 p-3">
+                  <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-neutral-12">
+                      Linhas neste Container: {{ selectedContainerRowCount() }}
+                    </span>
+                    <button
+                      type="button"
+                      (click)="addRowToSelectedContainer()"
+                      class="rounded-lg bg-primary-9 px-2.5 py-1 text-xs font-semibold text-white hover:bg-primary-10"
+                    >
+                      + Adicionar Linha
+                    </button>
+                  </div>
+                  <p class="text-[11px] text-neutral-a11">
+                    Dê <strong>duplo clique</strong> sobre o Container na tela (ou clique no botão abaixo) para entrar no <strong>Nível 2 (Linhas)</strong>.
+                  </p>
+                  <button
+                    type="button"
+                    (click)="drillDownFromContainer(selectedContainerIdx())"
+                    class="mt-1 w-full rounded-lg border border-primary-a6 bg-primary-a2/40 py-2 text-xs font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
+                  >
+                    Abrir {{ activeContainerDisplayName() }} (Editar Linhas →)
+                  </button>
+
+                  @if (selectedContainerRowCount() > 1) {
+                    <button
+                      type="button"
+                      (click)="splitSelectedContainerRowsIntoContainers()"
+                      class="w-full rounded-lg border border-neutral-a5 bg-white py-1.5 text-xs font-semibold text-neutral-12 transition hover:border-primary-8 hover:text-primary-11 dark:bg-neutral-2"
+                      matTooltip="Transforma cada Linha deste Container em um Container independente"
+                    >
+                      Separar as {{ selectedContainerRowCount() }} Linhas em Containers Independentes
+                    </button>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  (click)="addNewContainer()"
+                  class="w-full rounded-xl border border-dashed border-primary-a6 bg-primary-a2/20 py-2.5 text-xs font-bold text-primary-11 transition hover:bg-primary-a3/40"
+                >
+                  + Adicionar Novo Container (1 Linha × 2 Colunas)
+                </button>
+              </div>
+            }
+
+            <!-- NÍVEL 2: PROPRIEDADES DA LINHA -->
+            @if (activeLevel() === 'row') {
+              <div class="flex flex-col gap-3">
+                <!-- Quantidade de Colunas (Slots de Bloco) nesta Linha -->
+                <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-neutral-1 p-3">
+                  <span class="text-xs font-bold text-neutral-12">
+                    Colunas (Espaços de Bloco) nesta Linha: {{ selectedRowSlotCount() }}
+                  </span>
+                  <div class="grid grid-cols-4 gap-1.5">
+                    @for (cols of [1, 2, 3, 4]; track cols) {
+                      <button
+                        type="button"
+                        (click)="setRowColumnsCount(cols)"
+                        class="rounded-lg border py-1.5 text-xs font-bold transition"
+                        [class.border-primary-9]="selectedRowSlotCount() === cols"
+                        [class.bg-primary-9]="selectedRowSlotCount() === cols"
+                        [class.text-white]="selectedRowSlotCount() === cols"
+                        [class.border-neutral-a5]="selectedRowSlotCount() !== cols"
+                        [class.bg-white]="selectedRowSlotCount() !== cols"
+                        [class.text-neutral-12]="selectedRowSlotCount() !== cols"
+                      >
+                        {{ cols }} {{ cols === 1 ? 'Coluna' : 'Colunas' }}
+                      </button>
+                    }
+                  </div>
+                  <p class="text-[11px] text-neutral-a11">
+                    Dê <strong>duplo clique</strong> sobre a Linha na tela (ou clique abaixo) para entrar no <strong>Nível 3 (Blocos)</strong>.
+                  </p>
+                  <button
+                    type="button"
+                    (click)="drillDownFromRow(selectedRowIdx())"
+                    class="mt-1 w-full rounded-lg border border-primary-a6 bg-primary-a2/40 py-2 text-xs font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
+                  >
+                    Abrir {{ activeRowDisplayName() }} (Editar Blocos →)
+                  </button>
+
+                  @if (selectedContainerRowCount() > 1) {
+                    <button
+                      type="button"
+                      (click)="extractSelectedRowIntoNewContainer()"
+                      class="w-full rounded-lg border border-neutral-a5 bg-white py-1.5 text-xs font-semibold text-neutral-12 transition hover:border-primary-8 hover:text-primary-11 dark:bg-neutral-2"
+                      matTooltip="Move esta Linha para um novo Container independente"
+                    >
+                      Separar esta Linha em Novo Container
+                    </button>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  (click)="addRowToSelectedContainer()"
+                  class="w-full rounded-xl border border-dashed border-primary-a6 bg-primary-a2/20 py-2 text-xs font-bold text-primary-11 transition hover:bg-primary-a3/40"
+                >
+                  + Adicionar Nova Linha neste Container
+                </button>
+              </div>
+            }
+
+            <!-- NÍVEL 3: PROPRIEDADES DO BLOCO -->
+            @if (activeLevel() === 'block') {
+              <div class="flex flex-col gap-3">
+                <!-- Largura do Bloco na Linha (25%, 33%, 50%, 67%, 75%, 100%) -->
+                <div class="flex flex-col gap-1.5">
+                  <span class="text-xs font-semibold text-neutral-11">
+                    Largura do Bloco na Linha
+                  </span>
+                  <div class="grid grid-cols-6 gap-1">
+                    @for (choice of colSpanChoices; track choice.span) {
+                      <button
+                        type="button"
+                        (click)="applySelectedBlockColSpan(choice.span)"
+                        class="flex flex-col items-center justify-center rounded-lg border py-1.5 text-center transition"
+                        [class.border-primary-9]="vBlockColSpan() === choice.span"
+                        [class.bg-primary-9]="vBlockColSpan() === choice.span"
+                        [class.text-white]="vBlockColSpan() === choice.span"
+                        [class.border-neutral-a5]="vBlockColSpan() !== choice.span"
+                        [class.bg-neutral-1]="vBlockColSpan() !== choice.span"
+                        [class.text-neutral-12]="vBlockColSpan() !== choice.span"
+                        [matTooltip]="choice.desc"
+                      >
+                        <span class="text-xs font-bold">{{ choice.label }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                @if (selectedBlockKind() === 'empty') {
+                  <div class="flex flex-col gap-2 rounded-xl border border-dashed border-primary-a6 bg-primary-a2/20 p-3">
+                    <span class="text-xs font-bold text-primary-11">
+                      Este espaço de bloco está vazio!
+                    </span>
+                    <p class="text-[11px] text-neutral-a11">
+                      Escolha abaixo qual bloco deseja colocar nesta posição (ou arraste da aba <strong>Blocos</strong>):
+                    </p>
+                    <div class="grid grid-cols-1 gap-1.5 pt-1">
+                      <button type="button" (click)="fillCurrentSlotWithBlock('hero')" class="rounded-lg border border-neutral-a5 bg-white px-3 py-2 text-left text-xs font-bold text-neutral-12 hover:border-primary-8 dark:bg-neutral-1">
+                        + Cabeçalho da Página (Hero)
+                      </button>
+                      <button type="button" (click)="fillCurrentSlotWithBlock('kpi')" class="rounded-lg border border-neutral-a5 bg-white px-3 py-2 text-left text-xs font-bold text-neutral-12 hover:border-primary-8 dark:bg-neutral-1">
+                        + Card Indicador KPI
+                      </button>
+                      <button type="button" (click)="fillCurrentSlotWithBlock('form')" class="rounded-lg border border-neutral-a5 bg-white px-3 py-2 text-left text-xs font-bold text-neutral-12 hover:border-primary-8 dark:bg-neutral-1">
+                        + Formulário de Cadastro
+                      </button>
+                      <button type="button" (click)="fillCurrentSlotWithBlock('table')" class="rounded-lg border border-neutral-a5 bg-white px-3 py-2 text-left text-xs font-bold text-neutral-12 hover:border-primary-8 dark:bg-neutral-1">
+                        + Tabela de Dados
+                      </button>
+                      <button type="button" (click)="fillCurrentSlotWithBlock('section')" class="rounded-lg border border-neutral-a5 bg-white px-3 py-2 text-left text-xs font-bold text-neutral-12 hover:border-primary-8 dark:bg-neutral-1">
+                        + Seção Livre para Objetos
+                      </button>
+                    </div>
+                  </div>
+                } @else {
+                  <!-- Botão para descer ao Nível 4 (Objetos dentro deste Bloco) -->
+                  <button
+                    type="button"
+                    (click)="drillDownFromBlock(selectedBlockIdx())"
+                    class="w-full rounded-lg border border-primary-a6 bg-primary-a2/40 py-2 text-xs font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
+                  >
+                    Abrir {{ activeBlockDisplayName() }} (Editar Objetos Internos →)
+                  </button>
+
+                  <!-- Propriedades específicas por Tipo de Bloco -->
+                  @if (selectedBlockKind() === 'hero') {
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Selo Superior
+                      <input
+                        type="text"
+                        [ngModel]="vHeroBadge()"
+                        (ngModelChange)="applyHeroChanges({ badge: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Título Principal
+                      <input
+                        type="text"
+                        [ngModel]="vHeroTitle()"
+                        (ngModelChange)="applyHeroChanges({ title: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Subtítulo Explicativo
+                      <input
+                        type="text"
+                        [ngModel]="vHeroSubtitle()"
+                        (ngModelChange)="applyHeroChanges({ subtitle: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                  } @else if (selectedBlockKind() === 'kpi') {
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Título do Indicador
+                      <input
+                        type="text"
+                        [ngModel]="vKpiTitle()"
+                        (ngModelChange)="applyKpiChanges({ title: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Como calcular o valor?
+                      <select
+                        [ngModel]="vKpiMode()"
+                        (ngModelChange)="applyKpiChanges({ mode: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                      >
+                        <option value="static">Valor Fixo digitado manualmente</option>
+                        <option value="sum">Soma Automática (R$) do campo Valor</option>
+                        <option value="count">Contagem Total de Registros</option>
+                        <option value="pending">Contagem de Registros Pendentes</option>
+                      </select>
+                    </label>
+                    @if (vKpiMode() === 'static') {
+                      <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                        Valor Exibido
+                        <input
+                          type="text"
+                          [ngModel]="vKpiValue()"
+                          (ngModelChange)="applyKpiChanges({ value: $event })"
+                          class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                        />
+                      </label>
+                    }
+                  } @else if (selectedBlockKind() === 'form') {
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Título do Formulário
+                      <input
+                        type="text"
+                        [ngModel]="vFormTitle()"
+                        (ngModelChange)="applyFormChanges({ title: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      USB Padronizada · Coleção / Endpoint Destino (data-mpx-collection)
+                      <select
+                        [ngModel]="vFormCollection()"
+                        (ngModelChange)="applyFormChanges({ collection: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                      >
+                        @for (c of availableCollections(); track c.key) {
+                          <option [value]="c.key">{{ c.label }} ({{ c.key }})</option>
+                        }
+                      </select>
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Texto do Botão de Salvar
+                      <input
+                        type="text"
+                        [ngModel]="vFormButtonText()"
+                        (ngModelChange)="applyFormChanges({ buttonText: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                  } @else if (selectedBlockKind() === 'table') {
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      USB Padronizada · Coleção / Endpoint da Tabela (data-mpx-collection)
+                      <select
+                        [ngModel]="vTableCollection()"
+                        (ngModelChange)="applyTableCollection($event)"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                      >
+                        @for (c of availableCollections(); track c.key) {
+                          <option [value]="c.key">{{ c.label }} ({{ c.key }})</option>
+                        }
+                      </select>
+                    </label>
+                  } @else if (selectedBlockKind() === 'section') {
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Título da Seção
+                      <input
+                        type="text"
+                        [ngModel]="vSectionTitle()"
+                        (ngModelChange)="applySectionChanges({ title: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                    <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                      Subtítulo da Seção
+                      <input
+                        type="text"
+                        [ngModel]="vSectionSubtitle()"
+                        (ngModelChange)="applySectionChanges({ subtitle: $event })"
+                        class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                      />
+                    </label>
+                  }
+                }
+              </div>
+            }
+
+            <!-- NÍVEL 4: PROPRIEDADES DO OBJETO INTERNO (Último Nível) -->
+            @if (activeLevel() === 'object') {
+              <div class="flex flex-col gap-3">
+                <!-- Rótulo / Texto do Objeto -->
+                <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                  Texto / Rótulo do Objeto
+                  <input
+                    type="text"
+                    [ngModel]="vObjLabel()"
+                    (ngModelChange)="applyObjectChanges({ label: $event })"
+                    class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none focus:border-primary-8"
+                  />
+                </label>
+
+                <!-- Largura na Linha (25%, 33%, 50%, 67%, 75%, 100%) -->
+                <div class="flex flex-col gap-1.5">
+                  <span class="text-xs font-semibold text-neutral-11">
+                    Largura do Objeto no Bloco
+                  </span>
+                  <div class="grid grid-cols-6 gap-1">
+                    @for (choice of colSpanChoices; track choice.span) {
+                      <button
+                        type="button"
+                        (click)="applyObjectChanges({ colSpan: choice.span })"
+                        class="flex flex-col items-center justify-center rounded-lg border py-1.5 text-center transition"
+                        [class.border-primary-9]="vObjColSpan() === choice.span"
+                        [class.bg-primary-9]="vObjColSpan() === choice.span"
+                        [class.text-white]="vObjColSpan() === choice.span"
+                        [class.border-neutral-a5]="vObjColSpan() !== choice.span"
+                        [class.bg-neutral-1]="vObjColSpan() !== choice.span"
+                        [class.text-neutral-12]="vObjColSpan() !== choice.span"
+                        [matTooltip]="choice.desc"
+                      >
+                        <span class="text-xs font-bold">{{ choice.label }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+
+                @if (selectedObjectIsFormField()) {
+                  <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                    Tipo de Componente (data-mpx-type)
+                    <select
+                      [ngModel]="vFieldType()"
+                      (ngModelChange)="applyObjectChanges({ fieldType: $event })"
+                      class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-medium text-neutral-12 outline-none dark:bg-neutral-1"
+                    >
+                      @for (ft of fieldTypeChoices; track ft.type) {
+                        <option [value]="ft.type">{{ ft.label }}</option>
+                      }
+                    </select>
+                  </label>
+
+                  <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                    Texto de Ajuda (Placeholder)
+                    <input
+                      type="text"
+                      [ngModel]="vObjPlaceholder()"
+                      (ngModelChange)="applyObjectChanges({ placeholder: $event })"
+                      class="h-9 rounded-lg border border-neutral-a5 bg-transparent px-3 text-xs font-medium text-neutral-12 outline-none"
+                    />
+                  </label>
+
+                  <label class="flex cursor-pointer items-center justify-between rounded-lg border border-neutral-a4 bg-neutral-1 px-3 py-2 text-xs font-semibold text-neutral-12">
+                    <span>Preenchimento Obrigatório (*)</span>
+                    <input
+                      type="checkbox"
+                      [ngModel]="vObjRequired()"
+                      (ngModelChange)="applyObjectChanges({ required: $event })"
+                      class="size-4 accent-violet-600"
+                    />
+                  </label>
+                }
+              </div>
+            }
+            }
+          }
+
+          <!-- ================================================================
+               ABA 2: BLOCOS (Inseridos dentro do Slot de Bloco / Container)
+               ================================================================ -->
+          @if (inspectorTab() === 'blocks') {
+            <div class="flex flex-col gap-3">
+              <p class="text-[11px] text-neutral-a11">
+                Clique ou arraste um bloco para um espaço do Container (ou gere uma página completa):
+              </p>
+
+              <div class="flex flex-col gap-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-primary-11">
+                  Estruturas & Blocos
+                </span>
+                <div class="grid grid-cols-1 gap-1.5">
+                  <button
+                    type="button"
+                    (click)="addNewContainer()"
+                    class="flex items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/30 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/40"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                        <mat-icon svgIcon="boxes" class="!size-4 !text-white" />
+                      </span>
+                      <div>
+                        <div class="text-xs font-bold text-neutral-12">Novo Container (1 Linha × 2 Colunas)</div>
+                        <div class="text-[11px] text-neutral-a11">Adiciona um novo Grid estrutural na página</div>
+                      </div>
+                    </div>
+                    <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                  </button>
+
+                  @for (blk of blockPaletteItems; track blk.type) {
+                    <button
+                      type="button"
+                      draggable="true"
+                      (dragstart)="onPaletteBlockDragStart($event, blk.type)"
+                      (dragend)="onCanvasDragEnd()"
+                      (click)="fillCurrentSlotWithBlock(blk.type)"
+                      class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                          <mat-icon [svgIcon]="blk.icon" class="!size-4" />
+                        </span>
+                        <div>
+                          <div class="text-xs font-bold text-neutral-12">{{ blk.label }}</div>
+                          <div class="text-[11px] text-neutral-a11">{{ blk.desc }}</div>
+                        </div>
+                      </div>
+                      <mat-icon svgIcon="plus" class="!size-4 text-primary-11" />
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5 pt-1">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-primary-11">
+                  Páginas Prontas da Fase 1
+                </span>
+                <div class="grid grid-cols-1 gap-1.5">
+                  <button
+                    type="button"
+                    (click)="generateStarterTemplate('contas-pagar')"
+                    class="flex items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/40 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/50"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                        <mat-icon svgIcon="wallet" class="!size-4 !text-white" />
+                      </span>
+                      <div>
+                        <div class="text-xs font-bold text-neutral-12">Página Completa: Contas a Pagar</div>
+                        <div class="text-[11px] text-neutral-a11">Containers + KPIs + Formulário + Tabela Financeira</div>
+                      </div>
+                    </div>
+                    <mat-icon svgIcon="sparkles" class="!size-4 text-primary-11" />
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="generateStarterTemplate('notas-fiscais')"
+                    class="flex items-center justify-between rounded-xl border border-primary-a5 bg-primary-a2/40 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a3/50"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <span class="inline-flex size-8 items-center justify-center rounded-lg bg-primary-9 text-white">
+                        <mat-icon svgIcon="receipt-text" class="!size-4 !text-white" />
+                      </span>
+                      <div>
+                        <div class="text-xs font-bold text-neutral-12">Página Completa: Notas Fiscais</div>
+                        <div class="text-[11px] text-neutral-a11">Containers + KPIs + Entrada de NF + Tabela Fiscal</div>
+                      </div>
+                    </div>
+                    <mat-icon svgIcon="sparkles" class="!size-4 text-primary-11" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- ================================================================
+               ABA 3: OBJETOS (Inseridos dentro do Bloco aberto)
+               ================================================================ -->
+          @if (inspectorTab() === 'objects') {
+            <div class="flex flex-col gap-2.5">
+              <p class="text-[11px] text-neutral-a11">
+                Clique ou arraste qualquer objeto para adicionar dentro do Bloco selecionado:
+              </p>
+              <div class="grid grid-cols-1 gap-1.5">
+                @for (obj of visualObjectChoices; track obj.type) {
+                  <button
+                    type="button"
+                    draggable="true"
+                    (dragstart)="onPaletteObjectDragStart($event, obj.type)"
+                    (dragend)="onCanvasDragEnd()"
+                    (click)="insertObjectIntoCurrentBlock(obj.type)"
+                    class="flex cursor-grab active:cursor-grabbing items-center justify-between rounded-xl border border-neutral-a4 bg-neutral-1 p-2.5 text-left transition hover:border-primary-8 hover:bg-primary-a2/30"
+                  >
+                    <div class="flex items-center gap-2.5">
+                      <span class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-a3 text-primary-11">
+                        <mat-icon [svgIcon]="obj.icon" class="!size-4" />
+                      </span>
+                      <div>
+                        <div class="text-xs font-bold text-neutral-12">{{ obj.label }}</div>
+                        <div class="text-[11px] text-neutral-a11">{{ obj.desc }}</div>
+                      </div>
+                    </div>
+                    <mat-icon svgIcon="plus" class="!size-4 shrink-0 text-primary-11" />
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  } @else {
+    <!-- ======================================================================
+         MODO 2: EDITOR HTML CUSTOMIZADO (index.html | styles.css | script.ts + Preview em Memória)
+         ====================================================================== -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <!-- Coluna Esquerda: Abas de Arquivo (index.html, styles.css, script.ts) + Code Editor -->
+      <div class="flex flex-col overflow-hidden rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2">
+        <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/60 px-2 pt-1.5">
+          <div class="flex items-center gap-1">
+            <button
+              type="button"
+              (click)="activeCodeTab.set('html')"
+              class="inline-flex items-center gap-1.5 rounded-t-lg border-x border-t px-3 py-1.5 text-xs font-bold transition"
+              [class.border-neutral-a4]="activeCodeTab() === 'html'"
+              [class.bg-white]="activeCodeTab() === 'html'"
+              [class.text-primary-11]="activeCodeTab() === 'html'"
+              [class.border-transparent]="activeCodeTab() !== 'html'"
+              [class.text-neutral-11]="activeCodeTab() !== 'html'"
+            >
+              <span class="font-mono text-amber-600">&lt;&gt;</span>
+              <span>index.html</span>
+            </button>
+            <button
+              type="button"
+              (click)="activeCodeTab.set('css')"
+              class="inline-flex items-center gap-1.5 rounded-t-lg border-x border-t px-3 py-1.5 text-xs font-bold transition"
+              [class.border-neutral-a4]="activeCodeTab() === 'css'"
+              [class.bg-white]="activeCodeTab() === 'css'"
+              [class.text-primary-11]="activeCodeTab() === 'css'"
+              [class.border-transparent]="activeCodeTab() !== 'css'"
+              [class.text-neutral-11]="activeCodeTab() !== 'css'"
+            >
+              <span class="font-mono text-sky-600">#</span>
+              <span>styles.css</span>
+            </button>
+            <button
+              type="button"
+              (click)="activeCodeTab.set('ts')"
+              class="inline-flex items-center gap-1.5 rounded-t-lg border-x border-t px-3 py-1.5 text-xs font-bold transition"
+              [class.border-neutral-a4]="activeCodeTab() === 'ts'"
+              [class.bg-white]="activeCodeTab() === 'ts'"
+              [class.text-primary-11]="activeCodeTab() === 'ts'"
+              [class.border-transparent]="activeCodeTab() !== 'ts'"
+              [class.text-neutral-11]="activeCodeTab() !== 'ts'"
+            >
+              <span class="font-mono text-blue-600">TS</span>
+              <span>script.ts</span>
+            </button>
+          </div>
+          <span class="pe-2 text-[10px] font-semibold text-neutral-a10">
+            Banco PostgreSQL · Bundle em Memória
+          </span>
+        </div>
+
+        @if (activeCodeTab() === 'html') {
+          <mpx-code-editor
+            language="html"
+            height="auto-viewport"
+            [appPrefix]="appPrefix"
+            [fileName]="page?.routePattern || page?.name || 'index'"
+            [value]="page?.customHtmlContent ?? page?.htmlContent ?? ''"
+            (valueChange)="onCustomCodeChange('customHtmlContent', $event)"
+            placeholder="Digite seu HTML customizado aqui... O ponto do Editor de Páginas permanece guardado separadamente."
+          />
+        } @else if (activeCodeTab() === 'css') {
+          <mpx-code-editor
+            language="html"
+            height="auto-viewport"
+            [appPrefix]="appPrefix"
+            fileName="styles.css"
+            [value]="page?.cssContent || ''"
+            (valueChange)="onCustomCodeChange('cssContent', $event)"
+            placeholder="/* Estilos CSS customizados desta página (embutidos em memória no Preview e na Página ao Vivo) */"
+          />
+        } @else {
+          <mpx-code-editor
+            language="html"
+            height="auto-viewport"
+            [appPrefix]="appPrefix"
+            fileName="script.ts"
+            [value]="page?.tsContent || ''"
+            (valueChange)="onCustomCodeChange('tsContent', $event)"
+            placeholder="// TypeScript customizado da página (armazenado em ts_content no banco para compilação na Fase 2)"
+          />
+        }
+      </div>
+
+      <!-- Coluna Direita: Preview em Tempo Real + Guia USB Padronizada -->
+      <div class="flex flex-col overflow-hidden rounded-xl border border-neutral-a4 bg-white dark:bg-neutral-2" style="height: calc(100dvh - 230px)">
+        <div class="flex items-center justify-between border-b border-neutral-a4 bg-neutral-a2/60 px-3.5 py-2">
+          <div class="flex items-center gap-2">
+            <span class="inline-block size-2 rounded-full bg-jade-9"></span>
+            <span class="text-xs font-bold text-neutral-12">Preview (Bundle em Memória)</span>
+          </div>
+          <button
+            type="button"
+            (click)="usbGuideOpen.update(v => !v)"
+            class="rounded-md border border-primary-a6 bg-primary-a2 px-2 py-0.5 text-[11px] font-bold text-primary-11 transition hover:bg-primary-9 hover:text-white"
+          >
+            🔌 USB Padronizada (API)
+          </button>
+        </div>
+
+        @if (usbGuideOpen()) {
+          <div class="border-b border-primary-a5 bg-primary-a2/30 p-3 text-[11px] text-neutral-12">
+            <div class="font-bold text-primary-11">Contrato USB Padronizada (Funciona igual no Editor Visual e no Editor HTML):</div>
+            <ul class="mt-1 list-disc space-y-0.5 ps-4 text-neutral-11">
+              <li><code>data-mpx-collection="contas-pagar"</code> ou <code>"notas-fiscais"</code> no <code>&lt;form&gt;</code> ou <code>&lt;table&gt;</code></li>
+              <li><code>data-mpx-field="valor" data-mpx-type="currency"</code> nos <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code> e <code>&lt;th&gt;</code></li>
+              <li><code>data-mpx-action="submit"</code>, <code>"delete"</code> ou <code>"navigate"</code> nos <code>&lt;button&gt;</code></li>
+            </ul>
+          </div>
+        }
+
+        <div
+          class="flex-1 overflow-y-auto bg-neutral-1 p-5"
+          [innerHTML]="customBundlePreviewHtml()"
+        ></div>
+      </div>
+    </div>
+  }
+</div>

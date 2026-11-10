@@ -280,8 +280,11 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
         existing.RoutePattern = cleanRoute;
         existing.Default = page.Default;
         existing.HtmlContent = page.HtmlContent;
+        existing.CustomHtmlContent = page.CustomHtmlContent;
         existing.CssContent = page.CssContent;
+        existing.TsContent = page.TsContent;
         existing.JsContent = page.JsContent;
+        existing.IsCustomHtml = page.IsCustomHtml;
         existing.Description = page.Description;
         await _context.SaveChangesAsync();
         return existing;
@@ -302,8 +305,11 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
       RoutePattern = cleanRoute,
       Default = page.Default,
       HtmlContent = page.HtmlContent,
+      CustomHtmlContent = page.CustomHtmlContent,
       CssContent = page.CssContent,
+      TsContent = page.TsContent,
       JsContent = page.JsContent,
+      IsCustomHtml = page.IsCustomHtml,
       System = false,
       Description = page.Description
     };

@@ -18,8 +18,11 @@ public class ApplicationSubModuleConfiguration : IEntityTypeConfiguration<Applic
     builder.Property(b => b.RoutePattern).IsRequired(false).HasMaxLength(150);
     builder.Property(b => b.Default).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.HtmlContent).IsRequired(false).HasColumnType("text");
+    builder.Property(b => b.CustomHtmlContent).IsRequired(false).HasColumnType("text");
     builder.Property(b => b.CssContent).IsRequired(false).HasColumnType("text");
+    builder.Property(b => b.TsContent).IsRequired(false).HasColumnType("text");
     builder.Property(b => b.JsContent).IsRequired(false).HasColumnType("text");
+    builder.Property(b => b.IsCustomHtml).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.Key).IsRequired().HasMaxLength(100);
     builder.HasIndex(b => b.Key).IsUnique();
     builder.Property(b => b.System).IsRequired().HasDefaultValue(false);

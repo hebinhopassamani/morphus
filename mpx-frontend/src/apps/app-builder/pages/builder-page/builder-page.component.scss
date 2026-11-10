@@ -4,6 +4,44 @@
   flex-direction: column;
 }
 
+:host ::ng-deep [data-mpx-container] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+:host ::ng-deep [data-mpx-container] + [data-mpx-container] {
+  margin-top: 1.25rem;
+}
+
+:host ::ng-deep [data-mpx-row],
+:host ::ng-deep [data-mpx-form-grid],
+:host ::ng-deep .grid-cols-12 {
+  display: grid !important;
+  grid-template-columns: repeat(12, minmax(0, 1fr)) !important;
+  gap: 1rem !important;
+  width: 100% !important;
+}
+:host ::ng-deep [data-mpx-row] + [data-mpx-row] {
+  margin-top: 1rem;
+}
+:host ::ng-deep [data-mpx-row] > [data-mpx-block],
+:host ::ng-deep [data-mpx-form-grid] > * {
+  grid-column: span 12 / span 12;
+  min-width: 0;
+}
+
+@media (min-width: 640px) {
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='3'] { grid-column: span 3 / span 3 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='4'] { grid-column: span 4 / span 4 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='5'] { grid-column: span 5 / span 5 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='6'] { grid-column: span 6 / span 6 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='7'] { grid-column: span 7 / span 7 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='8'] { grid-column: span 8 / span 8 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='9'] { grid-column: span 9 / span 9 !important; }
+  :host ::ng-deep .grid-cols-12 > [data-mpx-col-span='12'] { grid-column: span 12 / span 12 !important; }
+}
+
 /* Construtor Visual na Página ao Vivo (/app/:appKey/:slug) */
 :host ::ng-deep .mpx-live-builder-active label,
 :host ::ng-deep .mpx-live-builder-active form,

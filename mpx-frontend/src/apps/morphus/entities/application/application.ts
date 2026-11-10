@@ -32,8 +32,11 @@ export interface MorphusApplicationSubModuleRef {
   routePattern?: string | null;
   default?: boolean;
   htmlContent?: string | null;
+  customHtmlContent?: string | null;
   cssContent?: string | null;
+  tsContent?: string | null;
   jsContent?: string | null;
+  isCustomHtml?: boolean;
   description?: string | null;
 }
 

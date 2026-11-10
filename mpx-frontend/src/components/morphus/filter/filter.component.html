@@ -55,18 +55,8 @@
 
       <mat-divider />
 
-      <!-- Rodapé: Voltar, Limpar o filtro e Filtrar -->
+      <!-- Rodapé: Limpar o filtro, Voltar e Filtrar -->
       <div buiDialogFooter class="flex w-full items-center justify-end gap-x-3">
-        <button
-          matButton
-          type="button"
-          matTooltip="Voltar"
-          (click)="closeClick()"
-        >
-          <mat-icon svgIcon="arrow-left" />
-          Voltar
-        </button>
-
         <button
           matButton
           type="button"
@@ -75,6 +65,16 @@
         >
           <mat-icon svgIcon="rotate-ccw" />
           Limpar
+        </button>
+
+        <button
+          matButton
+          type="button"
+          matTooltip="Voltar"
+          (click)="closeClick()"
+        >
+          <mat-icon svgIcon="arrow-left" />
+          Voltar
         </button>
 
         <button

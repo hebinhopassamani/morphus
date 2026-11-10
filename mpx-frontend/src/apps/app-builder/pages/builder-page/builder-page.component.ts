@@ -227,11 +227,20 @@ export class AppBuilderPageComponent {
     if (draft) {
       return draft;
     }
-    return this.matchedPage()?.subModule.htmlContent || '';
+    const sub = this.matchedPage()?.subModule;
+    if (!sub) {
+      return '';
+    }
+    return sub.isCustomHtml
+      ? (sub.customHtmlContent || sub.htmlContent || '')
+      : (sub.htmlContent || '');
   });
 
   protected readonly trustedHtml = computed<SafeHtml>(() => {
-    return this.sanitizer.toTrustedHtml(this.currentRawHtml());
+    const rawHtml = this.currentRawHtml();
+    const css = (this.matchedPage()?.subModule.cssContent || '').trim();
+    const combined = css ? `<style>${css}</style>\n${rawHtml}` : rawHtml;
+    return this.sanitizer.toTrustedHtml(combined);
   });
 
   constructor() {

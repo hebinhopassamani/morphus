@@ -70,8 +70,11 @@ public static class DependencyInjection
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS route_pattern character varying(150) NULL;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS "default" boolean NOT NULL DEFAULT false;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS html_content text NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS custom_html_content text NULL;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS css_content text NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS ts_content text NULL;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS js_content text NULL;
+        ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS is_custom_html boolean NOT NULL DEFAULT false;
         UPDATE mpx_applications SET available_for_trial = true WHERE prefix IN ('FIN', 'FLW', 'MAL') OR name IN ('Morphus Financeiro', 'Morphus Flow', 'Morphus Mail');
         UPDATE mpx_applications SET "default" = true WHERE prefix = 'FIN' OR name = 'Morphus Financeiro';
         UPDATE mpx_applications SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;
