@@ -15,6 +15,31 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
 >   3. **Propósito Operacional Central**: **Notas Fiscais** e **Contas a Pagar** — **e PONTO FINAL!**
 > - **Fase 2 em diante**: Só iniciam em código após a Fase 1 estar 100% concluída e entregue, definindo-se também um novo rumo final fechado para a Fase 2.
 
+## 0. Manifesto Fundador ("001 - Morphus - Sobre o Projeto" — A Essência e os 5 Módulos Coração)
+- **Significado de MORPHUS ("MORPHAR")**: Sistema de gestão empresarial focado absolutamente em **adaptação** ao ambiente em que é implantado.
+- **Implantação Híbrida (SaaS Multi-Tenant ou On-Premise Dedicado)**:
+  - Pode rodar em **instância compartilhada na nuvem (Multi-Tenant)** entre diversos clientes de forma 100% separada e segura;
+  - Ou ser implantado de forma **dedicada para um único cliente no ambiente da própria corporação/empresa (On-Premise / Private Cloud)**.
+- **Os 5 Módulos Iniciais (Coração do Sistema)**:
+  1. **A Segurança**:
+     - **Corporações e Empresas (Matriz e Filiais) + Compartilhamento Seletivo de Dados**: Permite criar a matriz e todas as filiais que a compõem. **Antes mesmo da camada de permissões/autorizações**, os administradores escolhem se os dados são **isolados ou compartilhados** entre as diversas empresas da mesma corporação — podendo definir exatamente **quais dados são compartilhados e quais não são**.
+     - **Espaços de Trabalho (Workspaces / Setores) + Compartilhamento Seletivo de Dados**: Divisão interna de informações dentro de uma ou mais empresas da corporação, também permitindo escolher **quais dados são isolados ou compartilhados** entre os espaços de trabalho das empresas da corporação.
+     - **Usuários, Perfis de Acesso (`Roles`) e Permissões (`Claims`)**: Blindagem baseada em SSO, SAML e JWT para aplicativos internos e externos, com granularidade extrema (desde uma única informação até toda uma corporação), atribuída de forma agrupada por perfil ou individualmente em qualquer informação ou porta de acesso.
+  2. **O Morphus ("O Dono da Festa")**:
+     - Modela e controla todo o ecossistema de forma unificada (configurando, parametrizando ou construindo funcionalidades e aplicações), observando, aprendendo e se adaptando à corporação.
+     - **Duas Formas de Criação**:
+       - **Forma Nativa**: Consultores, desenvolvedores e agentes de IA do Morphus criam novas funcionalidades e aplicações e o motor Morphus as disponibiliza para todas as corporações do ecossistema.
+       - **Forma Customizada**: Usando as mesmas ferramentas, cada corporação cria suas próprias funcionalidades ou aplicações (com seus próprios funcionários/recursos ou com consultores do Morphus).
+  3. **A Plataforma Web**:
+     - **O Login**: Configurável pelo motor do Morphus (acessos sociais e quais provedores, login/senha e nível de segurança de senhas, chaves de acesso/Passkeys, autenticação em dois fatores/2FA).
+     - **O Portal**: Ponto único de entrada onde o usuário vê apenas o que deve ver, acessa apenas o que pode acessar e navega apenas por onde pode navegar, podendo trabalhar em **várias filiais da corporação** a partir do mesmo portal.
+  4. **O Morphus Flow**:
+     - Fluxos de trabalho 100% configuráveis (nativos prontos para uso ou customizados para toda a corporação ou para uma filial específica).
+     - **Configuração e Integração Fronteira-a-Fronteira**: Define como começa, para onde vai, o que trafega dentro dele, qual nível de segurança, quem pode ver, o que o faz parar, quem é notificado a cada passo/ação e por qual motivo — integrando desde a matriz até a última filial e **podendo inclusive sair e retornar dos domínios da corporação** sem jamais perder a segurança da informação.
+  5. **O Construtor de Aplicativos e Funcionalidades (`App Builder` — Juntando Dois Mundos)**:
+     - **Para o Usuário Final**: Constrói apenas sabendo o que já sabe (as regras de negócio), por meio de uma ferramenta visual, simples e prática.
+     - **Para o Consultor ou Desenvolvedor**: Editores avançados, modelagens complexas de dados, bibliotecas de integrações, padrões de desenvolvimento entre equipes e agilidade sob controle total da Segurança.
+
 ## 1. Morphus Flow (Motor de Workflow Genérico e Configurável — Inspirado no WeWeb)
 - **Conceito**: Aplicativo/Módulo de fluxo de trabalho 100% configurável, genérico e Multi-Tenant (`CorporationId`), com **interface visual de nós, gatilhos (Triggers), ramificações condicionais (`True/False` / `Switch`), variáveis de contexto, loops e inspetor lateral de payload inspirado no editor de Workflows do WeWeb**.
 - **Funcionamento**:
