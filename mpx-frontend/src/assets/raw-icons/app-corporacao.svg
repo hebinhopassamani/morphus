@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 24 24" fill="none">
+  <!-- Camada Secundaria -->
+  <rect x="4" y="3" width="10" height="18" rx="2" fill="#DDD6FE" />
+  <!-- Camada Principal -->
+  <path d="M14 9H18C19.1 9 20 9.9 20 11V19C20 20.1 19.1 21 18 21H14V9Z" fill="#6D28D9" />
+  <!-- Detalhes Neutros -->
+  <path d="M7 7H11M7 11H11M7 15H11" stroke="#BEBC99" stroke-width="1.75" stroke-linecap="round" />
+</svg>

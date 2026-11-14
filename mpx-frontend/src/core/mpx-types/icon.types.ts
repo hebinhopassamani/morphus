@@ -1,6 +1,7 @@
 import { MPX_ICONS } from '@core/mpx-icons/mpx-icons.data';
+import { MorphusCompiledIconName } from '@core/mpx-icons/morphus-compiled-icons';
 
-export type CustomIconName = keyof typeof MPX_ICONS;
+export type CustomIconName = keyof typeof MPX_ICONS | MorphusCompiledIconName | (string & {});
 
 export type LucideIconName =
   'a-arrow-down' |

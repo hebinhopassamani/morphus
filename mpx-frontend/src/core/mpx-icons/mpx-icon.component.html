@@ -1,4 +1,13 @@
-@if (gIcon()) {
+@if (getCompiledIcon(); as compiled) {
+  <svg
+    [attr.viewBox]="compiled.def.viewBox"
+    [innerHTML]="compiled.safeContent"
+    fill="none"
+    stroke="none"
+    data-mpx-duotone="true"
+    aria-hidden="true"
+  ></svg>
+} @else if (gIcon()) {
   <svg [innerHTML]="getSafeIconHtml()" viewBox="0 -960 960 960" fill="currentColor" aria-hidden="true"></svg>
 } @else {
   <span class="mpx-icon-wrapper" [innerHTML]="getSafeIconHtml()"></span>

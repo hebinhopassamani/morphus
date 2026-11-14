@@ -12,8 +12,12 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
 > - **Fase 1 (Escopo Fechado — Nosso Rumo Final Atual)**:
 >   1. **Empresas e Estrutura Base**: `Corporations`, `Workspaces`, `Applications`, `Modules` e `SubModules`;
 >   2. **Controle de Funcionários e Segurança**: `Users`, `Roles` (Perfis) e `Permissions/Claims` (Permissões);
->   3. **Propósito Operacional Central**: **Notas Fiscais** e **Contas a Pagar** — **e PONTO FINAL!**
-> - **Fase 2 em diante**: Só iniciam em código após a Fase 1 estar 100% concluída e entregue, definindo-se também um novo rumo final fechado para a Fase 2.
+>   3. **Propósito Operacional Central**: **`App Builder`** (Construtor de Aplicações e Funcionalidades) — **e PONTO FINAL!** *(Sem incluir o modelo Financeiro na Fase 1 para não prendermos tempo demais nele antes de fechar a fundação).*
+> - **Fase 2 (Escopo Fechado — Nosso Grande Carro-Chefe Comercial #1)**:
+>   - **Ecossistema Kalupa (`Obsidian` + `n8n` + `Morphus` + `Kalupa`)**: Painel `Kalupa Morphus` (incluindo o Estúdio Visual de Configuração do `.obsidian/` e `Modelos/` 100% via código puro), `Kalupa Sync Service` local e integração refinada com o motor no `n8n`. Só inicia em código após a Fase 1 estar 100% concluída!
+> - **Fase 3 (Escopo Fechado — Nosso Carro-Chefe Corporativo #2)**:
+>   - **Módulo Financeiro 100% (**Notas Fiscais** e **Contas a Pagar**)**: Construído já utilizando o poder da fundação e do `App Builder` da Fase 1. Ao final da Fase 3, o Morphus terá **2 aplicações reais e de naturezas totalmente distintas** (um SaaS de Produtividade/Conhecimento com Sync Local + IA no `Kalupa`, e um ERP Financeiro Corporativo tradicional), provando na prática toda a capacidade de adaptação do ecossistema!
+> - **Fase 4 em diante**: `Morphus Flow`, `Morphus Mail` e demais expansões.
 
 ## 0. Manifesto Fundador ("001 - Morphus - Sobre o Projeto" — A Essência e os 5 Módulos Coração)
 - **Significado de MORPHUS ("MORPHAR")**: Sistema de gestão empresarial focado absolutamente em **adaptação** ao ambiente em que é implantado.
@@ -22,7 +26,7 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
   - Ou ser implantado de forma **dedicada para um único cliente no ambiente da própria corporação/empresa (On-Premise / Private Cloud)**.
 - **Os 5 Módulos Iniciais (Coração do Sistema)**:
   1. **A Segurança**:
-     - **Corporações e Empresas (Matriz e Filiais) + Compartilhamento Seletivo de Dados**: Permite criar a matriz e todas as filiais que a compõem. **Antes mesmo da camada de permissões/autorizações**, os administradores escolhem se os dados são **isolados ou compartilhados** entre as diversas empresas da mesma corporação — podendo definir exatamente **quais dados são compartilhados e quais não são**.
+     - **Corporações e Empresas (Matriz e Filiais) + Compartilhamento Seletivo de Dados**: Permite criar a matriz e todas as filiais que a compõem. **Antes mesmo da camada de permissões/autorizações**, os administradores escolhem se os dados são **isolados ou compartilhados** entre as diversas empresas da mesma corporação — podendo definir exatamente **quais dados são compartilhados e quais não são**. *(Nota de Modelagem: A Matriz e as Filiais possuem dados e responsabilidades distintas — ex.: a Matriz detém o contrato/plano raiz e governança global, enquanto as Filiais possuem regras de herança e compartilhamento seletivo de dados com a Matriz — podendo ser modeladas em tabelas separadas ou tabelas de extensão 1:1 específicas para Matriz vs. Filial sem poluir a entidade base com colunas nulas).*
      - **Espaços de Trabalho (Workspaces / Setores) + Compartilhamento Seletivo de Dados**: Divisão interna de informações dentro de uma ou mais empresas da corporação, também permitindo escolher **quais dados são isolados ou compartilhados** entre os espaços de trabalho das empresas da corporação.
      - **Usuários, Perfis de Acesso (`Roles`) e Permissões (`Claims`)**: Blindagem baseada em SSO, SAML e JWT para aplicativos internos e externos, com granularidade extrema (desde uma única informação até toda uma corporação), atribuída de forma agrupada por perfil ou individualmente em qualquer informação ou porta de acesso.
   2. **O Morphus ("O Dono da Festa")**:
@@ -115,9 +119,40 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
     1. Captura o conteúdo bruto do usuário silenciosamente e envia para o Agente de IA;
     2. Formata o documento completo seguindo **os templates personalizados do próprio usuário** ou **os templates oficiais do Kalupa**, gerando também um **Resumo** para o usuário **aprovar ou rejeitar** antes de consolidar na sua base de conhecimento;
     3. **Entrega Invisível na Pasta Local (`Kalupa Sync Service`)**: Um serviço leve instalado na máquina do usuário busca automaticamente os documentos aprovados (`sincronizado = false`) respeitando as permissões da `Security.Api` (`Leitura`/`Escrita`) e os entrega direto na pasta local escolhida pelo cliente.
-    4. **Liberdade Total de Editor**: O cliente usa a ferramenta que preferir para ler/editar os arquivos entregues na pasta dele (**Obsidian**, **VS Code**, **Typora**, **LibreOffice**, **Word**, ou direto pelo **Windows Explorer**).
-- **Regra de Negócio no Cadastro Inicial**:
-  - Aplicações comerciais como o **Kalupa** (`kalupa.io`), **Morphus Mail** e **Morphus Flow** **NÃO são vinculadas automaticamente** no momento em que o usuário cria sua conta inicial no Morphus (no `MorphusAccountSeed` entram apenas as 3 aplicações base do sistema: `Morphus`, `Segurança` e `Website`).
+    4. **Liberdade Total de Editor (com o Obsidian como Carro-Chefe Oficial)**: O cliente pode usar qualquer ferramenta para ler/editar os arquivos entregues na pasta dele (**Obsidian**, **VS Code**, **Typora**, **LibreOffice**, **Word**, ou **Windows Explorer**), sendo o **Obsidian** o nosso **Carro-Chefe Oficial ("Flagship Client")**:
+       - Gratuito, leve, multiplataforma e 100% baseado em arquivos locais `.md` e configurações abertas na pasta `.obsidian/` (`json` + `css`);
+       - **Orquestração Viva pela IA (`Kalupa Agent + Sync`)**: O Agente de IA do Kalupa não apenas cria, numera (`001, 002...`) e edita as notas `.md` em tempo real diante dos olhos do usuário, como também consegue **configurar e personalizar o próprio Obsidian do cliente por trás dos panos** (criando templates dinâmicos no `Templater`, atalhos em `hotkeys.json`, blocos repetíveis sob demanda, fontes com *ligatures* embutidas em `snippets/*.css`, estilização de blocos de código e ajustes de layout em `app.json` / `appearance.json`) apenas conversando com o usuário!
+       - **Estúdio Visual de Configuração do Cofre — 100% via Código Puro, Sem Depender de IA (`Kalupa Morphus Web <-> Kalupa Sync Service <-> .obsidian`)**:
+         - Como o Obsidian guarda toda a sua configuração em arquivos ocultos estruturados (`JSON` + `CSS` + `MD`) dentro de `.obsidian/` (`types.json`, `hotkeys.json`, `app.json`, `appearance.json`, `snippets/*.css`, `plugins/templater-obsidian/data.json`) e na pasta `Modelos/`, o **Kalupa no Morphus (Web)** terá uma **interface visual e amigável que opera 100% via código puro determinístico (C# / TypeScript), sem precisar de Agente de IA e sem gastar 1 centavo de token**!
+         - Pelo painel visual do **Kalupa Morphus**, o usuário liga/desliga switches, escolhe cores/fontes e gerencia **Propriedades e Tipos** (`types.json`: texto, data, lista de tags, checkbox) vinculando quais propriedades pertencem a qual Modelo, **Modelos e Blocos Repetíveis (`+ Bloco`)**, **Atalhos de Teclado** (`hotkeys.json`), **Temas de Blocos de Código e Fontes/Ligatures** (`snippets/*.css`) e **Preferências do Editor** (`app.json`); ao clicar em salvar na tela web, o back-end C# serializa os objetos tipados e o **Kalupa Sync Service** grava diretamente nos arquivos ocultos `.obsidian/` da máquina do cliente em milissegundos!
+       - **Refinamento do Motor Gemini no n8n por Modelo / Tecnologia / Usuário**: Em vez de um prompt único genérico, o fluxo do Kalupa no n8n injeta no Gemini o **Template exato do Modelo escolhido**, o **Contexto da Tecnologia/Pasta** e as **Instruções/Regras personalizadas do próprio usuário** para aquele modelo/tecnologia (ex.: separar explicações em tópicos/bullets fora do bloco de código, isolar comandos puros com a sintaxe correta `powershell`/`bash`/`csharp`, validar comandos duplicados e preencher a lista de tags da árvore de pastas).
+       - **Superpoderes Universais em Qualquer Editor (`Kalupa Sync Service` + Menu de Contexto do Windows Explorer + Atalhos Globais)**:
+         - **Agnosticismo Real ("Os Editores se Adaptam ao Kalupa" — Windows, macOS e Linux)**: Mesmo em editores que não possuem sistema de templates (VS Code, Typora, Word, Bloco de Notas), o próprio `Kalupa Sync Service` (multiplataforma em `.NET`) executa a criação, numeração sequencial (`001, 002...`), reordenação automática nos 3 lugares (nome do arquivo, YAML `ordem` e H1 `# 00X - Título`), migração de formatação de notas antigas (`### -> ####`) e injeção de blocos repetíveis (`Alt+B` global ou gatilho de texto) diretamente no sistema de arquivos / cursor.
+         - **Isolamento Limpo do Motor (`~/kalupa/.core` fora do Cofre) + System Tray (`Nova Nota ▸ Modelo H`)**:
+           - Os arquivos de motor (`core`, seletor, syntax highlight e `blocos`) ficam fora do cofre do usuário (em `C:\Users\<user>\kalupa\.core` no Windows, `~/kalupa/.core` no Mac/Linux), deixando a pasta `Modelos/` limpa apenas com modelos reais (ou opcionalmente 100% gerenciada dentro de `~/kalupa/.core/modelos`) e o topo dos modelos com apenas 1 linha de chamada (`tp.user` / bridge);
+           - Pelo ícone do Kalupa ao lado do relógio (System Tray / Menu Bar no Mac), o usuário pode clicar em `Nova Nota ▸ [Escolher Modelo H]` e o Kalupa já abre o editor escolhido (Obsidian via `obsidian://kalupa`, VS Code, Typora, etc.) com o modelo preparado e numerado pronto para digitar!
+         - **Menu de Contexto Nativo do Sistema (`Botão Direito ➔ Kalupa`)**:
+           1. `Enviar para Kalupa IA (Estruturar e Resumir)`: Move/copia qualquer `.md`/`.txt` (mesmo fora da pasta `Inbox`) para o fluxo `Inbox -> Morphus -> n8n + Gemini -> Resumidos pela Kalupa IA`;
+           2. `Aplicar Modelo Kalupa` / `Reordenar Notas desta Pasta`;
+           3. `Adicionar aos meus Modelos Kalupa`: Importa um modelo `.md` pronto (baixado da Comunidade/Marketplace Kalupa ou recebido de outro usuário), copiando para `Modelos/` e registrando automaticamente no seletor e no banco do Morphus;
+           4. `Gerar Modelo Kalupa a partir desta Nota (Com Entrevista de Padronização da IA)`: Ao clicar em uma nota bruta (ex.: 8 páginas com formatações misturadas como `###` vs `####` ou listas `1.` vs `-`), o Gemini analisa as divergências e o Kalupa exibe perguntas objetivas citando os trechos reais da nota (*"No trecho 'Reunião fechada...' você prefere padronizar como `###`, `####` ou manter dois níveis de tópico?"*), gerando o Modelo Kalupa 100% programado e podendo inclusive padronizar a nota original!
+       - **DRM Corporativo & Tag Invisível nos Bytes do `.md` (`Security.Api` + `Kalupa Sync Service` + Criptografia Efêmera sob Tutela)**:
+         - **Assinatura Invisível nos Bytes (Esteganografia Zero-Width + NTFS Alternate Data Stream + Marca d'Água Forense)**: Cada nota `.md` sincronizada pelo Kalupa carrega uma assinatura invisível no meio dos seus bytes usando **caracteres Unicode de largura zero (`U+200B`, `U+200C`, `U+200D` — 100% invisíveis tanto no modo de Leitura quanto no modo Código-Fonte do Obsidian)** combinada com **NTFS Alternate Data Stream (`arquivo.md:morphus.sec`)** no Windows, contendo o token de segurança (`CorporationKey` + `DocumentKey` + `RequiredClaimKey` + `UserKey` para rastreio de vazamento no `Ctrl+C/Ctrl+V` + `HMAC`).
+         - **Criptografia Contínua em Repouso & Descriptografia Efêmera pelo `Kalupa Sync Service` ("Só Abre Sob a Vista do Kalupa")**:
+           - Arquivos que exigem autorização nacem e permanecem **criptografados por padrão (`AES-256`) no disco**. Quem detém a chave em memória (fornecida pela `Security.Api`) e mantém o arquivo descriptografado temporariamente enquanto autorizado é exclusivamente o **`Kalupa Sync Service`**!
+           - **Descriptografia Sob Demanda (Por Aba Ativa / Sessão)**: Monitorando o `.obsidian/workspace.json` e o `FileSystemWatcher`, o `Kalupa Sync Service` pode manter todo o cofre trancado em disco e descriptografar em milissegundos **apenas a nota que o usuário está visualizando naquele instante** (ou enquanto a sessão estiver ativa e validada), retomando a criptografia `AES-256` imediatamente ao fechar a nota, encerrar o serviço, perder a permissão `X` na `Security.Api` ou tentar mover/copiar os arquivos para fora da tutela do Kalupa!
+- **Regra de Negócio no Cadastro Inicial & Ciclo de Vida de Aplicações (Nativas vs. Criadas pelo Cliente)**:
+  1. **Como diferenciar uma Aplicação Nativa de uma Criada pelo Cliente (`Origin` / `Scope` + Host Tenant)**:
+     - **Aplicações Nativas do Ecossistema (`Native / Global Catalog`)**: Pertencem originalmente ao **Morphus (Host / Master Tenant)** e compõem o **Catálogo Global do Ecossistema** (não nascem amarradas a uma corporação cliente específica até serem contratadas/testadas).
+     - **Aplicações Criadas pelo Cliente (`Custom / Tenant-Owned`)**: Nascem vinculadas diretamente à **`CorporationId`** e ao **`WorkspaceId`** que o próprio cliente escolheu no momento da criação, visíveis exclusivamente para aquela corporação/workspace.
+  2. **Estados de uma Aplicação Nativa para uma Corporação Cliente**:
+     - **No Catálogo Global (Não vinculada à Corporação)**: A aplicação pertence ao ecossistema Morphus e aparece na vitrine ("O que mais o Morphus tem para te oferecer") disponível para **Teste Grátis (Trial)** caso a corporação ainda não tenha usado o trial.
+     - **Em Período de Teste (`In Trial`)**: Vinculada sob demanda à corporação/workspace do cliente com controle de dias restantes.
+     - **Adquirida / Contratada (`Acquired / Subscribed`)**: Vinculada em definitivo à corporação e distribuída aos workspaces escolhidos.
+  3. **Promoção / Aquisição de Aplicação do Cliente pelo Morphus (`Custom -> Global Catalog` / Marketplace)**:
+     - Uma aplicação criada por um cliente (no `AppBuilder` da corporação dele) pode ser **avaliada, adquirida ou homologada pela equipe do Morphus** por ser rentável e resolver a dor de outras empresas;
+     - Ao ser promovida para o **Catálogo Global do Ecossistema**, o Morphus publica um template/produto oficial daquela aplicação no Master Tenant (mantendo o rastreio de autoria/origem `OriginCorporationId` / royalties se aplicável), tornando-a disponível para contratação e trial por qualquer outra corporação do ecossistema!
+  4. **Seed Inicial Limpo**: Aplicações comerciais como o **Kalupa** (`kalupa.io`), **Morphus Mail** e **Morphus Flow** **NÃO são vinculadas automaticamente** no momento em que o usuário cria sua conta inicial no Morphus (no `MorphusAccountSeed` entram apenas as 3 aplicações base do sistema: `Morphus`, `Segurança` e `Website`).
 - **Fluxo de Contratação / Trial ("Teste Grátis por 14 Dias")**:
   - O cliente visualiza o produto (no painel/loja de aplicações do Morphus ou na página do produto) e clica em **"Teste Grátis por 14 dias"** (ou Contratar).
   - **Só nesse momento (Sob Demanda)** o sistema executa o provisionamento daquela aplicação para a `CorporationId` do cliente:
@@ -125,6 +160,14 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
     2. Cria os **Módulos e Submódulos** específicos da aplicação (ex.: Documentos no Kalupa);
     3. Cria os **Perfis (`Roles`)** e **Permissões (`Claims`: Leitura, Escrita, etc.)** daquela aplicação;
     4. Libera o acesso para os usuários da empresa em `ApplicationUsers`.
+- **Motor Comercial de Planos, Precificação por Aplicação, Expansão por Filial e Plano "Master Plus Power"**:
+  1. **Planos e Valores por Aplicação (`Application Plans & Tiers`)**:
+     - Cada aplicação comercializável do catálogo possui seus próprios planos (ex.: `Starter`, `Pro`, `Business`, `Enterprise`) e valores mensais/anuais;
+     - **Controle de Funcionalidades por Plano (`Feature Gating / Quotas`)**: Define exatamente **quantas e quais funcionalidades (`Modules` / `SubModules` / limites operacionais)** aquela aplicação libera em cada plano (ex.: Plano Básico do Financeiro libera *Contas a Pagar e Receber*; Plano Pro adiciona *Importação Automática de XML e Conciliação CNAB*; Plano Enterprise adiciona *Fluxo de Aprovação Multi-Alçada e IA*).
+  2. **Custo de Expansão por Nova Filial / Workspace (`Branch & Instance Add-on Pricing`)**:
+     - Define quanto custa **instalar/distribuir uma aplicação adicionalmente em uma nova Filial (`Child Corporation`) ou novo `Workspace`** (podendo ter preço diferenciado se a instância for **Compartilhada** ou **Isolada**!).
+  3. **Plano Global "Master Plus Power" (`All-Inclusive / Unlimited Enterprise Tier`)**:
+     - O plano topo de linha para grupos empresariais que querem o ecossistema sem amarras: libera **instalações ilimitadas em quantas Filiais e Workspaces quiser**, **100% das funcionalidades e módulos destravados**, **volume de dados/armazenamento ilimitado** e criação livre no `AppBuilder` / `Morphus Flow`.
 - **Auditoria, Comercialização e Rastreabilidade ("Como, Quando, Por Que e Quem Fez")**:
   - Além das tabelas de vínculo (`corporation_users`, `workspace_users`, `application_users`), todo provisionamento, alteração de permissão, início/fim de trial, upgrade/downgrade e ação crítica deve ter **log de auditoria completo** (`Quem fez`, `Quando`, `Como`, `Por que / Origem` e `Payload Anterior/Novo`).
 
@@ -154,6 +197,16 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
   - Permitir que as corporações/aplicações cadastrem **Webhooks** (URLs de destino + `Secret` de assinatura HMAC + seleção de eventos como `email.sent`, `email.bounced`, `document.processed`, `subscription.trial_ended`, etc.), com fila de retentativas (Exponential Backoff) e log de entregas (`WebhookDeliveries`).
 - **Roteamento Dinâmico & Domínios Customizados Cadastráveis no Caddy (`Caddy Admin API` + `On-Demand TLS`)**:
   - Como o Caddy é 100% controlado por API JSON em tempo real (`http://localhost:2019/config/...`) sem precisar reiniciar o servidor e possui **On-Demand TLS** (com endpoint `ask` batendo na API C# do Morphus para validar se o domínio/subdomínio está cadastrado e ativo no PostgreSQL), os próprios clientes/corporações poderão **cadastrar seus domínios/subdomínios e rotas no painel do Morphus** e o back-end C# injeta/atualiza as rotas e certificados SSL (Let's Encrypt) no Caddy automaticamente em tempo real!
+
+## 7. Padronização Universal de Nomenclatura de Classes e Componentes (`Prefixo Mpx*` — Estilo Angular Material `Mat*`)
+- **Conceito**: Unificar 100% das classes base, layouts, entidades de infraestrutura e componentes do ecossistema sob o prefixo curto **`Mpx`** e sempre em inglês (seguindo exatamente o padrão consagrado do Angular Material `MatButton`, `MatIcon`, `MatDialog` e já alinhado aos projetos `Mpx.Api`, `Mpx.Domain`, `Mpx.Application`, `Mpx.Infrastructure` e `mpx-*`):
+  - `MorphusComponent` -> `MpxComponent`
+  - `MorphusEditComponent` -> `MpxEditComponent`
+  - `MorphusWorkspaceLayout` -> `MpxWorkspaceLayout`
+  - `Email` / `EmailHandler` -> `MpxMail` / `MpxMailHandler`
+  - `MorphusController` / `MorphusHandler` / `MorphusValidator` -> `MpxController` / `MpxHandler` / `MpxValidator`
+- **Momento de Execução**: Anotado no roadmap para uma rodada dedicada e controlada de refatoração estrutural (sem interromper a entrega funcional da Fase 1), aplicando já o prefixo `Mpx*` nos componentes novos que forem nascendo.
+
 
 
 

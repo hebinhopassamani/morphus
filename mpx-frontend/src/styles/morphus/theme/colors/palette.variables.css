@@ -1,0 +1,75 @@
+/* -------------------------------------------------------------------------- */
+/* Morphus - Paleta de Cores Oficial (Change Log 2)                           */
+/* -------------------------------------------------------------------------- */
+:root,
+.scheme-light {
+  --morphus-background: #f7f5fc;
+  --morphus-foreground: #1e1b2e;
+  --morphus-primary: #6d28d9;
+  --morphus-secondary: #0ea5e9;
+  --morphus-tertiary: #f43f5e;
+  --morphus-success: #16a34a;
+  --morphus-error: #dc2626;
+  --morphus-info: #2563eb;
+  --morphus-warning: #d97706;
+
+  /* ------------------------------------------------------------------------ */
+  /* Morphus - Tokens Dinâmicos de Ícones (3 Camadas + Escopo AppBuilder)     */
+  /* ------------------------------------------------------------------------ */
+  --_active-accent: var(--app-accent, currentColor);
+  --morphus-icon-dark: color-mix(in srgb, var(--_active-accent) 70%, #090d16);
+  --morphus-icon-primary: var(--_active-accent);
+  --morphus-icon-light: color-mix(in srgb, var(--_active-accent) 42%, white);
+  --morphus-icon-secondary: color-mix(in srgb, var(--_active-accent) 32%, transparent);
+  --morphus-icon-bg: color-mix(in srgb, var(--_active-accent) 12%, transparent);
+  --morphus-icon-neutral: color-mix(in srgb, var(--morphus-foreground) 55%, transparent);
+}
+
+mat-icon,
+mpx-icon,
+svg[data-mpx-duotone] {
+  --_active-accent: var(--app-accent, currentColor);
+  --morphus-icon-dark: color-mix(in srgb, var(--_active-accent) 70%, #090d16);
+  --morphus-icon-primary: var(--_active-accent);
+  --morphus-icon-light: color-mix(in srgb, var(--_active-accent) 42%, white);
+  --morphus-icon-secondary: color-mix(in srgb, var(--_active-accent) 32%, transparent);
+  --morphus-icon-bg: color-mix(in srgb, var(--_active-accent) 12%, transparent);
+  --morphus-icon-neutral: color-mix(in srgb, var(--morphus-foreground) 55%, transparent);
+}
+
+.scheme-dark,
+.dark {
+  --morphus-background: #140a2e;
+  --morphus-foreground: #f5f3ff;
+  --morphus-primary: #a78bfa;
+  --morphus-secondary: #22d3ee;
+  --morphus-tertiary: #fb7185;
+  --morphus-success: #4ade80;
+  --morphus-error: #f87171;
+  --morphus-info: #60a5fa;
+  --morphus-warning: #fbbf24;
+
+  /* Proteção automática de contraste no Dark Mode */
+  --_active-accent: var(--app-accent, currentColor);
+  --morphus-icon-dark: color-mix(in srgb, var(--_active-accent) 68%, #05070c);
+  --morphus-icon-primary: color-mix(in srgb, var(--_active-accent) 90%, white);
+  --morphus-icon-light: color-mix(in srgb, var(--_active-accent) 48%, white);
+  --morphus-icon-secondary: color-mix(in srgb, var(--_active-accent) 36%, transparent);
+  --morphus-icon-bg: color-mix(in srgb, var(--_active-accent) 16%, transparent);
+  --morphus-icon-neutral: color-mix(in srgb, var(--morphus-foreground) 60%, transparent);
+}
+
+.scheme-dark mat-icon,
+.scheme-dark mpx-icon,
+.scheme-dark svg[data-mpx-duotone],
+.dark mat-icon,
+.dark mpx-icon,
+.dark svg[data-mpx-duotone] {
+  --_active-accent: var(--app-accent, currentColor);
+  --morphus-icon-dark: color-mix(in srgb, var(--_active-accent) 68%, #05070c);
+  --morphus-icon-primary: color-mix(in srgb, var(--_active-accent) 90%, white);
+  --morphus-icon-light: color-mix(in srgb, var(--_active-accent) 48%, white);
+  --morphus-icon-secondary: color-mix(in srgb, var(--_active-accent) 36%, transparent);
+  --morphus-icon-bg: color-mix(in srgb, var(--_active-accent) 16%, transparent);
+  --morphus-icon-neutral: color-mix(in srgb, var(--morphus-foreground) 60%, transparent);
+}

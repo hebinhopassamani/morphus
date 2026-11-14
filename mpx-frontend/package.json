@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "icons:build": "node tools/compile-icons.mjs",
     "serve:ssr:morphus-app": "node dist/morphus-app/server/server.mjs"
   },
   "private": true,
@@ -45,6 +46,7 @@
     "@types/express": "^5.0.1",
     "@types/node": "^22.12.0",
     "prettier": "^3.8.1",
+    "svgo": "^4.1.0",
     "typescript": "~6.0.2"
   }
 }

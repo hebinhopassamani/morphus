@@ -15,7 +15,7 @@
   /* Variables                                                                */
   /* ------------------------------------------------------------------------ */
   .mat-icon {
-    /* Color */
-    --icon-color: var(--color-neutral-11);
+    /* Herda a cor do elemento pai (hierarquia) por padrão */
+    --icon-color: currentColor;
   }
 }

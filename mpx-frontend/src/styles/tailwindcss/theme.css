@@ -177,4 +177,10 @@
   --color-neutral-a10: var(--theme-color-neutral-a10);
   --color-neutral-a11: var(--theme-color-neutral-a11);
   --color-neutral-a12: var(--theme-color-neutral-a12);
+
+  /* Morphus Duotone & Multi-Layer Icon Tokens */
+  --color-icon-primary: var(--morphus-icon-primary);
+  --color-icon-secondary: var(--morphus-icon-secondary);
+  --color-icon-bg: var(--morphus-icon-bg);
+  --color-icon-neutral: var(--morphus-icon-neutral);
 }

@@ -5,8 +5,12 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MPX_ICON_COLORS, MPX_ICONS } from '@core/mpx-icons';
+import { MPX_COMPILED_ICONS } from '@core/mpx-icons/morphus-compiled-icons';
 
-const ALL_ICON_NAMES = Object.keys(MPX_ICONS).filter((key) => key !== 'default-icon');
+const ALL_ICON_NAMES = [
+  ...Object.keys(MPX_COMPILED_ICONS),
+  ...Object.keys(MPX_ICONS).filter((key) => key !== 'default-icon'),
+];
 
 @Component({
   selector: 'mpx-icon-selector',
