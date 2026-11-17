@@ -34,7 +34,7 @@
               <input
                 matInput
                 name="name"
-                placeholder="Ex.: Financeiro, Notas Fiscais, Contas a Pagar..."
+                placeholder="Ex.: Kalupa, Atendimento, Projetos..."
                 required
                 minlength="2"
                 maxlength="100"
@@ -69,7 +69,7 @@
               <input
                 matInput
                 name="prefix"
-                placeholder="Ex.: FIN"
+                placeholder="Ex.: KAL"
                 required
                 minlength="3"
                 maxlength="3"
@@ -95,7 +95,28 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <mat-form-field class="w-full">
+            <mat-label>Em qual Workspace esta aplicação vai?</mat-label>
+            <mat-select
+              multiple
+              required
+              name="workspaceIds"
+              [ngModel]="entity().workspaceIds || []"
+              (ngModelChange)="updateField('workspaceIds', $event)"
+              #wsCtrl="ngModel"
+            >
+              @for (ws of workspaces(); track ws.id) {
+                <mat-option [value]="ws.id">
+                  {{ ws.name }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-error class="morphus-mat-error">
+              <span class="morphus-mat-error-label">{{ validator.showErros(wsCtrl) }}</span>
+            </mat-error>
+          </mat-form-field>
+
           <mpx-icon-selector
             label="Ícone da Aplicação"
             defaultIcon="boxes"
@@ -380,7 +401,7 @@
             <div>
               <h3 class="mpx-title-small text-neutral-12">Estrutura de Menus da Aplicação</h3>
               <p class="mpx-body-small text-neutral-a11">
-                Arraste menus ou submenus para mudar a ordem (use <strong>Ctrl + Z</strong> para desfazer), dê <strong>duplo clique no nome</strong> para editar na linha ou clique em <strong>Nova Página</strong> para criar um submenu.
+                Arraste menus ou submenus para mudar a ordem (use <strong>Ctrl + Z</strong> para desfazer), dê <strong>duplo clique no nome</strong> para editar na linha ou clique em <strong>Criar Página</strong> para criar um submenu.
               </p>
             </div>
 
@@ -528,11 +549,11 @@
                           matButton
                           type="button"
                           class="tertiary small !w-36 !min-w-36 !max-w-36 justify-center"
-                          [matTooltip]="'Adicionar um Submenu dentro do menu ' + (mod.label || mod.name)"
+                          [matTooltip]="'Criar uma nova página dentro do menu ' + (mod.label || mod.name)"
                           (click)="startInlineNewPage(mod.id)"
                         >
                           <mat-icon svgIcon="plus" />
-                          Nova Página
+                          Criar Página
                         </button>
                       }
                     </td>
@@ -835,3 +856,302 @@
     }
   </mat-tab-group>
 </div>
+
+<!-- MODAL DE CONFIRMAÇÃO E ESCOLHA DO DOMÍNIO DA APLICAÇÃO (NUNCA PASSA DIRETO!) -->
+@if (domainModalOpen()) {
+  @let preview = domainPreview();
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs"
+    (click)="closeDomainModalToEditApp()"
+  >
+    <div
+      class="flex max-h-[90dvh] w-full max-w-2xl flex-col gap-5 overflow-y-auto rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xl dark:bg-neutral-2"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="flex items-start justify-between gap-3 border-b border-neutral-a4 pb-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-primary-11">
+            Porta de Entrada da Aplicação
+          </span>
+          <h3 class="mt-0.5 text-lg font-bold text-neutral-12">
+            Confirme o Domínio de "{{ entity().name }}" ({{ (entity().prefix || 'APP').toUpperCase() }})
+          </h3>
+          <p class="mt-0.5 text-xs text-neutral-a11">
+            Você está no comando total do endereço da sua aplicação. Escolha ou personalize abaixo antes de concluir.
+          </p>
+        </div>
+        <button matIconButton type="button" (click)="closeDomainModalToEditApp()">
+          <mat-icon svgIcon="x" />
+        </button>
+      </div>
+
+      <!-- Seletor das 3 Opções de Domínio -->
+      <div class="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+        <button
+          type="button"
+          class="flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition"
+          [class.border-primary-8]="domainModeSelection() === 'MorphusShared'"
+          [class.bg-primary-a2]="domainModeSelection() === 'MorphusShared'"
+          [class.border-neutral-a4]="domainModeSelection() !== 'MorphusShared'"
+          (click)="selectModalDomainMode('MorphusShared')"
+        >
+          <span class="text-[10px] font-bold uppercase text-primary-11">Opção 1</span>
+          <span class="text-xs font-bold text-neutral-12">Domínio morphus.me</span>
+        </button>
+
+        <button
+          type="button"
+          class="flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition"
+          [class.border-primary-8]="domainModeSelection() === 'CustomerOwned'"
+          [class.bg-primary-a2]="domainModeSelection() === 'CustomerOwned'"
+          [class.border-neutral-a4]="domainModeSelection() !== 'CustomerOwned'"
+          (click)="selectModalDomainMode('CustomerOwned')"
+        >
+          <span class="text-[10px] font-bold uppercase text-primary-11">Opção 2</span>
+          <span class="text-xs font-bold text-neutral-12">Tenho meu domínio</span>
+        </button>
+
+        <button
+          type="button"
+          class="flex flex-col items-start gap-0.5 rounded-xl border p-3 text-left transition"
+          [class.border-primary-8]="domainModeSelection() === 'PurchasedWithMorphus'"
+          [class.bg-primary-a2]="domainModeSelection() === 'PurchasedWithMorphus'"
+          [class.border-neutral-a4]="domainModeSelection() !== 'PurchasedWithMorphus'"
+          (click)="selectModalDomainMode('PurchasedWithMorphus')"
+        >
+          <span class="text-[10px] font-bold uppercase text-primary-11">Opção 3</span>
+          <span class="text-xs font-bold text-neutral-12">Comprar um domínio</span>
+        </button>
+      </div>
+
+      @if (domainModeSelection() === 'MorphusShared') {
+        <div class="flex flex-col gap-4 rounded-xl border border-primary-a5 bg-primary-a2/30 p-4">
+          @if (preview && !preview.firstAttemptAvailable && !domainCustomPrefixOpen()) {
+            <div class="rounded-xl border border-amber-a6 bg-amber-a2 p-3.5 text-xs text-amber-12">
+              <p class="font-bold">
+                Da forma que configurou sua aplicação, escolhendo o domínio <code class="font-mono">morphus.me</code> com o nome "{{ entity().name }}" e a sigla "{{ (entity().prefix || '').toUpperCase() }}", o domínio que ficaria assim:
+              </p>
+              <p class="mt-1 font-mono text-sm font-bold underline">
+                {{ preview.firstAttemptDomain }}
+              </p>
+              <p class="mt-1">já está sendo utilizado.</p>
+              @if (preview.suggestedAvailableDomain) {
+                <p class="mt-2 font-semibold text-jade-11">
+                  Olha, mas você pode usar este domínio que está livre:
+                  <strong class="font-mono underline">{{ preview.suggestedAvailableDomain }}</strong>
+                </p>
+              }
+            </div>
+          }
+
+          <div class="rounded-xl border border-neutral-a4 bg-white p-4 dark:bg-neutral-1">
+            <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-a10">
+              O domínio da sua aplicação será esse:
+            </span>
+            <div class="mt-1 flex flex-wrap items-center gap-2 font-mono text-base font-bold text-primary-11">
+              <span>
+                {{
+                  (domainSubdomainSelection() ||
+                    preview?.suggestedAvailableSubdomain ||
+                    preview?.firstAttemptSubdomain ||
+                    'app') +
+                    '.' +
+                    appPrefixLower() +
+                    '.morphus.me'
+                }}
+              </span>
+              @if (preview?.customAttemptAvailable === false) {
+                <span class="rounded bg-red-a3 px-2 py-0.5 font-sans text-xs font-semibold text-red-11">
+                  Já está sendo utilizado
+                </span>
+              } @else {
+                <span class="rounded bg-jade-a3 px-2 py-0.5 font-sans text-xs font-semibold text-jade-11">
+                  Disponível
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Opções de Comando do Usuário -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button
+              matButton="outlined"
+              type="button"
+              class="small"
+              (click)="toggleModalCustomPrefix()"
+            >
+              <mat-icon svgIcon="pencil" />
+              {{
+                domainCustomPrefixOpen()
+                  ? 'Fechar campo personalizado'
+                  : 'NÃO, quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.me'
+              }}
+            </button>
+
+            <button
+              matButton="outlined"
+              type="button"
+              class="small"
+              (click)="closeDomainModalToEditApp()"
+            >
+              <mat-icon svgIcon="arrow-left" />
+              NÃO, vou alterar o nome ou a sigla da aplicação
+            </button>
+          </div>
+
+          @if (domainCustomPrefixOpen()) {
+            <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-white p-3.5 dark:bg-neutral-1">
+              <label class="text-xs font-semibold text-neutral-12">
+                Escolha livremente o que vem antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.me</code>:
+              </label>
+              <div class="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  [ngModel]="domainCustomPrefixDraft()"
+                  (ngModelChange)="onModalCustomPrefixChange($event)"
+                  placeholder="ex: meunome"
+                  class="h-9 w-56 rounded-lg border border-primary-8 bg-transparent px-3 font-mono text-sm font-bold text-neutral-12 outline-none"
+                />
+                <span class="font-mono text-sm font-semibold text-neutral-a11">
+                  .{{ appPrefixLower() }}.morphus.me
+                </span>
+              </div>
+            </div>
+          }
+
+          @if (preview?.progressiveCandidates?.length) {
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs text-neutral-a11">Sugestões:</span>
+              @for (cand of preview!.progressiveCandidates; track cand.fullDomain) {
+                <button
+                  type="button"
+                  [disabled]="!cand.available"
+                  (click)="chooseModalCandidateSubdomain(cand.subdomain)"
+                  class="rounded-lg border px-2.5 py-1 font-mono text-xs transition"
+                  [class.border-primary-8]="domainSubdomainSelection() === cand.subdomain"
+                  [class.bg-primary-a3]="domainSubdomainSelection() === cand.subdomain"
+                  [class.border-neutral-a4]="domainSubdomainSelection() !== cand.subdomain"
+                  [class.opacity-50]="!cand.available"
+                >
+                  {{ cand.fullDomain }} ({{ cand.available ? 'Livre' : 'Em uso' }})
+                </button>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      @if (domainModeSelection() === 'CustomerOwned') {
+        <div class="flex flex-col gap-3 rounded-xl border border-neutral-a4 bg-neutral-a2/40 p-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold text-neutral-12">Meu domínio é:</span>
+            <input
+              type="text"
+              [ngModel]="domainNewOwnInput()"
+              (ngModelChange)="domainNewOwnInput.set($event)"
+              placeholder="taltaltal.com"
+              class="h-9 w-60 rounded-lg border border-neutral-a5 bg-white px-3 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+            />
+            <button
+              matButton
+              type="button"
+              class="primary small"
+              [disabled]="!domainNewOwnInput().trim() || isSavingCorpDomainInModal()"
+              (click)="registerModalOwnDomain()"
+            >
+              Cadastrar (Em verificação)
+            </button>
+          </div>
+
+          @if (corporationDomains().length > 0) {
+            <div class="flex flex-wrap items-center gap-2 border-t border-neutral-a4 pt-3">
+              <input
+                type="text"
+                [ngModel]="domainSubdomainSelection()"
+                (ngModelChange)="domainSubdomainSelection.set($event); refreshModalDomainPreview()"
+                placeholder="subdomínio"
+                class="h-9 w-44 rounded-lg border border-neutral-a5 bg-white px-3 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+              />
+              <span class="font-mono font-bold">.</span>
+              <select
+                [ngModel]="domainSelectedCorpDomainId()"
+                (ngModelChange)="domainSelectedCorpDomainId.set($event); refreshModalDomainPreview()"
+                class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+              >
+                @for (d of corporationDomains(); track d.id) {
+                  <option [value]="d.id">
+                    {{ d.domainName }} ({{ d.verificationStatus === 'Verified' ? 'Verificado' : 'Em verificação' }})
+                  </option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+      }
+
+      @if (domainModeSelection() === 'PurchasedWithMorphus') {
+        <div class="flex flex-col gap-3 rounded-xl border border-neutral-a4 bg-neutral-a2/40 p-4">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold text-neutral-12">Domínio desejado:</span>
+            <input
+              type="text"
+              [ngModel]="domainNewPurchaseInput()"
+              (ngModelChange)="domainNewPurchaseInput.set($event)"
+              placeholder="herbios.net"
+              class="h-9 w-60 rounded-lg border border-neutral-a5 bg-white px-3 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+            />
+            <button
+              matButton
+              type="button"
+              class="primary small"
+              [disabled]="!domainNewPurchaseInput().trim() || isSavingCorpDomainInModal()"
+              (click)="purchaseModalDomainWithMorphus()"
+            >
+              Registrar Verificado
+            </button>
+          </div>
+
+          @if (corporationDomains().length > 0) {
+            <div class="flex flex-wrap items-center gap-2 border-t border-neutral-a4 pt-3">
+              <input
+                type="text"
+                [ngModel]="domainSubdomainSelection()"
+                (ngModelChange)="domainSubdomainSelection.set($event); refreshModalDomainPreview()"
+                placeholder="subdomínio"
+                class="h-9 w-44 rounded-lg border border-neutral-a5 bg-white px-3 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+              />
+              <span class="font-mono font-bold">.</span>
+              <select
+                [ngModel]="domainSelectedCorpDomainId()"
+                (ngModelChange)="domainSelectedCorpDomainId.set($event); refreshModalDomainPreview()"
+                class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-1"
+              >
+                @for (d of corporationDomains(); track d.id) {
+                  <option [value]="d.id">
+                    {{ d.domainName }} ({{ d.verificationStatus === 'Verified' ? 'Verificado' : 'Em verificação' }})
+                  </option>
+                }
+              </select>
+            </div>
+          }
+        </div>
+      }
+
+      <div class="flex items-center justify-end gap-2.5 border-t border-neutral-a4 pt-4">
+        <button matButton type="button" (click)="closeDomainModalToEditApp()">
+          Voltar para Alterar Nome/Sigla
+        </button>
+        <button
+          matButton
+          type="button"
+          class="primary"
+          [disabled]="isConfirmingCreation() || preview?.customAttemptAvailable === false"
+          (click)="confirmDomainAndCreate()"
+        >
+          <mat-icon svgIcon="check" />
+          {{ isConfirmingCreation() ? 'Criando Aplicação...' : 'Confirmar Domínio e Criar Aplicação' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

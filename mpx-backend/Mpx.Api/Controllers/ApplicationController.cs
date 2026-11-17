@@ -39,6 +39,44 @@ public class ApplicationController(
   public async Task<IActionResult> GetCategories() =>
       Ok(await applicationHandler.GetCategoriesAsync());
 
+  [HttpPost("preview-domain")]
+  [Authorize]
+  public async Task<IActionResult> PreviewDomain([FromBody] ApplicationDomainPreviewRequest request) =>
+      Ok(await applicationHandler.PreviewDomainAsync(request));
+
+  [HttpGet("corporation-domains")]
+  [Authorize]
+  public async Task<IActionResult> GetCorporationDomains() =>
+      Ok(await applicationHandler.GetCorporationDomainsAsync());
+
+  [HttpPost("corporation-domains")]
+  [Authorize]
+  public async Task<IActionResult> SaveCorporationDomain([FromBody] CorporationDomain domain) =>
+      Ok(await applicationHandler.SaveCorporationDomainAsync(domain));
+
+  [HttpGet("{applicationId:guid}/settings")]
+  [Authorize]
+  public async Task<IActionResult> GetApplicationSettings(Guid applicationId) =>
+      Ok(await applicationHandler.GetApplicationSettingsAsync(applicationId));
+
+  [HttpPost("{applicationId:guid}/settings")]
+  [Authorize(Policy = "APPLICATION_UPDATE")]
+  public async Task<IActionResult> SaveApplicationSetting(Guid applicationId, [FromBody] ApplicationSetting setting) =>
+      Ok(await applicationHandler.SaveApplicationSettingAsync(applicationId, setting));
+
+  [HttpDelete("settings/{settingId:guid}")]
+  [Authorize(Policy = "APPLICATION_UPDATE")]
+  public async Task<IActionResult> DeleteApplicationSetting(Guid settingId)
+  {
+    await applicationHandler.DeleteApplicationSettingAsync(settingId);
+    return NoContent();
+  }
+
+  [HttpPut("{applicationId:guid}/basic-settings")]
+  [Authorize(Policy = "APPLICATION_UPDATE")]
+  public async Task<IActionResult> UpdateBasicSettings(Guid applicationId, [FromBody] UpdateApplicationBasicSettingsRequest request) =>
+      Ok(await applicationHandler.UpdateBasicSettingsAsync(applicationId, request));
+
   [HttpPost("{applicationId:guid}/modules")]
   [Authorize(Policy = "APPLICATION_UPDATE")]
   public async Task<IActionResult> SaveModule(Guid applicationId, [FromBody] ApplicationModule module) =>

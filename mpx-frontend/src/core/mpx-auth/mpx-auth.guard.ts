@@ -46,4 +46,22 @@ export const mpxAuthGuard: CanActivateFn = (route, state) => {
   return true;
 };
 
-export { mpxAuthGuard as authGuard };
+export const mpxOnboardingRedirectGuard: CanActivateFn = () => {
+  if (isPlatformServer(inject(PLATFORM_ID))) {
+    return true;
+  }
+
+  const auth = inject(MpxAuth);
+  const router = inject(Router);
+
+  if (auth.isAuthenticated() && auth.needsOnboarding()) {
+    return router.createUrlTree(['/security/onboarding']);
+  }
+
+  return true;
+};
+
+export {
+  mpxAuthGuard as authGuard,
+  mpxOnboardingRedirectGuard as onboardingRedirectGuard,
+};

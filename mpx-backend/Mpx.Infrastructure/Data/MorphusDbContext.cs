@@ -141,6 +141,9 @@ public class MorphusDbContext(DbContextOptions<MorphusDbContext> options, ITenan
   public DbSet<ApplicationStatus> ApplicationStatuses { get; set; }
   public DbSet<ApplicationModule> ApplicationModules { get; set; }
   public DbSet<ApplicationSubModule> ApplicationSubModules { get; set; }
+  public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
+  public DbSet<CorporationDomain> CorporationDomains { get; set; }
+  public DbSet<CorporationDomainRecord> CorporationDomainRecords { get; set; }
   public DbSet<ApplicationUser> ApplicationUsers { get; set; }
   public DbSet<Menu> Menus { get; set; }
   public DbSet<Module> Modules { get; set; }

@@ -383,6 +383,8 @@ public class SecurityHandler(
     {
       UserId = user.Id,
       UserName = user.Name,
+      UserFirstName = user.FirstName,
+      UserLastName = user.LastName,
       UserNickName = user.NickName,
       UserEmail = user.Email,
       EmailConfirmed = user.EmailConfirmed,
@@ -414,6 +416,7 @@ public class SecurityHandler(
 
         state.AvailableApplications = corpGraph.Applications
             .Where(a => !a.Inactive &&
+                        a.AvailableForTrial &&
                         !string.Equals(a.Name, "Segurança", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(a.Name, "Website", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(a.Key, "SECURITY", StringComparison.OrdinalIgnoreCase) &&
@@ -453,11 +456,35 @@ public class SecurityHandler(
       return null;
 
     var cleanCorpName = request.CorporationName.Trim();
-    var cleanUserName = !string.IsNullOrWhiteSpace(request.UserName)
-        ? request.UserName.Trim()
-        : (user.Name ?? string.Empty);
+    if (cleanCorpName.Length > 40)
+      throw new InvalidOperationException("O nome da matriz deve ter no máximo 40 caracteres.");
 
-    if (!string.IsNullOrWhiteSpace(request.UserName))
+    var cleanFirstName = request.UserFirstName?.Trim();
+    var cleanLastName = request.UserLastName?.Trim();
+
+    if (!string.IsNullOrWhiteSpace(cleanFirstName) && cleanFirstName.Length > 20)
+      throw new InvalidOperationException("O primeiro nome deve ter no máximo 20 caracteres.");
+
+    if (!string.IsNullOrWhiteSpace(cleanLastName) && cleanLastName.Length > 20)
+      throw new InvalidOperationException("O segundo nome deve ter no máximo 20 caracteres.");
+
+    if (!string.IsNullOrWhiteSpace(cleanFirstName))
+    {
+      user.FirstName = cleanFirstName;
+    }
+    if (cleanLastName is not null)
+    {
+      user.LastName = string.IsNullOrWhiteSpace(cleanLastName) ? null : cleanLastName;
+    }
+
+    var combinedFromParts = $"{user.FirstName ?? string.Empty} {user.LastName ?? string.Empty}".Trim();
+    var cleanUserName = !string.IsNullOrWhiteSpace(combinedFromParts)
+        ? combinedFromParts
+        : (!string.IsNullOrWhiteSpace(request.UserName)
+            ? request.UserName.Trim()
+            : (user.Name ?? string.Empty));
+
+    if (!string.IsNullOrWhiteSpace(cleanUserName))
     {
       user.Name = cleanUserName;
     }
@@ -570,6 +597,8 @@ public class SecurityHandler(
         ?? throw new InvalidOperationException("Corporação não encontrada.");
 
     var cleanWorkspaceName = request.WorkspaceName.Trim();
+    if (cleanWorkspaceName.Length > 35)
+      throw new InvalidOperationException("O nome do Workspace deve ter no máximo 35 caracteres.");
 
     var existingWorkspace = corpGraph.Workspaces.FirstOrDefault(w => !w.Inactive);
     if (existingWorkspace is null)
@@ -599,23 +628,20 @@ public class SecurityHandler(
         System = true
       });
 
-      // Vincula as aplicações nativas do sistema (MORPHUS, SECURITY, WEBSITE) ao Workspace criado
-      var defaultTrialDays = int.TryParse(configuration["TrialSettings:DefaultDays"], out var parsedDays) && parsedDays > 0
-          ? parsedDays
-          : 14;
-
-      foreach (var sysApp in corpGraph.Applications.Where(a => a.System))
+      // Vincula as aplicações nativas do sistema (MORPHUS, SECURITY, WEBSITE) e o Kalupa ao Workspace criado
+      foreach (var sysApp in corpGraph.Applications.Where(a => a.System || a.Prefix == "KAL"))
       {
         await workspaceApplicationRepository.AddRelationshipAsync(new WorkspaceApplication
         {
           CorporationId = corpGraph.Id,
           WorkspaceId = newWorkspace.Id,
           ApplicationId = sysApp.Id,
+          Default = sysApp.Prefix == "KAL",
           TrialStartDate = null,
           TrialDays = null,
           TrialUsed = false,
           Inactive = false,
-          System = true
+          System = sysApp.System
         });
       }
     }
@@ -666,13 +692,13 @@ public class SecurityHandler(
 
     foreach (var app in corpGraph.Applications.Where(a => !a.Inactive))
     {
-      var shouldBeLinked = app.System || requestedIds.Contains(app.Id);
+      var shouldBeLinked = app.System || app.Prefix == "KAL" || requestedIds.Contains(app.Id);
       var existingWa = corpGraph.WorkspaceApplications
           .FirstOrDefault(wa => wa.WorkspaceId == workspace.Id && wa.ApplicationId == app.Id);
 
       if (shouldBeLinked)
       {
-        var isTrialApp = !app.System;
+        var isTrialApp = !app.System && app.Prefix != "KAL";
         var markAsDefault = isTrialApp && !hasDefaultAppAssigned;
         if (markAsDefault)
         {
@@ -923,9 +949,33 @@ public class SecurityHandler(
     if (user is null)
       return null;
 
+    if (request.FirstName is not null)
+    {
+      var fn = request.FirstName.Trim();
+      if (fn.Length > 20)
+        throw new InvalidOperationException("O primeiro nome deve ter no máximo 20 caracteres.");
+      user.FirstName = string.IsNullOrWhiteSpace(fn) ? null : fn;
+    }
+
+    if (request.LastName is not null)
+    {
+      var ln = request.LastName.Trim();
+      if (ln.Length > 20)
+        throw new InvalidOperationException("O segundo nome deve ter no máximo 20 caracteres.");
+      user.LastName = string.IsNullOrWhiteSpace(ln) ? null : ln;
+    }
+
     if (!string.IsNullOrWhiteSpace(request.Name))
     {
       user.Name = request.Name.Trim();
+    }
+    else if (request.FirstName is not null || request.LastName is not null)
+    {
+      var combined = $"{user.FirstName ?? string.Empty} {user.LastName ?? string.Empty}".Trim();
+      if (!string.IsNullOrWhiteSpace(combined))
+      {
+        user.Name = combined;
+      }
     }
 
     if (request.NickName is not null)
@@ -950,6 +1000,8 @@ public class SecurityHandler(
     {
       Id = user.Id,
       Name = user.Name,
+      FirstName = user.FirstName,
+      LastName = user.LastName,
       NickName = user.NickName,
       Email = user.Email,
       Inactive = user.Inactive,
@@ -998,6 +1050,8 @@ public class SecurityHandler(
       {
         Id = user.Id,
         Name = user.Name,
+        FirstName = user.FirstName,
+        LastName = user.LastName,
         Email = user.Email,
         Inactive = user.Inactive,
         EmailConfirmed = user.EmailConfirmed,

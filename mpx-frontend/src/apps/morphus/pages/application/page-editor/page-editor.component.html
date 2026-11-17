@@ -422,6 +422,23 @@
                   </div>
                 </div>
 
+                <!-- Tipo do Bloco (Combo para trocar direto sem precisar deletar) -->
+                <div class="rounded-xl border border-neutral-a4 bg-neutral-a2/20 p-3">
+                  <label class="flex flex-col gap-1 text-xs font-semibold text-neutral-11">
+                    Tipo do Bloco
+                    <select
+                      [ngModel]="selectedBlockKind()"
+                      (ngModelChange)="onBlockKindSelectChange($event)"
+                      class="h-9 rounded-lg border border-neutral-a5 bg-white px-2.5 text-xs font-semibold text-neutral-12 outline-none focus:border-primary-8 dark:bg-neutral-1"
+                    >
+                      <option value="empty">Espaço Vazio</option>
+                      @for (item of blockPaletteItems; track item.type) {
+                        <option [value]="item.type">{{ item.label }}</option>
+                      }
+                    </select>
+                  </label>
+                </div>
+
                 @if (selectedBlockKind() === 'empty') {
                   <div class="flex flex-col gap-2 rounded-xl border border-dashed border-primary-a6 bg-primary-a2/20 p-3">
                     <span class="text-xs font-bold text-primary-11">

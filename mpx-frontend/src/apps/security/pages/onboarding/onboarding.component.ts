@@ -55,31 +55,39 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     this.availableApplications().filter((a) => a.system),
   );
 
-  // ETAPA 1: Sua Matriz (apenas o nome da matriz)
+  // ETAPA 1: Sua Matriz (apenas o nome da matriz — limite 40 caracteres)
   protected readonly step1Form = this.fb.nonNullable.group({
-    corporationName: ['', [Validators.required, Validators.minLength(2)]],
+    corporationName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(40)]],
   });
 
-  // ETAPA 2: Seus Dados (Nome completo e Como gostaria de ser chamado)
+  // ETAPA 2: Seus Dados (Primeiro nome = 20 chars, Segundo nome = 20 chars e Como gostaria de ser chamado)
   protected readonly step2Form = this.fb.nonNullable.group({
-    userName: ['', [Validators.required, Validators.minLength(2)]],
-    userNickName: [''],
+    userFirstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+    userLastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(20)]],
+    userNickName: ['', [Validators.maxLength(40)]],
   });
 
-  // ETAPA 3: Workspace (Seu primeiro workspace)
+  protected readonly nickNameManuallyEdited = signal<boolean>(false);
+  protected readonly lastAutoSuggestedNickName = signal<string>('');
+
+  // ETAPA 3: Workspace (Seu primeiro workspace — limite 35 caracteres)
   protected readonly step3Form = this.fb.nonNullable.group({
-    workspaceName: ['', [Validators.required, Validators.minLength(2)]],
+    workspaceName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(35)]],
   });
 
   ngOnInit(): void {
     this.auth.clearError();
 
     const currentUser = this.auth.user();
-    if (currentUser?.name) {
-      this.step2Form.patchValue({ userName: currentUser.name });
+    if (currentUser?.firstName || currentUser?.lastName) {
+      this.step2Form.patchValue({
+        userFirstName: (currentUser.firstName ?? '').slice(0, 20),
+        userLastName: (currentUser.lastName ?? '').slice(0, 20),
+      });
     }
     if (currentUser?.nickName) {
       this.step2Form.patchValue({ userNickName: currentUser.nickName });
+      this.nickNameManuallyEdited.set(true);
     }
     if (currentUser?.email) {
       this.userEmail.set(currentUser.email);
@@ -119,21 +127,25 @@ export class OnboardingComponent implements OnInit, OnDestroy {
           this.auth.markEmailConfirmed();
         }
 
-        if (state.userName) {
-          this.step2Form.patchValue({ userName: state.userName });
+        if (state.userFirstName || state.userLastName) {
+          this.step2Form.patchValue({
+            userFirstName: (state.userFirstName ?? '').slice(0, 20),
+            userLastName: (state.userLastName ?? '').slice(0, 20),
+          });
         }
         if (state.userNickName) {
           this.step2Form.patchValue({ userNickName: state.userNickName });
+          this.nickNameManuallyEdited.set(true);
         }
 
         if (state.corporationId && state.corporationName) {
           this.corporationId.set(state.corporationId);
-          this.step1Form.patchValue({ corporationName: state.corporationName });
+          this.step1Form.patchValue({ corporationName: state.corporationName.slice(0, 40) });
         }
 
         if (state.workspaceId && state.workspaceName) {
           this.workspaceId.set(state.workspaceId);
-          this.step3Form.patchValue({ workspaceName: state.workspaceName });
+          this.step3Form.patchValue({ workspaceName: state.workspaceName.slice(0, 35) });
         }
 
         this.availableApplications.set(state.availableApplications ?? []);
@@ -142,9 +154,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
         // Retoma exatamente da etapa em que o usuário parou antes de fechar o navegador
         if (!state.corporationId) {
           this.currentStep.set(1);
-        } else if (!state.userName) {
+        } else if (!state.userFirstName || !state.userLastName) {
           this.currentStep.set(2);
-        } else if (!state.workspaceId) {
+        } else if (!state.workspaceId || this.optionalApplications().length === 0) {
           this.userProfileSaved.set(true);
           this.currentStep.set(3);
         } else {
@@ -204,6 +216,74 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     });
   }
 
+  protected onNickNameFocus(): void {
+    const currentNick = this.step2Form.controls.userNickName.value.trim();
+
+    // Uma vez que o usuário meteu a mão no campo (nickNameManuallyEdited = true), nunca mais sobrescreve!
+    if (this.nickNameManuallyEdited() && currentNick.length > 0) {
+      return;
+    }
+
+    const suggestion = this.buildSuggestedNickName(
+      this.step2Form.controls.userFirstName.value,
+      this.step2Form.controls.userLastName.value,
+    );
+
+    if (suggestion) {
+      this.lastAutoSuggestedNickName.set(suggestion);
+      this.step2Form.patchValue({ userNickName: suggestion });
+    }
+  }
+
+  protected onNickNameInput(): void {
+    const val = this.step2Form.controls.userNickName.value.trim();
+    this.nickNameManuallyEdited.set(val.length > 0);
+  }
+
+  private buildSuggestedNickName(firstNameRaw: string, lastNameRaw: string): string {
+    const firstParts = (firstNameRaw || '')
+      .trim()
+      .split(/\s+/)
+      .filter((p) => p.length > 0);
+    const lastParts = (lastNameRaw || '')
+      .trim()
+      .split(/\s+/)
+      .filter((p) => p.length > 0);
+
+    if (firstParts.length === 0 && lastParts.length === 0) {
+      return '';
+    }
+
+    if (firstParts.length > 0 && lastParts.length > 0) {
+      const firstWord = firstParts[0];
+      const lastWord = lastParts[lastParts.length - 1];
+      return `${firstWord} ${lastWord}`.slice(0, 40);
+    }
+
+    if (firstParts.length > 0) {
+      return firstParts[0].slice(0, 40);
+    }
+
+    return lastParts[lastParts.length - 1].slice(0, 40);
+  }
+
+  private splitFullName(fullName: string): { firstName: string; lastName: string } {
+    const parts = (fullName || '')
+      .trim()
+      .split(/\s+/)
+      .filter((p) => p.length > 0);
+    if (parts.length === 0) {
+      return { firstName: '', lastName: '' };
+    }
+    if (parts.length === 1) {
+      return { firstName: parts[0].slice(0, 20), lastName: '' };
+    }
+    const half = Math.ceil(parts.length / 2);
+    const firstName = parts.slice(0, half).join(' ').slice(0, 20);
+    const lastName = parts.slice(half).join(' ').slice(0, 20);
+    return { firstName, lastName };
+  }
+
   protected onSaveStep1(): void {
     if (this.step1Form.invalid) {
       this.step1Form.markAllAsTouched();
@@ -211,13 +291,10 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     }
 
     const { corporationName } = this.step1Form.getRawValue();
-    const { userName, userNickName } = this.step2Form.getRawValue();
 
     this.auth
       .saveOnboardingCorporationStep({
-        corporationName: corporationName.trim(),
-        userName: userName.trim() || undefined,
-        userNickName: userNickName.trim() || undefined,
+        corporationName: corporationName.trim().slice(0, 40),
       })
       .subscribe({
         next: (session) => {
@@ -236,13 +313,20 @@ export class OnboardingComponent implements OnInit, OnDestroy {
     }
 
     const { corporationName } = this.step1Form.getRawValue();
-    const { userName, userNickName } = this.step2Form.getRawValue();
+    const { userFirstName, userLastName, userNickName } = this.step2Form.getRawValue();
+    const cleanFirst = userFirstName.trim().slice(0, 20);
+    const cleanLast = userLastName.trim().slice(0, 20);
+    const combinedName = `${cleanFirst} ${cleanLast}`.trim();
+    const finalNick =
+      userNickName.trim() || this.buildSuggestedNickName(cleanFirst, cleanLast) || undefined;
 
     this.auth
       .saveOnboardingCorporationStep({
-        corporationName: corporationName.trim(),
-        userName: userName.trim(),
-        userNickName: userNickName.trim() || undefined,
+        corporationName: corporationName.trim().slice(0, 40),
+        userFirstName: cleanFirst,
+        userLastName: cleanLast,
+        userName: combinedName,
+        userNickName: finalNick,
       })
       .subscribe({
         next: (session) => {
@@ -272,6 +356,11 @@ export class OnboardingComponent implements OnInit, OnDestroy {
           this.workspaceId.set(state.workspaceId ?? null);
           this.availableApplications.set(state.availableApplications ?? []);
           this.selectedApplicationIds.set(state.selectedApplicationIds ?? []);
+          if (this.optionalApplications().length === 0) {
+            const coreIds = this.coreApplications().map((a) => a.id);
+            this.finishOnboarding(coreIds);
+            return;
+          }
           this.currentStep.set(4);
         },
       });

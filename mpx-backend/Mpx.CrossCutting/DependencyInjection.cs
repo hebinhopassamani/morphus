@@ -51,6 +51,52 @@ public static class DependencyInjection
     dbContext.Database.Migrate();
 
     dbContext.Database.ExecuteSqlRaw("""
+        ALTER TABLE sec_users ADD COLUMN IF NOT EXISTS first_name character varying(20) NULL;
+        ALTER TABLE sec_users ADD COLUMN IF NOT EXISTS last_name character varying(20) NULL;
+        CREATE TABLE IF NOT EXISTS mpx_corporation_domains (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NOT NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            domain_name character varying(150) NOT NULL UNIQUE,
+            origin_type character varying(40) NOT NULL DEFAULT 'CustomerOwned',
+            verification_status character varying(40) NOT NULL DEFAULT 'PendingVerification',
+            verification_token character varying(120) NULL,
+            is_primary boolean NOT NULL DEFAULT false,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            description character varying(120) NULL
+        );
+        CREATE TABLE IF NOT EXISTS mpx_corporation_domain_records (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NOT NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            corporation_domain_id uuid NOT NULL REFERENCES mpx_corporation_domains(id) ON DELETE CASCADE,
+            record_type character varying(20) NOT NULL DEFAULT 'CNAME',
+            host_name character varying(150) NOT NULL,
+            value character varying(500) NOT NULL,
+            ttl integer NOT NULL DEFAULT 3600,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            description character varying(120) NULL
+        );
+        CREATE TABLE IF NOT EXISTS mpx_application_settings (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NOT NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            application_id uuid NOT NULL REFERENCES mpx_applications(id) ON DELETE CASCADE,
+            setting_key character varying(80) NOT NULL,
+            label character varying(150) NOT NULL,
+            value_type character varying(40) NOT NULL DEFAULT 'string',
+            value character varying(500) NOT NULL DEFAULT '',
+            endpoint_url character varying(300) NULL,
+            refresh_policy character varying(40) NOT NULL DEFAULT 'manual',
+            is_locked_system boolean NOT NULL DEFAULT false,
+            "order" integer NOT NULL DEFAULT 0,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            description character varying(120) NULL,
+            CONSTRAINT uq_mpx_application_settings_app_key UNIQUE (application_id, setting_key)
+        );
         ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_start_date timestamp with time zone NULL;
         ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_days integer NULL;
         ALTER TABLE mpx_workspace_applications ADD COLUMN IF NOT EXISTS trial_used boolean NOT NULL DEFAULT false;
@@ -60,6 +106,10 @@ public static class DependencyInjection
         ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS "default" boolean NOT NULL DEFAULT false;
         ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS layout_key character varying(60) NOT NULL DEFAULT 'sidebar-default';
         ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS custom_layout_html text NULL;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS domain_mode character varying(40) NOT NULL DEFAULT 'MorphusSuggested';
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS subdomain character varying(80) NULL;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS corporation_domain_id uuid NULL REFERENCES mpx_corporation_domains(id) ON DELETE SET NULL;
+        ALTER TABLE mpx_applications ADD COLUMN IF NOT EXISTS full_domain character varying(180) NULL;
         ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS workspace_id uuid NULL;
         ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS color character varying(250) NULL;
         ALTER TABLE mpx_application_users ADD COLUMN IF NOT EXISTS favorite boolean NOT NULL DEFAULT false;
@@ -75,8 +125,6 @@ public static class DependencyInjection
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS ts_content text NULL;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS js_content text NULL;
         ALTER TABLE mpx_application_sub_modules ADD COLUMN IF NOT EXISTS is_custom_html boolean NOT NULL DEFAULT false;
-        UPDATE mpx_applications SET available_for_trial = true WHERE prefix IN ('FIN', 'FLW', 'MAL') OR name IN ('Morphus Financeiro', 'Morphus Flow', 'Morphus Mail');
-        UPDATE mpx_applications SET "default" = true WHERE prefix = 'FIN' OR name = 'Morphus Financeiro';
         UPDATE mpx_applications SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;
         ALTER TABLE mpx_applications ALTER COLUMN description TYPE character varying(120);
         UPDATE mpx_workspaces SET description = LEFT(description, 120) WHERE description IS NOT NULL AND LENGTH(description) > 120;

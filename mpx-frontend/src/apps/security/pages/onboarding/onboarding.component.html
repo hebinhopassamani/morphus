@@ -144,7 +144,7 @@
           <div class="min-w-0">
             <div class="truncate text-xs font-semibold">Seus Dados</div>
             <div class="truncate text-[11px] text-neutral-a11">
-              {{ step2Form.controls.userNickName.value || step2Form.controls.userName.value || 'Como quer ser chamado' }}
+              {{ step2Form.controls.userNickName.value || (step2Form.controls.userFirstName.value + ' ' + step2Form.controls.userLastName.value).trim() || 'Como quer ser chamado' }}
             </div>
           </div>
         </button>
@@ -218,6 +218,7 @@
                 <input
                   type="text"
                   autocomplete="organization"
+                  maxlength="40"
                   placeholder="Ex: Grupo Morphus, Passamani Holding..."
                   formControlName="corporationName"
                   matInput
@@ -226,6 +227,8 @@
                   <mat-error>Informe o nome da matriz da sua corporação.</mat-error>
                 } @else if (step1Form.controls.corporationName.hasError('minlength')) {
                   <mat-error>O nome da matriz deve ter pelo menos 2 caracteres.</mat-error>
+                } @else if (step1Form.controls.corporationName.hasError('maxlength')) {
+                  <mat-error>O nome da matriz deve ter no máximo 40 caracteres.</mat-error>
                 }
               </mat-form-field>
               <span class="mt-2 px-1 text-[11px] leading-snug text-neutral-a11">
@@ -280,23 +283,62 @@
               />
             </mat-form-field>
 
-            <mat-form-field class="w-full">
-              <mat-label>O Nome</mat-label>
-              <input type="text" autocomplete="name" formControlName="userName" matInput />
-              @if (step2Form.controls.userName.hasError('required')) {
-                <mat-error>Informe seu nome.</mat-error>
-              } @else if (step2Form.controls.userName.hasError('minlength')) {
-                <mat-error>O nome deve ter pelo menos 2 caracteres.</mat-error>
-              }
-            </mat-form-field>
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <mat-form-field class="w-full">
+                <mat-label>Primeiro nome</mat-label>
+                <input
+                  id="given-name"
+                  name="given-name"
+                  type="text"
+                  autocomplete="given-name"
+                  maxlength="20"
+                  placeholder="Ex: Antônio Heber"
+                  formControlName="userFirstName"
+                  matInput
+                />
+                @if (step2Form.controls.userFirstName.hasError('required')) {
+                  <mat-error>Informe seu primeiro nome.</mat-error>
+                } @else if (step2Form.controls.userFirstName.hasError('minlength')) {
+                  <mat-error>Mínimo de 2 caracteres.</mat-error>
+                } @else if (step2Form.controls.userFirstName.hasError('maxlength')) {
+                  <mat-error>Máximo de 20 caracteres.</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field class="w-full">
+                <mat-label>Segundo nome</mat-label>
+                <input
+                  id="family-name"
+                  name="family-name"
+                  type="text"
+                  autocomplete="family-name"
+                  maxlength="20"
+                  placeholder="Ex: Passamani Filho"
+                  formControlName="userLastName"
+                  matInput
+                />
+                @if (step2Form.controls.userLastName.hasError('required')) {
+                  <mat-error>Informe seu segundo nome.</mat-error>
+                } @else if (step2Form.controls.userLastName.hasError('minlength')) {
+                  <mat-error>Mínimo de 2 caracteres.</mat-error>
+                } @else if (step2Form.controls.userLastName.hasError('maxlength')) {
+                  <mat-error>Máximo de 20 caracteres.</mat-error>
+                }
+              </mat-form-field>
+            </div>
 
             <mat-form-field class="w-full">
               <mat-label>Como gostaria de ser chamado</mat-label>
               <input
+                id="nickname"
+                name="nickname"
                 type="text"
                 autocomplete="nickname"
-                placeholder="Ex: Hebinho, Antonio..."
+                maxlength="40"
+                placeholder="Ex: Antônio Filho, Hebinho Passamani..."
                 formControlName="userNickName"
+                (focus)="onNickNameFocus()"
+                (input)="onNickNameInput()"
                 matInput
               />
             </mat-form-field>
@@ -345,6 +387,10 @@
               <mat-label>Nome do Workspace</mat-label>
               <input
                 type="text"
+                autocomplete="off"
+                data-1p-ignore
+                data-lpignore="true"
+                maxlength="35"
                 placeholder="Financeiro, Recursos Humanos, Base de conhecimento..."
                 formControlName="workspaceName"
                 matInput
@@ -353,6 +399,8 @@
                 <mat-error>Informe um nome para o seu Workspace.</mat-error>
               } @else if (step3Form.controls.workspaceName.hasError('minlength')) {
                 <mat-error>O nome do Workspace deve ter pelo menos 2 caracteres.</mat-error>
+              } @else if (step3Form.controls.workspaceName.hasError('maxlength')) {
+                <mat-error>O nome do Workspace deve ter no máximo 35 caracteres.</mat-error>
               }
             </mat-form-field>
 
@@ -372,7 +420,7 @@
                 class="primary large"
                 [disabled]="auth.isLoading()"
               >
-                {{ auth.isLoading() ? 'Criando Workspace...' : 'Comece e veja nossos recursos' }}
+                {{ auth.isLoading() ? 'Criando Workspace...' : (optionalApplications().length > 0 ? 'Comece e veja nossos recursos' : 'Criar Workspace e acessar') }}
                 <mat-icon svgIcon="arrow-right" iconPositionEnd />
               </button>
             </div>

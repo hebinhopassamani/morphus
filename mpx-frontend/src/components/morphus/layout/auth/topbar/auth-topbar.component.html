@@ -1,6 +1,6 @@
 <header class="sticky top-0 z-99 border-b border-neutral-a4 bg-white/90 backdrop-blur-md dark:bg-neutral-2/90">
   <div class="mx-auto flex w-full max-w-7xl items-center gap-x-4 px-4 py-2.5 sm:px-6 lg:px-8">
-    <a class="inline-flex items-center gap-x-3 rounded-xl" routerLink="/">
+    <a class="inline-flex items-center gap-x-3 rounded-xl" [routerLink]="auth.needsOnboarding() ? '/security/onboarding' : '/'">
       <div class="flex size-10 items-center justify-center overflow-hidden rounded-xl shadow-xs">
         <img src="/brand/favicon_light_512.png" alt="Morphus logo" class="size-full object-cover dark:hidden" />
         <img src="/brand/favicon_dark_512.png" alt="Morphus logo" class="hidden size-full object-cover dark:block" />

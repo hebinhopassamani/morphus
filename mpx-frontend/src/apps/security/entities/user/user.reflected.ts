@@ -2,6 +2,8 @@ import { IMorphusEntity } from '@core/mpx-entities';
 
 export interface IUserReflected extends IMorphusEntity {
   name: string | null;
+  firstName?: string | null;
+  lastName?: string | null;
   email: string | null;
   emailConfirmed: boolean;
   phoneConfirmed: boolean;

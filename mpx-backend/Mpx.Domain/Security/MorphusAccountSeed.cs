@@ -184,6 +184,9 @@ public static class MorphusAccountSeed
       ApplicationStatusId = appActiveStatus.Id,
       Name = "Morphus",
       Prefix = "MPX",
+      DomainMode = "MorphusSuggested",
+      Subdomain = "morphus",
+      FullDomain = "morphus.morphus.me",
       Icon = "boxes",
       Color = "violet",
       System = true,
@@ -199,6 +202,9 @@ public static class MorphusAccountSeed
       ApplicationStatusId = appActiveStatus.Id,
       Name = "Segurança",
       Prefix = "SEC",
+      DomainMode = "MorphusSuggested",
+      Subdomain = "seguranca",
+      FullDomain = "seguranca.morphus.me",
       Icon = "shield",
       Color = "indigo",
       System = true,
@@ -214,6 +220,9 @@ public static class MorphusAccountSeed
       ApplicationStatusId = appActiveStatus.Id,
       Name = "Website",
       Prefix = "WEB",
+      DomainMode = "MorphusSuggested",
+      Subdomain = "website",
+      FullDomain = "website.morphus.me",
       Icon = "globe",
       Color = "jade",
       System = true,
@@ -226,90 +235,25 @@ public static class MorphusAccountSeed
       Id = Guid.NewGuid(),
       CorporationId = corporationId,
       CategoryId = automationCategory.Id,
-      ApplicationStatusId = appPreparingStatus.Id,
-      Name = "Kalupa Automação",
+      ApplicationStatusId = appActiveStatus.Id,
+      Name = "Kalupa",
       Prefix = "KAL",
+      DomainMode = "MorphusSuggested",
+      Subdomain = "kalupa",
+      FullDomain = "kalupa.morphus.me",
       Icon = "workflow",
       Color = "amber",
-      AvailableForTrial = false,
-      System = false,
-      Inactive = false,
-      Description = "Orquestração de fluxos, webhooks e integrações inteligentes em segundo plano"
-    };
-
-    var crmApp = new MorphusApplication
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      CategoryId = commercialCategory.Id,
-      ApplicationStatusId = appPreparingStatus.Id,
-      Name = "Morphus CRM",
-      Prefix = "CRM",
-      Icon = "users",
-      Color = "indigo",
-      AvailableForTrial = false,
-      System = false,
-      Inactive = false,
-      Description = "Gestão de funil comercial, clientes, propostas e relacionamento"
-    };
-
-    var financeApp = new MorphusApplication
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      CategoryId = financeCategory.Id,
-      ApplicationStatusId = appActiveStatus.Id,
-      Name = "Morphus Financeiro",
-      Prefix = "FIN",
-      Icon = "wallet",
-      Color = "jade",
       Default = true,
-      AvailableForTrial = true,
+      AvailableForTrial = false,
       System = false,
       Inactive = false,
-      Description = "Contas a pagar e receber, entrada de notas fiscais, conciliação bancária e fluxo de caixa"
-    };
-
-    var flowApp = new MorphusApplication
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      CategoryId = automationCategory.Id,
-      ApplicationStatusId = appActiveStatus.Id,
-      Name = "Morphus Flow",
-      Prefix = "FLW",
-      Icon = "workflow",
-      Color = "violet",
-      AvailableForTrial = true,
-      System = false,
-      Inactive = false,
-      Description = "Motor visual de workflows configuráveis, aprovações por alçada e automação entre departamentos"
-    };
-
-    var mailApp = new MorphusApplication
-    {
-      Id = Guid.NewGuid(),
-      CorporationId = corporationId,
-      CategoryId = commercialCategory.Id,
-      ApplicationStatusId = appActiveStatus.Id,
-      Name = "Morphus Mail",
-      Prefix = "MAL",
-      Icon = "mail",
-      Color = "jade",
-      AvailableForTrial = true,
-      System = false,
-      Inactive = false,
-      Description = "Disparo de e-mails transacionais de alta entregabilidade, templates HTML e domínios verificados"
+      Description = "Estruturação inteligente de documentos e sincronização na pasta local"
     };
 
     corporation.Applications.Add(morphusApp);
     corporation.Applications.Add(securityApp);
     corporation.Applications.Add(websiteApp);
     corporation.Applications.Add(kalupaApp);
-    corporation.Applications.Add(crmApp);
-    corporation.Applications.Add(financeApp);
-    corporation.Applications.Add(flowApp);
-    corporation.Applications.Add(mailApp);
 
     // 2. Status de Usuário Padrão
     var activeStatus = new UserStatus
@@ -376,43 +320,10 @@ public static class MorphusAccountSeed
         ("HOME", "Página Inicial", "Submódulo responsável pela página inicial e catálogo do portal"),
         ("PROFILE", "Perfil Pessoal", "Submódulo responsável pelo gerenciamento de perfil do usuário no portal")
       ]),
-      (financeApp.Id, "FINANCE_PAYABLES", "Contas a Pagar", "Controle completo de compromissos financeiros, parcelas e aprovações de pagamento", [
-        ("INSTALLMENTS", "Títulos e Parcelas", "Lançamento e acompanhamento de títulos e vencimentos"),
-        ("APPROVALS", "Aprovação de Pagamentos", "Alçadas e liberação de pagamentos da empresa"),
-        ("SETTLEMENTS", "Baixas, Juros e Multas", "Liquidação parcial ou integral com cálculo automático de encargos")
-      ]),
-      (financeApp.Id, "FINANCE_RECEIVABLES", "Contas a Receber", "Gestão de recebíveis, cobranças e previsibilidade de entradas", [
-        ("BILLING", "Faturamento e Cobranças", "Emissão e controle de títulos a receber"),
-        ("RECEIPTS", "Recebimentos e Baixas", "Confirmação de entradas e quitação de clientes")
-      ]),
-      (financeApp.Id, "FINANCE_INVOICES", "Entrada de Notas Fiscais", "Recebimento automatizado de XML e validação fiscal de compras", [
-        ("XML_IMPORT", "Importação de XML", "Leitura automática de notas fiscais eletrônicas"),
-        ("TAX_RULES", "Natureza de Operação e Tributos", "Regras fiscais e integração direta com o Contas a Pagar")
-      ]),
-      (financeApp.Id, "FINANCE_RECONCILIATION", "Conciliação Bancária", "Integração de contas bancárias, extratos e fluxo de caixa em tempo real", [
-        ("CNAB", "Remessa e Retorno CNAB", "Processamento automatizado de arquivos bancários"),
-        ("CASH_FLOW", "Fluxo de Caixa", "Visão consolidada do previsto vs. realizado por unidade")
-      ]),
-      (crmApp.Id, "CRM_CUSTOMERS", "Clientes e Relacionamento", "Base unificada de clientes, contatos e histórico comercial", [
-        ("PORTFOLIO", "Carteira de Clientes", "Gestão de contas e contatos comerciais"),
-        ("INTERACTIONS", "Histórico de Atendimentos", "Registro de reuniões, chamadas e acompanhamentos")
-      ]),
-      (crmApp.Id, "CRM_PIPELINE", "Funil de Vendas", "Acompanhamento de oportunidades e propostas comerciais", [
-        ("OPPORTUNITIES", "Oportunidades", "Etapas do funil e previsão de fechamento"),
-        ("PROPOSALS", "Propostas e Orçamentos", "Elaboração e envio de propostas comerciais")
-      ]),
       (kalupaApp.Id, "KALUPA_KNOWLEDGE", "Estruturação de Conhecimento", "Organização inteligente de documentos e entrega na pasta local", [
         ("AI_CAPTURE", "Captura e Formatação IA", "Estruturação automática de conteúdos e resumos"),
         ("TEMPLATES", "Templates Inteligentes", "Modelos personalizados da empresa"),
         ("LOCAL_SYNC", "Sincronização na Pasta Local", "Entrega invisível dos documentos aprovados no computador")
-      ]),
-      (flowApp.Id, "FLOW_ENGINE", "Motor de Workflows", "Automação visual de processos, alçadas de aprovação e gatilhos entre módulos", [
-        ("WORKFLOW_BUILDER", "Construtor Visual", "Desenho de fluxos com etapas, condições e aprovações"),
-        ("APPROVAL_QUEUES", "Filas de Aprovação", "Caixa de entrada de decisões por alçada e departamento")
-      ]),
-      (mailApp.Id, "MAIL_DELIVERY", "Disparo Transacional", "Envio de e-mails transacionais, templates HTML e domínios autenticados", [
-        ("DOMAINS", "Domínios Verificados", "Configuração de SPF, DKIM e DMARC da corporação"),
-        ("TEMPLATES", "Templates de E-mail", "Modelos HTML dinâmicos com variáveis")
       ])
     };
 
@@ -453,64 +364,18 @@ public static class MorphusAccountSeed
     // 3B. Módulos e Submódulos de PRODUTO DAS APLICAÇÕES (application_modules / application_sub_modules)
     var applicationModuleDefinitions = new (Guid AppId, string Name, string Label, string Icon, string Color, int Order, string Description, (string SubName, string SubLabel, string SubDesc)[] SubModules)[]
     {
-      // MORPHUS FINANCEIRO
-      (financeApp.Id, "Visão Geral", "Visão Geral", "chart-no-axes-combined", "jade", 0, "Painel inicial do Morphus Financeiro", [
-        ("Dashboard", "Dashboard", "Visão geral financeira carregada dinamicamente do banco de dados")
-      ]),
-      (financeApp.Id, "Contas a Pagar", "Contas a Pagar", "wallet", "jade", 1, "Controle completo de compromissos financeiros, parcelas e aprovações de pagamento", [
-        ("Títulos e Parcelas", "Títulos e Parcelas", "Lançamento e acompanhamento de títulos e vencimentos"),
-        ("Aprovação de Pagamentos", "Aprovação de Pagamentos", "Alçadas e liberação de pagamentos da empresa"),
-        ("Baixas, Juros e Multas", "Baixas, Juros e Multas", "Liquidação parcial ou integral com cálculo automático de encargos")
-      ]),
-      (financeApp.Id, "Contas a Receber", "Contas a Receber", "landmark", "jade", 2, "Gestão de recebíveis, cobranças e previsibilidade de entradas", [
-        ("Faturamento e Cobranças", "Faturamento e Cobranças", "Emissão e controle de títulos a receber"),
-        ("Recebimentos e Baixas", "Recebimentos e Baixas", "Confirmação de entradas e quitação de clientes")
-      ]),
-      (financeApp.Id, "Entrada de Notas Fiscais", "Entrada de Notas", "file-text", "jade", 3, "Recebimento automatizado de XML e validação fiscal de compras", [
-        ("Importação de XML", "Importação de XML", "Leitura automática de notas fiscais eletrônicas"),
-        ("Natureza de Operação e Tributos", "Natureza e Tributos", "Regras fiscais e integração direta com o Contas a Pagar")
-      ]),
-      (financeApp.Id, "Conciliação Bancária", "Conciliação Bancária", "chart-no-axes-combined", "jade", 4, "Integração de contas bancárias, extratos e fluxo de caixa em tempo real", [
-        ("Remessa e Retorno CNAB", "Remessa e Retorno CNAB", "Processamento automatizado de arquivos bancários"),
-        ("Fluxo de Caixa", "Fluxo de Caixa", "Visão consolidada do previsto vs. realizado por unidade")
-      ]),
-
-      // MORPHUS CRM
-      (crmApp.Id, "Clientes e Relacionamento", "Clientes", "users", "indigo", 1, "Base unificada de clientes, contatos e histórico comercial", [
-        ("Carteira de Clientes", "Carteira de Clientes", "Gestão de contas e contatos comerciais"),
-        ("Histórico de Atendimentos", "Histórico de Atendimentos", "Registro de reuniões, chamadas e acompanhamentos")
-      ]),
-      (crmApp.Id, "Funil de Vendas", "Funil de Vendas", "sparkles", "indigo", 2, "Acompanhamento de oportunidades e propostas comerciais", [
-        ("Oportunidades", "Oportunidades", "Etapas do funil e previsão de fechamento"),
-        ("Propostas e Orçamentos", "Propostas e Orçamentos", "Elaboração e envio de propostas comerciais")
-      ]),
-
-      // KALUPA AUTOMAÇÃO
-      (kalupaApp.Id, "Estruturação de Conhecimento", "Conhecimento IA", "workflow", "amber", 1, "Organização inteligente de documentos e entrega na pasta local", [
-        ("Captura e Formatação IA", "Captura IA", "Estruturação automática de conteúdos e resumos"),
-        ("Templates Inteligentes", "Templates", "Modelos personalizados da empresa"),
-        ("Sincronização na Pasta Local", "Pasta Local", "Entrega invisível dos documentos aprovados no computador")
-      ]),
-
-      // MORPHUS FLOW
-      (flowApp.Id, "Motor de Workflows", "Workflows", "workflow", "violet", 1, "Automação visual de processos, alçadas de aprovação e gatilhos entre departamentos", [
-        ("Construtor Visual", "Construtor Visual", "Desenho de fluxos com etapas, condições e aprovações"),
-        ("Filas de Aprovação", "Aprovações", "Caixa de entrada de decisões por alçada e departamento")
-      ]),
-
-      // MORPHUS MAIL
-      (mailApp.Id, "Disparo Transacional", "E-mails", "mail", "jade", 1, "Envio de e-mails transacionais, templates HTML e domínios autenticados", [
-        ("Domínios Verificados", "Domínios", "Configuração de SPF, DKIM e DMARC da corporação"),
-        ("Templates de E-mail", "Templates", "Modelos HTML dinâmicos com variáveis")
+      // KALUPA (Apenas Visão Geral -> Dashboard em branco)
+      (kalupaApp.Id, "Visão Geral", "Visão Geral", "chart-no-axes-combined", "amber", 0, "Painel inicial do Kalupa", [
+        ("Dashboard", "Dashboard", "Página inicial do Kalupa")
       ]),
 
       // MORPHUS (Gestão)
       (morphusApp.Id, "Espaços de Trabalho", "Workspaces", "layout-grid", "violet", 1, "Organização departamental e distribuição de aplicações", [
-        ("Ambientes de Trabalho", "Ambientes", "Configuração de workspaces por área"),
-        ("Aplicações do Workspace", "Aplicações", "Quais produtos ficam disponíveis em cada espaço"),
+        ("Ambientes", "Ambientes", "Configuração de workspaces por área"),
+        ("Aplicações", "Aplicações", "Quais produtos ficam disponíveis em cada espaço"),
         ("Equipe do Workspace", "Equipe", "Pessoas vinculadas ao ambiente")
       ]),
-      (morphusApp.Id, "Estrutura Corporativa", "Corporações e Filiais", "building-2", "violet", 2, "Gestão da matriz, filiais e catálogo de aplicações", [
+      (morphusApp.Id, "Corporações", "Corporações", "building-2", "violet", 2, "Gestão da matriz, filiais e catálogo de aplicações", [
         ("Matriz e Filiais", "Matriz e Filiais", "Unidades de negócio da corporação"),
         ("Menus e Navegação", "Menus", "Árvore dinâmica de acesso da plataforma")
       ]),
@@ -522,7 +387,7 @@ public static class MorphusAccountSeed
       ]),
       (securityApp.Id, "Perfis e Permissões", "Perfis de Acesso", "shield-check", "indigo", 2, "Agrupamento inteligente de permissões por função ou departamento", [
         ("Papéis da Equipe", "Papéis", "Criação de perfis como Financeiro, Fiscal ou Diretoria"),
-        ("Permissões por Módulo", "Permissões", "Definição exata do que cada perfil pode acessar")
+        ("Permissões", "Permissões", "Definição exata do que cada perfil pode acessar")
       ])
     };
 
@@ -538,14 +403,14 @@ public static class MorphusAccountSeed
         Icon = appModDef.Icon,
         Color = appModDef.Color,
         Order = appModDef.Order,
-        System = true,
+        System = appModDef.AppId != kalupaApp.Id,
         Description = appModDef.Description
       };
 
       var subOrder = 1;
       foreach (var subDef in appModDef.SubModules)
       {
-        var isFinanceDashboard = appModDef.AppId == financeApp.Id && subDef.SubName == "Dashboard";
+        var isDashboard = subDef.SubName == "Dashboard";
         var slug = subDef.SubName
             .ToLowerInvariant()
             .Replace("á", "a").Replace("à", "a").Replace("ã", "a").Replace("â", "a")
@@ -563,14 +428,13 @@ public static class MorphusAccountSeed
           ApplicationModuleId = appMod.Id,
           Name = subDef.SubName,
           Label = subDef.SubLabel,
+          Icon = isDashboard ? "chart-no-axes-combined" : "file-text",
           Color = appModDef.Color,
           Order = subOrder++,
-          RoutePattern = isFinanceDashboard ? "dashboard" : slug,
-          Default = isFinanceDashboard,
-          HtmlContent = isFinanceDashboard
-              ? "<div class=\"rounded-3xl border border-jade-a5 bg-jade-a2 p-8 shadow-sm\"><div class=\"inline-flex items-center gap-2 rounded-full bg-jade-a3 px-3 py-1 text-xs font-semibold text-jade-a11\">Carregado do Banco de Dados PostgreSQL</div><h1 class=\"mt-4 text-2xl font-bold text-neutral-12\">Bem-vindo ao Dashboard do Morphus Finanças!</h1><p class=\"mt-2 text-base text-neutral-a11\">Esta frase e este HTML estão vindo diretamente da tabela <strong>mpx_application_sub_modules (html_content)</strong> através da rota curinga <code>/morphus/app/:appKey/**</code>.</p></div>"
-              : $"<div class=\"rounded-3xl border border-neutral-a4 bg-neutral-1 p-8 shadow-sm\"><h1 class=\"text-xl font-bold text-neutral-12\">{subDef.SubLabel}</h1><p class=\"mt-2 text-sm text-neutral-a11\">{subDef.SubDesc} — Conteúdo HTML carregado diretamente do banco de dados.</p></div>",
-          System = true,
+          RoutePattern = isDashboard ? "dashboard" : slug,
+          Default = isDashboard,
+          HtmlContent = string.Empty,
+          System = appModDef.AppId != kalupaApp.Id,
           Description = subDef.SubDesc
         };
 
@@ -757,13 +621,14 @@ public static class MorphusAccountSeed
       System = true
     });
 
-    foreach (var app in corporation.Applications.Where(a => a.System || a.Id == financeApp.Id))
+    foreach (var app in corporation.Applications.Where(a => a.System || a.Id == kalupaApp.Id))
     {
       corporation.ApplicationUsers.Add(new ApplicationUser
       {
         CorporationId = corporationId,
         ApplicationId = app.Id,
         UserId = existingUserId,
+        Color = app.Color,
         IsOwner = true,
         Inactive = false,
         System = app.System
@@ -804,7 +669,7 @@ public static class MorphusAccountSeed
         request.CorporationFullName ?? corpName,
         true);
 
-    // Cria Workspace padrão e vincula as aplicações nativas
+    // Cria Workspace padrão e vincula as aplicações nativas + Kalupa
     var defaultWorkspace = new Workspace
     {
       Id = Guid.NewGuid(),
@@ -829,17 +694,17 @@ public static class MorphusAccountSeed
       System = true
     });
 
-    foreach (var app in corporation.Applications.Where(a => a.System || a.Prefix == "FIN"))
+    foreach (var app in corporation.Applications.Where(a => a.System || a.Prefix == "KAL"))
     {
       corporation.WorkspaceApplications.Add(new WorkspaceApplication
       {
         CorporationId = corporation.Id,
         WorkspaceId = defaultWorkspace.Id,
         ApplicationId = app.Id,
-        Default = app.Prefix == "FIN",
-        TrialStartDate = app.Prefix == "FIN" ? DateTime.UtcNow : null,
-        TrialDays = app.Prefix == "FIN" ? 14 : null,
-        TrialUsed = app.Prefix == "FIN",
+        Default = app.Prefix == "KAL",
+        TrialStartDate = null,
+        TrialDays = null,
+        TrialUsed = false,
         Inactive = false,
         System = app.System
       });
@@ -916,17 +781,17 @@ public static class MorphusAccountSeed
       System = true
     });
 
-    foreach (var app in corporation.Applications.Where(a => a.System || a.Prefix == "FIN"))
+    foreach (var app in corporation.Applications.Where(a => a.System || a.Prefix == "KAL"))
     {
       corporation.WorkspaceApplications.Add(new WorkspaceApplication
       {
         CorporationId = corporation.Id,
         WorkspaceId = defaultWorkspace.Id,
         ApplicationId = app.Id,
-        Default = app.Prefix == "FIN",
-        TrialStartDate = app.Prefix == "FIN" ? DateTime.UtcNow : null,
-        TrialDays = app.Prefix == "FIN" ? 14 : null,
-        TrialUsed = app.Prefix == "FIN",
+        Default = app.Prefix == "KAL",
+        TrialStartDate = null,
+        TrialDays = null,
+        TrialUsed = false,
         Inactive = false,
         System = app.System
       });

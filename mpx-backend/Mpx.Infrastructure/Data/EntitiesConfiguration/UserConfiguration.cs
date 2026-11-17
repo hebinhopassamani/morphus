@@ -11,6 +11,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
     builder.ToTable("sec_users");
     builder.HasKey(b => b.Id);
     builder.Property(b => b.Name).IsRequired().HasMaxLength(150);
+    builder.Property(b => b.FirstName).IsRequired(false).HasMaxLength(20);
+    builder.Property(b => b.LastName).IsRequired(false).HasMaxLength(20);
     builder.Property(b => b.Email).IsRequired().HasMaxLength(150);
     builder.Property(b => b.Inactive).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.EmailConfirmed).IsRequired().HasDefaultValue(false);

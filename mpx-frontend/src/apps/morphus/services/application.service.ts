@@ -3,10 +3,15 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '@/environments/environment';
 import {
+  ApplicationDomainPreviewRequest,
+  ApplicationDomainPreviewResponse,
   MorphusApplication,
   MorphusApplicationModuleRef,
+  MorphusApplicationSettingRef,
   MorphusApplicationSubModuleRef,
   MorphusCategoryRef,
+  MorphusCorporationDomainRef,
+  UpdateApplicationBasicSettingsRequest,
 } from '@morphus/entities/application';
 
 @Injectable({
@@ -34,6 +39,66 @@ export class ApplicationService {
 
   getCategories(): Observable<MorphusCategoryRef[]> {
     return this.http.get<MorphusCategoryRef[]>(`${this.apiUrl}/categories`);
+  }
+
+  previewDomain(
+    request: ApplicationDomainPreviewRequest,
+  ): Observable<ApplicationDomainPreviewResponse> {
+    return this.http.post<ApplicationDomainPreviewResponse>(
+      `${this.apiUrl}/preview-domain`,
+      request,
+    );
+  }
+
+  getCorporationDomains(): Observable<MorphusCorporationDomainRef[]> {
+    return this.http.get<MorphusCorporationDomainRef[]>(`${this.apiUrl}/corporation-domains`);
+  }
+
+  saveCorporationDomain(
+    domain: Partial<MorphusCorporationDomainRef>,
+  ): Observable<MorphusCorporationDomainRef> {
+    const payload = { ...domain } as Record<string, unknown>;
+    if (!payload['id']) {
+      delete payload['id'];
+    }
+    return this.http.post<MorphusCorporationDomainRef>(
+      `${this.apiUrl}/corporation-domains`,
+      payload,
+    );
+  }
+
+  getApplicationSettings(applicationId: string): Observable<MorphusApplicationSettingRef[]> {
+    return this.http.get<MorphusApplicationSettingRef[]>(
+      `${this.apiUrl}/${applicationId}/settings`,
+    );
+  }
+
+  saveApplicationSetting(
+    applicationId: string,
+    setting: Partial<MorphusApplicationSettingRef>,
+  ): Observable<MorphusApplicationSettingRef> {
+    const payload = { ...setting } as Record<string, unknown>;
+    if (!payload['id']) {
+      delete payload['id'];
+    }
+    return this.http.post<MorphusApplicationSettingRef>(
+      `${this.apiUrl}/${applicationId}/settings`,
+      payload,
+    );
+  }
+
+  deleteApplicationSetting(settingId: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/settings/${settingId}`);
+  }
+
+  updateBasicSettings(
+    applicationId: string,
+    request: UpdateApplicationBasicSettingsRequest,
+  ): Observable<MorphusApplication> {
+    return this.http.put<MorphusApplication>(
+      `${this.apiUrl}/${applicationId}/basic-settings`,
+      request,
+    );
   }
 
   saveModule(

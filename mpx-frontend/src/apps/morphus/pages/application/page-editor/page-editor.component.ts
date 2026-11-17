@@ -2036,6 +2036,19 @@ export class PageEditorComponent implements OnChanges {
     }
   }
 
+  protected onBlockKindSelectChange(kind: PageEditorBlockKind): void {
+    if (kind === this.selectedBlockKind()) {
+      return;
+    }
+    if (kind === 'empty') {
+      if (this.selectedBlockKind() !== 'empty') {
+        this.clearOrRemoveSelectedBlock();
+      }
+      return;
+    }
+    this.fillCurrentSlotWithBlock(kind);
+  }
+
   protected fillCurrentSlotWithBlock(kind: PageEditorBlockKind, targetSlotEl?: HTMLElement): void {
     if (kind === 'empty') {
       return;

@@ -18,6 +18,10 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<MorphusApplicat
     builder.Property(a => a.Color).IsRequired(false).HasMaxLength(50);
     builder.Property(a => a.LayoutKey).IsRequired().HasMaxLength(60).HasDefaultValue("sidebar-default");
     builder.Property(a => a.CustomLayoutHtml).IsRequired(false);
+    builder.Property(a => a.DomainMode).IsRequired().HasMaxLength(40).HasDefaultValue("MorphusSuggested");
+    builder.Property(a => a.Subdomain).IsRequired(false).HasMaxLength(80);
+    builder.Property(a => a.CorporationDomainId).IsRequired(false);
+    builder.Property(a => a.FullDomain).IsRequired(false).HasMaxLength(180);
     builder.Property(a => a.Default).IsRequired().HasDefaultValue(false);
     builder.Property(a => a.AvailableForTrial).IsRequired().HasDefaultValue(false);
     builder.Property(a => a.System).IsRequired().HasDefaultValue(false);
@@ -31,6 +35,12 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<MorphusApplicat
            .WithMany(c => c.Applications)
            .HasForeignKey(a => a.CorporationId)
            .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne(a => a.CorporationDomain)
+           .WithMany(d => d.Applications)
+           .HasForeignKey(a => a.CorporationDomainId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(a => a.Category)
            .WithMany(c => c.Applications)

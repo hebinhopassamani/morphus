@@ -76,7 +76,7 @@ export class AppBuilderShellComponent {
 
   protected readonly navItems = computed<AppBuilderNavItem[]>(() => {
     const app = this.activeApp();
-    const key = app?.key || app?.prefix || this.appKey() || 'FIN';
+    const key = app?.key || app?.prefix || this.appKey() || 'KAL';
     const modules: MorphusApplicationModuleRef[] = app?.applicationModules ?? [];
     const items: AppBuilderNavItem[] = [];
 
@@ -101,6 +101,16 @@ export class AppBuilderShellComponent {
         label: 'Dashboard',
         icon: 'chart-no-axes-combined',
         url: `/app/${key}/dashboard`,
+      });
+    }
+
+    if (this.context.canEditApplication(app)) {
+      items.push({
+        id: 'app-orphan-settings',
+        moduleLabel: 'Opções',
+        label: 'Opções',
+        icon: 'settings',
+        url: `/app/${key}/settings`,
       });
     }
 

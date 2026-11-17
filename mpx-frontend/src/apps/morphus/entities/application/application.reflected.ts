@@ -8,10 +8,15 @@ export interface IMorphusApplicationReflected extends IMorphusEntity {
   color?: string | null;
   layoutKey?: string | null;
   customLayoutHtml?: string | null;
+  domainMode?: string | null;
+  subdomain?: string | null;
+  corporationDomainId?: string | null;
+  fullDomain?: string | null;
   default?: boolean;
   availableForTrial?: boolean;
   categoryId?: string | null;
   applicationStatusId?: string | null;
   workspaceId?: string;
+  workspaceIds?: string[];
   corporationId?: string;
 }

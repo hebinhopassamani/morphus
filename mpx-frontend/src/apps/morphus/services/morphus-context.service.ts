@@ -163,6 +163,93 @@ export class MorphusContextService {
   readonly isLoadingMenus = this.loadingMenusState.asReadonly();
   readonly isSwitchingContext = this.switchingContextState.asReadonly();
 
+  readonly activeRuntimeApplication = computed<MorphusApplication | null>(() => {
+    const url = this.currentUrl() || '';
+    const match = url.match(/^\/(?:morphus\/)?app\/([^/?#]+)/i);
+    const urlKeyUpper = (match?.[1] || '').trim().toUpperCase();
+
+    return (
+      this.operationalApplications().find(
+        (a) =>
+          (a.key ?? '').toUpperCase() === urlKeyUpper ||
+          (a.prefix ?? '').toUpperCase() === urlKeyUpper,
+      ) ??
+      this.availableApplications().find(
+        (a) =>
+          (a.key ?? '').toUpperCase() === urlKeyUpper ||
+          (a.prefix ?? '').toUpperCase() === urlKeyUpper,
+      ) ??
+      this.catalogApplications().find(
+        (a) =>
+          (a.key ?? '').toUpperCase() === urlKeyUpper ||
+          (a.prefix ?? '').toUpperCase() === urlKeyUpper,
+      ) ??
+      this.activeOperationalApplication() ??
+      this.activeApplication()
+    );
+  });
+
+  isNativeMorphusApp(app?: MorphusApplication | null): boolean {
+    if (!app) {
+      return true;
+    }
+    if (app.system) {
+      return true;
+    }
+    const nameUpper = (app.name ?? '').trim().toUpperCase();
+    const keyUpper = (app.key ?? '').trim().toUpperCase();
+    const prefixUpper = (app.prefix ?? '').trim().toUpperCase();
+    return (
+      prefixUpper === 'KAL' ||
+      keyUpper === 'KAL' ||
+      keyUpper === 'KALUPA' ||
+      nameUpper.includes('KALUPA') ||
+      nameUpper.startsWith('MORPHUS ') ||
+      keyUpper.startsWith('MORPHUS_') ||
+      (app.id ?? '').startsWith('catalog-')
+    );
+  }
+
+  getRuntimeAppOwnerCorporationName(app?: MorphusApplication | null): string {
+    const target = app ?? this.activeRuntimeApplication();
+    return (
+      target?.corporation?.name ||
+      this.auth.corporation()?.name ||
+      'Corporação'
+    );
+  }
+
+  canEditApplication(app?: MorphusApplication | null): boolean {
+    if (this.auth.isAdmin()) {
+      return true;
+    }
+    if (
+      this.auth.hasClaim('APPLICATION', 'UPDATE') ||
+      this.auth.hasClaim('APPLICATION', 'EDIT')
+    ) {
+      return true;
+    }
+    return Boolean(app && !this.isNativeMorphusApp(app));
+  }
+
+  goToOwnerCorporationPortal(app?: MorphusApplication | null): void {
+    const target = app ?? this.activeRuntimeApplication();
+    const targetCorpId = target?.corporationId || target?.corporation?.id;
+    const currentCorpId = this.auth.corporation()?.id;
+    if (targetCorpId && currentCorpId && targetCorpId !== currentCorpId) {
+      this.auth.switchCorporation(targetCorpId).subscribe({
+        next: () => {
+          void this.router.navigateByUrl('/website/home');
+        },
+        error: () => {
+          void this.router.navigateByUrl('/website/home');
+        },
+      });
+      return;
+    }
+    void this.router.navigateByUrl('/website/home');
+  }
+
   readonly activeWorkspace = computed<Workspace | null>(() => {
     const list = this.workspaces();
     if (!list.length) {
@@ -1104,68 +1191,71 @@ export class MorphusContextService {
   private buildOperationalAppMenus(): Menu[] {
     const url = this.currentUrl() || '';
     const match = url.match(/^\/(?:morphus\/)?app\/([^/?#]+)/i);
-    const urlKeyUpper = (match?.[1] || '').trim().toUpperCase();
+    const app = this.activeRuntimeApplication();
 
-    const app =
-      this.operationalApplications().find(
-        (a) =>
-          (a.key ?? '').toUpperCase() === urlKeyUpper ||
-          (a.prefix ?? '').toUpperCase() === urlKeyUpper,
-      ) ??
-      this.activeOperationalApplication() ??
-      this.activeApplication();
-
-    const appKey = app?.key || app?.prefix || match?.[1] || 'FIN';
+    const appKey = app?.key || app?.prefix || match?.[1] || 'KAL';
     const modules = app?.applicationModules ?? [];
 
-    if (!modules.length) {
-      return [
-        {
-          id: 'app-sec-overview',
-          key: 'APP_SEC_OVERVIEW',
-          applicationId: app?.id || '',
-          label: 'Visão Geral',
-          icon: 'chart-no-axes-combined',
-          order: 0,
-          subMenus: [
-            {
-              id: 'app-item-dashboard',
-              key: 'APP_ITEM_DASHBOARD',
-              applicationId: app?.id || '',
-              label: 'Dashboard',
-              url: `/app/${appKey}/dashboard`,
-              icon: 'chart-no-axes-combined',
-              order: 1,
-            },
-          ],
-        },
-      ];
+    const menuItems: Menu[] = !modules.length
+      ? [
+          {
+            id: 'app-sec-overview',
+            key: 'APP_SEC_OVERVIEW',
+            applicationId: app?.id || '',
+            label: 'Visão Geral',
+            icon: 'chart-no-axes-combined',
+            order: 0,
+            subMenus: [
+              {
+                id: 'app-item-dashboard',
+                key: 'APP_ITEM_DASHBOARD',
+                applicationId: app?.id || '',
+                label: 'Dashboard',
+                url: `/app/${appKey}/dashboard`,
+                icon: 'chart-no-axes-combined',
+                order: 1,
+              },
+            ],
+          },
+        ]
+      : [...modules]
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map((mod, modIdx) => ({
+            id: mod.id || `app-mod-${modIdx}`,
+            key: mod.key || `APP_MOD_${modIdx}`,
+            applicationId: app?.id || '',
+            label: mod.label || mod.name,
+            icon: mod.icon || 'layers',
+            order: mod.order ?? modIdx,
+            subMenus: [...(mod.applicationSubModules ?? [])]
+              .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+              .map((sm, smIdx) => {
+                const slug = sm.routePattern || sm.key || 'dashboard';
+                return {
+                  id: sm.id || `app-sub-${modIdx}-${smIdx}`,
+                  key: sm.key || `APP_SUB_${modIdx}_${smIdx}`,
+                  applicationId: app?.id || '',
+                  label: sm.label || sm.name,
+                  url: `/app/${appKey}/${slug}`,
+                  icon: sm.icon || mod.icon || 'file-text',
+                  order: sm.order ?? smIdx + 1,
+                };
+              }),
+          }));
+
+    if (this.canEditApplication(app)) {
+      menuItems.push({
+        id: 'app-orphan-settings',
+        key: 'APP_ORPHAN_SETTINGS',
+        applicationId: app?.id || '',
+        label: 'Opções',
+        url: `/app/${appKey}/settings`,
+        icon: 'settings',
+        order: 9999,
+      });
     }
 
-    return [...modules]
-      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      .map((mod, modIdx) => ({
-        id: mod.id || `app-mod-${modIdx}`,
-        key: mod.key || `APP_MOD_${modIdx}`,
-        applicationId: app?.id || '',
-        label: mod.label || mod.name,
-        icon: mod.icon || 'layers',
-        order: mod.order ?? modIdx,
-        subMenus: [...(mod.applicationSubModules ?? [])]
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-          .map((sm, smIdx) => {
-            const slug = sm.routePattern || sm.key || 'dashboard';
-            return {
-              id: sm.id || `app-sub-${modIdx}-${smIdx}`,
-              key: sm.key || `APP_SUB_${modIdx}_${smIdx}`,
-              applicationId: app?.id || '',
-              label: sm.label || sm.name,
-              url: `/app/${appKey}/${slug}`,
-              icon: sm.icon || mod.icon || 'file-text',
-              order: sm.order ?? smIdx + 1,
-            };
-          }),
-      }));
+    return menuItems;
   }
 
   private resolveApplicationEntryRoute(application: MorphusApplication | null): string {
@@ -1177,7 +1267,7 @@ export class MorphusContextService {
       return '/security';
     }
     if (!this.isSystemCoreApplication(application)) {
-      const appKey = application.key || application.prefix || 'FIN';
+      const appKey = application.key || application.prefix || 'KAL';
       const allSubs = (application.applicationModules ?? []).flatMap(
         (m) => m.applicationSubModules ?? [],
       );

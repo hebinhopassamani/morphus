@@ -33,9 +33,9 @@
           </nav>
 
           <div class="flex items-center gap-2">
-            <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
-              <mat-icon svgIcon="settings" />
-              <span>Editar Telas</span>
+            <button type="button" matButton="outlined" class="tiny" (click)="goToPortal()">
+              <mat-icon svgIcon="globe" />
+              <span>Portal</span>
             </button>
           </div>
         </div>
@@ -86,10 +86,7 @@
           }
         </nav>
 
-        <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
-          <mat-icon svgIcon="settings" />
-          <span>Construtor</span>
-        </button>
+        <div class="w-16"></div>
       </header>
 
       <main class="flex flex-auto flex-col">
@@ -123,9 +120,6 @@
             {{ item.label }}
           </a>
         }
-        <button type="button" matButton class="tiny" (click)="goToAppStudio()">
-          <mat-icon svgIcon="settings" />
-        </button>
       </div>
     </div>
   }
@@ -159,10 +153,6 @@
           <button type="button" matButton="outlined" class="tiny" (click)="goToPortal()">
             <mat-icon svgIcon="globe" />
             <span>Portal</span>
-          </button>
-          <button type="button" matButton="outlined" class="tiny" (click)="goToAppStudio()">
-            <mat-icon svgIcon="settings" />
-            <span>Editar Layout/Telas</span>
           </button>
         </div>
       </div>

@@ -420,4 +420,34 @@ public class SecurityController(SecurityHandler securityHandler, MorphusDbContex
     await securityHandler.RevokeAsync(userId);
     return NoContent();
   }
+
+  [AllowAnonymous]
+  [HttpPost("dev-reset-point-zero")]
+  public async Task<IActionResult> DevResetPointZero()
+  {
+    var tableNames = dbContext.Model
+        .GetEntityTypes()
+        .Select(e => e.GetTableName())
+        .Where(t => !string.IsNullOrWhiteSpace(t))
+        .Distinct()
+        .Select(t => $"\"{t}\"")
+        .ToList();
+
+    if (tableNames.Count > 0)
+    {
+      var truncateSql = $"TRUNCATE TABLE {string.Join(", ", tableNames)} RESTART IDENTITY CASCADE;";
+      await dbContext.Database.ExecuteSqlRawAsync(truncateSql);
+    }
+
+    var (features, categories) = MorphusAccountSeed.CreateDefaultShowcaseContent();
+    await dbContext.Features.AddRangeAsync(features);
+    await dbContext.ModuleCategories.AddRangeAsync(categories);
+    await dbContext.SaveChangesAsync();
+
+    return Ok(new
+    {
+      success = true,
+      message = "Banco de dados resetado para o Ponto Zero com sucesso (0 usuários, showcase inicial populado)."
+    });
+  }
 }

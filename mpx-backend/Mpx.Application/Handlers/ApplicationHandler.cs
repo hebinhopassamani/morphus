@@ -38,12 +38,185 @@ public class ApplicationHandler(
   public Task DeleteSubModulePageAsync(Guid pageId) =>
       applicationRepository.DeleteSubModulePageAsync(pageId);
 
+  public Task<List<CorporationDomain>> GetCorporationDomainsAsync() =>
+      applicationRepository.GetCorporationDomainsAsync();
+
+  public Task<CorporationDomain> SaveCorporationDomainAsync(CorporationDomain domain) =>
+      applicationRepository.SaveCorporationDomainAsync(domain);
+
+  public Task<List<ApplicationSetting>> GetApplicationSettingsAsync(Guid applicationId) =>
+      applicationRepository.GetApplicationSettingsAsync(applicationId);
+
+  public Task<ApplicationSetting> SaveApplicationSettingAsync(Guid applicationId, ApplicationSetting setting) =>
+      applicationRepository.SaveApplicationSettingAsync(applicationId, setting);
+
+  public Task DeleteApplicationSettingAsync(Guid settingId) =>
+      applicationRepository.DeleteApplicationSettingAsync(settingId);
+
+  public async Task<ApplicationDomainPreviewResponse> PreviewDomainAsync(ApplicationDomainPreviewRequest request)
+  {
+    var cleanName = (request.Name ?? string.Empty).Trim();
+    var allGlobalApps = await applicationRepository.GetAllApplicationsIgnoreFiltersAsync();
+    var excludeId = request.ExcludeApplicationId ?? Guid.Empty;
+
+    var otherCustomerApps = allGlobalApps
+        .Where(a => a.Id != excludeId && !a.System && !string.Equals(a.Prefix, "KAL", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    var usedPrefixesInCorp = (await applicationRepository.GetListAsync())
+        .Where(a => a.Id != excludeId && !string.IsNullOrWhiteSpace(a.Prefix))
+        .Select(a => a.Prefix.Trim().ToUpperInvariant())
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    var normalizedPrefix = NormalizeAlphanumeric(request.Prefix);
+    if (string.IsNullOrWhiteSpace(normalizedPrefix) || normalizedPrefix.Length != 3)
+    {
+      normalizedPrefix = GenerateUniquePrefix(cleanName, usedPrefixesInCorp);
+    }
+
+    var prefixLower = normalizedPrefix.ToLowerInvariant();
+
+    // Regra: Nunca uma app pode ter o mesmo nome e mesma sigla nem em clientes diferentes dentro do mesmo ambiente compartilhado
+    var nameAndPrefixConflict = !string.IsNullOrWhiteSpace(cleanName) &&
+        otherCustomerApps.Any(a =>
+            string.Equals(a.Name?.Trim(), cleanName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(a.Prefix?.Trim(), normalizedPrefix, StringComparison.OrdinalIgnoreCase));
+
+    var usedFullDomains = otherCustomerApps
+        .Where(a => !string.IsNullOrWhiteSpace(a.FullDomain))
+        .Select(a => a.FullDomain!.Trim().ToLowerInvariant())
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    // Também reserva os domínios oficiais de sistema
+    usedFullDomains.Add("morphus.mpx.morphus.me");
+    usedFullDomains.Add("seguranca.sec.morphus.me");
+    usedFullDomains.Add("website.web.morphus.me");
+    usedFullDomains.Add("kalupa.kal.morphus.me");
+
+    var words = ExtractCleanLowerWords(cleanName);
+    if (words.Count == 0)
+    {
+      words.Add("app");
+    }
+
+    var progressiveSubdomains = new List<string>();
+    var acc = string.Empty;
+    foreach (var word in words)
+    {
+      acc += word;
+      progressiveSubdomains.Add(acc);
+    }
+
+    var firstSubdomain = progressiveSubdomains[0];
+    var firstFullDomain = $"{firstSubdomain}.{prefixLower}.morphus.me";
+    var firstAvailable = !usedFullDomains.Contains(firstFullDomain) && !nameAndPrefixConflict;
+
+    string? suggestedSubdomain = null;
+    string? suggestedFullDomain = null;
+
+    foreach (var candidateSub in progressiveSubdomains)
+    {
+      var candidateFull = $"{candidateSub}.{prefixLower}.morphus.me";
+      if (!usedFullDomains.Contains(candidateFull))
+      {
+        suggestedSubdomain = candidateSub;
+        suggestedFullDomain = candidateFull;
+        break;
+      }
+    }
+
+    string? customAttemptSubdomain = null;
+    string? customAttemptDomain = null;
+    bool? customAttemptAvailable = null;
+
+    var mode = string.IsNullOrWhiteSpace(request.DomainMode) ? "MorphusSuggested" : request.DomainMode.Trim();
+
+    if (!string.IsNullOrWhiteSpace(request.CustomSubdomain))
+    {
+      customAttemptSubdomain = SanitizeDomainLabel(request.CustomSubdomain);
+      if (!string.IsNullOrWhiteSpace(customAttemptSubdomain))
+      {
+        if (string.Equals(mode, "MorphusSuggested", StringComparison.OrdinalIgnoreCase) || request.CorporationDomainId is null || request.CorporationDomainId == Guid.Empty)
+        {
+          customAttemptDomain = $"{customAttemptSubdomain}.{prefixLower}.morphus.me";
+          customAttemptAvailable = !usedFullDomains.Contains(customAttemptDomain);
+        }
+        else
+        {
+          var corpDomains = await applicationRepository.GetCorporationDomainsAsync();
+          var targetDomain = corpDomains.FirstOrDefault(d => d.Id == request.CorporationDomainId);
+          if (targetDomain is not null)
+          {
+            customAttemptDomain = $"{customAttemptSubdomain}.{targetDomain.DomainName.Trim().ToLowerInvariant()}";
+            customAttemptAvailable = !usedFullDomains.Contains(customAttemptDomain);
+          }
+        }
+      }
+    }
+
+    return new ApplicationDomainPreviewResponse
+    {
+      ResolvedPrefix = normalizedPrefix,
+      NameAndPrefixConflict = nameAndPrefixConflict,
+      FirstAttemptSubdomain = firstSubdomain,
+      FirstAttemptDomain = firstFullDomain,
+      FirstAttemptAvailable = firstAvailable,
+      SuggestedAvailableSubdomain = suggestedSubdomain,
+      SuggestedAvailableDomain = suggestedFullDomain,
+      ProgressiveCandidates = progressiveSubdomains
+          .Select(sub =>
+          {
+            var full = $"{sub}.{prefixLower}.morphus.me";
+            return new DomainCandidateItem
+            {
+              Subdomain = sub,
+              FullDomain = full,
+              Available = !usedFullDomains.Contains(full)
+            };
+          })
+          .ToList(),
+      CustomAttemptSubdomain = customAttemptSubdomain,
+      CustomAttemptDomain = customAttemptDomain,
+      CustomAttemptAvailable = customAttemptAvailable
+    };
+  }
+
+  public async Task<MorphusApplication> UpdateBasicSettingsAsync(Guid applicationId, UpdateApplicationBasicSettingsRequest request)
+  {
+    var existing = await applicationRepository.GetByIdAsync(applicationId)
+        ?? throw new InvalidOperationException("Aplicação não encontrada.");
+
+    if (!string.IsNullOrWhiteSpace(request.Name))
+    {
+      existing.Name = request.Name.Trim();
+    }
+
+    if (!string.IsNullOrWhiteSpace(request.DomainMode))
+    {
+      existing.DomainMode = request.DomainMode.Trim();
+    }
+
+    if (request.Subdomain is not null)
+    {
+      existing.Subdomain = SanitizeDomainLabel(request.Subdomain);
+    }
+
+    existing.CorporationDomainId = request.CorporationDomainId;
+
+    await ResolveAndValidateDomainAsync(existing);
+    await applicationRepository.UpdateNotNull(existing, updateCorporationId: false);
+    await unitOfWork.SaveChangesAsync();
+
+    return await applicationRepository.GetByIdAsync(applicationId) ?? existing;
+  }
+
   public async Task<MorphusApplication> CreateAsync(MorphusApplication application, Guid? creatorUserId = null)
   {
     if (application.Id == Guid.Empty)
       application.Id = Guid.NewGuid();
 
     await ResolveAndValidatePrefixAsync(application);
+    await ResolveAndValidateDomainAsync(application);
 
     await applicationRepository.AddAsync(application);
     await applicationRepository.EnsureInitialWorkspaceAndDashboardForNewAppAsync(application);
@@ -70,9 +243,14 @@ public class ApplicationHandler(
   public async Task<MorphusApplication> UpdateAsync(MorphusApplication application)
   {
     await ResolveAndValidatePrefixAsync(application);
+    await ResolveAndValidateDomainAsync(application);
     await applicationRepository.UpdateNotNull(application, updateCorporationId: false);
+    if (application.WorkspaceIds is not null)
+    {
+      await applicationRepository.SyncApplicationWorkspacesAsync(application.Id, application.WorkspaceIds);
+    }
     await unitOfWork.SaveChangesAsync();
-    return application;
+    return await applicationRepository.GetByIdAsync(application.Id) ?? application;
   }
 
   private async Task ResolveAndValidatePrefixAsync(MorphusApplication application)
@@ -98,6 +276,120 @@ public class ApplicationHandler(
       throw new InvalidOperationException($"A sigla '{normalizedPrefix}' já está sendo utilizada por outra aplicação nesta corporação.");
 
     application.Prefix = normalizedPrefix;
+  }
+
+  private async Task ResolveAndValidateDomainAsync(MorphusApplication application)
+  {
+    if (application.System || string.Equals(application.Prefix, "KAL", StringComparison.OrdinalIgnoreCase))
+    {
+      if (string.IsNullOrWhiteSpace(application.FullDomain))
+      {
+        var sysSub = SanitizeDomainLabel(ExtractCleanLowerWords(application.Name).FirstOrDefault() ?? "app");
+        application.DomainMode = "MorphusSuggested";
+        application.Subdomain = sysSub;
+        application.FullDomain = $"{sysSub}.{application.Prefix.ToLowerInvariant()}.morphus.me";
+      }
+      return;
+    }
+
+    var allGlobalApps = await applicationRepository.GetAllApplicationsIgnoreFiltersAsync();
+    var otherCustomerApps = allGlobalApps
+        .Where(a => a.Id != application.Id && !a.System && !string.Equals(a.Prefix, "KAL", StringComparison.OrdinalIgnoreCase))
+        .ToList();
+
+    var cleanName = (application.Name ?? string.Empty).Trim();
+    var cleanPrefix = (application.Prefix ?? string.Empty).Trim().ToUpperInvariant();
+
+    // Regra Global: Nunca uma app pode ter o mesmo nome e mesma sigla nem em clientes diferentes no ambiente compartilhado
+    var sameNameAndPrefix = otherCustomerApps.Any(a =>
+        string.Equals(a.Name?.Trim(), cleanName, StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(a.Prefix?.Trim(), cleanPrefix, StringComparison.OrdinalIgnoreCase));
+
+    if (sameNameAndPrefix)
+    {
+      throw new InvalidOperationException($"Já existe uma aplicação com o nome '{cleanName}' e a sigla '{cleanPrefix}' no ecossistema Morphus. Escolha outro nome ou outra sigla.");
+    }
+
+    var usedFullDomains = otherCustomerApps
+        .Where(a => !string.IsNullOrWhiteSpace(a.FullDomain))
+        .Select(a => a.FullDomain!.Trim().ToLowerInvariant())
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+    usedFullDomains.Add("morphus.mpx.morphus.me");
+    usedFullDomains.Add("seguranca.sec.morphus.me");
+    usedFullDomains.Add("website.web.morphus.me");
+    usedFullDomains.Add("kalupa.kal.morphus.me");
+
+    var mode = string.IsNullOrWhiteSpace(application.DomainMode) ? "MorphusSuggested" : application.DomainMode.Trim();
+    application.DomainMode = mode;
+
+    var prefixLower = cleanPrefix.ToLowerInvariant();
+
+    if ((string.Equals(mode, "CustomerOwned", StringComparison.OrdinalIgnoreCase) ||
+         string.Equals(mode, "PurchasedWithMorphus", StringComparison.OrdinalIgnoreCase)) &&
+        application.CorporationDomainId.HasValue &&
+        application.CorporationDomainId.Value != Guid.Empty)
+    {
+      var corpDomains = await applicationRepository.GetCorporationDomainsAsync();
+      var targetDomain = corpDomains.FirstOrDefault(d => d.Id == application.CorporationDomainId.Value)
+          ?? throw new InvalidOperationException("Domínio da corporação selecionado não foi encontrado.");
+
+      var sub = SanitizeDomainLabel(application.Subdomain);
+      if (string.IsNullOrWhiteSpace(sub))
+      {
+        sub = ExtractCleanLowerWords(cleanName).FirstOrDefault() ?? prefixLower;
+      }
+
+      var candidateFull = $"{sub}.{targetDomain.DomainName.Trim().ToLowerInvariant()}";
+      if (usedFullDomains.Contains(candidateFull))
+      {
+        throw new InvalidOperationException($"O endereço '{candidateFull}' já está sendo utilizado por outra aplicação. Escolha outro subdomínio.");
+      }
+
+      application.Subdomain = sub;
+      application.FullDomain = candidateFull;
+      return;
+    }
+
+    // Modo MorphusSuggested (.morphus.me)
+    application.CorporationDomainId = null;
+    var requestedSub = SanitizeDomainLabel(application.Subdomain);
+    if (string.IsNullOrWhiteSpace(requestedSub))
+    {
+      requestedSub = ExtractCleanLowerWords(cleanName).FirstOrDefault() ?? "app";
+    }
+
+    var morphusFullDomain = $"{requestedSub}.{prefixLower}.morphus.me";
+    if (usedFullDomains.Contains(morphusFullDomain))
+    {
+      throw new InvalidOperationException($"O domínio '{morphusFullDomain}' já está sendo utilizado. Escolha outro prefixo de domínio ou altere a sigla.");
+    }
+
+    application.Subdomain = requestedSub;
+    application.FullDomain = morphusFullDomain;
+  }
+
+  private static List<string> ExtractCleanLowerWords(string? text)
+  {
+    if (string.IsNullOrWhiteSpace(text))
+      return [];
+
+    return RemoveDiacritics(text)
+        .ToLowerInvariant()
+        .Split([' ', '-', '_', '.', '/'], StringSplitOptions.RemoveEmptyEntries)
+        .Select(SanitizeDomainLabel)
+        .Where(w => !string.IsNullOrWhiteSpace(w))
+        .ToList();
+  }
+
+  private static string SanitizeDomainLabel(string? raw)
+  {
+    if (string.IsNullOrWhiteSpace(raw))
+      return string.Empty;
+
+    var clean = RemoveDiacritics(raw).ToLowerInvariant();
+    var chars = clean.Where(c => (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-').ToArray();
+    return new string(chars).Trim('-');
   }
 
   private static string GenerateUniquePrefix(string name, HashSet<string> usedPrefixes)
@@ -187,4 +479,44 @@ public class ApplicationHandler(
     applicationRepository.Delete(existing);
     await unitOfWork.SaveChangesAsync();
   }
+}
+
+public sealed class ApplicationDomainPreviewRequest
+{
+  public string? Name { get; set; }
+  public string? Prefix { get; set; }
+  public string? DomainMode { get; set; }
+  public string? CustomSubdomain { get; set; }
+  public Guid? CorporationDomainId { get; set; }
+  public Guid? ExcludeApplicationId { get; set; }
+}
+
+public sealed class DomainCandidateItem
+{
+  public required string Subdomain { get; set; }
+  public required string FullDomain { get; set; }
+  public bool Available { get; set; }
+}
+
+public sealed class ApplicationDomainPreviewResponse
+{
+  public required string ResolvedPrefix { get; set; }
+  public bool NameAndPrefixConflict { get; set; }
+  public required string FirstAttemptSubdomain { get; set; }
+  public required string FirstAttemptDomain { get; set; }
+  public bool FirstAttemptAvailable { get; set; }
+  public string? SuggestedAvailableSubdomain { get; set; }
+  public string? SuggestedAvailableDomain { get; set; }
+  public List<DomainCandidateItem> ProgressiveCandidates { get; set; } = [];
+  public string? CustomAttemptSubdomain { get; set; }
+  public string? CustomAttemptDomain { get; set; }
+  public bool? CustomAttemptAvailable { get; set; }
+}
+
+public sealed class UpdateApplicationBasicSettingsRequest
+{
+  public string? Name { get; set; }
+  public string? DomainMode { get; set; }
+  public string? Subdomain { get; set; }
+  public Guid? CorporationDomainId { get; set; }
 }

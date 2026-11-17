@@ -20,15 +20,19 @@ import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
 import { formatHtmlPretty, MpxCodeEditorComponent } from '@src/components/morphus/code-editor';
 import { MpxIconSelectorComponent } from '@src/components/morphus/icon-selector';
 import {
+  ApplicationDomainPreviewResponse,
   MorphusApplication,
   MorphusApplicationModuleRef,
   MorphusApplicationSubModuleRef,
   MorphusCategoryRef,
+  MorphusCorporationDomainRef,
 } from '@morphus/entities/application';
 import { ApplicationUser } from '@morphus/entities/application-user';
+import { Workspace } from '@morphus/entities/workspace';
 import { ApplicationUserService } from '@morphus/services/application-user.service';
 import { ApplicationService } from '@morphus/services/application.service';
 import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { WorkspaceService } from '@morphus/services/workspace.service';
 import { AppBuilderRuntimeStoreService } from '@app-builder/services';
 import { User } from '@security/entities/user';
 import { ApplicationValidator } from '../validators/application.validator';
@@ -66,12 +70,14 @@ export class ApplicationEditComponent
 {
   private readonly applicationService = inject(ApplicationService);
   private readonly applicationUserService = inject(ApplicationUserService);
+  private readonly workspaceService = inject(WorkspaceService);
   private readonly context = inject(MorphusContextService);
   private readonly runtimeStore = inject(AppBuilderRuntimeStoreService);
 
   protected readonly selectedTabIndex = signal<number>(0);
   protected readonly existingApplications = signal<MorphusApplication[]>([]);
   protected readonly categories = signal<MorphusCategoryRef[]>([]);
+  protected readonly workspaces = signal<Workspace[]>([]);
   protected readonly appModules = signal<MorphusApplicationModuleRef[]>([]);
   protected readonly expandedModuleIds = signal<Set<string>>(new Set());
   protected readonly selectedModuleId = signal<string>('');
@@ -166,6 +172,26 @@ export class ApplicationEditComponent
   protected readonly initialPageHtml = signal<string>('');
   protected readonly savingPage = signal<boolean>(false);
   protected readonly prefixManuallyEdited = signal<boolean>(false);
+
+  // Estado do Modal de Confirmação e Escolha do Domínio da Aplicação
+  protected readonly domainModalOpen = signal<boolean>(false);
+  protected readonly domainPreview = signal<ApplicationDomainPreviewResponse | null>(null);
+  protected readonly corporationDomains = signal<MorphusCorporationDomainRef[]>([]);
+  protected readonly domainModeSelection = signal<
+    'MorphusShared' | 'CustomerOwned' | 'PurchasedWithMorphus'
+  >('MorphusShared');
+  protected readonly domainSubdomainSelection = signal<string>('');
+  protected readonly domainCustomPrefixOpen = signal<boolean>(false);
+  protected readonly domainCustomPrefixDraft = signal<string>('');
+  protected readonly domainSelectedCorpDomainId = signal<string>('');
+  protected readonly domainNewOwnInput = signal<string>('');
+  protected readonly domainNewPurchaseInput = signal<string>('');
+  protected readonly isSavingCorpDomainInModal = signal<boolean>(false);
+  protected readonly isConfirmingCreation = signal<boolean>(false);
+
+  protected readonly appPrefixLower = computed<string>(() =>
+    ((this.entity().prefix || 'app').trim().toLowerCase() || 'app'),
+  );
 
   protected readonly dynamicHeaderTitle = computed(() => {
     if (this.isNew) {
@@ -316,12 +342,14 @@ export class ApplicationEditComponent
 
   async loadEntity(): Promise<void> {
     try {
-      const [allApps, cats] = await Promise.all([
+      const [allApps, cats, wsList] = await Promise.all([
         firstValueFrom(this.applicationService.getList()),
         firstValueFrom(this.applicationService.getCategories()),
+        firstValueFrom(this.workspaceService.getList()),
       ]);
       this.existingApplications.set(allApps ?? []);
       this.categories.set(cats ?? []);
+      this.workspaces.set((wsList ?? []).filter((w) => !w.inactive));
     } catch {
       this.existingApplications.set([]);
     }
@@ -332,16 +360,29 @@ export class ApplicationEditComponent
       if (firstCat?.id && !this.entity().categoryId) {
         this.updateField('categoryId', firstCat.id);
       }
+      const activeWsId =
+        this.context.activeWorkspace()?.id ||
+        this.workspaces().find((w) => w.default)?.id ||
+        this.workspaces()[0]?.id;
+      if (activeWsId) {
+        this.updateField('workspaceIds', [activeWsId]);
+      }
     } else {
       const currentId = this.entity().id;
       if (currentId) {
-        let loaded = await firstValueFrom(this.applicationService.getById(currentId));
-        loaded = await this.ensureFinanceiroDefaultMenusRestoredOnceAsync(loaded);
+        const loaded = await firstValueFrom(this.applicationService.getById(currentId));
+        const loadedWsIds =
+          loaded.workspaceIds && loaded.workspaceIds.length > 0
+            ? loaded.workspaceIds
+            : (loaded.workspaceApplications ?? [])
+                .filter((wa) => !wa.inactive && !!wa.workspaceId)
+                .map((wa) => wa.workspaceId!);
         this.setEntity({
           ...loaded,
           prefix: (loaded.prefix ?? '').toUpperCase(),
           icon: loaded.icon || 'boxes',
           layoutKey: loaded.layoutKey || 'sidebar-default',
+          workspaceIds: loadedWsIds,
         });
         this.syncModulesAndDefaultPage(loaded.applicationModules ?? []);
         const queryPageId = this.activatedRoute.snapshot.queryParamMap.get('pageId');
@@ -355,231 +396,11 @@ export class ApplicationEditComponent
     }
   }
 
-  private async ensureFinanceiroDefaultMenusRestoredOnceAsync(
-    loaded: MorphusApplication,
-  ): Promise<MorphusApplication> {
-    const isFinanceiro =
-      (loaded.prefix ?? '').toUpperCase() === 'FIN' ||
-      (loaded.name ?? '').toLowerCase().includes('financeiro');
-    if (!isFinanceiro || !loaded.id) {
-      return loaded;
-    }
-    const restoreKey = 'morphus_fin_menus_restored_v1';
-    if (typeof localStorage !== 'undefined' && localStorage.getItem(restoreKey) === 'true') {
-      return loaded;
-    }
-
-    const expectedStructure: {
-      name: string;
-      label: string;
-      icon: string;
-      order: number;
-      description: string;
-      pages: {
-        name: string;
-        label: string;
-        icon: string;
-        routePattern: string;
-        default: boolean;
-        order: number;
-        description: string;
-      }[];
-    }[] = [
-      {
-        name: 'Visão Geral',
-        label: 'Visão Geral',
-        icon: 'chart-no-axes-combined',
-        order: 0,
-        description: 'Painel inicial do Morphus Financeiro',
-        pages: [
-          {
-            name: 'Dashboard',
-            label: 'Dashboard',
-            icon: 'chart-no-axes-combined',
-            routePattern: 'dashboard',
-            default: true,
-            order: 1,
-            description: 'Visão geral financeira',
-          },
-        ],
-      },
-      {
-        name: 'Contas a Pagar',
-        label: 'Contas a Pagar',
-        icon: 'wallet',
-        order: 1,
-        description: 'Controle completo de compromissos financeiros, parcelas e aprovações de pagamento',
-        pages: [
-          {
-            name: 'Títulos e Parcelas',
-            label: 'Títulos e Parcelas',
-            icon: 'receipt-text',
-            routePattern: 'titulos-e-parcelas',
-            default: false,
-            order: 1,
-            description: 'Lançamento e acompanhamento de títulos e vencimentos',
-          },
-          {
-            name: 'Aprovação de Pagamentos',
-            label: 'Aprovação de Pagamentos',
-            icon: 'circle-check',
-            routePattern: 'aprovacao-de-pagamentos',
-            default: false,
-            order: 2,
-            description: 'Alçadas e liberação de pagamentos da empresa',
-          },
-          {
-            name: 'Baixas, Juros e Multas',
-            label: 'Baixas, Juros e Multas',
-            icon: 'wallet',
-            routePattern: 'baixas-juros-e-multas',
-            default: false,
-            order: 3,
-            description: 'Liquidação parcial ou integral com cálculo automático de encargos',
-          },
-        ],
-      },
-      {
-        name: 'Contas a Receber',
-        label: 'Contas a Receber',
-        icon: 'landmark',
-        order: 2,
-        description: 'Gestão de recebíveis, cobranças e previsibilidade de entradas',
-        pages: [
-          {
-            name: 'Faturamento e Cobranças',
-            label: 'Faturamento e Cobranças',
-            icon: 'file-text',
-            routePattern: 'faturamento-e-cobrancas',
-            default: false,
-            order: 1,
-            description: 'Emissão e controle de títulos a receber',
-          },
-          {
-            name: 'Recebimentos e Baixas',
-            label: 'Recebimentos e Baixas',
-            icon: 'landmark',
-            routePattern: 'recebimentos-e-baixas',
-            default: false,
-            order: 2,
-            description: 'Confirmação de entradas e quitação de clientes',
-          },
-        ],
-      },
-      {
-        name: 'Entrada de Notas Fiscais',
-        label: 'Entrada de Notas',
-        icon: 'file-text',
-        order: 3,
-        description: 'Recebimento automatizado de XML e validação fiscal de compras',
-        pages: [
-          {
-            name: 'Importação de XML',
-            label: 'Importação de XML',
-            icon: 'upload',
-            routePattern: 'importacao-de-xml',
-            default: false,
-            order: 1,
-            description: 'Leitura automática de notas fiscais eletrônicas',
-          },
-          {
-            name: 'Natureza de Operação e Tributos',
-            label: 'Natureza e Tributos',
-            icon: 'shield-check',
-            routePattern: 'natureza-e-tributos',
-            default: false,
-            order: 2,
-            description: 'Regras fiscais e integração direta com o Contas a Pagar',
-          },
-        ],
-      },
-      {
-        name: 'Conciliação Bancária',
-        label: 'Conciliação Bancária',
-        icon: 'chart-no-axes-combined',
-        order: 4,
-        description: 'Integração de contas bancárias, extratos e fluxo de caixa em tempo real',
-        pages: [
-          {
-            name: 'Remessa e Retorno CNAB',
-            label: 'Remessa e Retorno CNAB',
-            icon: 'repeat',
-            routePattern: 'remessa-e-retorno-cnab',
-            default: false,
-            order: 1,
-            description: 'Processamento automatizado de arquivos bancários',
-          },
-          {
-            name: 'Fluxo de Caixa',
-            label: 'Fluxo de Caixa',
-            icon: 'chart-no-axes-combined',
-            routePattern: 'fluxo-de-caixa',
-            default: false,
-            order: 2,
-            description: 'Visão consolidada do previsto vs. realizado por unidade',
-          },
-        ],
-      },
-    ];
-
-    let changed = false;
-    const existingMods = loaded.applicationModules ?? [];
-
-    for (const spec of expectedStructure) {
-      let mod = existingMods.find(
-        (m) =>
-          (m.label || m.name || '').toLowerCase() === spec.label.toLowerCase() ||
-          (m.name || '').toLowerCase() === spec.name.toLowerCase(),
-      );
-      if (!mod) {
-        mod = await firstValueFrom(
-          this.applicationService.saveModule(loaded.id, {
-            name: spec.name,
-            label: spec.label,
-            icon: spec.icon,
-            order: spec.order,
-            description: spec.description,
-          }),
-        );
-        changed = true;
-      }
-
-      const existingPages = mod.applicationSubModules ?? [];
-      for (const pageSpec of spec.pages) {
-        const hasPage = existingPages.some(
-          (p) =>
-            (p.label || p.name || '').toLowerCase() === pageSpec.label.toLowerCase() ||
-            (p.routePattern || '').toLowerCase() === pageSpec.routePattern.toLowerCase(),
-        );
-        if (!hasPage && mod.id) {
-          await firstValueFrom(
-            this.applicationService.savePage(mod.id, {
-              name: pageSpec.name,
-              label: pageSpec.label,
-              icon: pageSpec.icon,
-              routePattern: pageSpec.routePattern,
-              default: pageSpec.default,
-              order: pageSpec.order,
-              description: pageSpec.description,
-              htmlContent: '',
-            }),
-          );
-          changed = true;
-        }
-      }
-    }
-
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(restoreKey, 'true');
-    }
-
-    if (changed) {
-      this.context.loadWorkspaces();
-      await new Promise((r) => setTimeout(r, 350));
-      return await firstValueFrom(this.applicationService.getById(loaded.id));
-    }
-
-    return loaded;
+  protected hasPageContent(sub: MorphusApplicationSubModuleRef): boolean {
+    const html = sub.isCustomHtml
+      ? (sub.customHtmlContent || sub.htmlContent || '')
+      : (sub.htmlContent || '');
+    return html.trim().length > 0;
   }
 
   onNameChange(name: string): void {
@@ -877,6 +698,7 @@ export class ApplicationEditComponent
       layoutKey: 'sidebar-default',
       customLayoutHtml: '',
       description: '',
+      workspaceIds: [],
     });
   }
 
@@ -887,9 +709,187 @@ export class ApplicationEditComponent
 
   async submitForm(): Promise<void> {
     if (this.isNew) {
-      await this.create();
+      await this.openDomainConfirmationModal();
     } else {
       await this.update();
+    }
+  }
+
+  protected async openDomainConfirmationModal(): Promise<void> {
+    this.domainModeSelection.set(
+      ((this.entity().domainMode as any) || 'MorphusShared') as
+        | 'MorphusShared'
+        | 'CustomerOwned'
+        | 'PurchasedWithMorphus',
+    );
+    this.domainCustomPrefixOpen.set(false);
+    this.domainSubdomainSelection.set('');
+    this.domainCustomPrefixDraft.set('');
+    try {
+      const [domains, preview] = await Promise.all([
+        firstValueFrom(this.applicationService.getCorporationDomains()),
+        firstValueFrom(
+          this.applicationService.previewDomain({
+            name: this.entity().name || '',
+            prefix: this.entity().prefix || 'APP',
+            domainMode: 'MorphusShared',
+          }),
+        ),
+      ]);
+      this.corporationDomains.set(domains ?? []);
+      if (domains && domains.length > 0 && !this.domainSelectedCorpDomainId()) {
+        this.domainSelectedCorpDomainId.set(domains[0].id || '');
+      }
+      this.domainPreview.set(preview);
+      const initialSub =
+        preview.suggestedAvailableSubdomain || preview.firstAttemptSubdomain || 'app';
+      this.domainSubdomainSelection.set(initialSub);
+      this.domainCustomPrefixDraft.set(initialSub);
+    } catch {
+      // ignore preview error
+    }
+    this.domainModalOpen.set(true);
+  }
+
+  protected closeDomainModalToEditApp(): void {
+    this.domainModalOpen.set(false);
+  }
+
+  protected async selectModalDomainMode(
+    mode: 'MorphusShared' | 'CustomerOwned' | 'PurchasedWithMorphus',
+  ): Promise<void> {
+    this.domainModeSelection.set(mode);
+    if (
+      mode !== 'MorphusShared' &&
+      !this.domainSelectedCorpDomainId() &&
+      this.corporationDomains().length > 0
+    ) {
+      this.domainSelectedCorpDomainId.set(this.corporationDomains()[0].id || '');
+    }
+    await this.refreshModalDomainPreview();
+  }
+
+  protected async refreshModalDomainPreview(): Promise<void> {
+    try {
+      const sub = this.domainCustomPrefixOpen()
+        ? this.domainCustomPrefixDraft().trim()
+        : this.domainSubdomainSelection().trim();
+      const preview = await firstValueFrom(
+        this.applicationService.previewDomain({
+          name: this.entity().name || '',
+          prefix: this.entity().prefix || 'APP',
+          domainMode: this.domainModeSelection(),
+          customSubdomain: sub || undefined,
+          corporationDomainId:
+            this.domainModeSelection() === 'MorphusShared'
+              ? null
+              : this.domainSelectedCorpDomainId() || null,
+        }),
+      );
+      this.domainPreview.set(preview);
+    } catch {
+      // ignore
+    }
+  }
+
+  protected toggleModalCustomPrefix(): void {
+    const next = !this.domainCustomPrefixOpen();
+    this.domainCustomPrefixOpen.set(next);
+    if (next && !this.domainCustomPrefixDraft()) {
+      this.domainCustomPrefixDraft.set(this.domainSubdomainSelection());
+    }
+  }
+
+  protected onModalCustomPrefixChange(val: string): void {
+    const clean = (val || '').toLowerCase().replace(/[^a-z0-9-]/g, '');
+    this.domainCustomPrefixDraft.set(clean);
+    this.domainSubdomainSelection.set(clean);
+    void this.refreshModalDomainPreview();
+  }
+
+  protected chooseModalCandidateSubdomain(sub: string): void {
+    this.domainSubdomainSelection.set(sub);
+    this.domainCustomPrefixDraft.set(sub);
+    this.domainCustomPrefixOpen.set(false);
+    void this.refreshModalDomainPreview();
+  }
+
+  protected async registerModalOwnDomain(): Promise<void> {
+    const raw = this.domainNewOwnInput().trim().toLowerCase();
+    if (!raw) {
+      return;
+    }
+    this.isSavingCorpDomainInModal.set(true);
+    try {
+      const saved = await firstValueFrom(
+        this.applicationService.saveCorporationDomain({
+          domainName: raw,
+          originType: 'CustomerOwned',
+          verificationStatus: 'PendingVerification',
+        }),
+      );
+      const list = await firstValueFrom(this.applicationService.getCorporationDomains());
+      this.corporationDomains.set(list ?? []);
+      if (saved?.id) {
+        this.domainSelectedCorpDomainId.set(saved.id);
+      }
+      this.domainNewOwnInput.set('');
+      await this.refreshModalDomainPreview();
+    } finally {
+      this.isSavingCorpDomainInModal.set(false);
+    }
+  }
+
+  protected async purchaseModalDomainWithMorphus(): Promise<void> {
+    const raw = this.domainNewPurchaseInput().trim().toLowerCase();
+    if (!raw) {
+      return;
+    }
+    this.isSavingCorpDomainInModal.set(true);
+    try {
+      const saved = await firstValueFrom(
+        this.applicationService.saveCorporationDomain({
+          domainName: raw,
+          originType: 'PurchasedWithMorphus',
+          verificationStatus: 'Verified',
+        }),
+      );
+      const list = await firstValueFrom(this.applicationService.getCorporationDomains());
+      this.corporationDomains.set(list ?? []);
+      if (saved?.id) {
+        this.domainSelectedCorpDomainId.set(saved.id);
+      }
+      this.domainNewPurchaseInput.set('');
+      await this.refreshModalDomainPreview();
+    } finally {
+      this.isSavingCorpDomainInModal.set(false);
+    }
+  }
+
+  protected async confirmDomainAndCreate(): Promise<void> {
+    const mode = this.domainModeSelection();
+    const chosenSub = this.domainCustomPrefixOpen()
+      ? this.domainCustomPrefixDraft().trim()
+      : this.domainSubdomainSelection().trim() ||
+        this.domainPreview()?.suggestedAvailableSubdomain ||
+        this.domainPreview()?.firstAttemptSubdomain ||
+        '';
+    this.updateField('domainMode', mode);
+    this.updateField('subdomain', chosenSub);
+    this.updateField(
+      'corporationDomainId',
+      mode === 'MorphusShared' ? null : this.domainSelectedCorpDomainId() || null,
+    );
+    this.isConfirmingCreation.set(true);
+    try {
+      await this.create();
+      this.domainModalOpen.set(false);
+    } catch (err: any) {
+      this.messageService.showError(
+        err?.error?.message || 'Não foi possível criar a aplicação com este domínio.',
+      );
+    } finally {
+      this.isConfirmingCreation.set(false);
     }
   }
 
@@ -899,7 +899,7 @@ export class ApplicationEditComponent
     );
     this.context.loadWorkspaces();
     this.messageService.showSuccess(
-      `A aplicação "${created.name}" foi criada! Agora estruture suas páginas e HTML.`,
+      `A aplicação "${created.name}" foi criada com o domínio ${created.fullDomain || ''}!`,
     );
     if (created.id) {
       void this.router.navigate(['/morphus/application', created.id], {

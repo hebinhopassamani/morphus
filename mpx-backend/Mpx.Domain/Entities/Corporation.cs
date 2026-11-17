@@ -22,6 +22,9 @@ public class Corporation : MorphusEntity
   public virtual ICollection<ApplicationStatus> ApplicationStatuses { get; set; } = [];
   public virtual ICollection<ApplicationModule> ApplicationModules { get; set; } = [];
   public virtual ICollection<ApplicationSubModule> ApplicationSubModules { get; set; } = [];
+  public virtual ICollection<ApplicationSetting> ApplicationSettings { get; set; } = [];
+  public virtual ICollection<CorporationDomain> CorporationDomains { get; set; } = [];
+  public virtual ICollection<CorporationDomainRecord> CorporationDomainRecords { get; set; } = [];
   public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; } = [];
   public virtual ICollection<User> Users { get; set; } = [];
   public virtual ICollection<CorporationUser> CorporationUsers { get; set; } = [];

@@ -198,13 +198,50 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
 - **Roteamento Dinâmico & Domínios Customizados Cadastráveis no Caddy (`Caddy Admin API` + `On-Demand TLS`)**:
   - Como o Caddy é 100% controlado por API JSON em tempo real (`http://localhost:2019/config/...`) sem precisar reiniciar o servidor e possui **On-Demand TLS** (com endpoint `ask` batendo na API C# do Morphus para validar se o domínio/subdomínio está cadastrado e ativo no PostgreSQL), os próprios clientes/corporações poderão **cadastrar seus domínios/subdomínios e rotas no painel do Morphus** e o back-end C# injeta/atualiza as rotas e certificados SSL (Let's Encrypt) no Caddy automaticamente em tempo real!
 
-## 7. Padronização Universal de Nomenclatura de Classes e Componentes (`Prefixo Mpx*` — Estilo Angular Material `Mat*`)
-- **Conceito**: Unificar 100% das classes base, layouts, entidades de infraestrutura e componentes do ecossistema sob o prefixo curto **`Mpx`** e sempre em inglês (seguindo exatamente o padrão consagrado do Angular Material `MatButton`, `MatIcon`, `MatDialog` e já alinhado aos projetos `Mpx.Api`, `Mpx.Domain`, `Mpx.Application`, `Mpx.Infrastructure` e `mpx-*`):
+- **Componente Único de Expressão / Valor Dinâmico (`MpxExpressionBind` / Ícone `fx`)**:
+  - Construir como **um único componente reutilizável** que abre ao ser clicado e concentra sempre as mesmas opções de origem dinâmica:
+    1. Cálculo / Combinação de fatores;
+    2. Consulta em tabela do banco de dados (ex.: versão da aplicação, parâmetros);
+    3. Consulta vinda de um Endpoint (configurando se a busca ocorre naquele exato momento em tempo real ou no início de cada dia / cacheada);
+    4. Expressão Regular (Regex);
+    5. Referência baseada em outra variável da mesma aplicação ou de outro projeto/aplicação da corporação (ex.: `kalupa.doc.name` ou `financeiro.moeda.dolar`).
+  - Ao salvar, o componente simplesmente aponta/vincula a definição gerada para o campo, atributo, propriedade ou configuração que o chamou (podendo ser plugado depois em qualquer lugar — desde variáveis e configurações até Nome da Aplicação ou Domínio).
+
+- **Tabela de Códigos de Erro (`ERxxxxx`), Log Estruturado e Fluxo de Suporte por Complexidade no `Morphus Flow`**:
+  - Sempre que ocorrer uma mensagem com `severity = error`, exibir ao usuário a mensagem amigável com o código catalogado:
+    > *"Ops, ocorreu um pequeno problema na sua solicitação, tente novamente mais tarde. Se persistir o problema, clique aqui que o código **ER49587** será enviado para nossa equipe, saberemos onde ocorreu e que foi com você, resolveremos imediatamente e assim que ele for resolvido notificaremos você."*
+  - Ao acionar o envio, o sistema dispara um fluxo nativo no **`Morphus Flow`** encapsulando 4 objetos:
+    1. Objeto **Código de Erro** (`ER49587` + classificação de complexidade);
+    2. Objeto **Usuário Logado** (usuário, corporação, workspace);
+    3. Objeto **Página / Contexto de UI** (rota, tela, componente onde ocorreu);
+    4. Objeto **Erro Técnico Real** (exception, payload, stack trace, timestamp).
+  - De acordo com a **complexidade classificada no código de erro**, o fluxo roteia automaticamente para a fila correta: **Equipe Júnior** ➔ **Equipe Pleno** ➔ **Equipe Sênior** ➔ **Monstros da Correção de Erros**, e notifica o usuário assim que o fluxo é concluído/resolvido.
+
+## 7. Padronização Universal de Nomenclatura de Classes, Componentes (`Prefixo Mpx*`) e Casca de Páginas (`MpxPage*`)
+- **Conceito de Prefixo `Mpx*` (Estilo Angular Material `Mat*`)**: Unificar 100% das classes base, layouts, entidades de infraestrutura e componentes do ecossistema sob o prefixo curto **`Mpx`** e sempre em inglês:
   - `MorphusComponent` -> `MpxComponent`
   - `MorphusEditComponent` -> `MpxEditComponent`
   - `MorphusWorkspaceLayout` -> `MpxWorkspaceLayout`
   - `Email` / `EmailHandler` -> `MpxMail` / `MpxMailHandler`
   - `MorphusController` / `MorphusHandler` / `MorphusValidator` -> `MpxController` / `MpxHandler` / `MpxValidator`
+- **Arquitetura de Casca de Páginas e Componentes Base (`MpxPage*` — Referência Completa em `H:\Meu Drive\PROJETOS\BACKUPS ANTIGOS\Morphus__\morphus-ng-master\projects\morphus` e `projects\morphus-material\src\lib\mps-page`)**:
+  - **Camada TS (`projects\morphus\src\lib\components\morphus-components`)**:
+    - `MorphusComponent` (base com `menuItems`, `addMenuItem()`, `addExistingMenuItem()`, `navigateBack()`, `getMessage()`);
+    - `MpsListComponent` (já nasce com `menuItems = [FILTER, BACK, CREATE]`);
+    - `MpsEditComponent` (já nasce com `menuItems = [CANCEL, SAVE]`);
+    - `MpsDetailComponent` (já nasce com `menuItems = [EDIT, CREATE, BACK, DELETE]`);
+    - `MorphusNxNComponent` (já nasce com `menuItems = [BACK, LIST]` + `relate()` / `unRelate()` controlado por `ENTITY_STATE`);
+    - `MpsChilEditComponent` (edição de entidade filha).
+  - **Camada Visual (`projects\morphus-material\src\lib\mps-page`)**:
+    1. `<mpx-page>` (`mps-page`)
+    2. `<mpx-page-header>` (`page-header`)
+    3. `<mpx-page-icon>` (`page-icon` — botão `arrow_back` + ícone da página antes do título)
+    4. `<mpx-page-title>` + `<mpx-page-sub-title>` (`page-title` + `page-sub-title`)
+    5. `<mpx-page-filter>` + `<mpx-page-menu>` (`page-filter` + `page-menu` conectado ao `menuItems` da classe base)
+    6. `<mpx-page-content>` + `<mpx-page-content-loading>` (`page-content` + `page-content-loading`)
+    7. `<mpx-page-footer>` + `<mpx-page-footer-buttons>` (`page-footer` + `page-footer-buttons` com `(back)` e `(done)`)
+    8. `<mpx-page-float-button>` (`page-float-button`)
+  - Qualquer mudança de aparência, fonte, borda no `MpxPageContent`, ícone antes do título no `MpxPageHeader` ou ação global (como o botão **"Retornar ao Portal"**) é feita **em um único lugar** e reflete em 100% das telas do sistema.
 - **Momento de Execução**: Anotado no roadmap para uma rodada dedicada e controlada de refatoração estrutural (sem interromper a entrega funcional da Fase 1), aplicando já o prefixo `Mpx*` nos componentes novos que forem nascendo.
 
 

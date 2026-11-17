@@ -247,7 +247,8 @@ export class MpxAuth {
       if (parsed?.accessToken?.value) {
         const nowSeconds = Math.floor(Date.now() / 1000);
         const accessExp = parsed.accessToken.expirationTime ?? 0;
-        if (accessExp <= nowSeconds) {
+        const refreshExp = parsed.refreshToken?.expirationTime ?? accessExp;
+        if (refreshExp <= nowSeconds) {
           this.localStorage.removeItem(MORPHUS_SESSION_STORAGE_KEY);
           this.sessionState.set(null);
           return null;

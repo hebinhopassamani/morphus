@@ -59,6 +59,8 @@ public class OnboardingStateResponse
 {
   public Guid UserId { get; set; }
   public string? UserName { get; set; }
+  public string? UserFirstName { get; set; }
+  public string? UserLastName { get; set; }
   public string? UserNickName { get; set; }
   public string? UserEmail { get; set; }
   public bool EmailConfirmed { get; set; }
@@ -80,6 +82,8 @@ public class ConfirmEmailRequest
 public class OnboardingCorporationStepRequest
 {
   public string? UserName { get; set; }
+  public string? UserFirstName { get; set; }
+  public string? UserLastName { get; set; }
   public string? UserNickName { get; set; }
   public required string CorporationName { get; set; }
 }
@@ -87,6 +91,8 @@ public class OnboardingCorporationStepRequest
 public class UpdateUserProfileRequest
 {
   public string? Name { get; set; }
+  public string? FirstName { get; set; }
+  public string? LastName { get; set; }
   public string? NickName { get; set; }
   public string? PhoneNumber { get; set; }
   public string? Website { get; set; }

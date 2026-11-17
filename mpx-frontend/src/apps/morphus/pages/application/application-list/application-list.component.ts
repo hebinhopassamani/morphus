@@ -75,11 +75,22 @@ export class ApplicationListComponent
     this.setList(searched);
   }
 
+  isNativeApp(entity: MorphusApplication): boolean {
+    return this.context.isNativeMorphusApp(entity);
+  }
+
   newEntity(): void {
     void this.router.navigate(['new'], { relativeTo: this.activatedRoute });
   }
 
   editEntity(entity: MorphusApplication): void {
+    if (this.isNativeApp(entity)) {
+      const code = (entity.prefix || entity.key || '').trim();
+      if (code) {
+        void this.router.navigate(['/app', code, 'settings']);
+      }
+      return;
+    }
     void this.router.navigate([entity.id], { relativeTo: this.activatedRoute });
   }
 

@@ -5,6 +5,8 @@ namespace Mpx.Domain.Entities;
 public class User : MorphusEntity
 {
   public required string? Name { get; set; }
+  public string? FirstName { get; set; }
+  public string? LastName { get; set; }
   public required string? Email { get; set; }
   public bool EmailConfirmed { get; set; }
   public bool PhoneConfirmed { get; set; }

@@ -1,4 +1,4 @@
-@if (auth.isAuthenticated() && !showMarketingPreview()) {
+@if (auth.isAuthenticated() && !auth.needsOnboarding() && !showMarketingPreview()) {
   <!-- ========================================================================= -->
   <!-- MODO LOGADO: PORTAL CENTRAL DO ECOSSISTEMA MORPHUS (APPS, WORKSPACES, CORPS) -->
   <!-- ========================================================================= -->

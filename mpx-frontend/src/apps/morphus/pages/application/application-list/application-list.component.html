@@ -65,11 +65,11 @@
             <div class="inline-flex items-center gap-x-1.5">
               <div
                 class="size-1.5 rounded-full"
-                [class.bg-primary-9]="row.system"
-                [class.bg-jade-9]="!row.system"
+                [class.bg-primary-9]="isNativeApp(row)"
+                [class.bg-jade-9]="!isNativeApp(row)"
               ></div>
               <span class="mpx-body-small text-neutral-11">
-                {{ row.system ? 'Nativa' : 'Customizada' }}
+                {{ isNativeApp(row) ? 'Nativa' : 'Customizada' }}
               </span>
             </div>
           </td>
@@ -82,7 +82,11 @@
               <mat-icon svgIcon="ellipsis-vertical" />
             </button>
             <mat-menu xPosition="before" #rowMenu="matMenu">
-              <button mat-menu-item (click)="editEntity(row)">
+              <button
+                mat-menu-item
+                [disabled]="isNativeApp(row)"
+                (click)="editEntity(row)"
+              >
                 <mat-icon svgIcon="square-pen" />
                 <span>Editar aplicação</span>
               </button>
@@ -90,7 +94,7 @@
               <button
                 mat-menu-item
                 class="text-red-a11 hover:bg-red-a3"
-                [disabled]="row.system"
+                [disabled]="isNativeApp(row)"
                 (click)="deleteEntity(row)"
               >
                 <mat-icon svgIcon="trash" class="text-red-a11" />

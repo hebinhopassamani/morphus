@@ -1,0 +1,779 @@
+<div class="mx-auto flex w-full max-w-5xl flex-col gap-6">
+  <!-- Cabeçalho Dinâmico da Página de Opções + Botão Editar Aplicação -->
+  <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xs dark:bg-neutral-2">
+    <div class="flex items-center gap-3.5">
+      <div class="flex size-12 items-center justify-center rounded-xl bg-primary-a3 text-primary-a11">
+        <mat-icon class="size-6" svgIcon="settings" />
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-xl font-bold text-neutral-12">
+            Opções — {{ activeApp()?.name || 'Aplicação' }}
+          </h1>
+          @if (activeApp()?.prefix) {
+            <span class="rounded-md bg-neutral-a3 px-2 py-0.5 font-mono text-xs font-bold text-neutral-12">
+              {{ activeApp()!.prefix }}
+            </span>
+          }
+        </div>
+        <p class="mt-0.5 text-sm text-neutral-a11">
+          {{
+            isNativeMorphusApp()
+              ? 'Consulte as especificações e gerencie as variáveis de ambiente desta aplicação.'
+              : 'Configure o nome, o domínio de acesso e as variáveis globais desta aplicação.'
+          }}
+        </p>
+      </div>
+    </div>
+
+    @if (!isNativeMorphusApp()) {
+      <div class="flex items-center gap-2.5">
+        <button
+          matButton
+          type="button"
+          class="primary"
+          (click)="openAppEditor()"
+        >
+          <mat-icon svgIcon="pencil" />
+          Editar Aplicação
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- Abas no padrão oficial <mat-tab-group> -->
+  <mat-tab-group>
+    @if (!isNativeMorphusApp()) {
+      <mat-tab label="Dados da Aplicação">
+        <!-- ABA 1: NOME DA APLICAÇÃO E DOMÍNIO DA APLICAÇÃO -->
+        <div class="mt-6 flex flex-col gap-6 rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xs dark:bg-neutral-2">
+      <!-- 1. Nome da Aplicação -->
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div class="md:col-span-2">
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-a11">
+            Nome da Aplicação
+          </label>
+          <input
+            type="text"
+            maxlength="100"
+            [disabled]="isNativeMorphusApp()"
+            [ngModel]="appNameDraft()"
+            (ngModelChange)="onAppNameChange($event)"
+            placeholder="Ex: Herbios Finanças"
+            class="mt-1.5 h-11 w-full rounded-xl border border-neutral-a5 bg-transparent px-3.5 text-sm font-medium text-neutral-12 outline-none focus:border-primary-8 disabled:cursor-not-allowed disabled:border-neutral-a4 disabled:bg-neutral-a2 disabled:text-neutral-a11"
+          />
+          <p class="mt-1 text-xs text-neutral-a10">
+            {{
+              isNativeMorphusApp()
+                ? 'Aplicação oficial nativa da plataforma Morphus (nome fixo).'
+                : 'Altera o nome exibido nos menus e cabeçalhos sem alterar o ID nem a sigla da aplicação.'
+            }}
+          </p>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-a11">
+            Sigla Oficial (Fixa)
+          </label>
+          <input
+            type="text"
+            disabled
+            [value]="(activeApp()?.prefix || 'APP').toUpperCase()"
+            class="mt-1.5 h-11 w-full cursor-not-allowed rounded-xl border border-neutral-a4 bg-neutral-a2 px-3.5 font-mono text-sm font-bold uppercase text-neutral-a11"
+          />
+          <p class="mt-1 text-xs text-neutral-a10">
+            Código único da aplicação no ecossistema.
+          </p>
+        </div>
+      </div>
+
+      <div class="h-px w-full bg-neutral-a4"></div>
+
+      <!-- 2. Domínio da Aplicação -->
+      @if (isNativeMorphusApp()) {
+        <div class="flex flex-col gap-3">
+          <div>
+            <h2 class="text-base font-bold text-neutral-12">Domínio da Aplicação</h2>
+            <p class="text-xs text-neutral-a11">
+              Aplicações nativas do ecossistema Morphus utilizam endereço único global sem sigla intermediária. O contexto do cliente é resolvido automaticamente pela autenticação.
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-a4 bg-neutral-a2 p-4">
+            <div>
+              <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-a10">
+                Domínio Oficial da Aplicação Nativa:
+              </span>
+              <div class="mt-1 flex items-center gap-2.5 font-mono text-base font-bold text-neutral-12">
+                <span>{{ nativeMorphusDomain() }}</span>
+                <span class="rounded-md bg-primary-a3 px-2 py-0.5 font-sans text-xs font-semibold text-primary-11">
+                  Nativo Morphus · Bloqueado
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="flex flex-col gap-4">
+          <div>
+            <h2 class="text-base font-bold text-neutral-12">Domínio da Aplicação</h2>
+            <p class="text-xs text-neutral-a11">
+              Escolha como os usuários acessarão esta aplicação na web. Você está sempre no comando do endereço final.
+            </p>
+          </div>
+
+        <!-- 3 Opções de Modo de Domínio -->
+        <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+          <button
+            type="button"
+            class="flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition"
+            [class.border-primary-8]="domainModeDraft() === 'MorphusShared'"
+            [class.bg-primary-a2]="domainModeDraft() === 'MorphusShared'"
+            [class.border-neutral-a4]="domainModeDraft() !== 'MorphusShared'"
+            (click)="selectDomainMode('MorphusShared')"
+          >
+            <span class="text-xs font-bold uppercase tracking-wider text-primary-11">
+              Opção 1 · Gratuito
+            </span>
+            <span class="text-sm font-bold text-neutral-12">
+              Domínio Morphus (morphus.me)
+            </span>
+            <span class="text-xs text-neutral-a11">
+              Subdomínio imediato no formato <code class="font-mono">nome.{{ appPrefixLower() }}.morphus.me</code>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition"
+            [class.border-primary-8]="domainModeDraft() === 'CustomerOwned'"
+            [class.bg-primary-a2]="domainModeDraft() === 'CustomerOwned'"
+            [class.border-neutral-a4]="domainModeDraft() !== 'CustomerOwned'"
+            (click)="selectDomainMode('CustomerOwned')"
+          >
+            <span class="text-xs font-bold uppercase tracking-wider text-primary-11">
+              Opção 2 · Domínio Próprio
+            </span>
+            <span class="text-sm font-bold text-neutral-12">
+              Tenho meu próprio domínio
+            </span>
+            <span class="text-xs text-neutral-a11">
+              Conecte um domínio que sua empresa já possui (ex: <code class="font-mono">suaempresa.com</code>)
+            </span>
+          </button>
+
+          <button
+            type="button"
+            class="flex flex-col items-start gap-1 rounded-xl border p-4 text-left transition"
+            [class.border-primary-8]="domainModeDraft() === 'PurchasedWithMorphus'"
+            [class.bg-primary-a2]="domainModeDraft() === 'PurchasedWithMorphus'"
+            [class.border-neutral-a4]="domainModeDraft() !== 'PurchasedWithMorphus'"
+            (click)="selectDomainMode('PurchasedWithMorphus')"
+          >
+            <span class="text-xs font-bold uppercase tracking-wider text-primary-11">
+              Opção 3 · Novo Domínio
+            </span>
+            <span class="text-sm font-bold text-neutral-12">
+              Quero comprar um domínio
+            </span>
+            <span class="text-xs text-neutral-a11">
+              Escolha um domínio exclusivo para sua corporação já verificado pelo Morphus
+            </span>
+          </button>
+        </div>
+
+        <!-- DETALHES DA OPÇÃO 1: MORPHUS.ME -->
+        @if (domainModeDraft() === 'MorphusShared') {
+          @let preview = domainPreview();
+          <div class="flex flex-col gap-4 rounded-2xl border border-primary-a5 bg-primary-a2/30 p-5">
+            @if (preview && !preview.firstAttemptAvailable && !customMorphusPrefixOpen()) {
+              <!-- Alerta quando o 1º nome já está ocupado -->
+              <div class="rounded-xl border border-amber-a6 bg-amber-a2 p-4 text-xs text-amber-12">
+                <p class="font-bold text-sm">
+                  Atenção sobre a disponibilidade do domínio:
+                </p>
+                <p class="mt-1 leading-relaxed">
+                  Da forma que configurou sua aplicação, escolhendo o domínio <strong class="font-mono">morphus.me</strong> com o nome
+                  <strong>{{ appNameDraft() }}</strong> e a sigla <strong>{{ (activeApp()?.prefix || '').toUpperCase() }}</strong>,
+                  o domínio inicial <strong class="font-mono underline">{{ preview.firstAttemptDomain }}</strong> já está sendo utilizado.
+                </p>
+                @if (preview.suggestedAvailableDomain) {
+                  <p class="mt-2 font-semibold text-jade-11">
+                    Mas você pode usar este domínio que está livre:
+                    <strong class="font-mono underline">{{ preview.suggestedAvailableDomain }}</strong>
+                  </p>
+                }
+              </div>
+            }
+
+            <!-- Caixa Principal de Confirmação / Comando do Usuário -->
+            <div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-neutral-a4 bg-white p-4 dark:bg-neutral-2">
+              <div>
+                <span class="text-[11px] font-semibold uppercase tracking-wider text-neutral-a10">
+                  O domínio da sua aplicação será:
+                </span>
+                <div class="mt-1 flex items-center gap-2 font-mono text-base font-bold text-primary-11">
+                  <span>
+                    {{
+                      (subdomainDraft() ||
+                        preview?.suggestedAvailableSubdomain ||
+                        preview?.firstAttemptSubdomain ||
+                        'app') +
+                        '.' +
+                        appPrefixLower() +
+                        '.morphus.me'
+                    }}
+                  </span>
+                  @if (preview?.customAttemptAvailable === false) {
+                    <span class="rounded-md bg-red-a3 px-2 py-0.5 font-sans text-xs font-semibold text-red-11">
+                      Já em uso
+                    </span>
+                  } @else {
+                    <span class="rounded-md bg-jade-a3 px-2 py-0.5 font-sans text-xs font-semibold text-jade-11">
+                      Disponível
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <button
+                  matButton="outlined"
+                  type="button"
+                  class="small"
+                  (click)="toggleCustomMorphusPrefix()"
+                >
+                  <mat-icon svgIcon="pencil" />
+                  {{
+                    customMorphusPrefixOpen()
+                      ? 'Fechar edição manual'
+                      : 'Quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.me'
+                  }}
+                </button>
+              </div>
+            </div>
+
+            <!-- Campo para o usuário digitar livremente o que vem antes de .sigla.morphus.me -->
+            @if (customMorphusPrefixOpen()) {
+              <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-white p-4 dark:bg-neutral-2">
+                <label class="text-xs font-semibold text-neutral-12">
+                  Digite livremente o prefixo antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.me</code> (o que não pode mudar é apenas <code class="font-mono">morphus.me</code>):
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="text"
+                    [ngModel]="customMorphusPrefixDraft()"
+                    (ngModelChange)="onCustomMorphusPrefixInput($event)"
+                    placeholder="ex: meuprefixo"
+                    class="h-10 w-64 rounded-xl border border-primary-8 bg-transparent px-3 font-mono text-sm font-bold text-neutral-12 outline-none"
+                  />
+                  <span class="font-mono text-sm font-semibold text-neutral-a11">
+                    .{{ appPrefixLower() }}.morphus.me
+                  </span>
+                </div>
+              </div>
+            }
+
+            <!-- Sugestões Progressivas a partir das palavras do nome da Aplicação -->
+            @if (preview?.progressiveCandidates?.length) {
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-medium text-neutral-a11">
+                  Sugestões baseadas no nome da aplicação:
+                </span>
+                @for (cand of preview!.progressiveCandidates; track cand.fullDomain) {
+                  <button
+                    type="button"
+                    [disabled]="!cand.available"
+                    (click)="applySuggestedSubdomain(cand.subdomain)"
+                    class="inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 font-mono text-xs transition"
+                    [class.border-primary-8]="subdomainDraft() === cand.subdomain"
+                    [class.bg-primary-a3]="subdomainDraft() === cand.subdomain"
+                    [class.border-neutral-a4]="subdomainDraft() !== cand.subdomain"
+                    [class.opacity-50]="!cand.available"
+                  >
+                    <span>{{ cand.fullDomain }}</span>
+                    <span
+                      class="rounded px-1 font-sans text-[10px]"
+                      [class.bg-jade-a3]="cand.available"
+                      [class.text-jade-11]="cand.available"
+                      [class.bg-red-a3]="!cand.available"
+                      [class.text-red-11]="!cand.available"
+                    >
+                      {{ cand.available ? 'Livre' : 'Em uso' }}
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- DETALHES DA OPÇÃO 2: TENHO MEU PRÓPRIO DOMÍNIO -->
+        @if (domainModeDraft() === 'CustomerOwned') {
+          <div class="flex flex-col gap-4 rounded-2xl border border-neutral-a4 bg-neutral-a2/40 p-5">
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-semibold text-neutral-12">
+                Cadastrar domínio próprio da sua empresa (entrará com status "Em verificação"):
+              </label>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-sm font-medium text-neutral-a11">Meu domínio é:</span>
+                <input
+                  type="text"
+                  [ngModel]="newOwnDomainInput()"
+                  (ngModelChange)="newOwnDomainInput.set($event)"
+                  placeholder="ex: taltaltal.com"
+                  class="h-10 w-72 rounded-xl border border-neutral-a5 bg-white px-3.5 font-mono text-sm text-neutral-12 outline-none focus:border-primary-8 dark:bg-neutral-2"
+                />
+                <button
+                  matButton
+                  type="button"
+                  class="primary small"
+                  [disabled]="!newOwnDomainInput().trim() || isSavingCorpDomain()"
+                  (click)="registerOwnDomain()"
+                >
+                  <mat-icon svgIcon="plus" />
+                  Adicionar Domínio
+                </button>
+              </div>
+            </div>
+
+            @if (corporationDomains().length > 0) {
+              <div class="flex flex-col gap-2 border-t border-neutral-a4 pt-4">
+                <label class="text-xs font-semibold text-neutral-12">
+                  Monte o endereço da aplicação usando um domínio da sua corporação:
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="text"
+                    [ngModel]="subdomainDraft()"
+                    (ngModelChange)="subdomainDraft.set($event); refreshDomainPreview()"
+                    placeholder="subdomínio (ex: financas)"
+                    class="h-10 w-52 rounded-xl border border-neutral-a5 bg-white px-3 font-mono text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                  />
+                  <span class="font-mono text-base font-bold text-neutral-12">.</span>
+                  <select
+                    [ngModel]="selectedCorpDomainId()"
+                    (ngModelChange)="selectedCorpDomainId.set($event); refreshDomainPreview()"
+                    class="h-10 rounded-xl border border-neutral-a5 bg-white px-3 font-mono text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                  >
+                    @for (d of corporationDomains(); track d.id) {
+                      <option [value]="d.id">
+                        {{ d.domainName }} ({{ d.verificationStatus === 'Verified' ? 'Verificado' : 'Em verificação' }})
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        <!-- DETALHES DA OPÇÃO 3: QUERO COMPRAR UM DOMÍNIO -->
+        @if (domainModeDraft() === 'PurchasedWithMorphus') {
+          <div class="flex flex-col gap-4 rounded-2xl border border-neutral-a4 bg-neutral-a2/40 p-5">
+            <div class="flex flex-col gap-2">
+              <label class="text-xs font-semibold text-neutral-12">
+                Digite o domínio que deseja adquirir conosco (nasce verificado imediatamente para seus testes):
+              </label>
+              <div class="flex flex-wrap items-center gap-2">
+                <input
+                  type="text"
+                  [ngModel]="newPurchaseDomainInput()"
+                  (ngModelChange)="newPurchaseDomainInput.set($event)"
+                  placeholder="ex: herbios.net"
+                  class="h-10 w-72 rounded-xl border border-neutral-a5 bg-white px-3.5 font-mono text-sm text-neutral-12 outline-none focus:border-primary-8 dark:bg-neutral-2"
+                />
+                <button
+                  matButton
+                  type="button"
+                  class="primary small"
+                  [disabled]="!newPurchaseDomainInput().trim() || isSavingCorpDomain()"
+                  (click)="purchaseDomainWithMorphus()"
+                >
+                  <mat-icon svgIcon="check" />
+                  Selecionar e Registrar Domínio
+                </button>
+              </div>
+            </div>
+
+            @if (corporationDomains().length > 0) {
+              <div class="flex flex-col gap-2 border-t border-neutral-a4 pt-4">
+                <label class="text-xs font-semibold text-neutral-12">
+                  Defina o subdomínio e selecione o domínio da corporação:
+                </label>
+                <div class="flex flex-wrap items-center gap-2">
+                  <input
+                    type="text"
+                    [ngModel]="subdomainDraft()"
+                    (ngModelChange)="subdomainDraft.set($event); refreshDomainPreview()"
+                    placeholder="subdomínio (ex: financas)"
+                    class="h-10 w-52 rounded-xl border border-neutral-a5 bg-white px-3 font-mono text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                  />
+                  <span class="font-mono text-base font-bold text-neutral-12">.</span>
+                  <select
+                    [ngModel]="selectedCorpDomainId()"
+                    (ngModelChange)="selectedCorpDomainId.set($event); refreshDomainPreview()"
+                    class="h-10 rounded-xl border border-neutral-a5 bg-white px-3 font-mono text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                  >
+                    @for (d of corporationDomains(); track d.id) {
+                      <option [value]="d.id">
+                        {{ d.domainName }} ({{ d.verificationStatus === 'Verified' ? 'Verificado' : 'Em verificação' }})
+                      </option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+          </div>
+        }
+        </div>
+
+        <div class="flex justify-end border-t border-neutral-a4 pt-4">
+          <button
+            matButton
+            type="button"
+            class="primary"
+            [disabled]="isSaving()"
+            (click)="saveGeneralSettings()"
+          >
+            <mat-icon svgIcon="check" />
+            {{ isSaving() ? 'Salvando...' : 'Salvar Nome e Domínio da Aplicação' }}
+          </button>
+        </div>
+      }
+        </div>
+      </mat-tab>
+    }
+
+    <mat-tab
+      [label]="
+        isNativeMorphusApp()
+          ? 'Configurações'
+          : 'Defina as configurações que sua aplicação vai aceitar'
+      "
+    >
+      <!-- ABA 2: VARIÁVEIS DE AMBIENTE & APPLICATION SETTINGS -->
+      <div class="mt-6 flex flex-col gap-6 rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xs dark:bg-neutral-2">
+      <div>
+        <h2 class="text-base font-bold text-neutral-12">
+          Especificações da Aplicação
+        </h2>
+        <p class="text-xs text-neutral-a11">
+          Identificadores e propriedades padrão definidas pelo sistema.
+        </p>
+
+        <div class="mt-3 divide-y divide-neutral-a3 overflow-hidden rounded-xl border border-neutral-a4 bg-neutral-a1/30">
+          @for (sys of systemLockedSettings(); track sys.settingKey) {
+            <div class="grid grid-cols-1 gap-1 px-4 py-2.5 text-xs sm:grid-cols-[220px_1fr] sm:items-center">
+              <span class="font-semibold text-neutral-12">{{ sys.label }}</span>
+              <span class="font-mono text-neutral-a11 select-all">{{ sys.value }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (!isNativeMorphusApp()) {
+        <div class="h-px w-full bg-neutral-a4"></div>
+
+        <!-- Criador de Novas Opções / Variáveis da Aplicação (Exclusivo para Aplicações Customizadas) -->
+        <div class="flex flex-col gap-4">
+          <div>
+            <h2 class="text-base font-bold text-neutral-12">
+              Criar Opção / Configuração da Aplicação
+            </h2>
+            <p class="text-xs text-neutral-a11">
+              Ex.: "Usar a moeda principal como U$ dólar" (Sim/Não, valor fixo ou alimentado por um endpoint externo em tempo real ou 1x ao dia).
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 rounded-xl border border-neutral-a4 bg-neutral-a2/30 p-4 md:grid-cols-12">
+            <div class="md:col-span-6">
+              <label class="text-xs font-semibold text-neutral-12">Nome da Opção</label>
+              <input
+                type="text"
+                [ngModel]="newSettingLabel()"
+                (ngModelChange)="onNewSettingLabelChange($event)"
+                placeholder="Ex: Usar a moeda principal como U$ dólar"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              />
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="text-xs font-semibold text-neutral-12">Tipo</label>
+              <select
+                [ngModel]="newSettingType()"
+                (ngModelChange)="onNewSettingTypeChange($event)"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-2.5 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              >
+                <option value="boolean">Sim / Não</option>
+                <option value="currency">Moeda / Cotação</option>
+                <option value="string">Texto</option>
+                <option value="number">Número</option>
+                <option value="endpoint">Endpoint API</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="text-xs font-semibold text-neutral-12">Atualização</label>
+              <select
+                [ngModel]="newSettingRefreshPolicy()"
+                (ngModelChange)="newSettingRefreshPolicy.set($event)"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-2.5 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              >
+                <option value="manual">Fixo / Manual</option>
+                <option value="realtime">Tempo Real</option>
+                <option value="daily">1x ao Dia</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-5">
+              <label class="text-xs font-semibold text-neutral-12">Valor</label>
+              @if (newSettingType() === 'boolean') {
+                <select
+                  [ngModel]="newSettingValue()"
+                  (ngModelChange)="newSettingValue.set($event)"
+                  class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                >
+                  <option value="true">Sim (Ativado)</option>
+                  <option value="false">Não (Desativado)</option>
+                </select>
+              } @else {
+                <input
+                  type="text"
+                  [ngModel]="newSettingValue()"
+                  (ngModelChange)="newSettingValue.set($event)"
+                  placeholder="Ex: USD, R$ 5,80..."
+                  class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+                />
+              }
+            </div>
+
+            <div class="md:col-span-5">
+              <label class="text-xs font-semibold text-neutral-12">
+                Endpoint de Cotação / API (Opcional)
+              </label>
+              <input
+                type="text"
+                [ngModel]="newSettingEndpointUrl()"
+                (ngModelChange)="newSettingEndpointUrl.set($event)"
+                placeholder="https://economia.awesomeapi.com.br/json/last/USD-BRL"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 font-mono text-xs text-neutral-12 outline-none dark:bg-neutral-2"
+              />
+            </div>
+
+            <div class="flex items-end md:col-span-2">
+              <button
+                matButton
+                type="button"
+                class="primary h-10 w-full"
+                [disabled]="isSavingSetting()"
+                (click)="addCustomSetting()"
+              >
+                <mat-icon svgIcon="plus" />
+                Adicionar
+              </button>
+            </div>
+          </div>
+
+          <!-- Lista de Opções Customizadas -->
+          <div class="overflow-hidden rounded-xl border border-neutral-a4">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-neutral-a4 bg-neutral-a2 uppercase text-neutral-a11">
+                <tr>
+                  <th class="px-4 py-2.5">Opção</th>
+                  <th class="px-4 py-2.5">Tipo / Atualização</th>
+                  <th class="px-4 py-2.5">Valor / Endpoint</th>
+                  <th class="w-24 px-4 py-2.5 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-a3">
+                @for (item of customSettings(); track item.id || item.settingKey) {
+                  <tr
+                    class="transition-colors duration-700"
+                    [class.animate-pulse]="highlightedSettingKey() === item.settingKey"
+                    [class.bg-primary-a3]="highlightedSettingKey() === item.settingKey"
+                  >
+                    <td class="px-4 py-2.5 font-medium text-neutral-12">{{ item.label }}</td>
+                    <td class="px-4 py-2.5 text-neutral-a11">
+                      {{ item.valueType }} · {{ item.refreshPolicy || 'manual' }}
+                    </td>
+                    <td class="px-4 py-2.5 font-mono text-neutral-12">
+                      {{ item.value }}
+                      @if (item.endpointUrl) {
+                        <div class="truncate text-[10px] text-neutral-a10">{{ item.endpointUrl }}</div>
+                      }
+                    </td>
+                    <td class="w-24 px-4 py-2.5 text-center">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        (click)="removeCustomSetting(item)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-neutral-a10">
+                      Nenhuma configuração adicional cadastrada ainda para esta aplicação.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+      </div>
+    </mat-tab>
+
+    <!-- ABA 3: VARIÁVEIS DE AMBIENTE (Nativas expostas pela App + Criadas pelo Cliente para Morphus Flow) -->
+    <mat-tab label="Variáveis de Ambiente">
+      <div class="mt-6 flex flex-col gap-6 rounded-2xl border border-neutral-a4 bg-white p-6 shadow-2xs dark:bg-neutral-2">
+        @if (isNativeMorphusApp()) {
+          <div>
+            <h2 class="text-base font-bold text-neutral-12">
+              Variáveis que você pode usar
+            </h2>
+            <p class="text-xs text-neutral-a11">
+              Como usá-las: basta digitar o caminho abaixo dentro do Morphus Flow ou nas regras da aplicação.
+            </p>
+
+            <div class="mt-3 divide-y divide-neutral-a3 overflow-hidden rounded-xl border border-neutral-a4 bg-neutral-a1/30 text-xs">
+              <div class="grid grid-cols-1 gap-1 bg-neutral-a2 px-4 py-2 font-semibold uppercase tracking-wider text-neutral-a11 sm:grid-cols-[240px_1fr]">
+                <span>Como usá-las</span>
+                <span>O que retorna</span>
+              </div>
+              <div class="grid grid-cols-1 gap-1 px-4 py-2.5 sm:grid-cols-[240px_1fr] sm:items-center">
+                <span class="font-mono font-bold text-primary-11 select-all">{{ appNamespaceLower() }}.doc.name</span>
+                <span class="text-neutral-a11">Nome do documento estruturado na sessão atual</span>
+              </div>
+              <div class="grid grid-cols-1 gap-1 px-4 py-2.5 sm:grid-cols-[240px_1fr] sm:items-center">
+                <span class="font-mono font-bold text-primary-11 select-all">{{ appNamespaceLower() }}.doc.summary</span>
+                <span class="text-neutral-a11">Resumo gerado pela IA para aprovação</span>
+              </div>
+              <div class="grid grid-cols-1 gap-1 px-4 py-2.5 sm:grid-cols-[240px_1fr] sm:items-center">
+                <span class="font-mono font-bold text-primary-11 select-all">{{ appNamespaceLower() }}.vault.path</span>
+                <span class="text-neutral-a11">Caminho local sincronizado pelo Kalupa Sync Service</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="h-px w-full bg-neutral-a4"></div>
+        }
+
+        <div class="flex flex-col gap-4">
+          <div>
+            <h2 class="text-base font-bold text-neutral-12">
+              Criar suas próprias variáveis
+            </h2>
+            <p class="text-xs text-neutral-a11">
+              Crie variáveis exclusivas da sua corporação e veja abaixo exatamente como usá-las no Morphus Flow.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 gap-3 rounded-xl border border-neutral-a4 bg-neutral-a2/30 p-4 md:grid-cols-12">
+            <div class="md:col-span-5">
+              <label class="text-xs font-semibold text-neutral-12">Nome da Variável</label>
+              <input
+                type="text"
+                [ngModel]="newSettingLabel()"
+                (ngModelChange)="onNewSettingLabelChange($event)"
+                placeholder="Ex: pasta.padrao ou limite.aprovacao"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              />
+              <span class="mt-1 block font-mono text-[11px] text-primary-11">
+                Como usá-la: {{ formatEnvReference(newSettingKey() || newSettingLabel()) }}
+              </span>
+            </div>
+
+            <div class="md:col-span-3">
+              <label class="text-xs font-semibold text-neutral-12">Tipo</label>
+              <select
+                [ngModel]="newSettingType()"
+                (ngModelChange)="onNewSettingTypeChange($event)"
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-2.5 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              >
+                <option value="string">Texto</option>
+                <option value="number">Número</option>
+                <option value="boolean">Sim / Não</option>
+                <option value="currency">Moeda / Cotação</option>
+                <option value="endpoint">Endpoint API</option>
+              </select>
+            </div>
+
+            <div class="md:col-span-4">
+              <label class="text-xs font-semibold text-neutral-12">Valor</label>
+              <input
+                type="text"
+                [ngModel]="newSettingValue()"
+                (ngModelChange)="newSettingValue.set($event)"
+                placeholder="Valor da variável..."
+                class="mt-1 h-10 w-full rounded-xl border border-neutral-a5 bg-white px-3 text-sm text-neutral-12 outline-none dark:bg-neutral-2"
+              />
+            </div>
+
+            <div class="flex justify-end md:col-span-12">
+              <button
+                matButton
+                type="button"
+                class="primary small"
+                [disabled]="isSavingSetting()"
+                (click)="addCustomSetting()"
+              >
+                <mat-icon svgIcon="plus" />
+                Adicionar Variável
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-hidden rounded-xl border border-neutral-a4">
+            <table class="w-full text-left text-xs">
+              <thead class="border-b border-neutral-a4 bg-neutral-a2 uppercase text-neutral-a11">
+                <tr>
+                  <th class="px-4 py-2.5">Como usá-las</th>
+                  <th class="px-4 py-2.5">Descrição</th>
+                  <th class="px-4 py-2.5">Valor</th>
+                  <th class="w-24 px-4 py-2.5 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-neutral-a3">
+                @for (item of customSettings(); track item.id || item.settingKey) {
+                  <tr
+                    class="transition-colors duration-700"
+                    [class.animate-pulse]="highlightedSettingKey() === item.settingKey"
+                    [class.bg-primary-a3]="highlightedSettingKey() === item.settingKey"
+                  >
+                    <td class="px-4 py-2.5 font-mono font-bold text-primary-11 select-all">
+                      {{ formatEnvReference(item.settingKey) }}
+                    </td>
+                    <td class="px-4 py-2.5 font-medium text-neutral-12">{{ item.label }}</td>
+                    <td class="px-4 py-2.5 font-mono text-neutral-12">{{ item.value }}</td>
+                    <td class="w-24 px-4 py-2.5 text-center">
+                      <button
+                        matIconButton
+                        type="button"
+                        class="tiny text-red-a11"
+                        (click)="removeCustomSetting(item)"
+                      >
+                        <mat-icon svgIcon="trash" />
+                      </button>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="4" class="px-4 py-8 text-center text-neutral-a10">
+                      Nenhuma variável de ambiente personalizada criada ainda.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

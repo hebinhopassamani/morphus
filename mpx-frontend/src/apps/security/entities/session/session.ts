@@ -94,6 +94,8 @@ export interface OnboardingApplicationItem {
 export interface OnboardingStateResponse {
   userId: string;
   userName?: string | null;
+  userFirstName?: string | null;
+  userLastName?: string | null;
   userNickName?: string | null;
   userEmail?: string | null;
   emailConfirmed: boolean;
@@ -113,12 +115,16 @@ export interface ConfirmEmailRequest {
 
 export interface OnboardingCorporationStepRequest {
   userName?: string;
+  userFirstName?: string;
+  userLastName?: string;
   userNickName?: string;
   corporationName: string;
 }
 
 export interface UpdateUserProfileRequest {
   name?: string;
+  firstName?: string;
+  lastName?: string;
   nickName?: string;
   phoneNumber?: string;
   website?: string;

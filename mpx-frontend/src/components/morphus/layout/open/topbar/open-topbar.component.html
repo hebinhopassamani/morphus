@@ -16,7 +16,7 @@
     </a>
 
     <!-- 3 Menus na Topbar (Somente o nome selecionado + lista dropdown de troca) -->
-    @if (auth.isAuthenticated()) {
+    @if (auth.isAuthenticated() && !auth.needsOnboarding()) {
       <nav class="ms-6 hidden items-center gap-x-1.5 lg:flex">
         <!-- 1. Minhas Aplicações (vinculadas ao espaço de trabalho selecionado, sem a aplicação já selecionada) -->
         <button
@@ -110,7 +110,12 @@
     <!-- Botões de ação alinhados à direita -->
     <div class="flex items-center gap-x-2 sm:gap-x-3">
       @if (auth.isAuthenticated() && auth.user(); as user) {
-        @if (auth.isAdmin()) {
+        @if (auth.needsOnboarding()) {
+          <a matButton class="primary small" routerLink="/security/onboarding">
+            <mat-icon svgIcon="sparkles" />
+            Concluir Configuração
+          </a>
+        } @else if (auth.isAdmin()) {
           <a matButton class="primary small hidden sm:inline-flex" routerLink="/morphus/admin/dashboard">
             <mat-icon svgIcon="layout-grid" />
             Painel Administrativo
