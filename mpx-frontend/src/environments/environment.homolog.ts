@@ -9,6 +9,6 @@ export const environment = {
       audience: 'https://morphus.me', // 🧙‍♂️ A tranca mágica que faltava!
     },
   },
-  // 🚀 Ambiente Local apontando para a API .NET rodando na sua máquina:
-  apiUrl: 'http://192.168.68.106/api/v1',
+  // 🚀 Ambiente de Homologação (Colorado) apontando para a API via Caddy HTTPS:
+  apiUrl: 'https://homolog.morphus.me/api/v1',
 };

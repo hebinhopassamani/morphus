@@ -181,8 +181,9 @@ public static class DependencyInjection
                 "https://morphus.me",
                 "https://www.morphus.me",
                 "https://morphus.site",
+                "https://homolog.morphus.me",
                 "http://179.197.232.25",
-                "http://192.168.68.106"
+                "http://192.168.0.100"
                 )
                 .AllowAnyHeader()
                 .AllowAnyMethod()

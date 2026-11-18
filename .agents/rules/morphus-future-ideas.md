@@ -126,6 +126,12 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
          - Como o Obsidian guarda toda a sua configuração em arquivos ocultos estruturados (`JSON` + `CSS` + `MD`) dentro de `.obsidian/` (`types.json`, `hotkeys.json`, `app.json`, `appearance.json`, `snippets/*.css`, `plugins/templater-obsidian/data.json`) e na pasta `Modelos/`, o **Kalupa no Morphus (Web)** terá uma **interface visual e amigável que opera 100% via código puro determinístico (C# / TypeScript), sem precisar de Agente de IA e sem gastar 1 centavo de token**!
          - Pelo painel visual do **Kalupa Morphus**, o usuário liga/desliga switches, escolhe cores/fontes e gerencia **Propriedades e Tipos** (`types.json`: texto, data, lista de tags, checkbox) vinculando quais propriedades pertencem a qual Modelo, **Modelos e Blocos Repetíveis (`+ Bloco`)**, **Atalhos de Teclado** (`hotkeys.json`), **Temas de Blocos de Código e Fontes/Ligatures** (`snippets/*.css`) e **Preferências do Editor** (`app.json`); ao clicar em salvar na tela web, o back-end C# serializa os objetos tipados e o **Kalupa Sync Service** grava diretamente nos arquivos ocultos `.obsidian/` da máquina do cliente em milissegundos!
        - **Refinamento do Motor Gemini no n8n por Modelo / Tecnologia / Usuário**: Em vez de um prompt único genérico, o fluxo do Kalupa no n8n injeta no Gemini o **Template exato do Modelo escolhido**, o **Contexto da Tecnologia/Pasta** e as **Instruções/Regras personalizadas do próprio usuário** para aquele modelo/tecnologia (ex.: separar explicações em tópicos/bullets fora do bloco de código, isolar comandos puros com a sintaxe correta `powershell`/`bash`/`csharp`, validar comandos duplicados e preencher a lista de tags da árvore de pastas).
+       - **Conceito de Tags Transversais nas Conversas, Notas e Assuntos Relacionados (`Cross-Cutting Concept Tagging + Related Topics`)**:
+         - **Diferença entre Pasta e Tag (E por que a Tag supera a Pasta)**: No sistema de arquivos tradicional, um arquivo só pode morar em **uma única pasta física por vez** (se uma nota fala de *Linux + Docker + Segurança + Criptografia*, você fica preso tendo que escolher uma pasta só). Já com **Tags**, a mesma nota pertence simultaneamente a `#linux`, `#docker`, `#seguranca` e `#criptografia`!
+         - **Escolha do Estilo de Organização pelo Usuário no Kalupa (Pastas Físicas vs. 100% Governado por Tags)**:
+           - O Kalupa pode perguntar ao usuário como ele prefere trabalhar:
+             1. **Estrutura de Pastas Guiada pelas Tags/Categorias**: O Kalupa cria/mantém as pastas físicas organizadas no disco seguindo a árvore principal definida pelo usuário;
+             2. **Repositório Único ("Joga tudo lá que as Tags resolvem")**: Os arquivos `.md` ficam salvos de forma simples sem o usuário precisar sofrer pensando em qual pasta guardar, e **100% da navegação, agrupamento, busca e Assuntos Relacionados acontece pelas Tags transversais** (`#seguranca`, `#criptografia`, `#autenticacao`, `#isolamento`, etc.), funcionando como "pastas virtuais inteligentes" onde uma mesma nota ou conversa aparece em todos os contextos a que pertence!
        - **Superpoderes Universais em Qualquer Editor (`Kalupa Sync Service` + Menu de Contexto do Windows Explorer + Atalhos Globais)**:
          - **Agnosticismo Real ("Os Editores se Adaptam ao Kalupa" — Windows, macOS e Linux)**: Mesmo em editores que não possuem sistema de templates (VS Code, Typora, Word, Bloco de Notas), o próprio `Kalupa Sync Service` (multiplataforma em `.NET`) executa a criação, numeração sequencial (`001, 002...`), reordenação automática nos 3 lugares (nome do arquivo, YAML `ordem` e H1 `# 00X - Título`), migração de formatação de notas antigas (`### -> ####`) e injeção de blocos repetíveis (`Alt+B` global ou gatilho de texto) diretamente no sistema de arquivos / cursor.
          - **Isolamento Limpo do Motor (`~/kalupa/.core` fora do Cofre) + System Tray (`Nova Nota ▸ Modelo H`)**:
@@ -243,6 +249,20 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
     8. `<mpx-page-float-button>` (`page-float-button`)
   - Qualquer mudança de aparência, fonte, borda no `MpxPageContent`, ícone antes do título no `MpxPageHeader` ou ação global (como o botão **"Retornar ao Portal"**) é feita **em um único lugar** e reflete em 100% das telas do sistema.
 - **Momento de Execução**: Anotado no roadmap para uma rodada dedicada e controlada de refatoração estrutural (sem interromper a entrega funcional da Fase 1), aplicando já o prefixo `Mpx*` nos componentes novos que forem nascendo.
+
+## 10. Infraestrutura SaaS Multi-Tenant no Caddy (SSL Wildcard `DNS-01`, Regra de 1 Nível RFC 6125 e `On-Demand TLS`)
+- **Prevenção de Rate Limit do Let's Encrypt (Limite de 50 certificados/semana por domínio raiz)**:
+  - Em produção, o Caddy **não deve** emitir certificados individuais via HTTP-01 para cada subdomínio de cliente (`cliente1.morphus.com.br`, `cliente2.morphus.com.br`), pois o Let's Encrypt bloqueia após 50 emissões semanais no mesmo domínio raiz.
+  - **Solução Oficial**: Utilizar certificado curinga (**Wildcard SSL**) no Caddy via desafio **`DNS-01`** (usando o módulo de DNS do provedor no Caddy, ex.: Cloudflare/Route53). Assim, **1 único certificado** cobre infinitos clientes sem consumir o *rate limit* do Let's Encrypt.
+- **Regra de Ouro de Subdomínio de 1 Único Nível (RFC 6125)**:
+  - Um certificado Wildcard (`*.morphus.com.br`) cobre **apenas 1 nível à esquerda** (ex.: `cliente1.morphus.com.br`). Ele **NÃO cobre 2 níveis** (como `kalupa.cliente1.morphus.com.br`, que exigiria um wildcard separado `*.cliente1.morphus.com.br` por cliente e voltaria a estourar o limite do Let's Encrypt).
+  - **Padrões Aprovados no Ecossistema Morphus para caber 100% no mesmo Certificado Wildcard**:
+    1. **Subdomínio de 1 nível por Tenant + Roteamento de Aplicação por Path**: `cliente1.morphus.com.br/kalupa`, `cliente1.morphus.com.br/security`, `cliente1.morphus.com.br/mail` (coberto por `*.morphus.com.br`);
+    2. **Subdomínio de 1 nível composto com hífen**: `kalupa-cliente1.morphus.com.br` (coberto por `*.morphus.com.br`);
+    3. **Domínio dedicado do Produto com 1 nível de Tenant**: `cliente1.kalupa.com.br` (coberto por 1 único wildcard `*.kalupa.com.br`).
+- **Domínios Próprios de Clientes (`erp.empresa-do-cliente.com.br` — `On-Demand TLS`)**:
+  - Quando o cliente apontar um domínio próprio via `CNAME`, o Caddy utiliza **`on_demand_tls`** consultando um endpoint interno da **`Security.Api`** (`/api/security/domains/validate?domain=...`) antes de requisitar o certificado HTTP-01 (que é contabilizado no domínio do cliente e não no do Morphus).
+
 
 
 
