@@ -2,9 +2,9 @@ import { computed, effect, inject, Injectable, signal, untracked } from '@angula
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
-import { Auth } from '@core/mpx-auth';
-import { LocalStorage } from '@core/mpx-local-storage';
-import { MorphusApplication } from '@morphus/entities/application';
+import { MpxSecurity } from '@core/morphus';
+import { MpxLocalStorage } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { WorkspaceApplication } from '@morphus/entities/workspace-application';
 import { Menu } from '@security/entities/menu';
@@ -28,7 +28,7 @@ const SYSTEM_CORE_APPLICATION_NAMES = new Set([
   'WEBSITE',
 ]);
 
-const FALLBACK_ECOSYSTEM_CATALOG: MorphusApplication[] = [
+const FALLBACK_ECOSYSTEM_CATALOG: MpxApplication[] = [
   {
     id: 'catalog-kalupa',
     key: 'KALUPA',
@@ -101,17 +101,17 @@ export interface ApplicationTrialInfo {
 @Injectable({
   providedIn: 'root',
 })
-export class MorphusContextService {
-  private readonly auth = inject(Auth);
+export class MpxContextService {
+  private readonly auth = inject(MpxSecurity);
   private readonly router = inject(Router);
-  private readonly localStorage = inject(LocalStorage);
+  private readonly localStorage = inject(MpxLocalStorage);
   private readonly workspaceService = inject(WorkspaceService);
   private readonly applicationService = inject(ApplicationService);
   private readonly workspaceAppService = inject(WorkspaceApplicationService);
   private readonly menuService = inject(MenuService);
 
   private readonly workspacesState = signal<Workspace[]>([]);
-  private readonly catalogApplicationsState = signal<MorphusApplication[]>([]);
+  private readonly catalogApplicationsState = signal<MpxApplication[]>([]);
   private readonly activeWorkspaceIdState = signal<string | null>(
     this.localStorage.getItem(ACTIVE_WORKSPACE_STORAGE_KEY),
   );
@@ -163,7 +163,7 @@ export class MorphusContextService {
   readonly isLoadingMenus = this.loadingMenusState.asReadonly();
   readonly isSwitchingContext = this.switchingContextState.asReadonly();
 
-  readonly activeRuntimeApplication = computed<MorphusApplication | null>(() => {
+  readonly activeRuntimeApplication = computed<MpxApplication | null>(() => {
     const url = this.currentUrl() || '';
     const match = url.match(/^\/(?:morphus\/)?app\/([^/?#]+)/i);
     const urlKeyUpper = (match?.[1] || '').trim().toUpperCase();
@@ -189,7 +189,7 @@ export class MorphusContextService {
     );
   });
 
-  isNativeMorphusApp(app?: MorphusApplication | null): boolean {
+  isNativeMorphusApp(app?: MpxApplication | null): boolean {
     if (!app) {
       return true;
     }
@@ -210,7 +210,7 @@ export class MorphusContextService {
     );
   }
 
-  getRuntimeAppOwnerCorporationName(app?: MorphusApplication | null): string {
+  getRuntimeAppOwnerCorporationName(app?: MpxApplication | null): string {
     const target = app ?? this.activeRuntimeApplication();
     return (
       target?.corporation?.name ||
@@ -219,7 +219,7 @@ export class MorphusContextService {
     );
   }
 
-  canEditApplication(app?: MorphusApplication | null): boolean {
+  canEditApplication(app?: MpxApplication | null): boolean {
     if (this.auth.isAdmin()) {
       return true;
     }
@@ -232,7 +232,7 @@ export class MorphusContextService {
     return Boolean(app && !this.isNativeMorphusApp(app));
   }
 
-  goToOwnerCorporationPortal(app?: MorphusApplication | null): void {
+  goToOwnerCorporationPortal(app?: MpxApplication | null): void {
     const target = app ?? this.activeRuntimeApplication();
     const targetCorpId = target?.corporationId || target?.corporation?.id;
     const currentCorpId = this.auth.corporation()?.id;
@@ -264,7 +264,7 @@ export class MorphusContextService {
     );
   });
 
-  readonly availableApplications = computed<MorphusApplication[]>(() => {
+  readonly availableApplications = computed<MpxApplication[]>(() => {
     const apps = this.extractWorkspaceApplications(this.activeWorkspace());
     return apps.filter(
       (app) =>
@@ -278,11 +278,11 @@ export class MorphusContextService {
    * Lista de aplicações operacionais vinculadas ao Workspace selecionado.
    * Nunca inclui Morphus, Segurança/Security ou Website para nenhum perfil.
    */
-  readonly operationalApplications = computed<MorphusApplication[]>(() =>
+  readonly operationalApplications = computed<MpxApplication[]>(() =>
     this.availableApplications().filter((app) => !this.isSystemCoreApplication(app)),
   );
 
-  readonly activeOperationalApplication = computed<MorphusApplication | null>(() => {
+  readonly activeOperationalApplication = computed<MpxApplication | null>(() => {
     const apps = this.operationalApplications();
     if (!apps.length) {
       return null;
@@ -291,7 +291,7 @@ export class MorphusContextService {
     return apps.find((a) => a.id === savedId) ?? apps.find((a) => a.default) ?? apps[0];
   });
 
-  isSystemCoreApplication(app?: MorphusApplication | null): boolean {
+  isSystemCoreApplication(app?: MpxApplication | null): boolean {
     if (!app) {
       return false;
     }
@@ -308,13 +308,13 @@ export class MorphusContextService {
     );
   }
 
-  getOperationalApplicationsForWorkspace(workspace: Workspace | null): MorphusApplication[] {
+  getOperationalApplicationsForWorkspace(workspace: Workspace | null): MpxApplication[] {
     return this.extractWorkspaceApplications(workspace).filter(
       (app) => !app.inactive && !this.isSystemCoreApplication(app),
     );
   }
 
-  readonly catalogApplications = computed<MorphusApplication[]>(() => {
+  readonly catalogApplications = computed<MpxApplication[]>(() => {
     const dbApps = this.catalogApplicationsState().filter(
       (app) =>
         !app.inactive &&
@@ -337,7 +337,7 @@ export class MorphusContextService {
     return merged;
   });
 
-  readonly unlinkedApplications = computed<MorphusApplication[]>(() => {
+  readonly unlinkedApplications = computed<MpxApplication[]>(() => {
     const activeIds = new Set(
       this.availableApplications()
         .map((a) => a.id)
@@ -391,7 +391,7 @@ export class MorphusContextService {
       });
   });
 
-  readonly activeApplication = computed<MorphusApplication | null>(() => {
+  readonly activeApplication = computed<MpxApplication | null>(() => {
     const apps = this.availableApplications();
     if (!apps.length) {
       return null;
@@ -424,7 +424,7 @@ export class MorphusContextService {
     return this.localStorage.getItem(TRIAL_USED_STORAGE_KEY) === 'true';
   });
 
-  getApplicationTrialInfo(app?: MorphusApplication | null): ApplicationTrialInfo {
+  getApplicationTrialInfo(app?: MpxApplication | null): ApplicationTrialInfo {
     const isBaseSystemApp =
       Boolean(app?.system) ||
       ['MORPHUS', 'SEGURANÇA', 'SEGURANCA', 'SECURITY', 'WEBSITE'].includes(
@@ -790,7 +790,7 @@ export class MorphusContextService {
     }
   }
 
-  selectApplication(application: MorphusApplication): void {
+  selectApplication(application: MpxApplication): void {
     if (!application.id) {
       return;
     }
@@ -1111,7 +1111,7 @@ export class MorphusContextService {
     ];
   }
 
-  private reRenderApplicationView(application: MorphusApplication | null): void {
+  private reRenderApplicationView(application: MpxApplication | null): void {
     const targetRoute = this.resolveApplicationEntryRoute(application);
     setTimeout(() => {
       void this.router.navigateByUrl(targetRoute).finally(() => {
@@ -1120,14 +1120,14 @@ export class MorphusContextService {
     }, 0);
   }
 
-  private extractWorkspaceApplications(workspace: Workspace | null): MorphusApplication[] {
+  private extractWorkspaceApplications(workspace: Workspace | null): MpxApplication[] {
     if (!workspace) {
       return [];
     }
     const provisionedMap = this.provisionedAppsState();
     const wsId = workspace.id || '';
 
-    const rawList: MorphusApplication[] = workspace.workspaceApplications?.length
+    const rawList: MpxApplication[] = workspace.workspaceApplications?.length
       ? workspace.workspaceApplications
           .filter((wa) => !wa.inactive && !!wa.application)
           .map((wa) => {
@@ -1258,7 +1258,7 @@ export class MorphusContextService {
     return menuItems;
   }
 
-  private resolveApplicationEntryRoute(application: MorphusApplication | null): string {
+  private resolveApplicationEntryRoute(application: MpxApplication | null): string {
     if (!application) {
       return '/morphus/admin/dashboard';
     }

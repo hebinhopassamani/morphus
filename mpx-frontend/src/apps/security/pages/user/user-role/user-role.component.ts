@@ -6,8 +6,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusNxNComponent, MorphusNxNComponent } from '@core/mpx-base';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxNxnComponent, MpxNxnComponent } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Module } from '@security/entities/module';
 import { Role } from '@security/entities/role';
@@ -39,8 +39,8 @@ import { UserService } from '@security/services/user.service';
   templateUrl: './user-role.component.html',
 })
 export class UserRoleComponent
-  extends MorphusNxNComponent<UserRole, Role>
-  implements IMorphusNxNComponent, OnInit, OnDestroy
+  extends MpxNxnComponent<UserRole, Role>
+  implements IMpxNxnComponent, OnInit, OnDestroy
 {
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
@@ -52,7 +52,7 @@ export class UserRoleComponent
   protected readonly userId = signal<string>('');
   protected readonly user = signal<User | null>(null);
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MpxApplication[]>([]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   protected readonly allRoles = signal<Role[]>([]);

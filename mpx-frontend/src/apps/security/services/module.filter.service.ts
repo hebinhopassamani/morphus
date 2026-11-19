@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { MorphusFilterService } from '@core/mpx-filter';
-import { IModuleReflected } from '../entities/module';
+import { MpxFilterService } from '@core/morphus';
+import { ModuleReflected } from '../entities/module';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ModuleFilterService extends MorphusFilterService<IModuleReflected> {
+export class ModuleFilterService extends MpxFilterService<ModuleReflected> {
   public override configFilter(): void {
     this.addAttribute('name', 'Nome', 'text')
       .addOperator('EQUAL')

@@ -1,6 +1,6 @@
-import { IMorphusEntity } from '@core/mpx-entities';
+import { MpxEntity } from '@core/morphus';
 
-export interface IMenuReflected extends IMorphusEntity {
+export interface MenuReflected extends MpxEntity {
   label: string;
   applicationId: string;
   moduleId?: string | null;

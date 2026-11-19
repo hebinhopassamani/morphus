@@ -4,15 +4,15 @@ import { SafeHtml } from '@angular/platform-browser';
 import { ActivatedRoute, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Theming } from '@core/mpx-theming';
-import { MorphusWorkspaceLayout, MpxTopBarComponent } from '@src/components/morphus/layout';
+import { MpxTheming } from '@core/morphus';
+import { MpxAdminLayout, MpxAdminTopBarComponent } from '@src/components/morphus/layout';
 import {
-  MorphusApplication,
-  MorphusApplicationModuleRef,
-  MorphusApplicationSubModuleRef,
+  MpxApplication,
+  MpxApplicationModuleRef,
+  MpxApplicationSubModuleRef,
 } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { AppBuilderNavItem } from '@app-builder/entities';
 import { AppBuilderSanitizerService } from '@app-builder/services';
 
@@ -25,8 +25,8 @@ import { AppBuilderSanitizerService } from '@app-builder/services';
     RouterLinkActive,
     MatButton,
     MatIcon,
-    MorphusWorkspaceLayout,
-    MpxTopBarComponent,
+    MpxAdminLayout,
+    MpxAdminTopBarComponent,
   ],
   host: {
     class: 'flex min-h-dvh w-full flex-auto flex-col',
@@ -39,15 +39,15 @@ export class AppBuilderShellComponent {
   private readonly router = inject(Router);
   private readonly sanitizer = inject(AppBuilderSanitizerService);
   private readonly applicationService = inject(ApplicationService);
-  protected readonly context = inject(MorphusContextService);
-  protected readonly theming = inject(Theming);
+  protected readonly context = inject(MpxContextService);
+  protected readonly theming = inject(MpxTheming);
 
   private readonly paramMap = toSignal(this.route.paramMap);
-  protected readonly fetchedApp = signal<MorphusApplication | null>(null);
+  protected readonly fetchedApp = signal<MpxApplication | null>(null);
 
   protected readonly appKey = computed<string>(() => this.paramMap()?.get('appKey') || '');
 
-  protected readonly activeApp = computed<MorphusApplication | null>(() => {
+  protected readonly activeApp = computed<MpxApplication | null>(() => {
     const keyUpper = this.appKey().trim().toUpperCase();
     const fetched = this.fetchedApp();
     if (
@@ -77,11 +77,11 @@ export class AppBuilderShellComponent {
   protected readonly navItems = computed<AppBuilderNavItem[]>(() => {
     const app = this.activeApp();
     const key = app?.key || app?.prefix || this.appKey() || 'KAL';
-    const modules: MorphusApplicationModuleRef[] = app?.applicationModules ?? [];
+    const modules: MpxApplicationModuleRef[] = app?.applicationModules ?? [];
     const items: AppBuilderNavItem[] = [];
 
     for (const mod of modules) {
-      const subs: MorphusApplicationSubModuleRef[] = mod.applicationSubModules ?? [];
+      const subs: MpxApplicationSubModuleRef[] = mod.applicationSubModules ?? [];
       for (const sm of subs) {
         const slug = sm.routePattern || sm.key || 'dashboard';
         items.push({

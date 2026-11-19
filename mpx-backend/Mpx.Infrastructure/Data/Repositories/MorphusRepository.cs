@@ -1,7 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
-using Mpx.Domain.Dtos;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Filters;
 using Mpx.Domain.Interfaces;
@@ -48,8 +47,7 @@ public class MorphusRepository<TEntity>(MorphusDbContext context) : IMorphusRepo
         .FirstOrDefaultAsync();
   }
 
-  public virtual Task<TDto?> GetByIdAsync<TDto>(Guid id, MorphusDto<TEntity, TDto> projection)
-      where TDto : MorphusDto<TEntity, TDto>, new() =>
+  public virtual Task<TDto?> GetByIdAsync<TDto>(Guid id, IMorphusProjection<TEntity, TDto> projection) =>
       GetByIdAsync(id, projection.BuildProjection());
 
   public virtual async Task<TResult?> GetFirstOrDefaultAsync<TResult>(
@@ -65,8 +63,7 @@ public class MorphusRepository<TEntity>(MorphusDbContext context) : IMorphusRepo
 
   public virtual Task<TDto?> GetFirstOrDefaultAsync<TDto>(
       Expression<Func<TEntity, bool>> predicate,
-      MorphusDto<TEntity, TDto> projection)
-      where TDto : MorphusDto<TEntity, TDto>, new() =>
+      IMorphusProjection<TEntity, TDto> projection) =>
       GetFirstOrDefaultAsync(predicate, projection.BuildProjection());
 
   public virtual async Task<TEntity?> GetById(Guid id)
@@ -93,9 +90,8 @@ public class MorphusRepository<TEntity>(MorphusDbContext context) : IMorphusRepo
   }
 
   public virtual Task<List<TDto>> GetAllAsync<TDto>(
-      MorphusDto<TEntity, TDto> projection,
-      Expression<Func<TEntity, bool>>? predicate = null)
-      where TDto : MorphusDto<TEntity, TDto>, new() =>
+      IMorphusProjection<TEntity, TDto> projection,
+      Expression<Func<TEntity, bool>>? predicate = null) =>
       GetAllAsync(projection.BuildProjection(), predicate);
 
   public virtual async Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate)

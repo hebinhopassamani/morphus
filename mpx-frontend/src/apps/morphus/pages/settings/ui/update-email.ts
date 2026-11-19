@@ -15,7 +15,7 @@ import {
   MatInput,
   MatLabel,
 } from '@angular/material/input';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import {
   BuiDialog,
   BuiDialogBackdrop,
@@ -129,7 +129,7 @@ import {
   `,
 })
 export class SettingsUpdateEmail {
-  private readonly auth = inject(Auth);
+  private readonly auth = inject(MpxSecurity);
   readonly open = model(false);
 
   private updateEmailFormModel = signal(this.defaults());

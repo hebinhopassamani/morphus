@@ -1,6 +1,6 @@
-import { IMorphusRelatedEntity } from '@core/mpx-entities';
+import { MpxRelatedEntity } from '@core/morphus';
 
-export interface IWorkspaceUserReflected extends IMorphusRelatedEntity {
+export interface WorkspaceUserReflected extends MpxRelatedEntity {
   workspaceId: string;
   userId: string;
   isOwner?: boolean;

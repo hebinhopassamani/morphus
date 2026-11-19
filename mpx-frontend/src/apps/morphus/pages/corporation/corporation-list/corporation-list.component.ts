@@ -1,11 +1,8 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusListComponent,
-  MorphusFilter,
-  MorphusListComponent,
-  MorphusListShared,
-} from '@core/mpx-shared/list';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxListShared } from '@core/morphus';
 import { Corporation } from '@security/entities/corporation';
 import { CorporationFilterService } from '@security/services/corporation.filter.service';
 import { CorporationService } from '@security/services/corporation.service';
@@ -13,11 +10,11 @@ import { CorporationService } from '@security/services/corporation.service';
 @Component({
   selector: 'mpx-corporation-list',
   standalone: true,
-  imports: [MorphusListShared],
+  imports: [MpxListShared],
   styleUrl: './corporation-list.component.css',
   templateUrl: './corporation-list.component.html',
 })
-export class CorporationListComponent extends MorphusListComponent<Corporation> implements IMorphusListComponent, OnInit, OnDestroy {
+export class CorporationListComponent extends MpxListComponent<Corporation> implements IMpxListComponent, OnInit, OnDestroy {
   protected readonly corporationFilterService = inject(CorporationFilterService);
   private readonly corporationService = inject(CorporationService);
   protected search = '';
@@ -36,7 +33,7 @@ export class CorporationListComponent extends MorphusListComponent<Corporation> 
     this.destroySubscriptions();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     if (this.cachedCorporations.length === 0) {
       this.cachedCorporations = await firstValueFrom(this.corporationService.getAll());
     }

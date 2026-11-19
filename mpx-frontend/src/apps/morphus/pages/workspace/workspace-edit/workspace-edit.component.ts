@@ -7,13 +7,13 @@ import { MatIcon } from '@angular/material/icon';
 import { MatError, MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
 import { MpxIconSelectorComponent } from '@src/components/morphus/icon-selector';
-import { MorphusApplication } from '@morphus/entities/application';
+import { MpxApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
 import { WorkspaceApplication } from '@morphus/entities/workspace-application';
 import { WorkspaceUser } from '@morphus/entities/workspace-user';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { WorkspaceApplicationService } from '@morphus/services/workspace-application.service';
 import { WorkspaceUserService } from '@morphus/services/workspace-user.service';
 import { WorkspaceService } from '@morphus/services/workspace.service';
@@ -43,18 +43,18 @@ import { WorkspaceValidator } from '../validators/workspace.validator';
   templateUrl: './workspace-edit.component.html',
 })
 export class WorkspaceEditComponent
-  extends MorphusEditComponent<Workspace, WorkspaceValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<Workspace, WorkspaceValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly workspaceService = inject(WorkspaceService);
   private readonly workspaceAppService = inject(WorkspaceApplicationService);
   private readonly workspaceUserService = inject(WorkspaceUserService);
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
 
   protected readonly selectedTabIndex = signal<number>(0);
 
   // Estado N:N de Aplicações do Workspace
-  protected readonly appsToRelate = signal<MorphusApplication[]>([]);
+  protected readonly appsToRelate = signal<MpxApplication[]>([]);
   protected readonly relatedApps = signal<WorkspaceApplication[]>([]);
   protected readonly searchAppToRelate = signal<string>('');
   protected readonly searchAppRelated = signal<string>('');
@@ -62,7 +62,7 @@ export class WorkspaceEditComponent
   protected readonly selectedAppRelatedIds = signal<Set<string>>(new Set());
 
   // Modal de escolha de instância (Nova Instância Isolada vs. Compartilhada com Workspace Y)
-  protected readonly pendingAppForInstanceModal = signal<MorphusApplication | null>(null);
+  protected readonly pendingAppForInstanceModal = signal<MpxApplication | null>(null);
   protected readonly otherWorkspacesForPendingApp = signal<Workspace[]>([]);
   protected readonly instanceMode = signal<'isolated' | 'shared'>('isolated');
   protected readonly selectedSharedWorkspaceId = signal<string | null>(null);
@@ -292,7 +292,7 @@ export class WorkspaceEditComponent
     });
   }
 
-  async addSingleApp(app: MorphusApplication): Promise<void> {
+  async addSingleApp(app: MpxApplication): Promise<void> {
     const workspaceId = this.entity().id;
     if (!workspaceId || !app.id) {
       return;

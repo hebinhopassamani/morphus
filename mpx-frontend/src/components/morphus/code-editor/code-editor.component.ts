@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import * as prettierStandalone from 'prettier/standalone';
 import * as prettierPluginHtml from 'prettier/plugins/html';
-import { Theming } from '@core/mpx-theming';
+import { MpxTheming } from '@core/morphus';
 import { environment } from '@/environments/environment';
 
 declare global {
@@ -116,12 +116,12 @@ export function formatHtmlPretty(rawHtml: string): string {
   standalone: true,
   imports: [FormsModule],
   templateUrl: './code-editor.component.html',
-  styleUrl: './code-editor.component.scss',
+  styleUrl: './code-editor.component.css',
 })
 export class MpxCodeEditorComponent implements AfterViewInit, OnChanges, OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly http = inject(HttpClient);
-  protected readonly theming = inject(Theming);
+  protected readonly theming = inject(MpxTheming);
 
   @ViewChild('editorContainer', { static: false })
   private editorContainer?: ElementRef<HTMLDivElement>;

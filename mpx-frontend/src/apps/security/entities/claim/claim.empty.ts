@@ -1,3 +1,3 @@
-import { IClaimReflected } from './claim.reflected';
+import { ClaimReflected } from './claim.reflected';
 
-export interface IClaimEmpty extends Partial<IClaimReflected> {}
+export interface ClaimEmpty extends Partial<ClaimReflected> {}

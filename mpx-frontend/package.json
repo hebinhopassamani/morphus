@@ -7,7 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "icons:build": "node tools/compile-icons.mjs",
+    "icons:build": "node src/core/morphus/icons/compile-icons.mjs",
     "serve:ssr:morphus-app": "node dist/morphus-app/server/server.mjs"
   },
   "private": true,

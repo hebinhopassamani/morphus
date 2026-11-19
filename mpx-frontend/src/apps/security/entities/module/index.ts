@@ -1,3 +1,3 @@
 export * from './module.reflected';
-export * from './module';
+export * from './module.entity';
 export * from './module.empty';

@@ -123,5 +123,5 @@ import { MatDivider } from '@angular/material/divider';
     </div>
   `,
 })
-export default class SettingsNotifications {}
+export class SettingsNotifications {}
 

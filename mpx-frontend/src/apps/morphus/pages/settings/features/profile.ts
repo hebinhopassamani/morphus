@@ -18,7 +18,7 @@ import {
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-changes';
 import { SettingsUpdateEmail } from '@morphus/pages/settings/ui/update-email';
 
@@ -364,8 +364,8 @@ import { SettingsUpdateEmail } from '@morphus/pages/settings/ui/update-email';
     <settings-update-email [(open)]="updateEmailOpen" />
   `,
 })
-export default class SettingsProfile {
-  private readonly auth = inject(Auth);
+export class SettingsProfile {
+  private readonly auth = inject(MpxSecurity);
 
   protected readonly updateEmailOpen = signal(false);
   protected readonly outOfOffice = signal(false);

@@ -323,7 +323,7 @@ const CONNECTED_ACCOUNTS: ConnectedAccount[] = [
     <settings-change-password [(open)]="changePasswordOpen" />
   `,
 })
-export default class SettingsSecurity {
+export class SettingsSecurity {
   protected readonly sessions = SESSIONS;
   protected readonly signIns = SIGN_INS;
   protected readonly accounts = CONNECTED_ACCOUNTS;

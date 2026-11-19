@@ -1,3 +1,3 @@
-import { IApplicationUserReflected } from './application-user.reflected';
+import { ApplicationUserReflected } from './application-user.reflected';
 
-export interface IApplicationUserEmpty extends Partial<IApplicationUserReflected> {}
+export interface ApplicationUserEmpty extends Partial<ApplicationUserReflected> {}

@@ -6,7 +6,7 @@ import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import { OnboardingApplicationItem } from '@security/entities/session';
 
 @Component({
@@ -28,7 +28,7 @@ import { OnboardingApplicationItem } from '@security/entities/session';
   standalone: true,
 })
 export class OnboardingComponent implements OnInit, OnDestroy {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
 

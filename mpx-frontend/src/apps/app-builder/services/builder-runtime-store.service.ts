@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 
 export interface AppBuilderRecord {
   id: string;
@@ -19,7 +19,7 @@ export interface AppBuilderCollectionMeta {
   providedIn: 'root',
 })
 export class AppBuilderRuntimeStoreService {
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
 
   /** Incrementado sempre que qualquer registro ou lista de opções é alterada, permitindo re-hidratação reativa */
   readonly version = signal<number>(0);

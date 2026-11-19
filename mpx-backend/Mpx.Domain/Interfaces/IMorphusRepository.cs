@@ -1,5 +1,4 @@
 using System.Linq.Expressions;
-using Mpx.Domain.Dtos;
 
 namespace Mpx.Domain.Interfaces;
 
@@ -9,13 +8,13 @@ public interface IMorphusRepository<TEntity> where TEntity : class
 
   Task<TEntity?> GetByIdAsync(Guid id);
   Task<TResult?> GetByIdAsync<TResult>(Guid id, Expression<Func<TEntity, TResult>> selector);
-  Task<TDto?> GetByIdAsync<TDto>(Guid id, MorphusDto<TEntity, TDto> projection) where TDto : MorphusDto<TEntity, TDto>, new();
+  Task<TDto?> GetByIdAsync<TDto>(Guid id, IMorphusProjection<TEntity, TDto> projection);
   Task<TResult?> GetFirstOrDefaultAsync<TResult>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TResult>> selector);
-  Task<TDto?> GetFirstOrDefaultAsync<TDto>(Expression<Func<TEntity, bool>> predicate, MorphusDto<TEntity, TDto> projection) where TDto : MorphusDto<TEntity, TDto>, new();
+  Task<TDto?> GetFirstOrDefaultAsync<TDto>(Expression<Func<TEntity, bool>> predicate, IMorphusProjection<TEntity, TDto> projection);
   Task<TEntity?> GetById(Guid id);
   Task<IEnumerable<TEntity>> GetAllAsync();
   Task<List<TResult>> GetAllAsync<TResult>(Expression<Func<TEntity, TResult>> selector, Expression<Func<TEntity, bool>>? predicate = null);
-  Task<List<TDto>> GetAllAsync<TDto>(MorphusDto<TEntity, TDto> projection, Expression<Func<TEntity, bool>>? predicate = null) where TDto : MorphusDto<TEntity, TDto>, new();
+  Task<List<TDto>> GetAllAsync<TDto>(IMorphusProjection<TEntity, TDto> projection, Expression<Func<TEntity, bool>>? predicate = null);
   Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
 
   Task AddAsync(TEntity entity);

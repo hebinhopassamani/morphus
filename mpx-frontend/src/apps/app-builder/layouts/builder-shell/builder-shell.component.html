@@ -6,7 +6,7 @@
       [class.scheme-dark]="theming.isDark()"
       [class.scheme-light]="!theming.isDark()"
     >
-      <mpx-topbar [sidebarOpened]="false" />
+      <mpx-admin-topbar [sidebarOpened]="false" />
 
       <div class="border-b border-neutral-a4 bg-neutral-1/90 backdrop-blur-md">
         <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-6 py-2.5">
@@ -164,7 +164,7 @@
   }
 
   @default {
-    <!-- LAYOUT 1 (Padrão): Menu Lateral Retrátil + Topbar (MorphusWorkspaceLayout) -->
-    <mpx-layout />
+    <!-- LAYOUT 1 (Padrão): Menu Lateral Retrátil + Topbar (MpxAdminLayout) -->
+    <mpx-admin-layout />
   }
 }

@@ -1,12 +1,9 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusEditComponent,
-  MorphusEditComponent,
-  MorphusEditShared,
-  NgForm,
-} from '@core/mpx-shared/edit';
-import { MorphusValidationEmailShared } from '@core/mpx-shared/validators';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
+import { MpxEditShared } from '@core/morphus';
+import { MpxValidationEmailShared } from '@core/morphus';
 import { User } from '@security/entities/user';
 import { UserService } from '@security/services/user.service';
 import { UserValidator } from '../validators/user.validator';
@@ -14,13 +11,13 @@ import { UserValidator } from '../validators/user.validator';
 @Component({
   selector: 'mpx-user-edit',
   standalone: true,
-  imports: [MorphusEditShared, MorphusValidationEmailShared],
+  imports: [MpxEditShared, MpxValidationEmailShared],
   styleUrl: './user-edit.component.css',
   templateUrl: './user-edit.component.html',
 })
 export class UserEditComponent
-  extends MorphusEditComponent<User, UserValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<User, UserValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly userService = inject(UserService);
   protected readonly password = signal<string>('');

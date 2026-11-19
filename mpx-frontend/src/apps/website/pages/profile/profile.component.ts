@@ -3,7 +3,7 @@ import { MatButton } from '@angular/material/button';
 import { MatCard } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 @Component({
   selector: 'web-profile',
@@ -15,7 +15,7 @@ import { Auth } from '@core/mpx-auth';
   templateUrl: './profile.component.html',
 })
 export class WebProfileComponent {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
 
   protected readonly savingNickName = signal(false);
   protected readonly nickNameSaved = signal(false);

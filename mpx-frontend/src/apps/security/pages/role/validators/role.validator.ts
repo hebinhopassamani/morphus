@@ -1,8 +1,8 @@
-import { MorphusValidator } from '@core/mpx-validators';
+import { MpxValidator } from '@core/morphus';
 import { Role } from '@security/entities/role';
 
-export class RoleValidator extends MorphusValidator<Role> {
-  public configure(builder: MorphusValidator<Role>): void {
+export class RoleValidator extends MpxValidator<Role> {
+  public configure(builder: MpxValidator<Role>): void {
     builder.messageForAll().withError('required').showMessage('Este campo é obrigatório');
 
     builder

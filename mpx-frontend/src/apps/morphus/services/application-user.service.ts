@@ -1,21 +1,21 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MorphusFilter } from '@core/mpx-base';
-import { MorphusEntityService } from '@core/mpx-http';
+import { MpxFilter } from '@core/morphus';
+import { MpxEntityService } from '@core/morphus';
 import { ApplicationUser } from '@morphus/entities/application-user';
 import { User } from '@security/entities/user';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ApplicationUserService extends MorphusEntityService<ApplicationUser, User> {
+export class ApplicationUserService extends MpxEntityService<ApplicationUser, User> {
   constructor() {
     super('application-user');
     this.addPk('applicationId').addPk('userId');
   }
 
   public override getEntitiesToRelate(
-    filter?: MorphusFilter | Partial<ApplicationUser>,
+    filter?: MpxFilter | Partial<ApplicationUser>,
   ): Observable<User[]> {
     const appId = (filter as Partial<ApplicationUser>)?.applicationId;
     if (appId) {
@@ -25,7 +25,7 @@ export class ApplicationUserService extends MorphusEntityService<ApplicationUser
   }
 
   public override getRelatedEntities(
-    filter?: MorphusFilter | Partial<ApplicationUser>,
+    filter?: MpxFilter | Partial<ApplicationUser>,
   ): Observable<ApplicationUser[]> {
     const appId = (filter as Partial<ApplicationUser>)?.applicationId;
     if (appId) {

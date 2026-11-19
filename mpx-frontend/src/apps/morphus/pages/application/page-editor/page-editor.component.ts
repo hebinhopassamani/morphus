@@ -18,9 +18,9 @@ import { SafeHtml } from '@angular/platform-browser';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltip } from '@angular/material/tooltip';
-import { MorphusApplicationSubModuleRef } from '@morphus/entities/application';
+import { MpxApplicationSubModuleRef } from '@morphus/entities/application';
 import { AppBuilderRuntimeStoreService, AppBuilderSanitizerService } from '@app-builder/services';
-import { MorphusMessageService } from '@core/mpx-message';
+import { MpxMessageService } from '@core/morphus';
 import { formatHtmlPretty, MpxCodeEditorComponent } from '@src/components/morphus/code-editor';
 
 export type PageEditorLevel = 'container' | 'row' | 'block' | 'object';
@@ -70,25 +70,25 @@ export type PageEditorFieldType =
 export class PageEditorComponent implements OnChanges {
   private readonly sanitizer = inject(AppBuilderSanitizerService);
   private readonly runtimeStore = inject(AppBuilderRuntimeStoreService);
-  private readonly messageService = inject(MorphusMessageService);
+  private readonly messageService = inject(MpxMessageService);
 
   @ViewChild('visualPreviewCanvas')
   protected visualPreviewCanvasRef?: ElementRef<HTMLDivElement>;
 
-  @Input() page: Partial<MorphusApplicationSubModuleRef> | null = null;
+  @Input() page: Partial<MpxApplicationSubModuleRef> | null = null;
   @Input() appPrefix = 'APP';
   @Input() saving = false;
   @Input() initialHtml = '';
 
-  @Output() readonly pageChange = new EventEmitter<Partial<MorphusApplicationSubModuleRef>>();
+  @Output() readonly pageChange = new EventEmitter<Partial<MpxApplicationSubModuleRef>>();
   @Output() readonly savePage = new EventEmitter<void>();
-  @Output() readonly autoSavePage = new EventEmitter<Partial<MorphusApplicationSubModuleRef>>();
+  @Output() readonly autoSavePage = new EventEmitter<Partial<MpxApplicationSubModuleRef>>();
   @Output() readonly cancelEditor = new EventEmitter<void>();
   @Output() readonly resetPage = new EventEmitter<void>();
   @Output() readonly openLivePreview = new EventEmitter<void>();
 
   /** Sinal interno espelhando a página atual para reatividade instantânea */
-  protected readonly pageSignal = signal<Partial<MorphusApplicationSubModuleRef> | null>(null);
+  protected readonly pageSignal = signal<Partial<MpxApplicationSubModuleRef> | null>(null);
 
   /** Modo de Construção da Página na Fase 1: false = 1 - Editor Visual | true = 2 - Editor HTML */
   protected readonly isCustomHtmlMode = computed<boolean>(
@@ -1032,7 +1032,7 @@ export class PageEditorComponent implements OnChanges {
     if (isCustomHtml) {
       // Se o HTML estiver vazio (página nova / apenas espaços vazios iniciais), vai direto sem exibir a mensagem!
       if (this.isPageEditorEmptyOrDefault(curr.htmlContent || '')) {
-        const next: Partial<MorphusApplicationSubModuleRef> = {
+        const next: Partial<MpxApplicationSubModuleRef> = {
           ...curr,
           customHtmlContent: curr.customHtmlContent ?? '',
           isCustomHtml: true,
@@ -1060,7 +1060,7 @@ export class PageEditorComponent implements OnChanges {
           const latest = this.pageSignal();
           if (!latest) return;
           const baseEditorHtml = latest.htmlContent || '';
-          const next: Partial<MorphusApplicationSubModuleRef> = {
+          const next: Partial<MpxApplicationSubModuleRef> = {
             ...latest,
             htmlContent: baseEditorHtml,
             customHtmlContent: latest.customHtmlContent || baseEditorHtml,
@@ -1080,7 +1080,7 @@ export class PageEditorComponent implements OnChanges {
     const customHtml = (curr.customHtmlContent ?? '').trim();
     if (!customHtml || customHtml === baseHtml) {
       const editorHtml = curr.htmlContent || '';
-      const restored: Partial<MorphusApplicationSubModuleRef> = {
+      const restored: Partial<MpxApplicationSubModuleRef> = {
         ...curr,
         htmlContent: editorHtml,
         customHtmlContent: curr.customHtmlContent,
@@ -1117,7 +1117,7 @@ export class PageEditorComponent implements OnChanges {
         const latest = this.pageSignal();
         if (!latest) return;
         const editorHtml = latest.htmlContent || '';
-        const restored: Partial<MorphusApplicationSubModuleRef> = {
+        const restored: Partial<MpxApplicationSubModuleRef> = {
           ...latest,
           htmlContent: editorHtml,
           // Mantém o customHtmlContent guardado no banco para caso o usuário volte ao Editor HTML!
@@ -1152,7 +1152,7 @@ export class PageEditorComponent implements OnChanges {
         this.undoTypingTimer = null;
       }, 900);
     }
-    const next: Partial<MorphusApplicationSubModuleRef> = {
+    const next: Partial<MpxApplicationSubModuleRef> = {
       ...curr,
       [field]: value,
       isCustomHtml: true,
@@ -1578,7 +1578,7 @@ export class PageEditorComponent implements OnChanges {
   private undoTypingTimer: ReturnType<typeof setTimeout> | null = null;
   private autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
-  private scheduleAutoSave(pageState: Partial<MorphusApplicationSubModuleRef>, delayMs = 400): void {
+  private scheduleAutoSave(pageState: Partial<MpxApplicationSubModuleRef>, delayMs = 400): void {
     if (this.autoSaveTimer) {
       clearTimeout(this.autoSaveTimer);
     }
@@ -1656,7 +1656,7 @@ export class PageEditorComponent implements OnChanges {
       this.pushUndoHistory(curr.htmlContent || '');
     }
 
-    const next: Partial<MorphusApplicationSubModuleRef> = {
+    const next: Partial<MpxApplicationSubModuleRef> = {
       ...curr,
       htmlContent: pretty,
       isCustomHtml: false,

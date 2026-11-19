@@ -1,6 +1,6 @@
 import { Directive, computed, input, inject } from '@angular/core';
 import { ClassValue } from 'cn';
-import { bui } from '../utils/bui';
+import { bui } from '@core/builder-kit/utils/bui';
 
 // -----------------------------------------------------------------------------
 // Sidebar Root

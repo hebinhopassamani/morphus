@@ -1,3 +1,3 @@
-import { IWorkspaceReflected } from './workspace.reflected';
+import { WorkspaceReflected } from './workspace.reflected';
 
-export interface IWorkspaceEmpty extends Partial<IWorkspaceReflected> {}
+export interface WorkspaceEmpty extends Partial<WorkspaceReflected> {}

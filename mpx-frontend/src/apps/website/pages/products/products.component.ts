@@ -5,7 +5,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { environment } from '@/environments/environment';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 export interface PublicProductCard {
   id: string;
@@ -111,7 +111,7 @@ const DEFAULT_PRODUCTS: PublicProductCard[] = [
 })
 export class ProductsComponent implements OnInit {
   private readonly http = inject(HttpClient);
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   protected readonly products = signal<PublicProductCard[]>(DEFAULT_PRODUCTS);
 
   ngOnInit(): void {

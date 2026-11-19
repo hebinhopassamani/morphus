@@ -1,8 +1,8 @@
-import { MorphusValidator } from '@core/mpx-validators';
+import { MpxValidator } from '@core/morphus';
 import { User } from '@security/entities/user';
 
-export class UserValidator extends MorphusValidator<User & { password?: string }> {
-  public configure(builder: MorphusValidator<User & { password?: string }>): void {
+export class UserValidator extends MpxValidator<User & { password?: string }> {
+  public configure(builder: MpxValidator<User & { password?: string }>): void {
     builder.messageForAll().withError('required').showMessage('Este campo é obrigatório');
 
     builder

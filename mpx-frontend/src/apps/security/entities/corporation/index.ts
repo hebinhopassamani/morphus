@@ -1,3 +1,3 @@
 export * from './corporation.reflected';
-export * from './corporation';
+export * from './corporation.entity';
 export * from './corporation.empty';

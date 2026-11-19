@@ -150,7 +150,7 @@ import { MatSlideToggle } from '@angular/material/slide-toggle';
     </div>
   `,
 })
-export default class SettingsBilling {
+export class SettingsBilling {
   protected readonly pricePerMember = 12;
   protected readonly renewalDate = new Date(Date.now() + 12 * 86400000);
   protected readonly seats = { used: 29, total: 40 };

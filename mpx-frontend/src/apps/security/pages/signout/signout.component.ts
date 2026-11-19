@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 @Component({
   selector: 'sec-signout',
@@ -8,7 +8,7 @@ import { Auth } from '@core/mpx-auth';
   standalone: true,
 })
 export class SignoutComponent implements OnInit {
-  private readonly auth = inject(Auth);
+  private readonly auth = inject(MpxSecurity);
 
   ngOnInit(): void {
     this.auth.logout();

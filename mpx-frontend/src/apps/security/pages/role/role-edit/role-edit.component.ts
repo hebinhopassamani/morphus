@@ -1,15 +1,14 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
 import {
-  DefaultApplication,
-  DefaultModule,
-  DefaultSubModule,
-  IMorphusEditComponent,
-  MorphusEditComponent,
-  MorphusEditShared,
-  NgForm,
-} from '@core/mpx-shared/edit';
-import { MorphusApplication } from '@morphus/entities/application';
+  MpxDefaultApplication,
+  MpxDefaultModule,
+  MpxDefaultSubModule,
+} from '@core/morphus';
+import { MpxEditShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Module } from '@security/entities/module';
 import { Role } from '@security/entities/role';
@@ -22,20 +21,20 @@ import { RoleValidator } from '../validators/role.validator';
 @Component({
   selector: 'mpx-role-edit',
   standalone: true,
-  imports: [MorphusEditShared],
+  imports: [MpxEditShared],
   styleUrl: './role-edit.component.css',
   templateUrl: './role-edit.component.html',
 })
 export class RoleEditComponent
-  extends MorphusEditComponent<Role, RoleValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<Role, RoleValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly roleService = inject(RoleService);
   private readonly applicationService = inject(ApplicationService);
   private readonly moduleService = inject(ModuleService);
   private readonly subModuleService = inject(SubModuleService);
 
-  protected readonly applications = signal<MorphusApplication[]>([{ ...DefaultApplication }]);
+  protected readonly applications = signal<MpxApplication[]>([{ ...MpxDefaultApplication }]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   protected readonly selectedApplicationId = signal<string | undefined>(undefined);
@@ -43,13 +42,13 @@ export class RoleEditComponent
   protected readonly availableModules = computed<Module[]>(() => {
     const appId = this.selectedApplicationId();
     const list = appId ? this.allModules().filter((m) => m.applicationId === appId) : [];
-    return [{ ...DefaultModule }, ...list];
+    return [{ ...MpxDefaultModule }, ...list];
   });
 
   protected readonly availableSubModules = computed<SubModule[]>(() => {
     const modId = this.entity().moduleId;
     const list = modId ? this.allSubModules().filter((s) => s.moduleId === modId) : [];
-    return [{ ...DefaultSubModule }, ...list];
+    return [{ ...MpxDefaultSubModule }, ...list];
   });
 
   constructor() {
@@ -76,7 +75,7 @@ export class RoleEditComponent
       firstValueFrom(this.subModuleService.getAll()),
     ]);
 
-    this.applications.set([{ ...DefaultApplication }, ...(apps ?? [])]);
+    this.applications.set([{ ...MpxDefaultApplication }, ...(apps ?? [])]);
     this.allModules.set(mods ?? []);
     this.allSubModules.set(subMods ?? []);
 

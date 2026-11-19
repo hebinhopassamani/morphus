@@ -6,8 +6,8 @@ import { MatIcon } from '@angular/material/icon';
 import { MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusNxNComponent, MorphusNxNComponent } from '@core/mpx-base';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxNxnComponent, MpxNxnComponent } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Claim } from '@security/entities/claim';
 import { Module } from '@security/entities/module';
@@ -39,8 +39,8 @@ import { SubModuleService } from '@security/services/sub-module.service';
   templateUrl: './role-claim.component.html',
 })
 export class RoleClaimComponent
-  extends MorphusNxNComponent<RoleClaim, Claim>
-  implements IMorphusNxNComponent, OnInit, OnDestroy
+  extends MpxNxnComponent<RoleClaim, Claim>
+  implements IMpxNxnComponent, OnInit, OnDestroy
 {
   private readonly roleService = inject(RoleService);
   private readonly claimService = inject(ClaimService);
@@ -52,7 +52,7 @@ export class RoleClaimComponent
   protected readonly roleId = signal<string>('');
   protected readonly role = signal<Role | null>(null);
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MpxApplication[]>([]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   protected readonly allClaims = signal<Claim[]>([]);

@@ -14,7 +14,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { ClassValue } from 'cn';
-import { bui, UniqueId } from '../utils';
+import { bui, UniqueId } from '@core/builder-kit/utils';
 
 // -----------------------------------------------------------------------------
 // Collapsible Root

@@ -6,7 +6,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuContent, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import { CorporationSummary } from '@security/entities/session';
 
 type CardAccent = {
@@ -63,7 +63,7 @@ const CARD_ACCENTS: CardAccent[] = [
   standalone: true,
 })
 export class SelectCorporationComponent implements OnInit {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

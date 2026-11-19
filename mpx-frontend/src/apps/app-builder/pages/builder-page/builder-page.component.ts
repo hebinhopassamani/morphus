@@ -17,12 +17,12 @@ import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { formatHtmlPretty } from '@src/components/morphus/code-editor';
 import {
-  MorphusApplication,
-  MorphusApplicationModuleRef,
-  MorphusApplicationSubModuleRef,
+  MpxApplication,
+  MpxApplicationModuleRef,
+  MpxApplicationSubModuleRef,
 } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { AppBuilderMatchedPage } from '@app-builder/entities';
 import {
   AppBuilderRecord,
@@ -62,7 +62,7 @@ export class AppBuilderPageComponent {
   private readonly sanitizer = inject(AppBuilderSanitizerService);
   private readonly runtimeStore = inject(AppBuilderRuntimeStoreService);
   private readonly applicationService = inject(ApplicationService);
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
 
   @ViewChild('runtimeRoot') private runtimeRootRef?: ElementRef<HTMLElement>;
 
@@ -70,7 +70,7 @@ export class AppBuilderPageComponent {
   private readonly urlSegments = toSignal(this.route.url, { initialValue: [] });
 
   protected readonly isLoading = signal<boolean>(false);
-  protected readonly fetchedApp = signal<MorphusApplication | null>(null);
+  protected readonly fetchedApp = signal<MpxApplication | null>(null);
   protected readonly editingRecordId = signal<string | null>(null);
   protected readonly editingCollectionKey = signal<string | null>(null);
 
@@ -156,7 +156,7 @@ export class AppBuilderPageComponent {
       .join('/');
   });
 
-  protected readonly activeApp = computed<MorphusApplication | null>(() => {
+  protected readonly activeApp = computed<MpxApplication | null>(() => {
     const keyUpper = this.appKey().trim().toUpperCase();
     const fetched = this.fetchedApp();
     if (
@@ -186,8 +186,8 @@ export class AppBuilderPageComponent {
 
     const rawPath = this.subPath().trim();
     const allItems: {
-      module: MorphusApplicationModuleRef;
-      subModule: MorphusApplicationSubModuleRef;
+      module: MpxApplicationModuleRef;
+      subModule: MpxApplicationSubModuleRef;
     }[] = [];
 
     for (const mod of app.applicationModules) {

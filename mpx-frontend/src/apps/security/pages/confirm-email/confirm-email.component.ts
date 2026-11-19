@@ -3,7 +3,7 @@ import { MatButton } from '@angular/material/button';
 import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 @Component({
   selector: 'sec-confirm-email',
@@ -13,7 +13,7 @@ import { Auth } from '@core/mpx-auth';
   standalone: true,
 })
 export class ConfirmEmailComponent implements OnInit {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 

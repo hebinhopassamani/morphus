@@ -1,12 +1,9 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusListComponent,
-  MorphusFilter,
-  MorphusListComponent,
-  MorphusListShared,
-} from '@core/mpx-shared/list';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxListShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Module } from '@security/entities/module';
 import { Role } from '@security/entities/role';
@@ -18,13 +15,13 @@ import { SubModuleService } from '@security/services/sub-module.service';
 @Component({
   selector: 'mpx-role-list',
   standalone: true,
-  imports: [MorphusListShared],
+  imports: [MpxListShared],
   styleUrl: './role-list.component.css',
   templateUrl: './role-list.component.html',
 })
 export class RoleListComponent
-  extends MorphusListComponent<Role>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<Role>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   private readonly roleService = inject(RoleService);
   private readonly applicationService = inject(ApplicationService);
@@ -36,7 +33,7 @@ export class RoleListComponent
   protected readonly selectedModuleId = signal<string>('');
   protected readonly selectedSubModuleId = signal<string>('');
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MpxApplication[]>([]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   private cachedRoles: Role[] = [];
@@ -109,7 +106,7 @@ export class RoleListComponent
     await this.loadList();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     let items = this.cachedRoles;
     const appId = this.selectedApplicationId();
     const modId = this.selectedModuleId();

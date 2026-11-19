@@ -7,10 +7,11 @@ import { MatFormField, MatInput, MatPrefix, MatSuffix } from '@angular/material/
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatTableModule } from '@angular/material/table';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   selector: 'mpx-application-list',
@@ -34,13 +35,13 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
   templateUrl: './application-list.component.html',
 })
 export class ApplicationListComponent
-  extends MorphusListComponent<MorphusApplication>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<MpxApplication>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   private readonly applicationService = inject(ApplicationService);
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
   protected search = '';
-  private cachedApplications: MorphusApplication[] = [];
+  private cachedApplications: MpxApplication[] = [];
 
   protected readonly displayedColumns = ['name', 'description', 'origin', 'actions'];
 
@@ -57,7 +58,7 @@ export class ApplicationListComponent
     this.destroySubscriptions();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     if (this.cachedApplications.length === 0) {
       this.cachedApplications = await firstValueFrom(this.applicationService.getList());
     }
@@ -75,7 +76,7 @@ export class ApplicationListComponent
     this.setList(searched);
   }
 
-  isNativeApp(entity: MorphusApplication): boolean {
+  isNativeApp(entity: MpxApplication): boolean {
     return this.context.isNativeMorphusApp(entity);
   }
 
@@ -83,7 +84,7 @@ export class ApplicationListComponent
     void this.router.navigate(['new'], { relativeTo: this.activatedRoute });
   }
 
-  editEntity(entity: MorphusApplication): void {
+  editEntity(entity: MpxApplication): void {
     if (this.isNativeApp(entity)) {
       const code = (entity.prefix || entity.key || '').trim();
       if (code) {
@@ -94,21 +95,21 @@ export class ApplicationListComponent
     void this.router.navigate([entity.id], { relativeTo: this.activatedRoute });
   }
 
-  openApplicationPages(entity: MorphusApplication): void {
+  openApplicationPages(entity: MpxApplication): void {
     void this.router.navigate([entity.id], {
       relativeTo: this.activatedRoute,
       queryParams: { tab: 'pages' },
     });
   }
 
-  openApplicationUsers(entity: MorphusApplication): void {
+  openApplicationUsers(entity: MpxApplication): void {
     void this.router.navigate([entity.id], {
       relativeTo: this.activatedRoute,
       queryParams: { tab: 'users' },
     });
   }
 
-  deleteEntity(entity: MorphusApplication): void {
+  deleteEntity(entity: MpxApplication): void {
     if (entity.system) {
       this.messageService.showWarn(
         'As aplicações nativas do ecossistema não podem ser excluídas.',

@@ -9,7 +9,7 @@ import {
 } from '@angular/material/input';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-changes';
 
 @Component({
@@ -157,8 +157,8 @@ import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-chang
     </form>
   `,
 })
-export default class SettingsWorkspace {
-  private readonly auth = inject(Auth);
+export class SettingsWorkspace {
+  private readonly auth = inject(MpxSecurity);
   protected readonly requireTwoFactor = signal(false);
   protected readonly allowGuests = signal(true);
 

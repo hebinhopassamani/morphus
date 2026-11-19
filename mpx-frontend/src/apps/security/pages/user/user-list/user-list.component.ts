@@ -1,24 +1,21 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusListComponent,
-  MorphusFilter,
-  MorphusListComponent,
-  MorphusListShared,
-} from '@core/mpx-shared/list';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxListShared } from '@core/morphus';
 import { User } from '@security/entities/user';
 import { UserService } from '@security/services/user.service';
 
 @Component({
   selector: 'mpx-user-list',
   standalone: true,
-  imports: [MorphusListShared],
+  imports: [MpxListShared],
   styleUrl: './user-list.component.css',
   templateUrl: './user-list.component.html',
 })
 export class UserListComponent
-  extends MorphusListComponent<User>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<User>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   private readonly userService = inject(UserService);
 
@@ -48,7 +45,7 @@ export class UserListComponent
     this.destroySubscriptions();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     if (this.cachedUsers.length === 0) {
       this.cachedUsers = (await firstValueFrom(this.userService.getAll())) ?? [];
     }

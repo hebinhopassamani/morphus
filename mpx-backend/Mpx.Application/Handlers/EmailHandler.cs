@@ -36,8 +36,8 @@ public class EmailHandler
       MailSent = false
     };
 
-    _senderName = _configuration["SmtpSettings:SenderName"] ?? "laupaconsultoria@gmail.com";
-    _senderEmail = _configuration["SmtpSettings:SenderEmail"] ?? "laupaconsultoria@gmail.com";
+    _senderName = _configuration["SmtpSettings:SenderName"] ?? "Morphus";
+    _senderEmail = _configuration["SmtpSettings:SenderEmail"] ?? "contato@morphus.me";
 
     var recursosEmbutidos = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames();
 
@@ -229,7 +229,7 @@ public class EmailHandler
       };
 
       var server = _configuration["SmtpSettings:Server"];
-      var port = int.Parse(_configuration["SmtpSettings:Port"] ?? "587");
+      var port = int.Parse(_configuration["SmtpSettings:Port"] ?? "465");
       var password = Environment.GetEnvironmentVariable("SMTP_PASSWORD") ?? _configuration["SmtpSettings:Password"];
 
       if (string.IsNullOrWhiteSpace(server) || string.IsNullOrWhiteSpace(password))
@@ -238,7 +238,7 @@ public class EmailHandler
         return _email;
       }
 
-      await smtp.ConnectAsync(server, port, SecureSocketOptions.StartTls);
+      await smtp.ConnectAsync(server, port, SecureSocketOptions.Auto);
       await smtp.AuthenticateAsync(_senderEmail, password);
       await smtp.SendAsync(_emailMessage);
       await smtp.DisconnectAsync(true);

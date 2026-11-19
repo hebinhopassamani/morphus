@@ -7,7 +7,7 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 import { MpxMessageComponent } from '@/components/morphus/message';
 import { MpxToastComponent } from '@/components/morphus/toast';
 
@@ -21,7 +21,7 @@ import { MpxToastComponent } from '@/components/morphus/toast';
   templateUrl: './app.component.html',
 })
 export class AppComponent {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   private readonly router = inject(Router);
 
   protected readonly isNavigating = signal(false);

@@ -1,8 +1,8 @@
-import { MorphusValidator } from '@core/mpx-validators';
+import { MpxValidator } from '@core/morphus';
 import { Corporation } from '@security/entities/corporation';
 
-export class CorporationValidator extends MorphusValidator<Corporation> {
-  public configure(builder: MorphusValidator<Corporation>): void {
+export class CorporationValidator extends MpxValidator<Corporation> {
+  public configure(builder: MpxValidator<Corporation>): void {
     builder.messageForAll().withError('required').showMessage('Este campo é obrigatório');
 
     builder

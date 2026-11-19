@@ -1,8 +1,8 @@
-import { MorphusValidator } from '@core/mpx-validators';
-import { IModule } from '@security/entities/module';
+import { MpxValidator } from '@core/morphus';
+import { Module } from '@security/entities/module';
 
-export class ModuleValidator extends MorphusValidator<IModule> {
-  public configure(builder: MorphusValidator<IModule>): void {
+export class ModuleValidator extends MpxValidator<Module> {
+  public configure(builder: MpxValidator<Module>): void {
     builder.messageForAll().withError('required').showMessage('Este campo é obrigatório');
 
     builder

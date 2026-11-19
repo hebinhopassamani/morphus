@@ -14,9 +14,24 @@
 
   // Mapeamentos específicos de tecnologias do projeto
   "files.associations": {
-    "*.css": "tailwindcss"
+    "*.css": "tailwindcss",
+    ".morphus": "markdown"
   },
   "material-icon-theme.folders.color": "#C870CC",
+  "material-icon-theme.files.associations": {
+    ".morphus": "architecture",
+    "*.entity.ts": "database",
+    "*.reflected.ts": "prisma",
+    "*.empty.ts": "json",
+    "*.model.ts": "tune",
+    "*.dto.ts": "proto",
+    "*.interface.ts": "typescript-def",
+    "*.builder.ts": "hammer",
+    "*.validator.ts": "verified",
+    "*.provider.ts": "angular-provider",
+    "*.default.ts": "settings",
+    "*.routes.ts": "routing"
+  },
 
   // Limpeza do Explorer: Oculta pastas de build e arquivos de config locais
   "files.exclude": {

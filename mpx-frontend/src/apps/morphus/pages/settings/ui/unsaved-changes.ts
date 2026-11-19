@@ -1,7 +1,7 @@
 import { Component, inject, output } from '@angular/core';
 import { MatButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
-import { Theming } from '@core/mpx-theming';
+import { MpxTheming } from '@core/morphus';
 
 @Component({
   selector: 'settings-unsaved-changes',
@@ -46,6 +46,6 @@ import { Theming } from '@core/mpx-theming';
   `,
 })
 export class SettingsUnsavedChanges {
-  protected readonly theming = inject(Theming);
+  protected readonly theming = inject(MpxTheming);
   readonly discard = output();
 }

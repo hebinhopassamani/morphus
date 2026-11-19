@@ -7,16 +7,18 @@ import { MatOption, MatSelect } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
 import { MatTooltip } from '@angular/material/tooltip';
 import {
-  andOrOptions,
-  AndOrCondicionalType,
-  DefaultFilterColumn,
-  DefaultFilterOperator,
-  DefaultFilterRow,
-  FilterColumn,
-  FilterOperator,
-  FilterRow,
-  OptionSelectEvent,
-} from '@core/mpx-filter';
+  MpxAndOrOptions,
+  MpxDefaultFilterColumn,
+  MpxDefaultFilterOperator,
+  MpxDefaultFilterRow,
+} from '@core/morphus';
+import {
+  MpxFilterColumn,
+  MpxFilterOperator,
+  MpxFilterRow,
+  MpxOptionSelectEvent,
+} from '@core/morphus';
+import { MpxAndOrCondicionalType } from '@core/morphus';
 
 @Component({
   selector: 'mpx-filter-attribute',
@@ -38,20 +40,20 @@ import {
   templateUrl: './filter-attribute.component.html',
 })
 export class MpxFilterAttributeComponent implements OnInit, OnChanges {
-  public readonly columns = input<FilterColumn[]>([]);
+  public readonly columns = input<MpxFilterColumn[]>([]);
 
   @Input({ required: true })
-  public filterRow: FilterRow = {
-    ...DefaultFilterRow,
-    column: { ...DefaultFilterColumn },
-    operator: { ...DefaultFilterOperator },
+  public filterRow: MpxFilterRow = {
+    ...MpxDefaultFilterRow,
+    column: { ...MpxDefaultFilterColumn },
+    operator: { ...MpxDefaultFilterOperator },
   };
 
-  public readonly onNewFilterRow = output<FilterRow>();
-  public readonly onDeleteFilterRow = output<FilterRow>();
-  public readonly onOptionListSelected = output<OptionSelectEvent>();
+  public readonly onNewFilterRow = output<MpxFilterRow>();
+  public readonly onDeleteFilterRow = output<MpxFilterRow>();
+  public readonly onOptionListSelected = output<MpxOptionSelectEvent>();
 
-  protected readonly andOrOptions = andOrOptions;
+  protected readonly andOrOptions = MpxAndOrOptions;
   protected readonly rowInvalid = signal<boolean>(true);
   protected selectedOptionItem: Record<string, unknown> | null = null;
 
@@ -63,10 +65,10 @@ export class MpxFilterAttributeComponent implements OnInit, OnChanges {
     this.syncRowState();
   }
 
-  protected readonly compareColumns = (a?: FilterColumn, b?: FilterColumn): boolean =>
+  protected readonly compareColumns = (a?: MpxFilterColumn, b?: MpxFilterColumn): boolean =>
     a?.name === b?.name;
 
-  protected readonly compareOperators = (a?: FilterOperator, b?: FilterOperator): boolean =>
+  protected readonly compareOperators = (a?: MpxFilterOperator, b?: MpxFilterOperator): boolean =>
     a?.key === b?.key && a?.label === b?.label;
 
   protected readonly compareOptions = (
@@ -86,15 +88,15 @@ export class MpxFilterAttributeComponent implements OnInit, OnChanges {
     return false;
   };
 
-  protected onColumnSelected(column: FilterColumn): void {
+  protected onColumnSelected(column: MpxFilterColumn): void {
     this.filterRow.column = column;
-    this.filterRow.operator = { ...DefaultFilterOperator };
+    this.filterRow.operator = { ...MpxDefaultFilterOperator };
     this.selectedOptionItem = (column?.optionsDefault as Record<string, unknown>) ?? null;
     this.filterRow.value = column?.dataType === 'boolean' ? false : undefined;
     this.validateRow();
   }
 
-  protected onOperatorSelected(operator: FilterOperator): void {
+  protected onOperatorSelected(operator: MpxFilterOperator): void {
     this.filterRow.operator = operator;
     this.validateRow();
   }
@@ -121,7 +123,7 @@ export class MpxFilterAttributeComponent implements OnInit, OnChanges {
     });
   }
 
-  protected onAndOrSelected(andOrValue: AndOrCondicionalType | undefined): void {
+  protected onAndOrSelected(andOrValue: MpxAndOrCondicionalType | undefined): void {
     this.filterRow.andOr = andOrValue;
     if (andOrValue && !this.rowInvalid()) {
       this.onNewFilterRow.emit(this.filterRow);

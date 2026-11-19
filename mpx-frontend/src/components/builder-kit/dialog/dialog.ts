@@ -25,7 +25,7 @@ import {
 } from '@angular/core';
 import { ClassValue } from 'cn';
 import { filter } from 'rxjs';
-import { bui, UniqueId } from '../utils';
+import { bui, UniqueId } from '@core/builder-kit/utils';
 
 // -----------------------------------------------------------------------------
 // Dialog Injectable

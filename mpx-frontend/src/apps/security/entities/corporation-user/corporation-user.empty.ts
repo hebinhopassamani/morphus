@@ -1,3 +1,3 @@
-import { ICorporationUserReflected } from './corporation-user.reflected';
+import { CorporationUserReflected } from './corporation-user.reflected';
 
-export interface ICorporationUserEmpty extends Partial<ICorporationUserReflected> {}
+export interface CorporationUserEmpty extends Partial<CorporationUserReflected> {}

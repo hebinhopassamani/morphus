@@ -8,10 +8,10 @@ import {
 } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
-import { MorphusApplication } from '@morphus/entities/application';
+import { MpxSecurity } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   selector: 'mpx-morphus-dashboard',
@@ -31,11 +31,11 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
   },
   templateUrl: './morphus-dashboard.component.html',
 })
-export class MorphusDashboardComponent {
-  protected readonly auth = inject(Auth);
-  protected readonly context = inject(MorphusContextService);
+export class MpxDashboardComponent {
+  protected readonly auth = inject(MpxSecurity);
+  protected readonly context = inject(MpxContextService);
 
-  protected readonly pendingOfferApp = signal<MorphusApplication | null>(null);
+  protected readonly pendingOfferApp = signal<MpxApplication | null>(null);
   protected readonly selectedTargetWorkspaceId = signal<string>('');
   protected readonly offerInstanceMode = signal<'isolated' | 'shared'>('isolated');
   protected readonly selectedSharedSourceWorkspaceId = signal<string>('');
@@ -66,11 +66,11 @@ export class MorphusDashboardComponent {
     return filtered.length > 0 ? filtered : allWorkspaces;
   });
 
-  protected canStartFreeTrial(app: MorphusApplication): boolean {
+  protected canStartFreeTrial(app: MpxApplication): boolean {
     return !this.context.getApplicationTrialInfo(app).trialUsed;
   }
 
-  protected openOfferProvisionModal(app: MorphusApplication): void {
+  protected openOfferProvisionModal(app: MpxApplication): void {
     this.pendingOfferApp.set(app);
     const activeWsId = this.context.activeWorkspace()?.id;
     const candidates = this.availableTargetWorkspacesForOffer();

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { MorphusFilterService } from '@core/mpx-filter';
-import { ICorporationReflected } from '../entities/corporation';
+import { MpxFilterService } from '@core/morphus';
+import { CorporationReflected } from '../entities/corporation';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CorporationFilterService extends MorphusFilterService<ICorporationReflected> {
+export class CorporationFilterService extends MpxFilterService<CorporationReflected> {
   public override configFilter(): void {
     this.addAttribute('name', 'Nome Fantasia', 'text')
       .addOperator('EQUAL')

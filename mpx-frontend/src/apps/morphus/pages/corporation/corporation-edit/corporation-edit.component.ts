@@ -1,15 +1,12 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
+import { MpxEditShared } from '@core/morphus';
 import {
-  IMorphusEditComponent,
-  MorphusEditComponent,
-  MorphusEditShared,
-  NgForm,
-} from '@core/mpx-shared/edit';
-import {
-  MorphusValidationCpfCnpjShared,
-  MorphusValidationEmailShared,
-} from '@core/mpx-shared/validators';
+  MpxValidationCpfCnpjShared,
+  MpxValidationEmailShared,
+} from '@core/morphus';
 import { MpxIconSelectorComponent } from '@src/components/morphus/icon-selector';
 import { Corporation } from '@security/entities/corporation';
 import { CorporationUser } from '@security/entities/corporation-user';
@@ -22,17 +19,17 @@ import { CorporationValidator } from '../validators/corporation.validator';
   selector: 'mpx-corporation-edit',
   standalone: true,
   imports: [
-    MorphusEditShared,
-    MorphusValidationCpfCnpjShared,
-    MorphusValidationEmailShared,
+    MpxEditShared,
+    MpxValidationCpfCnpjShared,
+    MpxValidationEmailShared,
     MpxIconSelectorComponent,
   ],
   styleUrl: './corporation-edit.component.css',
   templateUrl: './corporation-edit.component.html',
 })
 export class CorporationEditComponent
-  extends MorphusEditComponent<Corporation, CorporationValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<Corporation, CorporationValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly corporationService = inject(CorporationService);
   private readonly corporationUserService = inject(CorporationUserService);

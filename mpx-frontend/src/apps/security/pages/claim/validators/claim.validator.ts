@@ -1,8 +1,8 @@
-import { MorphusValidator } from '@core/mpx-validators';
+import { MpxValidator } from '@core/morphus';
 import { Claim } from '@security/entities/claim';
 
-export class ClaimValidator extends MorphusValidator<Claim> {
-  public configure(builder: MorphusValidator<Claim>): void {
+export class ClaimValidator extends MpxValidator<Claim> {
+  public configure(builder: MpxValidator<Claim>): void {
     builder.messageForAll().withError('required').showMessage('Este campo é obrigatório');
 
     builder

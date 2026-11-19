@@ -20,10 +20,10 @@ import {
 } from '@angular/material/menu';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '@/environments/environment';
-import { Auth } from '@core/mpx-auth';
-import { MorphusApplication } from '@morphus/entities/application';
+import { MpxSecurity } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { Workspace } from '@morphus/entities/workspace';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import {
   CorporationSummary,
   PortalPreferenceItem,
@@ -80,7 +80,7 @@ export type PortalAppCard = {
   isActiveApp: boolean;
   isInstalled: boolean;
   modules: PortalModuleItem[];
-  rawApp?: MorphusApplication;
+  rawApp?: MpxApplication;
 };
 
 export type ShowcaseHighlightItem = {
@@ -175,8 +175,8 @@ const CARD_ACCENT_MAP: Record<CardColorKey, CardAccent> = {
   templateUrl: './home.component.html',
 })
 export class HomeComponent implements AfterViewInit, OnDestroy {
-  protected readonly auth = inject(Auth);
-  protected readonly context = inject(MorphusContextService);
+  protected readonly auth = inject(MpxSecurity);
+  protected readonly context = inject(MpxContextService);
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
   private readonly hostRef = inject<ElementRef<HTMLElement>>(ElementRef);

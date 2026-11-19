@@ -1,15 +1,14 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
 import {
-  DefaultApplication,
-  DefaultModule,
-  DefaultSubModule,
-  IMorphusEditComponent,
-  MorphusEditComponent,
-  MorphusEditShared,
-  NgForm,
-} from '@core/mpx-shared/edit';
-import { MorphusApplication } from '@morphus/entities/application';
+  MpxDefaultApplication,
+  MpxDefaultModule,
+  MpxDefaultSubModule,
+} from '@core/morphus';
+import { MpxEditShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Claim } from '@security/entities/claim';
 import { Module } from '@security/entities/module';
@@ -22,20 +21,20 @@ import { ClaimValidator } from '../validators/claim.validator';
 @Component({
   selector: 'mpx-claim-edit',
   standalone: true,
-  imports: [MorphusEditShared],
+  imports: [MpxEditShared],
   styleUrl: './claim-edit.component.css',
   templateUrl: './claim-edit.component.html',
 })
 export class ClaimEditComponent
-  extends MorphusEditComponent<Claim, ClaimValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<Claim, ClaimValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly claimService = inject(ClaimService);
   private readonly applicationService = inject(ApplicationService);
   private readonly moduleService = inject(ModuleService);
   private readonly subModuleService = inject(SubModuleService);
 
-  protected readonly applications = signal<MorphusApplication[]>([{ ...DefaultApplication }]);
+  protected readonly applications = signal<MpxApplication[]>([{ ...MpxDefaultApplication }]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   protected readonly selectedApplicationId = signal<string | undefined>(undefined);
@@ -43,13 +42,13 @@ export class ClaimEditComponent
   protected readonly availableModules = computed<Module[]>(() => {
     const appId = this.selectedApplicationId();
     const list = appId ? this.allModules().filter((m) => m.applicationId === appId) : [];
-    return [{ ...DefaultModule }, ...list];
+    return [{ ...MpxDefaultModule }, ...list];
   });
 
   protected readonly availableSubModules = computed<SubModule[]>(() => {
     const modId = this.entity().moduleId;
     const list = modId ? this.allSubModules().filter((s) => s.moduleId === modId) : [];
-    return [{ ...DefaultSubModule }, ...list];
+    return [{ ...MpxDefaultSubModule }, ...list];
   });
 
   constructor() {
@@ -76,7 +75,7 @@ export class ClaimEditComponent
       firstValueFrom(this.subModuleService.getAll()),
     ]);
 
-    this.applications.set([{ ...DefaultApplication }, ...(apps ?? [])]);
+    this.applications.set([{ ...MpxDefaultApplication }, ...(apps ?? [])]);
     this.allModules.set(mods ?? []);
     this.allSubModules.set(subMods ?? []);
 

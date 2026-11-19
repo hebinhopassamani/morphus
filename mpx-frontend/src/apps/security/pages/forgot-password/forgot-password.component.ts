@@ -5,7 +5,7 @@ import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatError, MatFormField, MatLabel } from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 @Component({
   selector: 'sec-forgot-password',
@@ -25,7 +25,7 @@ import { Auth } from '@core/mpx-auth';
   standalone: true,
 })
 export class ForgotPasswordComponent implements OnInit {
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
   private readonly fb = inject(FormBuilder);
   protected readonly submitted = signal(false);
 

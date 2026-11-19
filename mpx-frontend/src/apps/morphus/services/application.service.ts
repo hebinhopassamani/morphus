@@ -5,12 +5,12 @@ import { environment } from '@/environments/environment';
 import {
   ApplicationDomainPreviewRequest,
   ApplicationDomainPreviewResponse,
-  MorphusApplication,
-  MorphusApplicationModuleRef,
-  MorphusApplicationSettingRef,
-  MorphusApplicationSubModuleRef,
-  MorphusCategoryRef,
-  MorphusCorporationDomainRef,
+  MpxApplication,
+  MpxApplicationModuleRef,
+  MpxApplicationSettingRef,
+  MpxApplicationSubModuleRef,
+  MpxCategoryRef,
+  MpxCorporationDomainRef,
   UpdateApplicationBasicSettingsRequest,
 } from '@morphus/entities/application';
 
@@ -21,24 +21,24 @@ export class ApplicationService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.apiUrl}/application`;
 
-  getById(id: string): Observable<MorphusApplication> {
-    return this.http.get<MorphusApplication>(`${this.apiUrl}/${id}`);
+  getById(id: string): Observable<MpxApplication> {
+    return this.http.get<MpxApplication>(`${this.apiUrl}/${id}`);
   }
 
-  getList(): Observable<MorphusApplication[]> {
-    return this.http.get<MorphusApplication[]>(this.apiUrl);
+  getList(): Observable<MpxApplication[]> {
+    return this.http.get<MpxApplication[]>(this.apiUrl);
   }
 
-  getByWorkspace(workspaceId: string): Observable<MorphusApplication[]> {
-    return this.http.get<MorphusApplication[]>(`${this.apiUrl}/workspace/${workspaceId}`);
+  getByWorkspace(workspaceId: string): Observable<MpxApplication[]> {
+    return this.http.get<MpxApplication[]>(`${this.apiUrl}/workspace/${workspaceId}`);
   }
 
-  getByKey(key: string): Observable<MorphusApplication> {
-    return this.http.get<MorphusApplication>(`${this.apiUrl}/key/${key}`);
+  getByKey(key: string): Observable<MpxApplication> {
+    return this.http.get<MpxApplication>(`${this.apiUrl}/key/${key}`);
   }
 
-  getCategories(): Observable<MorphusCategoryRef[]> {
-    return this.http.get<MorphusCategoryRef[]>(`${this.apiUrl}/categories`);
+  getCategories(): Observable<MpxCategoryRef[]> {
+    return this.http.get<MpxCategoryRef[]>(`${this.apiUrl}/categories`);
   }
 
   previewDomain(
@@ -50,38 +50,38 @@ export class ApplicationService {
     );
   }
 
-  getCorporationDomains(): Observable<MorphusCorporationDomainRef[]> {
-    return this.http.get<MorphusCorporationDomainRef[]>(`${this.apiUrl}/corporation-domains`);
+  getCorporationDomains(): Observable<MpxCorporationDomainRef[]> {
+    return this.http.get<MpxCorporationDomainRef[]>(`${this.apiUrl}/corporation-domains`);
   }
 
   saveCorporationDomain(
-    domain: Partial<MorphusCorporationDomainRef>,
-  ): Observable<MorphusCorporationDomainRef> {
+    domain: Partial<MpxCorporationDomainRef>,
+  ): Observable<MpxCorporationDomainRef> {
     const payload = { ...domain } as Record<string, unknown>;
     if (!payload['id']) {
       delete payload['id'];
     }
-    return this.http.post<MorphusCorporationDomainRef>(
+    return this.http.post<MpxCorporationDomainRef>(
       `${this.apiUrl}/corporation-domains`,
       payload,
     );
   }
 
-  getApplicationSettings(applicationId: string): Observable<MorphusApplicationSettingRef[]> {
-    return this.http.get<MorphusApplicationSettingRef[]>(
+  getApplicationSettings(applicationId: string): Observable<MpxApplicationSettingRef[]> {
+    return this.http.get<MpxApplicationSettingRef[]>(
       `${this.apiUrl}/${applicationId}/settings`,
     );
   }
 
   saveApplicationSetting(
     applicationId: string,
-    setting: Partial<MorphusApplicationSettingRef>,
-  ): Observable<MorphusApplicationSettingRef> {
+    setting: Partial<MpxApplicationSettingRef>,
+  ): Observable<MpxApplicationSettingRef> {
     const payload = { ...setting } as Record<string, unknown>;
     if (!payload['id']) {
       delete payload['id'];
     }
-    return this.http.post<MorphusApplicationSettingRef>(
+    return this.http.post<MpxApplicationSettingRef>(
       `${this.apiUrl}/${applicationId}/settings`,
       payload,
     );
@@ -94,8 +94,8 @@ export class ApplicationService {
   updateBasicSettings(
     applicationId: string,
     request: UpdateApplicationBasicSettingsRequest,
-  ): Observable<MorphusApplication> {
-    return this.http.put<MorphusApplication>(
+  ): Observable<MpxApplication> {
+    return this.http.put<MpxApplication>(
       `${this.apiUrl}/${applicationId}/basic-settings`,
       request,
     );
@@ -103,13 +103,13 @@ export class ApplicationService {
 
   saveModule(
     applicationId: string,
-    module: Partial<MorphusApplicationModuleRef>,
-  ): Observable<MorphusApplicationModuleRef> {
+    module: Partial<MpxApplicationModuleRef>,
+  ): Observable<MpxApplicationModuleRef> {
     const payload = { ...module } as Record<string, unknown>;
     if (!payload['id']) {
       delete payload['id'];
     }
-    return this.http.post<MorphusApplicationModuleRef>(
+    return this.http.post<MpxApplicationModuleRef>(
       `${this.apiUrl}/${applicationId}/modules`,
       payload,
     );
@@ -121,13 +121,13 @@ export class ApplicationService {
 
   savePage(
     moduleId: string,
-    page: Partial<MorphusApplicationSubModuleRef>,
-  ): Observable<MorphusApplicationSubModuleRef> {
+    page: Partial<MpxApplicationSubModuleRef>,
+  ): Observable<MpxApplicationSubModuleRef> {
     const payload = { ...page } as Record<string, unknown>;
     if (!payload['id']) {
       delete payload['id'];
     }
-    return this.http.post<MorphusApplicationSubModuleRef>(
+    return this.http.post<MpxApplicationSubModuleRef>(
       `${this.apiUrl}/modules/${moduleId}/pages`,
       payload,
     );
@@ -137,7 +137,7 @@ export class ApplicationService {
     return this.http.delete<void>(`${this.apiUrl}/pages/${pageId}`);
   }
 
-  create(application: Partial<MorphusApplication>): Observable<MorphusApplication> {
+  create(application: Partial<MpxApplication>): Observable<MpxApplication> {
     const payload = { ...application } as Record<string, unknown>;
     if (
       !payload['id'] ||
@@ -146,11 +146,11 @@ export class ApplicationService {
     ) {
       delete payload['id'];
     }
-    return this.http.post<MorphusApplication>(this.apiUrl, payload);
+    return this.http.post<MpxApplication>(this.apiUrl, payload);
   }
 
-  update(application: MorphusApplication): Observable<MorphusApplication> {
-    return this.http.put<MorphusApplication>(this.apiUrl, application);
+  update(application: MpxApplication): Observable<MpxApplication> {
+    return this.http.put<MpxApplication>(this.apiUrl, application);
   }
 
   delete(id: string): Observable<void> {

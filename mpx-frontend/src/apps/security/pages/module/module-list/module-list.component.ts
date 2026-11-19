@@ -1,27 +1,24 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusListComponent,
-  MorphusFilter,
-  MorphusListComponent,
-  MorphusListShared,
-} from '@core/mpx-shared/list';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxListShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { IModule } from '@security/entities/module';
+import { Module } from '@security/entities/module';
 import { ModuleFilterService } from '@security/services/module.filter.service';
 import { ModuleService } from '@security/services/module.service';
 
 @Component({
   selector: 'mpx-module-list',
   standalone: true,
-  imports: [MorphusListShared],
+  imports: [MpxListShared],
   styleUrl: './module-list.component.css',
   templateUrl: './module-list.component.html',
 })
 export class ModuleListComponent
-  extends MorphusListComponent<IModule>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<Module>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   protected readonly moduleFilterService = inject(ModuleFilterService);
   private readonly moduleService = inject(ModuleService);
@@ -29,8 +26,8 @@ export class ModuleListComponent
 
   protected search = '';
   protected selectedApplicationId = '';
-  protected readonly applications = signal<MorphusApplication[]>([]);
-  private cachedModules: IModule[] = [];
+  protected readonly applications = signal<MpxApplication[]>([]);
+  private cachedModules: Module[] = [];
 
   protected readonly displayedColumns = [
     'name',
@@ -65,7 +62,7 @@ export class ModuleListComponent
     await this.loadList();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     if (this.cachedModules.length === 0) {
       this.cachedModules = await firstValueFrom(this.moduleService.getModules());
     }
@@ -107,7 +104,7 @@ export class ModuleListComponent
       let pendingAndOr: 'And' | 'Or' | undefined = undefined;
 
       for (const row of activeRows) {
-        const colName = row.column.name as keyof IModule;
+        const colName = row.column.name as keyof Module;
         const itemVal = item[colName];
         const filterVal = row.value;
         let matches = false;
@@ -160,18 +157,18 @@ export class ModuleListComponent
     void this.router.navigate(['new'], { relativeTo: this.activatedRoute });
   }
 
-  editEntity(entity: IModule): void {
+  editEntity(entity: Module): void {
     void this.router.navigate([entity.id], { relativeTo: this.activatedRoute });
   }
 
-  openSubModules(entity: IModule): void {
+  openSubModules(entity: Module): void {
     void this.router.navigate([entity.id], {
       relativeTo: this.activatedRoute,
       queryParams: { tab: 'submodules' },
     });
   }
 
-  async deleteEntity(entity: IModule): Promise<void> {
+  async deleteEntity(entity: Module): Promise<void> {
     if (entity.system) {
       this.messageService.showWarn(
         'Módulos nativos do sistema não podem ser excluídos.',

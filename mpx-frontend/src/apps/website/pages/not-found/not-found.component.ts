@@ -10,14 +10,14 @@ import { RouterLink } from '@angular/router';
   template: `
     <div class="relative flex min-h-dvh w-full flex-col items-center justify-center overflow-hidden bg-[#0D061A] p-6 text-center text-white">
       <img
-        src="/brand/bg-dark-watermark.jpg"
+        src="/brands/bg-dark-watermark.jpg"
         alt=""
         aria-hidden="true"
         class="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-50"
       />
       <div class="relative z-10 flex max-w-4xl flex-col items-center gap-y-6">
         <img
-          src="/brand/404-not-found.jpg"
+          src="/brands/404-not-found.jpg"
           alt="404 Page Not Found - Morphus"
           class="w-full max-w-3xl rounded-3xl border border-white/10 shadow-2xl"
         />

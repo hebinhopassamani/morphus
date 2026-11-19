@@ -108,8 +108,17 @@ services:
       - N8N_EDITOR_BASE_URL=${KALUPA_PROTOCOL:-https}://${KALUPA_PUBLIC_DOMAIN}/
       - N8N_WEBHOOK_URL=${KALUPA_PROTOCOL:-https}://${KALUPA_PUBLIC_DOMAIN}/
       - N8N_SECURE_COOKIE=${KALUPA_SECURE_COOKIE:-false}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_EMAIL_MODE=smtp
+      - N8N_SMTP_HOST=${N8N_SMTP_HOST:-smtp.hostinger.com}
+      - N8N_SMTP_PORT=${N8N_SMTP_PORT:-465}
+      - N8N_SMTP_SSL=${N8N_SMTP_SSL:-true}
+      - N8N_SMTP_USER=${N8N_SMTP_USER:-contato@morphus.me}
+      - N8N_SMTP_PASS=XRhVr5$$Lo4$$i
+      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER:-contato@morphus.me}
       - NODE_ENV=production
       - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
     volumes:
       - /files/docker-data/n8n:/home/node/.n8n
       - ${PROJECT_ROOT:?Defina PROJECT_ROOT}/mpx-kalupa/data:/files

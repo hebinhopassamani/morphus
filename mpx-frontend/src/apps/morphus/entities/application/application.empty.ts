@@ -1,3 +1,3 @@
-import { IMorphusApplicationReflected } from './application.reflected';
+import { MpxApplicationReflected } from './application.reflected';
 
-export interface IMorphusApplicationEmpty extends Partial<IMorphusApplicationReflected> {}
+export interface MpxApplicationEmpty extends Partial<MpxApplicationReflected> {}

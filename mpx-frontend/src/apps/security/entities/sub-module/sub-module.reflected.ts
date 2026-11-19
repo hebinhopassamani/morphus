@@ -1,6 +1,6 @@
-import { IMorphusEntity } from '@core/mpx-entities';
+import { MpxEntity } from '@core/morphus';
 
-export interface ISubModuleReflected extends IMorphusEntity {
+export interface SubModuleReflected extends MpxEntity {
   name: string;
   moduleId: string;
   corporationId: string;

@@ -1,3 +1,3 @@
-import { IUserReflected } from './user.reflected';
+import { UserReflected } from './user.reflected';
 
-export interface IUserEmpty extends Partial<IUserReflected> {}
+export interface UserEmpty extends Partial<UserReflected> {}

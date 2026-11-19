@@ -1,6 +1,6 @@
-import { IMorphusRelatedEntity } from '@core/mpx-entities';
+import { MpxRelatedEntity } from '@core/morphus';
 
-export interface IApplicationUserReflected extends IMorphusRelatedEntity {
+export interface ApplicationUserReflected extends MpxRelatedEntity {
   applicationId: string;
   userId: string;
   isOwner?: boolean;

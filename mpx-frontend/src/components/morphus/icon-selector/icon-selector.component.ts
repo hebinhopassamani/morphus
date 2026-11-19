@@ -4,10 +4,9 @@ import { MatFormField, MatInput, MatLabel, MatPrefix, MatSuffix } from '@angular
 import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatTooltip } from '@angular/material/tooltip';
-import { MPX_ICON_COLORS, MPX_ICONS } from '@core/mpx-icons';
-import { MPX_COMPILED_ICONS } from '@core/mpx-icons/morphus-compiled-icons';
+import { MPX_COMPILED_ICONS, MPX_ICON_COLORS, MPX_ICONS } from '@core/morphus';
 
-const ALL_ICON_NAMES = [
+export const MPX_ALL_ICON_NAMES = [
   ...Object.keys(MPX_COMPILED_ICONS),
   ...Object.keys(MPX_ICONS).filter((key) => key !== 'default-icon'),
 ];
@@ -50,7 +49,7 @@ export class MpxIconSelectorComponent {
   protected search = '';
   protected readonly themeColors = MPX_ICON_COLORS;
   protected readonly panelWidth = signal<number>(280);
-  protected readonly filteredIcons = signal<string[]>(ALL_ICON_NAMES);
+  protected readonly filteredIcons = signal<string[]>(MPX_ALL_ICON_NAMES);
 
   protected syncPanelWidth(): void {
     const rect = this.hostRef.nativeElement.getBoundingClientRect();
@@ -109,11 +108,11 @@ export class MpxIconSelectorComponent {
     this.search = term;
     const clean = term.trim().toLowerCase();
     if (!clean) {
-      this.filteredIcons.set(ALL_ICON_NAMES);
+      this.filteredIcons.set(MPX_ALL_ICON_NAMES);
       return;
     }
     this.filteredIcons.set(
-      ALL_ICON_NAMES.filter((iconName) => iconName.toLowerCase().includes(clean)),
+      MPX_ALL_ICON_NAMES.filter((iconName) => iconName.toLowerCase().includes(clean)),
     );
   }
 

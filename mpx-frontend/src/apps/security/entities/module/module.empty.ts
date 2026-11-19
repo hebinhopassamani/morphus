@@ -1,3 +1,3 @@
-import { IModuleReflected } from './module.reflected';
+import { ModuleReflected } from './module.reflected';
 
-export interface IModuleEmpty extends Partial<IModuleReflected> {}
+export interface ModuleEmpty extends Partial<ModuleReflected> {}

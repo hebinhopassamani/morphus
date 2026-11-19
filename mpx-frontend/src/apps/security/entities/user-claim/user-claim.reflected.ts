@@ -1,6 +1,6 @@
-import { IMorphusRelatedEntity } from '@core/mpx-entities';
+import { MpxRelatedEntity } from '@core/morphus';
 
-export interface IUserClaimReflected extends IMorphusRelatedEntity {
+export interface UserClaimReflected extends MpxRelatedEntity {
   userId: string;
   claimId: string;
   corporationId: string;

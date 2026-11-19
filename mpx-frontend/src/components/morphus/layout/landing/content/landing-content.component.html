@@ -1,0 +1,9 @@
+@if (fullWidth()) {
+  <div class="flex w-full flex-auto flex-col">
+    <router-outlet />
+  </div>
+} @else {
+  <div class="mx-auto flex w-full max-w-7xl flex-auto flex-col px-4 py-6 sm:px-6 lg:px-8 lg:py-10">
+    <router-outlet />
+  </div>
+}

@@ -6,16 +6,16 @@ import { firstValueFrom } from 'rxjs';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
-import { Auth } from '@core/mpx-auth';
-import { MorphusMessageService } from '@core/mpx-message';
+import { MpxSecurity } from '@core/morphus';
+import { MpxMessageService } from '@core/morphus';
 import {
   ApplicationDomainPreviewResponse,
-  MorphusApplication,
-  MorphusApplicationSettingRef,
-  MorphusCorporationDomainRef,
+  MpxApplication,
+  MpxApplicationSettingRef,
+  MpxCorporationDomainRef,
 } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   selector: 'mpx-app-settings-page',
@@ -29,17 +29,17 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
 export class AppSettingsPageComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly auth = inject(Auth);
-  private readonly messageService = inject(MorphusMessageService);
+  private readonly auth = inject(MpxSecurity);
+  private readonly messageService = inject(MpxMessageService);
   private readonly applicationService = inject(ApplicationService);
-  protected readonly context = inject(MorphusContextService);
+  protected readonly context = inject(MpxContextService);
 
   private readonly parentParamMap = toSignal(this.route.parent?.paramMap ?? this.route.paramMap);
 
   protected readonly activeTab = signal<'general' | 'env'>('general');
   protected readonly isLoading = signal<boolean>(false);
   protected readonly isSaving = signal<boolean>(false);
-  protected readonly fetchedApp = signal<MorphusApplication | null>(null);
+  protected readonly fetchedApp = signal<MpxApplication | null>(null);
 
   protected readonly appNameDraft = signal<string>('');
   protected readonly domainModeDraft = signal<
@@ -54,12 +54,12 @@ export class AppSettingsPageComponent {
   protected readonly newPurchaseDomainInput = signal<string>('');
   protected readonly isSavingCorpDomain = signal<boolean>(false);
 
-  protected readonly corporationDomains = signal<MorphusCorporationDomainRef[]>([]);
+  protected readonly corporationDomains = signal<MpxCorporationDomainRef[]>([]);
   protected readonly domainPreview = signal<ApplicationDomainPreviewResponse | null>(null);
   protected readonly isCheckingDomain = signal<boolean>(false);
 
   // Variáveis / Settings da Aplicação
-  protected readonly customSettings = signal<MorphusApplicationSettingRef[]>([]);
+  protected readonly customSettings = signal<MpxApplicationSettingRef[]>([]);
   protected readonly newSettingLabel = signal<string>('');
   protected readonly newSettingKey = signal<string>('');
   protected readonly newSettingType = signal<
@@ -80,7 +80,7 @@ export class AppSettingsPageComponent {
     );
   });
 
-  protected readonly activeApp = computed<MorphusApplication | null>(() => {
+  protected readonly activeApp = computed<MpxApplication | null>(() => {
     const fetched = this.fetchedApp();
     if (fetched) {
       return fetched;
@@ -132,12 +132,12 @@ export class AppSettingsPageComponent {
     return `${ns}.${clean || 'variavel'}`;
   }
 
-  protected readonly selectedCorporationDomain = computed<MorphusCorporationDomainRef | null>(() => {
+  protected readonly selectedCorporationDomain = computed<MpxCorporationDomainRef | null>(() => {
     const id = this.selectedCorpDomainId();
     return this.corporationDomains().find((d) => d.id === id) ?? null;
   });
 
-  protected readonly systemLockedSettings = computed<MorphusApplicationSettingRef[]>(() => {
+  protected readonly systemLockedSettings = computed<MpxApplicationSettingRef[]>(() => {
     const app = this.activeApp();
     const corpId = app?.corporationId || this.auth.corporation()?.id || '';
     const fullDomain = this.isNativeMorphusApp()
@@ -523,7 +523,7 @@ export class AppSettingsPageComponent {
     }
   }
 
-  protected async removeCustomSetting(setting: MorphusApplicationSettingRef): Promise<void> {
+  protected async removeCustomSetting(setting: MpxApplicationSettingRef): Promise<void> {
     const app = this.activeApp();
     if (!app?.id || !setting.id) {
       return;

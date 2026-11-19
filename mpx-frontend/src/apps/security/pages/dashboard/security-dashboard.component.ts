@@ -8,8 +8,8 @@ import {
 } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxSecurity } from '@core/morphus';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 
 @Component({
   selector: 'mpx-security-dashboard',
@@ -29,8 +29,8 @@ import { MorphusContextService } from '@morphus/services/morphus-context.service
   templateUrl: './security-dashboard.component.html',
 })
 export class SecurityDashboardComponent {
-  protected readonly auth = inject(Auth);
-  protected readonly context = inject(MorphusContextService);
+  protected readonly auth = inject(MpxSecurity);
+  protected readonly context = inject(MpxContextService);
 
   protected readonly activeCorporationSummary = computed(() => {
     const activeId = this.auth.corporation()?.id;

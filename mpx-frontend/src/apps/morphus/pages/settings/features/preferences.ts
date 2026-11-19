@@ -10,7 +10,7 @@ import {
   MatSelectTrigger,
 } from '@angular/material/select';
 import { MatSlideToggle } from '@angular/material/slide-toggle';
-import { Scheme, Theming } from '@core/mpx-theming';
+import { Scheme, MpxTheming } from '@core/morphus';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
 import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-changes';
 
@@ -366,8 +366,8 @@ import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-chang
     </form>
   `,
 })
-export default class SettingsPreferences {
-  protected readonly theming = inject(Theming);
+export class SettingsPreferences {
+  protected readonly theming = inject(MpxTheming);
 
   protected readonly schemes: { label: string; value: Scheme; icon: string }[] = [
     { label: 'Light', value: 'light', icon: 'sun' },

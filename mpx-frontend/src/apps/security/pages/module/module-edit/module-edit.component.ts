@@ -1,17 +1,14 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { NgForm } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { MatTableModule } from '@angular/material/table';
-import {
-  DefaultApplication,
-  IMorphusEditComponent,
-  MorphusEditComponent,
-  MorphusEditShared,
-  NgForm,
-} from '@core/mpx-shared/edit';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
+import { MpxDefaultApplication } from '@core/morphus';
+import { MpxEditShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
-import { IModule } from '@security/entities/module';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
+import { Module } from '@security/entities/module';
 import { SubModule } from '@security/entities/sub-module';
 import { ModuleService } from '@security/services/module.service';
 import { SubModuleService } from '@security/services/sub-module.service';
@@ -20,20 +17,20 @@ import { ModuleValidator } from '../validators/module.validator';
 @Component({
   selector: 'mpx-module-edit',
   standalone: true,
-  imports: [MorphusEditShared, MatTableModule],
+  imports: [MpxEditShared, MatTableModule],
   styleUrl: './module-edit.component.css',
   templateUrl: './module-edit.component.html',
 })
 export class ModuleEditComponent
-  extends MorphusEditComponent<IModule, ModuleValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<Module, ModuleValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
-  protected readonly context = inject(MorphusContextService);
+  protected readonly context = inject(MpxContextService);
   private readonly moduleService = inject(ModuleService);
   private readonly subModuleService = inject(SubModuleService);
   private readonly applicationService = inject(ApplicationService);
 
-  protected readonly applications = signal<MorphusApplication[]>([{ ...DefaultApplication }]);
+  protected readonly applications = signal<MpxApplication[]>([{ ...MpxDefaultApplication }]);
   protected readonly selectedTabIndex = signal<number>(0);
 
   // Estado da aba 1:N de Submódulos (exclusivos deste Módulo)
@@ -70,9 +67,9 @@ export class ModuleEditComponent
   async loadEntity(): Promise<void> {
     try {
       const apps = await firstValueFrom(this.applicationService.getList());
-      this.applications.set([{ ...DefaultApplication }, ...(apps ?? [])]);
+      this.applications.set([{ ...MpxDefaultApplication }, ...(apps ?? [])]);
     } catch {
-      this.applications.set([{ ...DefaultApplication }, ...this.context.availableApplications()]);
+      this.applications.set([{ ...MpxDefaultApplication }, ...this.context.availableApplications()]);
     }
 
     if (this.isNew) {

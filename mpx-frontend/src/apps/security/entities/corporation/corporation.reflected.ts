@@ -1,6 +1,6 @@
-import { IMorphusEntity } from '@core/mpx-entities';
+import { MpxEntity } from '@core/morphus';
 
-export interface ICorporationReflected extends IMorphusEntity {
+export interface CorporationReflected extends MpxEntity {
   name: string;
   email: string;
   personType?: 'PJ' | 'PF' | string;

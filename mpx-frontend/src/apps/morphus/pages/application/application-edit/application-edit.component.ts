@@ -16,22 +16,22 @@ import { MatError, MatFormField, MatInput, MatLabel, MatPrefix } from '@angular/
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusEditComponent, MorphusEditComponent } from '@core/mpx-base';
+import { IMpxEditComponent, MpxEditComponent } from '@core/morphus';
 import { formatHtmlPretty, MpxCodeEditorComponent } from '@src/components/morphus/code-editor';
 import { MpxIconSelectorComponent } from '@src/components/morphus/icon-selector';
 import {
   ApplicationDomainPreviewResponse,
-  MorphusApplication,
-  MorphusApplicationModuleRef,
-  MorphusApplicationSubModuleRef,
-  MorphusCategoryRef,
-  MorphusCorporationDomainRef,
+  MpxApplication,
+  MpxApplicationModuleRef,
+  MpxApplicationSubModuleRef,
+  MpxCategoryRef,
+  MpxCorporationDomainRef,
 } from '@morphus/entities/application';
 import { ApplicationUser } from '@morphus/entities/application-user';
 import { Workspace } from '@morphus/entities/workspace';
 import { ApplicationUserService } from '@morphus/services/application-user.service';
 import { ApplicationService } from '@morphus/services/application.service';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { WorkspaceService } from '@morphus/services/workspace.service';
 import { AppBuilderRuntimeStoreService } from '@app-builder/services';
 import { User } from '@security/entities/user';
@@ -65,31 +65,31 @@ import { PageEditorComponent } from '../page-editor';
   templateUrl: './application-edit.component.html',
 })
 export class ApplicationEditComponent
-  extends MorphusEditComponent<MorphusApplication, ApplicationValidator>
-  implements IMorphusEditComponent, OnInit, OnDestroy
+  extends MpxEditComponent<MpxApplication, ApplicationValidator>
+  implements IMpxEditComponent, OnInit, OnDestroy
 {
   private readonly applicationService = inject(ApplicationService);
   private readonly applicationUserService = inject(ApplicationUserService);
   private readonly workspaceService = inject(WorkspaceService);
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
   private readonly runtimeStore = inject(AppBuilderRuntimeStoreService);
 
   protected readonly selectedTabIndex = signal<number>(0);
-  protected readonly existingApplications = signal<MorphusApplication[]>([]);
-  protected readonly categories = signal<MorphusCategoryRef[]>([]);
+  protected readonly existingApplications = signal<MpxApplication[]>([]);
+  protected readonly categories = signal<MpxCategoryRef[]>([]);
   protected readonly workspaces = signal<Workspace[]>([]);
-  protected readonly appModules = signal<MorphusApplicationModuleRef[]>([]);
+  protected readonly appModules = signal<MpxApplicationModuleRef[]>([]);
   protected readonly expandedModuleIds = signal<Set<string>>(new Set());
   protected readonly selectedModuleId = signal<string>('');
   protected readonly newModuleName = signal<string>('');
   protected readonly newModuleIcon = signal<string>('');
-  protected readonly editingModule = signal<Partial<MorphusApplicationModuleRef> | null>(null);
+  protected readonly editingModule = signal<Partial<MpxApplicationModuleRef> | null>(null);
   protected readonly savingModule = signal<boolean>(false);
   protected readonly inlineEditPage = signal<
-    (Partial<MorphusApplicationSubModuleRef> & { moduleId: string }) | null
+    (Partial<MpxApplicationSubModuleRef> & { moduleId: string }) | null
   >(null);
   protected readonly inlineRouteManuallyEdited = signal<boolean>(false);
-  protected readonly selectedPage = signal<Partial<MorphusApplicationSubModuleRef> | null>(null);
+  protected readonly selectedPage = signal<Partial<MpxApplicationSubModuleRef> | null>(null);
 
   // Estado de Drag & Drop e Histórico (Ctrl+Z / Ctrl+Y) da árvore de Menus
   protected readonly draggingMenuItem = signal<{
@@ -103,8 +103,8 @@ export class ApplicationEditComponent
     parentModuleId?: string;
     position: 'before' | 'after';
   } | null>(null);
-  protected readonly menuUndoStack = signal<MorphusApplicationModuleRef[][]>([]);
-  protected readonly menuRedoStack = signal<MorphusApplicationModuleRef[][]>([]);
+  protected readonly menuUndoStack = signal<MpxApplicationModuleRef[][]>([]);
+  protected readonly menuRedoStack = signal<MpxApplicationModuleRef[][]>([]);
   private dragAutoScrollTimer: any = null;
   private lastDragClientY = 0;
 
@@ -176,7 +176,7 @@ export class ApplicationEditComponent
   // Estado do Modal de Confirmação e Escolha do Domínio da Aplicação
   protected readonly domainModalOpen = signal<boolean>(false);
   protected readonly domainPreview = signal<ApplicationDomainPreviewResponse | null>(null);
-  protected readonly corporationDomains = signal<MorphusCorporationDomainRef[]>([]);
+  protected readonly corporationDomains = signal<MpxCorporationDomainRef[]>([]);
   protected readonly domainModeSelection = signal<
     'MorphusShared' | 'CustomerOwned' | 'PurchasedWithMorphus'
   >('MorphusShared');
@@ -396,7 +396,7 @@ export class ApplicationEditComponent
     }
   }
 
-  protected hasPageContent(sub: MorphusApplicationSubModuleRef): boolean {
+  protected hasPageContent(sub: MpxApplicationSubModuleRef): boolean {
     const html = sub.isCustomHtml
       ? (sub.customHtmlContent || sub.htmlContent || '')
       : (sub.htmlContent || '');
@@ -895,7 +895,7 @@ export class ApplicationEditComponent
 
   async create(): Promise<void> {
     const created = await firstValueFrom(
-      this.applicationService.create(this.entity() as MorphusApplication),
+      this.applicationService.create(this.entity() as MpxApplication),
     );
     this.context.loadWorkspaces();
     this.messageService.showSuccess(
@@ -910,7 +910,7 @@ export class ApplicationEditComponent
     this.back();
   }
 
-  private syncModulesAndDefaultPage(modules: MorphusApplicationModuleRef[]): void {
+  private syncModulesAndDefaultPage(modules: MpxApplicationModuleRef[]): void {
     const sorted = [...modules].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     this.appModules.set(sorted);
     // Garante que todos os menus apareçam expandidos por padrão na tabela
@@ -925,7 +925,7 @@ export class ApplicationEditComponent
     });
 
     const currentPageId = this.selectedPage()?.id;
-    const allSubs: { modId: string; sub: MorphusApplicationSubModuleRef }[] = [];
+    const allSubs: { modId: string; sub: MpxApplicationSubModuleRef }[] = [];
     for (const mod of sorted) {
       for (const sub of mod.applicationSubModules ?? []) {
         allSubs.push({ modId: mod.id, sub });
@@ -958,7 +958,7 @@ export class ApplicationEditComponent
     }
   }
 
-  private syncDraftHtmlToRuntimeStore(page: Partial<MorphusApplicationSubModuleRef> | null): void {
+  private syncDraftHtmlToRuntimeStore(page: Partial<MpxApplicationSubModuleRef> | null): void {
     if (!page) {
       return;
     }
@@ -973,7 +973,7 @@ export class ApplicationEditComponent
     }
   }
 
-  private clearDraftHtmlFromRuntimeStore(page: Partial<MorphusApplicationSubModuleRef> | null): void {
+  private clearDraftHtmlFromRuntimeStore(page: Partial<MpxApplicationSubModuleRef> | null): void {
     if (!page) {
       return;
     }
@@ -1001,7 +1001,7 @@ export class ApplicationEditComponent
     });
   }
 
-  protected selectModuleForEdit(mod: MorphusApplicationModuleRef): void {
+  protected selectModuleForEdit(mod: MpxApplicationModuleRef): void {
     this.inlineEditPage.set(null);
     this.selectedModuleId.set(mod.id);
     this.editingModule.set({
@@ -1016,7 +1016,7 @@ export class ApplicationEditComponent
     this.editingModule.set(null);
   }
 
-  protected startInlinePageEdit(modId: string, sub: MorphusApplicationSubModuleRef): void {
+  protected startInlinePageEdit(modId: string, sub: MpxApplicationSubModuleRef): void {
     this.editingModule.set(null);
     this.inlineRouteManuallyEdited.set(true);
     this.expandedModuleIds.update((s) => new Set(s).add(modId));
@@ -1120,22 +1120,22 @@ export class ApplicationEditComponent
     }
   }
 
-  protected onPageEditorChange(updated: Partial<MorphusApplicationSubModuleRef>): void {
+  protected onPageEditorChange(updated: Partial<MpxApplicationSubModuleRef>): void {
     this.selectedPage.set(updated);
     this.syncDraftHtmlToRuntimeStore(updated);
   }
 
-  protected openPageInHtmlEditor(modId: string, sub: MorphusApplicationSubModuleRef): void {
+  protected openPageInHtmlEditor(modId: string, sub: MpxApplicationSubModuleRef): void {
     this.selectPageForEdit(modId, sub);
     this.selectedTabIndex.set(3);
   }
 
-  protected updateEditingModuleField<K extends keyof MorphusApplicationModuleRef>(
+  protected updateEditingModuleField<K extends keyof MpxApplicationModuleRef>(
     field: K,
-    value: MorphusApplicationModuleRef[K],
+    value: MpxApplicationModuleRef[K],
   ): void {
     const cleanVal =
-      field === 'name' ? (String(value ?? '').slice(0, 20) as MorphusApplicationModuleRef[K]) : value;
+      field === 'name' ? (String(value ?? '').slice(0, 20) as MpxApplicationModuleRef[K]) : value;
     this.editingModule.update((curr) => {
       if (!curr) {
         return curr;
@@ -1175,7 +1175,7 @@ export class ApplicationEditComponent
     }
   }
 
-  protected removeModule(mod: MorphusApplicationModuleRef): void {
+  protected removeModule(mod: MpxApplicationModuleRef): void {
     const appId = this.entity().id;
     if (!appId || !mod?.id) {
       return;
@@ -1214,7 +1214,7 @@ export class ApplicationEditComponent
     }
   }
 
-  protected selectPageForEdit(modId: string, page: MorphusApplicationSubModuleRef): void {
+  protected selectPageForEdit(modId: string, page: MpxApplicationSubModuleRef): void {
     const prettyDbHtml = formatHtmlPretty(page.htmlContent || '');
     const pendingDraft =
       this.runtimeStore.getPageDraftHtml(page.id || '') ??
@@ -1403,8 +1403,8 @@ export class ApplicationEditComponent
   }
 
   private cloneModulesSnapshot(
-    mods: MorphusApplicationModuleRef[],
-  ): MorphusApplicationModuleRef[] {
+    mods: MpxApplicationModuleRef[],
+  ): MpxApplicationModuleRef[] {
     return mods.map((m) => ({
       ...m,
       applicationSubModules: (m.applicationSubModules ?? []).map((s) => ({ ...s })),
@@ -1444,7 +1444,7 @@ export class ApplicationEditComponent
   }
 
   private async persistFullMenuHierarchy(
-    modules: MorphusApplicationModuleRef[],
+    modules: MpxApplicationModuleRef[],
   ): Promise<void> {
     const appId = this.entity().id;
     if (!appId) {
@@ -1517,7 +1517,7 @@ export class ApplicationEditComponent
     this.lastDragClientY = 0;
   }
 
-  protected isDropLineTopForModule(mod: MorphusApplicationModuleRef): boolean {
+  protected isDropLineTopForModule(mod: MpxApplicationModuleRef): boolean {
     const target = this.dragOverMenuTarget();
     return (
       this.draggingMenuItem()?.type === 'module' &&
@@ -1527,7 +1527,7 @@ export class ApplicationEditComponent
     );
   }
 
-  protected isDropLineBottomForModule(mod: MorphusApplicationModuleRef): boolean {
+  protected isDropLineBottomForModule(mod: MpxApplicationModuleRef): boolean {
     const dragging = this.draggingMenuItem();
     const target = this.dragOverMenuTarget();
     if (!dragging || !target) {
@@ -1546,7 +1546,7 @@ export class ApplicationEditComponent
     );
   }
 
-  protected isDropLineTopForSubModule(sub: MorphusApplicationSubModuleRef): boolean {
+  protected isDropLineTopForSubModule(sub: MpxApplicationSubModuleRef): boolean {
     const target = this.dragOverMenuTarget();
     return (
       this.draggingMenuItem()?.type === 'submodule' &&
@@ -1557,8 +1557,8 @@ export class ApplicationEditComponent
   }
 
   protected isDropLineBottomForSubModule(
-    mod: MorphusApplicationModuleRef,
-    sub: MorphusApplicationSubModuleRef,
+    mod: MpxApplicationModuleRef,
+    sub: MpxApplicationSubModuleRef,
     isLastSub: boolean,
   ): boolean {
     const dragging = this.draggingMenuItem();
@@ -1578,7 +1578,7 @@ export class ApplicationEditComponent
     );
   }
 
-  protected onModuleDragStart(event: DragEvent, mod: MorphusApplicationModuleRef): void {
+  protected onModuleDragStart(event: DragEvent, mod: MpxApplicationModuleRef): void {
     this.draggingMenuItem.set({ type: 'module', id: mod.id });
     this.lastDragClientY = event.clientY;
     this.startDragAutoScroll();
@@ -1591,7 +1591,7 @@ export class ApplicationEditComponent
   protected onSubModuleDragStart(
     event: DragEvent,
     parentModuleId: string,
-    sub: MorphusApplicationSubModuleRef,
+    sub: MpxApplicationSubModuleRef,
   ): void {
     event.stopPropagation();
     this.draggingMenuItem.set({ type: 'submodule', id: sub.id, parentModuleId });
@@ -1844,7 +1844,7 @@ export class ApplicationEditComponent
   }
 
   protected async autoSaveCurrentPage(
-    updated?: Partial<MorphusApplicationSubModuleRef>,
+    updated?: Partial<MpxApplicationSubModuleRef>,
   ): Promise<void> {
     const appId = this.entity().id;
     const modId = this.selectedModuleId();
@@ -1898,7 +1898,7 @@ export class ApplicationEditComponent
     }
   }
 
-  protected removePage(sub: MorphusApplicationSubModuleRef): void {
+  protected removePage(sub: MpxApplicationSubModuleRef): void {
     const appId = this.entity().id;
     if (!appId || !sub?.id) {
       return;
@@ -1944,7 +1944,7 @@ export class ApplicationEditComponent
 
   async update(): Promise<void> {
     await firstValueFrom(
-      this.applicationService.update(this.entity() as MorphusApplication),
+      this.applicationService.update(this.entity() as MpxApplication),
     );
     this.context.loadWorkspaces();
     this.messageService.showSuccess(

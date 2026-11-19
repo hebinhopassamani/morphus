@@ -1,6 +1,6 @@
-import { IMorphusEntity } from '@core/mpx-entities';
+import { MpxEntity } from '@core/morphus';
 
-export interface IWorkspaceReflected extends IMorphusEntity {
+export interface WorkspaceReflected extends MpxEntity {
   name: string;
   description?: string | null;
   icon?: string | null;

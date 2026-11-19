@@ -1,3 +1,3 @@
-import { IRoleClaimReflected } from './role-claim.reflected';
+import { RoleClaimReflected } from './role-claim.reflected';
 
-export interface IRoleClaimEmpty extends Partial<IRoleClaimReflected> {}
+export interface RoleClaimEmpty extends Partial<RoleClaimReflected> {}

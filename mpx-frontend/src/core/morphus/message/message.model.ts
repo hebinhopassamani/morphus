@@ -1,0 +1,41 @@
+import { MpxIconName, MpxMessageSeverity } from '@core/morphus';
+import { MpxMessageLink } from './message-link.model';
+
+export interface MpxMessage<T = unknown> {
+  id?: string;
+  severity?: MpxMessageSeverity;
+  title?: string;
+  detail?: string;
+  message?: string;
+  icon?: MpxIconName;
+  iconColor?: string;
+  titleLink?: MpxMessageLink;
+  detailLink?: MpxMessageLink;
+  isConfirmation?: boolean;
+  confirmButton?: boolean;
+  confirmSeverity?: MpxMessageSeverity;
+  confirmButtonText?: string;
+  confirmText?: string;
+  confirmButtonIcon?: MpxIconName;
+  confirmIcon?: MpxIconName;
+  cancelButtonText?: string;
+  closeText?: string;
+  cancelButtonIcon?: MpxIconName;
+  closeIcon?: MpxIconName;
+  closeSeverity?: MpxMessageSeverity;
+  showCancelButton?: boolean;
+  closeButton?: boolean;
+  closable?: boolean;
+  disableClose?: boolean;
+  doubleCheck?: boolean;
+  dobbleConfirmation?: boolean;
+  doubleCheckLabel?: string;
+  dobbleConfirmationMessage?: string;
+  doubleCheckText?: string;
+  doubleCheckPlaceholder?: string;
+  timeout?: number;
+  error?: unknown;
+  data?: T;
+  onConfirm?: (data?: T) => void | Promise<void>;
+  onCancel?: () => void;
+}

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import { MorphusFilterService } from '@core/mpx-filter';
-import { IWorkspaceReflected } from '@morphus/entities/workspace';
+import { MpxFilterService } from '@core/morphus';
+import { WorkspaceReflected } from '@morphus/entities/workspace';
 
 @Injectable({
   providedIn: 'root',
 })
-export class WorkspaceFilterService extends MorphusFilterService<IWorkspaceReflected> {
+export class WorkspaceFilterService extends MpxFilterService<WorkspaceReflected> {
   public override configFilter(): void {
     this.addAttribute('name', 'Nome do Workspace', 'text')
       .addOperator('EQUAL')

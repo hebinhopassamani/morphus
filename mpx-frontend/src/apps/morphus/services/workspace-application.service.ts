@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { MorphusEntityService } from '@core/mpx-http';
-import { MorphusApplication } from '@morphus/entities/application';
+import { MpxEntityService } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { WorkspaceApplication } from '@morphus/entities/workspace-application';
 
 @Injectable({
   providedIn: 'root',
 })
-export class WorkspaceApplicationService extends MorphusEntityService<
+export class WorkspaceApplicationService extends MpxEntityService<
   WorkspaceApplication,
-  MorphusApplication
+  MpxApplication
 > {
   constructor() {
     super('workspace-application');
@@ -18,10 +18,10 @@ export class WorkspaceApplicationService extends MorphusEntityService<
 
   public override getEntitiesToRelate(
     filter?: Record<string, unknown> | Partial<WorkspaceApplication>,
-  ): Observable<MorphusApplication[]> {
+  ): Observable<MpxApplication[]> {
     const wsId = (filter as Partial<WorkspaceApplication>)?.workspaceId;
     if (wsId) {
-      return this.http.get<MorphusApplication[]>(`${this.baseUrl}/entities-to-relate/${wsId}`);
+      return this.http.get<MpxApplication[]>(`${this.baseUrl}/entities-to-relate/${wsId}`);
     }
     return super.getEntitiesToRelate(filter as any);
   }

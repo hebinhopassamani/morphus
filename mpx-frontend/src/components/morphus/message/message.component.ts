@@ -17,8 +17,8 @@ import {
   BuiDialogPortal,
   BuiDialogTitle,
 } from '@builder-kit/dialog';
-import { MorphusMessageService } from '@core/mpx-message';
-import { MorphusMessageSeverity, MorphusMessageType } from '@core/mpx-types';
+import { MpxMessageService } from '@core/morphus';
+import { MpxMessageSeverity, MpxMessageType } from '@core/morphus';
 
 @Component({
   selector: 'mpx-message',
@@ -48,13 +48,13 @@ import { MorphusMessageSeverity, MorphusMessageType } from '@core/mpx-types';
   templateUrl: './message.component.html',
 })
 export class MpxMessageComponent {
-  protected readonly messageService = inject(MorphusMessageService);
+  protected readonly messageService = inject(MpxMessageService);
 
-  public get messageType(): MorphusMessageType {
+  public get messageType(): MpxMessageType {
     return this.messageService.messageType;
   }
 
-  public set messageType(value: MorphusMessageType) {
+  public set messageType(value: MpxMessageType) {
     this.messageService.messageType = value;
   }
 
@@ -72,7 +72,7 @@ export class MpxMessageComponent {
     return true;
   }
 
-  protected isPrimaryLike(severity?: MorphusMessageSeverity): boolean {
+  protected isPrimaryLike(severity?: MpxMessageSeverity): boolean {
     return (
       severity === 'primary' ||
       severity === 'secondary' ||

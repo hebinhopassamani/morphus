@@ -1,20 +1,21 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import {
-  IMorphusToastItem,
-  MorphusToastPosition,
-  MorphusToastService,
-} from '@core/mpx-toast';
+  MpxToastItem,
+  MpxToastPosition,
+  MpxToastService,
+} from '@core/morphus';
 
 @Component({
   selector: 'mpx-toast',
   imports: [MatIcon],
   templateUrl: './toast.component.html',
+  styleUrl: './toast.component.css',
 })
 export class MpxToastComponent {
-  protected readonly toastService = inject(MorphusToastService);
+  protected readonly toastService = inject(MpxToastService);
 
-  protected readonly positions: MorphusToastPosition[] = [
+  protected readonly positions: MpxToastPosition[] = [
     'top-right',
     'top-left',
     'top-center',
@@ -25,7 +26,7 @@ export class MpxToastComponent {
 
   protected readonly toastsByPosition = computed(() => {
     const all = this.toastService.toasts();
-    const map = new Map<MorphusToastPosition, IMorphusToastItem[]>();
+    const map = new Map<MpxToastPosition, MpxToastItem[]>();
     for (const pos of this.positions) {
       map.set(
         pos,
@@ -35,11 +36,11 @@ export class MpxToastComponent {
     return map;
   });
 
-  protected getToasts(pos: MorphusToastPosition): IMorphusToastItem[] {
+  protected getToasts(pos: MpxToastPosition): MpxToastItem[] {
     return this.toastsByPosition().get(pos) ?? [];
   }
 
-  protected getPositionClasses(pos: MorphusToastPosition): string {
+  protected getPositionClasses(pos: MpxToastPosition): string {
     switch (pos) {
       case 'top-left':
         return 'top-5 left-6 items-start';

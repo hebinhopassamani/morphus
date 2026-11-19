@@ -1,11 +1,8 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusNxNComponent,
-  MorphusNxNComponent,
-  MorphusNxNShared,
-} from '@core/mpx-shared/nxn';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxNxnComponent, MpxNxnComponent } from '@core/morphus';
+import { MpxNxnShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Claim } from '@security/entities/claim';
 import { Module } from '@security/entities/module';
@@ -27,13 +24,13 @@ import { UserService } from '@security/services/user.service';
 @Component({
   selector: 'mpx-user-role',
   standalone: true,
-  imports: [MorphusNxNShared],
+  imports: [MpxNxnShared],
   styleUrl: './user-role.component.css',
   templateUrl: './user-role.component.html',
 })
 export class UserRoleComponent
-  extends MorphusNxNComponent<UserRole, Role>
-  implements IMorphusNxNComponent, OnInit, OnDestroy
+  extends MpxNxnComponent<UserRole, Role>
+  implements IMpxNxnComponent, OnInit, OnDestroy
 {
   private readonly userService = inject(UserService);
   private readonly roleService = inject(RoleService);
@@ -49,7 +46,7 @@ export class UserRoleComponent
   protected readonly userRelationSubTab = signal<'roles' | 'claims'>('roles');
 
   // Filtro hierárquico global da tela: Aplicação -> Módulo -> Submódulo
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MpxApplication[]>([]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
 

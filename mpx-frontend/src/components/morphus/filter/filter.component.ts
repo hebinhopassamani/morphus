@@ -15,13 +15,13 @@ import {
   BuiDialogPortal,
   BuiDialogTitle,
 } from '@builder-kit/dialog';
-import { IMorphusEntity, IMorphusRelatedEntity } from '@core/mpx-entities';
+import { MpxEntity, MpxRelatedEntity } from '@core/morphus';
 import {
-  FilterRow,
-  MorphusFilterService,
-  OptionSelectEvent,
-} from '@core/mpx-filter';
-import { MorphusMessageService } from '@core/mpx-message';
+  MpxFilterRow,
+  MpxFilterService,
+  MpxOptionSelectEvent,
+} from '@core/morphus';
+import { MpxMessageService } from '@core/morphus';
 import { MpxFilterAttributeComponent } from './filter-attribute/filter-attribute.component';
 
 @Component({
@@ -50,12 +50,12 @@ import { MpxFilterAttributeComponent } from './filter-attribute/filter-attribute
   templateUrl: './filter.component.html',
 })
 export class MpxFilterComponent<
-  T extends IMorphusEntity | IMorphusRelatedEntity | object = IMorphusEntity,
+  T extends MpxEntity | MpxRelatedEntity | object = MpxEntity,
 > {
-  private readonly messageService = inject(MorphusMessageService);
+  private readonly messageService = inject(MpxMessageService);
 
   /** Instância do serviço de filtro da entidade */
-  public readonly filterService = input.required<MorphusFilterService<T>>();
+  public readonly filterService = input.required<MpxFilterService<T>>();
 
   /** Título do modal de filtro */
   public readonly title = input<string>('Filtro');
@@ -68,9 +68,9 @@ export class MpxFilterComponent<
   public readonly onFilter = output<void>();
   public readonly onFilterClose = output<void>();
   public readonly onFilterClean = output<void>();
-  public readonly onOptionSelected = output<OptionSelectEvent>();
+  public readonly onOptionSelected = output<MpxOptionSelectEvent>();
 
-  protected onNewFilterRow(row: FilterRow): void {
+  protected onNewFilterRow(row: MpxFilterRow): void {
     const service = this.filterService();
     const rows = service.filterRows();
     const idx = rows.indexOf(row);
@@ -80,7 +80,7 @@ export class MpxFilterComponent<
     }
   }
 
-  protected onDeleteFilterRow(row: FilterRow): void {
+  protected onDeleteFilterRow(row: MpxFilterRow): void {
     const service = this.filterService();
     const removed = service.removeFilterRow(row);
     if (!removed) {
@@ -91,7 +91,7 @@ export class MpxFilterComponent<
     }
   }
 
-  protected optionSelected(optionEvent: OptionSelectEvent): void {
+  protected optionSelected(optionEvent: MpxOptionSelectEvent): void {
     this.onOptionSelected.emit(optionEvent);
   }
 

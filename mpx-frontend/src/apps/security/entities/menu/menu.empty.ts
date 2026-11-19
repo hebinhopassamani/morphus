@@ -1,3 +1,3 @@
-import { IMenuReflected } from './menu.reflected';
+import { MenuReflected } from './menu.reflected';
 
-export interface IMenuEmpty extends Partial<IMenuReflected> {}
+export interface MenuEmpty extends Partial<MenuReflected> {}

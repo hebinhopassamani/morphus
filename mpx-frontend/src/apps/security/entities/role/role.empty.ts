@@ -1,3 +1,3 @@
-import { IRoleReflected } from './role.reflected';
+import { RoleReflected } from './role.reflected';
 
-export interface IRoleEmpty extends Partial<IRoleReflected> {}
+export interface RoleEmpty extends Partial<RoleReflected> {}

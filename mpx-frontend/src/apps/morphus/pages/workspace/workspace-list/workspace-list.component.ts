@@ -9,10 +9,11 @@ import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
 import { MatSlideToggle, MatSlideToggleChange } from '@angular/material/slide-toggle';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
-import { IMorphusListComponent, MorphusFilter, MorphusListComponent } from '@core/mpx-base';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
 import { MpxFilterComponent } from '@/components/morphus/filter';
 import { Workspace } from '@morphus/entities/workspace';
-import { MorphusContextService } from '@morphus/services/morphus-context.service';
+import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { WorkspaceFilterService } from '@morphus/services/workspace.filter.service';
 import { WorkspaceService } from '@morphus/services/workspace.service';
 
@@ -41,12 +42,12 @@ import { WorkspaceService } from '@morphus/services/workspace.service';
   templateUrl: './workspace-list.component.html',
 })
 export class WorkspaceListComponent
-  extends MorphusListComponent<Workspace>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<Workspace>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   protected readonly workspaceFilterService = inject(WorkspaceFilterService);
   private readonly workspaceService = inject(WorkspaceService);
-  private readonly context = inject(MorphusContextService);
+  private readonly context = inject(MpxContextService);
   protected search = '';
   private cachedWorkspaces: Workspace[] = [];
 
@@ -63,7 +64,7 @@ export class WorkspaceListComponent
     this.destroySubscriptions();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     if (this.cachedWorkspaces.length === 0) {
       this.cachedWorkspaces = await firstValueFrom(this.workspaceService.getAll());
     }

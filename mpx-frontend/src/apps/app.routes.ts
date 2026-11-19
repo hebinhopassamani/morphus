@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-import { authGuard } from '@core/mpx-auth';
+import { MpxSecurityGuard } from '@core/morphus';
 
 export const routes: Routes = [
   {
@@ -9,7 +9,7 @@ export const routes: Routes = [
   },
   {
     path: 'website',
-    loadChildren: () => import('@website/routes').then((m) => m.routes),
+    loadChildren: () => import('@website/website.routes').then((m) => m.routes),
   },
   {
     path: 'produtos',
@@ -33,17 +33,17 @@ export const routes: Routes = [
   },
   {
     path: 'morphus',
-    canActivate: [authGuard],
-    loadChildren: () => import('@morphus/routes').then((m) => m.routes),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
   },
   {
     path: 'security',
-    loadChildren: () => import('@security/routes').then((m) => m.routes),
+    loadChildren: () => import('@security/security.routes').then((m) => m.routes),
   },
   {
     path: 'app',
-    canActivate: [authGuard],
-    loadChildren: () => import('@app-builder/routes').then((m) => m.routes),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
   },
   {
     path: 'notfound',

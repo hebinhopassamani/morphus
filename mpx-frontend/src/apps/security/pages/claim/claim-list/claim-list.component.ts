@@ -1,12 +1,9 @@
 import { computed, Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import {
-  IMorphusListComponent,
-  MorphusFilter,
-  MorphusListComponent,
-  MorphusListShared,
-} from '@core/mpx-shared/list';
-import { MorphusApplication } from '@morphus/entities/application';
+import { IMpxListComponent, MpxListComponent } from '@core/morphus';
+import { MpxFilter } from '@core/morphus';
+import { MpxListShared } from '@core/morphus';
+import { MpxApplication } from '@morphus/entities/application';
 import { ApplicationService } from '@morphus/services/application.service';
 import { Claim } from '@security/entities/claim';
 import { Module } from '@security/entities/module';
@@ -18,13 +15,13 @@ import { SubModuleService } from '@security/services/sub-module.service';
 @Component({
   selector: 'mpx-claim-list',
   standalone: true,
-  imports: [MorphusListShared],
+  imports: [MpxListShared],
   styleUrl: './claim-list.component.css',
   templateUrl: './claim-list.component.html',
 })
 export class ClaimListComponent
-  extends MorphusListComponent<Claim>
-  implements IMorphusListComponent, OnInit, OnDestroy
+  extends MpxListComponent<Claim>
+  implements IMpxListComponent, OnInit, OnDestroy
 {
   private readonly claimService = inject(ClaimService);
   private readonly applicationService = inject(ApplicationService);
@@ -36,7 +33,7 @@ export class ClaimListComponent
   protected readonly selectedModuleId = signal<string>('');
   protected readonly selectedSubModuleId = signal<string>('');
 
-  protected readonly applications = signal<MorphusApplication[]>([]);
+  protected readonly applications = signal<MpxApplication[]>([]);
   protected readonly allModules = signal<Module[]>([]);
   protected readonly allSubModules = signal<SubModule[]>([]);
   private cachedClaims: Claim[] = [];
@@ -109,7 +106,7 @@ export class ClaimListComponent
     await this.loadList();
   }
 
-  async loadList(_filter?: MorphusFilter): Promise<void> {
+  async loadList(_filter?: MpxFilter): Promise<void> {
     let items = this.cachedClaims;
     const appId = this.selectedApplicationId();
     const modId = this.selectedModuleId();

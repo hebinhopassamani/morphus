@@ -1,3 +1,3 @@
-import { IUserStatusReflected } from './user-status.reflected';
+import { UserStatusReflected } from './user-status.reflected';
 
-export interface IUserStatusEmpty extends Partial<IUserStatusReflected> {}
+export interface UserStatusEmpty extends Partial<UserStatusReflected> {}

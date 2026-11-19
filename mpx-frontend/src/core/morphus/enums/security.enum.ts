@@ -1,0 +1,4 @@
+export enum MpxLoginType {
+  USER_AND_PASSWORD = 'USER_AND_PASSWORD',
+  REFRESH_TOKEN = 'REFRESH_TOKEN',
+}

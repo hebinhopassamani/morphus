@@ -8,7 +8,7 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { Auth } from '@core/mpx-auth';
+import { MpxSecurity } from '@core/morphus';
 
 type SettingsNavItem = {
   route: string;
@@ -141,9 +141,9 @@ type SettingsNavSection = {
     </div>
   `,
 })
-export default class SettingsLayout {
+export class SettingsLayout {
   protected readonly router = inject(Router);
-  protected readonly auth = inject(Auth);
+  protected readonly auth = inject(MpxSecurity);
 
   protected readonly sections: SettingsNavSection[] = [
     {
