@@ -38,6 +38,7 @@ testem.log
 **/*.bak
 **/*.lnk
 **/.builderkit
+**/~$*.xlsx
 **/.angular/cache
 **/connect.lock
 **/coverage
