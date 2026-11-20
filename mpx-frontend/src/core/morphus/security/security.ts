@@ -1,6 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import { computed, inject, Injectable, NgZone, PLATFORM_ID, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   catchError,
@@ -36,6 +36,7 @@ import {
 import { User } from '@security/entities/user';
 
 export const MPX_SESSION_STORAGE_KEY = 'morphus:session';
+export const MPX_RETURN_URL_STORAGE_KEY = 'morphus:returnUrl';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +44,7 @@ export const MPX_SESSION_STORAGE_KEY = 'morphus:session';
 export class MpxSecurity {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly ngZone = inject(NgZone);
   private readonly localStorage = inject(MpxLocalStorage);
   private readonly messageService = inject(MpxMessageService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
@@ -215,6 +217,165 @@ export class MpxSecurity {
     return '/';
   }
 
+  private isAuthFlowPath(urlOrPath: string): boolean {
+    try {
+      const path = urlOrPath.startsWith('http://') || urlOrPath.startsWith('https://')
+        ? new URL(urlOrPath).pathname.toLowerCase()
+        : urlOrPath.split('?')[0].toLowerCase();
+      return (
+        path.endsWith('/signin') ||
+        path.endsWith('/signup') ||
+        path.endsWith('/signout') ||
+        path.endsWith('/onboarding') ||
+        path.endsWith('/select-corporation') ||
+        path.endsWith('/forgot-password') ||
+        path.endsWith('/reset-password') ||
+        path.endsWith('/confirm-email')
+      );
+    } catch {
+      return false;
+    }
+  }
+
+  private isPublicOrAuthEntryRoute(): boolean {
+    const currentUrl = (this.router.url || '/').split('?')[0].toLowerCase();
+    if (this.isAuthFlowPath(currentUrl)) {
+      return true;
+    }
+    if (this.isBrowser) {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host === 'www.morphus.one') {
+        return (
+          currentUrl === '/' ||
+          currentUrl === '/produtos' ||
+          currentUrl === '/contato' ||
+          currentUrl === '/privacidade' ||
+          currentUrl === '/termos' ||
+          currentUrl.startsWith('/website')
+        );
+      }
+      if (host === 'security.morphus.one' && currentUrl === '/' && !this.isAuthenticated()) {
+        return true;
+      }
+    }
+    return (
+      currentUrl === '/' ||
+      currentUrl === '/produtos' ||
+      currentUrl === '/contato' ||
+      currentUrl === '/privacidade' ||
+      currentUrl === '/termos' ||
+      currentUrl.startsWith('/website')
+    );
+  }
+
+  setReturnUrl(url: string | null | undefined): void {
+    if (!this.isBrowser || !url) {
+      return;
+    }
+    const trimmed = url.trim();
+    if (!trimmed || this.isAuthFlowPath(trimmed)) {
+      return;
+    }
+    this.localStorage.setItem(MPX_RETURN_URL_STORAGE_KEY, trimmed);
+  }
+
+  getReturnUrl(): string | null {
+    if (!this.isBrowser) {
+      return null;
+    }
+    const saved = this.localStorage.getItem(MPX_RETURN_URL_STORAGE_KEY);
+    if (!saved || this.isAuthFlowPath(saved)) {
+      return null;
+    }
+    return saved;
+  }
+
+  consumeReturnUrl(): string | null {
+    const saved = this.getReturnUrl();
+    if (this.isBrowser) {
+      this.localStorage.removeItem(MPX_RETURN_URL_STORAGE_KEY);
+    }
+    return saved;
+  }
+
+  redirectToLogin(targetReturnUrl?: string | null, mode: 'signin' | 'signup' = 'signin'): void {
+    const fallbackUrl = this.isBrowser ? window.location.href : this.router.url || '/';
+    const finalReturnUrl = (targetReturnUrl && !this.isAuthFlowPath(targetReturnUrl))
+      ? targetReturnUrl
+      : (!this.isAuthFlowPath(fallbackUrl) ? fallbackUrl : null);
+
+    if (finalReturnUrl) {
+      this.setReturnUrl(finalReturnUrl);
+    }
+
+    if (this.isBrowser) {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        const path = mode === 'signup' ? '/signup' : '';
+        const query = finalReturnUrl ? `?returnUrl=${encodeURIComponent(finalReturnUrl)}` : '';
+        if (host !== 'security.morphus.one') {
+          window.location.href = `${window.location.protocol}//security.morphus.one${path}${query}`;
+          return;
+        }
+        void this.router.navigate([mode === 'signup' ? '/security/signup' : '/'], {
+          queryParams: finalReturnUrl ? { returnUrl: finalReturnUrl } : undefined,
+        });
+        return;
+      }
+    }
+
+    void this.router.navigate([mode === 'signup' ? '/security/signup' : '/security/signin'], {
+      queryParams: finalReturnUrl ? { returnUrl: finalReturnUrl } : undefined,
+    });
+  }
+
+  completePostAuthNavigation(explicitReturnUrl?: string | null): void {
+    this.ngZone.run(() => {
+      if (explicitReturnUrl && !this.isAuthFlowPath(explicitReturnUrl)) {
+        this.setReturnUrl(explicitReturnUrl);
+      }
+
+      if (this.needsOnboarding()) {
+        void this.router.navigateByUrl('/security/onboarding');
+        return;
+      }
+
+      const pendingReturnUrl =
+        (explicitReturnUrl && !this.isAuthFlowPath(explicitReturnUrl) ? explicitReturnUrl : null) ||
+        this.getReturnUrl();
+
+      if (this.needsCorporationSelection()) {
+        void this.router.navigate(['/security/select-corporation'], {
+          queryParams: pendingReturnUrl ? { returnUrl: pendingReturnUrl } : undefined,
+        });
+        return;
+      }
+
+      const target =
+        (explicitReturnUrl && !this.isAuthFlowPath(explicitReturnUrl) ? explicitReturnUrl : null) ||
+        this.consumeReturnUrl() ||
+        this.getPostLoginRedirectUrl();
+      this.localStorage.removeItem(MPX_RETURN_URL_STORAGE_KEY);
+
+      if (this.isBrowser && (target.startsWith('http://') || target.startsWith('https://'))) {
+        try {
+          const parsed = new URL(target, window.location.origin);
+          if (parsed.origin !== window.location.origin) {
+            window.location.href = parsed.href;
+            return;
+          }
+          const localPath = (parsed.pathname || '/') + parsed.search + parsed.hash;
+          void this.router.navigateByUrl(localPath, { onSameUrlNavigation: 'reload' });
+          return;
+        } catch {
+          // Fallback to default router navigation
+        }
+      }
+
+      void this.router.navigateByUrl(target || '/', { onSameUrlNavigation: 'reload' });
+    });
+  }
+
   constructor() {
     if (this.isBrowser) {
       this.loadSessionFromStorage();
@@ -283,6 +444,11 @@ export class MpxSecurity {
       }
 
       if (accessSeconds <= 0) {
+        if (this.isPublicOrAuthEntryRoute()) {
+          this.messageService.messageType = 'NORMAL';
+          this.clearInvalidSession();
+          return;
+        }
         this.messageService.messageType = 'SESSION_EXPIRED';
         const currentUrl = this.router.url || '';
         const targetUrl = currentUrl.startsWith('/') ? '/' : '/security/signin';
@@ -538,6 +704,11 @@ export class MpxSecurity {
         },
         error: () => {
           this.refreshTokenSubject.next(false);
+          if (this.isPublicOrAuthEntryRoute()) {
+            this.messageService.messageType = 'NORMAL';
+            this.clearInvalidSession();
+            return;
+          }
           this.messageService.messageType = 'SESSION_EXPIRED';
           const currentUrl = this.router.url || '';
           const targetUrl = currentUrl.startsWith('/') ? '/' : '/security/signin';

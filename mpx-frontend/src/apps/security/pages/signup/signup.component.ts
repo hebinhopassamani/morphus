@@ -8,7 +8,7 @@ import { MatDivider } from '@angular/material/divider';
 import { MatError, MatFormField, MatLabel, MatSuffix } from '@angular/material/form-field';
 import { MatIcon } from '@angular/material/icon';
 import { MatInput } from '@angular/material/input';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '@/environments/environment';
 import { MpxSecurity } from '@core/morphus';
 
@@ -48,6 +48,7 @@ export class SignupComponent implements OnInit {
   protected readonly auth = inject(MpxSecurity);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly hidePassword = signal(true);
@@ -65,13 +66,13 @@ export class SignupComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.clearError();
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      this.auth.setReturnUrl(returnUrl);
+    }
 
     if (this.auth.isAuthenticated()) {
-      if (this.auth.needsOnboarding()) {
-        this.router.navigateByUrl('/security/onboarding');
-      } else {
-        this.router.navigateByUrl('/');
-      }
+      this.auth.completePostAuthNavigation(returnUrl);
     }
   }
 
@@ -133,15 +134,8 @@ export class SignupComponent implements OnInit {
 
             this.auth.loginWithGoogle({ accessToken: response.access_token }).subscribe({
               next: () => {
-                if (this.auth.needsOnboarding()) {
-                  this.router.navigateByUrl('/security/onboarding');
-                  return;
-                }
-                if (this.auth.needsCorporationSelection()) {
-                  this.router.navigateByUrl('/security/select-corporation');
-                  return;
-                }
-                this.router.navigateByUrl('/');
+                const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+                this.auth.completePostAuthNavigation(returnUrl);
               },
             });
           },

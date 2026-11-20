@@ -157,8 +157,7 @@ export class SelectCorporationComponent implements OnInit {
   }
 
   private navigateToTarget(): void {
-    const returnUrl =
-      this.route.snapshot.queryParamMap.get('returnUrl') || this.auth.getPostLoginRedirectUrl();
-    this.router.navigateByUrl(returnUrl);
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    this.auth.completePostAuthNavigation(returnUrl);
   }
 }

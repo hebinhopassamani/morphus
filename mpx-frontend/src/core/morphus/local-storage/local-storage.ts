@@ -96,6 +96,12 @@ export class MpxLocalStorage {
     }
 
     const fromCookie = this.getSharedCookie(key);
+    if (fromCookie === '__CLEARED__') {
+      if (this.localStorage && this.localStorage.getItem(key) !== null) {
+        this.localStorage.removeItem(key);
+      }
+      return null;
+    }
     if (fromCookie !== null) {
       if (this.localStorage && this.localStorage.getItem(key) !== fromCookie) {
         this.localStorage.setItem(key, fromCookie);
@@ -223,7 +229,7 @@ export class MpxLocalStorage {
         return;
       }
       const baseKey = encodeURIComponent(`mpx_sso_${key}`);
-      this.window.document.cookie = `${baseKey}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
+      this.window.document.cookie = `${baseKey}=__CLEARED__; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
       for (let i = 0; i < 8; i++) {
         this.window.document.cookie = `${baseKey}__${i}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
       }

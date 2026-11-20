@@ -67,6 +67,10 @@ export class SigninComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.clearError();
+    const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+    if (returnUrl) {
+      this.auth.setReturnUrl(returnUrl);
+    }
 
     if (this.auth.isAuthenticated()) {
       this.navigateAfterAuth();
@@ -159,20 +163,7 @@ export class SigninComponent implements OnInit {
   }
 
   private navigateAfterAuth(): void {
-    if (this.auth.needsOnboarding()) {
-      this.router.navigateByUrl('/security/onboarding');
-      return;
-    }
-
     const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-
-    if (this.auth.needsCorporationSelection()) {
-      this.router.navigate(['/security/select-corporation'], {
-        queryParams: returnUrl ? { returnUrl } : undefined,
-      });
-      return;
-    }
-
-    this.router.navigateByUrl(returnUrl || this.auth.getPostLoginRedirectUrl());
+    this.auth.completePostAuthNavigation(returnUrl);
   }
 }

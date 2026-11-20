@@ -204,9 +204,18 @@ export class MpxAppLauncherComponent {
         const targetHost = item.subdomain
           ? `${item.subdomain}.morphus.one`
           : 'morphus.one';
-        window.location.href = `${window.location.protocol}//${targetHost}`;
+        const targetUrl = `${window.location.protocol}//${targetHost}`;
+        if (item.id !== 'portal' && !this.auth.isAuthenticated()) {
+          this.auth.redirectToLogin(targetUrl, 'signin');
+          return;
+        }
+        window.location.href = targetUrl;
         return;
       }
+    }
+    if (item.id !== 'portal' && !this.auth.isAuthenticated()) {
+      this.auth.redirectToLogin(item.localRoute, 'signin');
+      return;
     }
     void this.router.navigateByUrl(item.localRoute);
   }

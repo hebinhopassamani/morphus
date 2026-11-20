@@ -5,14 +5,16 @@ import { catchError, throwError } from 'rxjs';
 import { environment } from '@/environments/environment';
 import { MpxHttpErrorCode } from '@core/morphus';
 import { MpxHttpErrorService } from '@core/morphus';
+import { MpxLocalStorage } from '@core/morphus';
 import { MPX_SESSION_STORAGE_KEY } from './security';
 
 export const MpxSecurityInterceptor: HttpInterceptorFn = (req, next) => {
   const platformId = inject(PLATFORM_ID);
   const errorService = inject(MpxHttpErrorService);
+  const storage = inject(MpxLocalStorage);
 
   if (isPlatformBrowser(platformId)) {
-    const sessionRaw = localStorage.getItem(MPX_SESSION_STORAGE_KEY);
+    const sessionRaw = storage.getItem(MPX_SESSION_STORAGE_KEY);
 
     if (sessionRaw) {
       try {

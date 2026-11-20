@@ -421,7 +421,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   private finishOnboarding(applicationIds: string[]): void {
     this.auth.completeOnboarding({ applicationIds }).subscribe({
       next: () => {
-        this.router.navigateByUrl(this.auth.getPostLoginRedirectUrl());
+        this.auth.completePostAuthNavigation();
       },
     });
   }
