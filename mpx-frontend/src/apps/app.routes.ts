@@ -15,7 +15,7 @@ const isCustomAppDomain = (): boolean => {
   }
   const host = window.location.hostname.toLowerCase();
   const sub = host.split('.')[0];
-  if (['cloud', 'security', 'flow', 'kalupa', 'send', 'www'].includes(sub)) {
+  if (['morphus', 'security', 'workflow', 'kalupa', 'relay', 'www'].includes(sub)) {
     return false;
   }
   return (
@@ -34,18 +34,13 @@ export const routes: Routes = [
     loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
   },
   {
-    path: 'cloud',
-    redirectTo: 'morphus',
-    pathMatch: 'prefix',
-  },
-  {
     path: 'security',
     loadChildren: () => import('@security/security.routes').then((m) => m.routes),
   },
   {
-    path: 'flow',
+    path: 'workflow',
     canActivate: [MpxSecurityGuard],
-    loadChildren: () => import('@flow/flow.routes').then((m) => m.routes),
+    loadChildren: () => import('@workflow/workflow.routes').then((m) => m.routes),
   },
   {
     path: 'kalupa',
@@ -53,9 +48,9 @@ export const routes: Routes = [
     loadChildren: () => import('@kalupa/kalupa.routes').then((m) => m.routes),
   },
   {
-    path: 'send',
+    path: 'relay',
     canActivate: [MpxSecurityGuard],
-    loadChildren: () => import('@send/send.routes').then((m) => m.routes),
+    loadChildren: () => import('@relay/relay.routes').then((m) => m.routes),
   },
   {
     path: 'app',
@@ -64,7 +59,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canMatch: [() => isSubdomain('cloud')],
+    canMatch: [() => isSubdomain('morphus')],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
   },
@@ -75,9 +70,9 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canMatch: [() => isSubdomain('flow')],
+    canMatch: [() => isSubdomain('workflow')],
     canActivate: [MpxSecurityGuard],
-    loadChildren: () => import('@flow/flow.routes').then((m) => m.routes),
+    loadChildren: () => import('@workflow/workflow.routes').then((m) => m.routes),
   },
   {
     path: '',
@@ -87,9 +82,9 @@ export const routes: Routes = [
   },
   {
     path: '',
-    canMatch: [() => isSubdomain('send')],
+    canMatch: [() => isSubdomain('relay')],
     canActivate: [MpxSecurityGuard],
-    loadChildren: () => import('@send/send.routes').then((m) => m.routes),
+    loadChildren: () => import('@relay/relay.routes').then((m) => m.routes),
   },
   {
     path: '',
@@ -98,47 +93,12 @@ export const routes: Routes = [
     loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
   },
   {
-    path: 'website/home',
-    redirectTo: '',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website/privacidade',
-    redirectTo: 'privacidade',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website/termos',
-    redirectTo: 'termos',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website/produtos',
-    redirectTo: 'produtos',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website/contato',
-    redirectTo: 'contato',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website/profile',
-    redirectTo: 'profile',
-    pathMatch: 'full',
-  },
-  {
-    path: 'website',
-    redirectTo: '',
-    pathMatch: 'full',
-  },
-  {
     path: '',
-    loadChildren: () => import('@website/website.routes').then((m) => m.routes),
+    loadChildren: () => import('@morphus/morphus-public.routes').then((m) => m.publicRoutes),
   },
   {
     path: 'notfound',
-    loadComponent: () => import('@website/pages/not-found/not-found.component').then((m) => m.NotFoundComponent),
+    loadComponent: () => import('@morphus/pages/not-found/not-found.component').then((m) => m.NotFoundComponent),
   },
   {
     path: '**',

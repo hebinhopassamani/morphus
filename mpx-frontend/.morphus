@@ -24,10 +24,12 @@ As camadas `components/`, `core/` e `styles/` dentro de `src/` seguem **simetria
 ```text
 src/
  ├── apps/
- │    ├── app-builder/          ➔ Construtor Visual de Aplicações
- │    ├── morphus/              ➔ Painel Corporativo / Governança Morphus
- │    ├── security/             ➔ Identidade, Autenticação e Autorização
- │    └── website/              ➔ Portal e Catálogo Comercial
+ │    ├── app-builder/          ➔ Construtor Visual de Aplicações (/app)
+ │    ├── kalupa/               ➔ Gestão Inteligente de Conhecimento (/kalupa — Sigla Klp*)
+ │    ├── morphus/              ➔ O Dono da Festa: Portal Web + Governança Corporativa (/morphus e / — Sigla Mpx*; absorveu website e aboliu cloud)
+ │    ├── relay/                ➔ Disparo Transacional de E-mails, Domínios DKIM e Templates (/relay — Sigla Rly*)
+ │    ├── security/             ➔ Identidade, Autenticação e Autorização (/security — Sigla Sec*)
+ │    └── workflow/             ➔ Motor de Fluxos de Trabalho, Estações e Plenário (/workflow — Sigla Wkf*)
  │
  ├── components/
  │    ├── builder-kit/          ➔ Componentes base do BuilderKit
@@ -132,10 +134,10 @@ Todo componente Angular (`@Component`) deve possuir obrigatoriamente seus **3 ar
 O ecossistema possui exclusivamente **2 layouts estruturais** dentro de `src/components/morphus/layout/` (não existe layout separado `auth` ou `open` ou `workspace`):
 1. **`landing/` (`MpxLandingLayout`)**:
    - Composto por `MpxLandingLayout`, `MpxLandingTopBarComponent` e `MpxLandingContentComponent`.
-   - Atende tanto as páginas abertas do Portal (`/website`) quanto o fluxo público de entrada (`/security/signin`, `/security/signup`, `/security/forgot-password`, `/security/onboarding`, `/security/select-corporation`), controlando a exibição da TopBar via input `[showTopBar]`.
+   - Atende tanto as páginas abertas do Portal (`/` em `src/apps/morphus/morphus-public.routes.ts`) quanto o fluxo público de entrada (`/security/signin`, `/security/signup`, `/security/forgot-password`, `/security/onboarding`, `/security/select-corporation`), controlando a exibição da TopBar via input `[showTopBar]`.
 2. **`admin/` (`MpxAdminLayout`)**:
    - Composto por `MpxAdminLayout`, `MpxAdminSidebarComponent`, `MpxAdminTopBarComponent` e `MpxAdminContentComponent`.
-   - Atende todas as áreas administrativas logadas com Menu Lateral + Barra Superior (`/morphus`, `/security`, `/app`).
+   - Atende todas as áreas administrativas logadas com Menu Lateral + Barra Superior (`/morphus`, `/security`, `/workflow`, `/relay`, `/kalupa`, `/app`).
 
 ### 5.3. Nomenclatura de Domínio: `Security` (Nunca `Auth`)
 - Em todo o ecossistema Morphus, o domínio de autenticação, autorização, sessão, guards e interceptors chama-se **`security`** (nunca `auth`).

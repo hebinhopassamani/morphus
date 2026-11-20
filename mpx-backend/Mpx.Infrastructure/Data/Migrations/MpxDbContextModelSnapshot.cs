@@ -16,7 +16,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120181319_AddJarbassAndNotifications";
+    public override string LastMigrationId => "20261120201012_AddJarbassDocumentSecurityAndEntityPrefixStandard";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -30,1802 +30,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
         NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Application", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid?>("ApplicationStatusId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_status_id");
-
-                b.Property<bool>("AvailableForTrial")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("available_for_trial");
-
-                b.Property<Guid?>("CategoryId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("category_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid?>("CorporationDomainId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_domain_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("CustomLayoutHtml")
-                    .HasColumnType("text")
-                    .HasColumnName("custom_layout_html");
-
-                b.Property<bool>("Default")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("default");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("DomainMode")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("MorphusSuggested")
-                    .HasColumnName("domain_mode");
-
-                b.Property<string>("FullDomain")
-                    .HasMaxLength(180)
-                    .HasColumnType("character varying(180)")
-                    .HasColumnName("full_domain");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("LayoutKey")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(60)
-                    .HasColumnType("character varying(60)")
-                    .HasDefaultValue("sidebar-default")
-                    .HasColumnName("layout_key");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
-
-                b.Property<string>("Prefix")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(3)
-                    .HasColumnType("character varying(3)")
-                    .HasDefaultValue("")
-                    .HasColumnName("prefix");
-
-                b.Property<string>("Subdomain")
-                    .HasMaxLength(80)
-                    .HasColumnType("character varying(80)")
-                    .HasColumnName("subdomain");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_applications");
-
-                b.HasIndex("ApplicationStatusId")
-                    .HasDatabaseName("ix_mpx_applications_application_status_id");
-
-                b.HasIndex("CategoryId")
-                    .HasDatabaseName("ix_mpx_applications_category_id");
-
-                b.HasIndex("CorporationDomainId")
-                    .HasDatabaseName("ix_mpx_applications_corporation_domain_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_applications_key");
-
-                b.HasIndex("CorporationId", "Prefix")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_applications_corporation_id_prefix");
-
-                b.ToTable("mpx_applications");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationModule", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasColumnName("label");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasColumnName("name");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_application_modules");
-
-                b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_mpx_application_modules_application_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_application_modules_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_application_modules_key");
-
-                b.ToTable("mpx_application_modules");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationSetting", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("EndpointUrl")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("endpoint_url");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsLockedSystem")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_locked_system");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("label");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<string>("RefreshPolicy")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("manual")
-                    .HasColumnName("refresh_policy");
-
-                b.Property<string>("SettingKey")
-                    .IsRequired()
-                    .HasMaxLength(80)
-                    .HasColumnType("character varying(80)")
-                    .HasColumnName("setting_key");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("Value")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(500)
-                    .HasColumnType("character varying(500)")
-                    .HasDefaultValue("")
-                    .HasColumnName("value");
-
-                b.Property<string>("ValueType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("string")
-                    .HasColumnName("value_type");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_application_settings");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_application_settings_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_application_settings_key");
-
-                b.HasIndex("ApplicationId", "SettingKey")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_application_settings_application_id_setting_key");
-
-                b.ToTable("mpx_application_settings");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationStatus", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("label");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_application_statuses");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_application_statuses_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_application_statuses_key");
-
-                b.ToTable("mpx_application_statuses");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationSubModule", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("ApplicationModuleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_module_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("CssContent")
-                    .HasColumnType("text")
-                    .HasColumnName("css_content");
-
-                b.Property<string>("CustomHtmlContent")
-                    .HasColumnType("text")
-                    .HasColumnName("custom_html_content");
-
-                b.Property<bool>("Default")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("default");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<string>("HtmlContent")
-                    .HasColumnType("text")
-                    .HasColumnName("html_content");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsCustomHtml")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_custom_html");
-
-                b.Property<string>("JsContent")
-                    .HasColumnType("text")
-                    .HasColumnName("js_content");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasColumnName("label");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasColumnName("name");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<string>("RoutePattern")
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("route_pattern");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("TsContent")
-                    .HasColumnType("text")
-                    .HasColumnName("ts_content");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_application_sub_modules");
-
-                b.HasIndex("ApplicationModuleId")
-                    .HasDatabaseName("ix_mpx_application_sub_modules_application_module_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_application_sub_modules_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_application_sub_modules_key");
-
-                b.ToTable("mpx_application_sub_modules");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationUser", b =>
-            {
-                b.Property<Guid>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<Guid>("UserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("user_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(250)
-                    .HasColumnType("character varying(250)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<bool>("Favorite")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("favorite");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsOwner")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_owner");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<Guid?>("WorkspaceId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workspace_id");
-
-                b.HasKey("ApplicationId", "UserId")
-                    .HasName("pk_mpx_application_users");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_application_users_corporation_id");
-
-                b.HasIndex("UserId")
-                    .HasDatabaseName("ix_mpx_application_users_user_id");
-
-                b.ToTable("mpx_application_users");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Category", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("label");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_categories");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_categories_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_categories_key");
-
-                b.ToTable("mpx_categories");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Claim", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("ClaimType")
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("claim_type");
-
-                b.Property<string>("ClaimValue")
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("claim_value");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<Guid>("ModuleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("module_id");
-
-                b.Property<Guid>("SubModuleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("sub_module_id");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_sec_claims");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_sec_claims_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_sec_claims_key");
-
-                b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_sec_claims_module_id");
-
-                b.HasIndex("SubModuleId")
-                    .HasDatabaseName("ix_sec_claims_sub_module_id");
-
-                b.ToTable("sec_claims");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Corporation", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid?>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("CpfCnpj")
-                    .HasMaxLength(14)
-                    .HasColumnType("character varying(14)")
-                    .HasColumnName("cpf_cnpj");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("Email")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("email");
-
-                b.Property<string>("FullName")
-                    .HasColumnType("text")
-                    .HasColumnName("full_name");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
-
-                b.Property<string>("PersonType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(2)
-                    .HasColumnType("character varying(2)")
-                    .HasDefaultValue("PJ")
-                    .HasColumnName("person_type");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_corporations");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_corporations_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_corporations_key");
-
-                b.ToTable("mpx_corporations");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationDomain", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("DomainName")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("domain_name");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsPrimary")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_primary");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("OriginType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("CustomerOwned")
-                    .HasColumnName("origin_type");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("VerificationStatus")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("PendingVerification")
-                    .HasColumnName("verification_status");
-
-                b.Property<string>("VerificationToken")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("verification_token");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_corporation_domains");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_corporation_domains_corporation_id");
-
-                b.HasIndex("DomainName")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_corporation_domains_domain_name");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_corporation_domains_key");
-
-                b.ToTable("mpx_corporation_domains");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationDomainRecord", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationDomainId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_domain_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("HostName")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("host_name");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("RecordType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasDefaultValue("CNAME")
-                    .HasColumnName("record_type");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<int>("Ttl")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(3600)
-                    .HasColumnName("ttl");
-
-                b.Property<string>("Value")
-                    .IsRequired()
-                    .HasMaxLength(500)
-                    .HasColumnType("character varying(500)")
-                    .HasColumnName("value");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_corporation_domain_records");
-
-                b.HasIndex("CorporationDomainId")
-                    .HasDatabaseName("ix_mpx_corporation_domain_records_corporation_domain_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_corporation_domain_records_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_corporation_domain_records_key");
-
-                b.ToTable("mpx_corporation_domain_records");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationUser", b =>
-            {
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<Guid>("UserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("user_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<bool>("Favorite")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("favorite");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsOwner")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_owner");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("CorporationId", "UserId")
-                    .HasName("pk_mpx_corporation_users");
-
-                b.HasIndex("UserId")
-                    .HasDatabaseName("ix_mpx_corporation_users_user_id");
-
-                b.ToTable("mpx_corporation_users");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Email", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("HtmlBody")
-                    .HasColumnType("text")
-                    .HasColumnName("html_body");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsHtmlBody")
-                    .HasColumnType("boolean")
-                    .HasColumnName("is_html_body");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<bool>("MailSent")
-                    .HasColumnType("boolean")
-                    .HasColumnName("mail_sent");
-
-                b.Property<string>("Subject")
-                    .HasMaxLength(250)
-                    .HasColumnType("character varying(250)")
-                    .HasColumnName("subject");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("TextBody")
-                    .HasColumnType("text")
-                    .HasColumnName("text_body");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_emails");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_emails_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_emails_key");
-
-                b.ToTable("mpx_emails");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailBcc", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<Guid>("EmailId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("email_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Mail")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("mail");
-
-                b.Property<string>("Name")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_emails_bcc");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_emails_bcc_corporation_id");
-
-                b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_mpx_emails_bcc_email_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_emails_bcc_key");
-
-                b.ToTable("mpx_emails_bcc");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailCc", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<Guid>("EmailId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("email_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Mail")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("mail");
-
-                b.Property<string>("Name")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_emails_cc");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_emails_cc_corporation_id");
-
-                b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_mpx_emails_cc_email_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_emails_cc_key");
-
-                b.ToTable("mpx_emails_cc");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailFrom", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<Guid>("EmailId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("email_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Mail")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("mail");
-
-                b.Property<string>("Name")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_emails_from");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_emails_from_corporation_id");
-
-                b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_mpx_emails_from_email_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_emails_from_key");
-
-                b.ToTable("mpx_emails_from");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailTo", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<Guid>("EmailId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("email_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Mail")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("mail");
-
-                b.Property<string>("Name")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_emails_to");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_emails_to_corporation_id");
-
-                b.HasIndex("EmailId")
-                    .HasDatabaseName("ix_mpx_emails_to_email_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_emails_to_key");
-
-                b.ToTable("mpx_emails_to");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EntityDefinition", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid?>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<Guid?>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("description");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("label");
-
-                b.Property<string>("ModuleName")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(80)
-                    .HasColumnType("character varying(80)")
-                    .HasDefaultValue("Morphus")
-                    .HasColumnName("module_name");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("name");
-
-                b.Property<string>("PluralLabel")
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("plural_label");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("TableName")
-                    .IsRequired()
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("table_name");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_entities");
-
-                b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_mpx_entities_application_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_entities_key");
-
-                b.HasIndex("CorporationId", "Name")
-                    .HasDatabaseName("ix_mpx_entities_corporation_id_name");
-
-                b.ToTable("mpx_entities");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EntityProperty", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("ColumnName")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("column_name");
-
-                b.Property<Guid?>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("DataType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("Text")
-                    .HasColumnName("data_type");
-
-                b.Property<string>("DefaultControlType")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("Input")
-                    .HasColumnName("default_control_type");
-
-                b.Property<string>("DefaultMask")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("default_mask");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("description");
-
-                b.Property<Guid>("EntityDefinitionId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("entity_definition_id");
-
-                b.Property<string>("ForeignKeyPropertyName")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("foreign_key_property_name");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsForeignKey")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_foreign_key");
-
-                b.Property<bool>("IsPrimaryKey")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_primary_key");
-
-                b.Property<bool>("IsRequired")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_required");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Label")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("label");
-
-                b.Property<int?>("MaxLength")
-                    .HasColumnType("integer")
-                    .HasColumnName("max_length");
-
-                b.Property<decimal?>("MaxValue")
-                    .HasColumnType("numeric(18,4)")
-                    .HasColumnName("max_value");
-
-                b.Property<int?>("MinLength")
-                    .HasColumnType("integer")
-                    .HasColumnName("min_length");
-
-                b.Property<decimal?>("MinValue")
-                    .HasColumnType("numeric(18,4)")
-                    .HasColumnName("min_value");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("name");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<string>("RegexPattern")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("regex_pattern");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<Guid?>("TargetEntityDefinitionId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("target_entity_definition_id");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_entity_properties");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_entity_properties_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_entity_properties_key");
-
-                b.HasIndex("TargetEntityDefinitionId")
-                    .HasDatabaseName("ix_mpx_entity_properties_target_entity_definition_id");
-
-                b.HasIndex("EntityDefinitionId", "Name")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_entity_properties_entity_definition_id_name");
-
-                b.ToTable("mpx_entity_properties");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Feature", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("Description")
-                    .IsRequired()
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<string>("HighlightPhrase")
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .HasColumnType("character varying(200)")
-                    .HasColumnName("highlight_phrase");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("Title")
-                    .IsRequired()
-                    .HasMaxLength(200)
-                    .HasColumnType("character varying(200)")
-                    .HasColumnName("title");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_features");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_features_key");
-
-                b.ToTable("mpx_features");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.FeatureHighlight", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("FeatureId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("feature_id");
-
-                b.Property<string>("Highlight")
-                    .IsRequired()
-                    .HasMaxLength(80)
-                    .HasColumnType("character varying(80)")
-                    .HasColumnName("highlight");
-
-                b.Property<string>("HighlightIcon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("highlight_icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<int>("Order")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("order");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<string>("Title")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("title");
-
-                b.Property<string>("TitleIcon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("title_icon");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_feature_highlights");
-
-                b.HasIndex("FeatureId")
-                    .HasDatabaseName("ix_mpx_feature_highlights_feature_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_feature_highlights_key");
-
-                b.ToTable("mpx_feature_highlights");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.FileType", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<string>("Category")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(60)
-                    .HasColumnType("character varying(60)")
-                    .HasDefaultValue("Document")
-                    .HasColumnName("category");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<string>("Extension")
-                    .IsRequired()
-                    .HasMaxLength(20)
-                    .HasColumnType("character varying(20)")
-                    .HasColumnName("extension");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<int>("MaxSizeInMb")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(10)
-                    .HasColumnName("max_size_in_mb");
-
-                b.Property<string>("MimeType")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("mime_type");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_file_types");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_file_types_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_file_types_key");
-
-                b.ToTable("mpx_file_types");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbAgent", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -1969,7 +174,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_agents");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConfig", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbConfig", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -2221,7 +426,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_config");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConflictAlert", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbConflictAlert", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -2364,7 +569,103 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_conflict_alerts");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassInsight", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbEncryptionState", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)1)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsEncrypted")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("is_encrypted");
+
+                b.Property<bool>("IsHeldInHand")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_held_in_hand");
+
+                b.Property<bool>("IsTamperLocked")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_tamper_locked");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_encryption_states");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_encryption_states_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_encryption_states_corporation_id_code");
+
+                b.ToTable("jrb_encryption_states");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbInsight", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -2497,7 +798,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_insights");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassJob", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbJob", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -2623,7 +924,103 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_jobs");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassProtectedFile", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbPermissionLevel", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<bool>("AllowRead")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("allow_read");
+
+                b.Property<bool>("AllowSecurityChange")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("allow_security_change");
+
+                b.Property<bool>("AllowWrite")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("allow_write");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)1)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_permission_levels");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_permission_levels_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_permission_levels_corporation_id_code");
+
+                b.ToTable("jrb_permission_levels");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbProtectedFile", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -2643,6 +1040,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(300)")
                     .HasColumnName("description");
 
+                b.Property<Guid?>("EffectiveSecurityLevelId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("effective_security_level_id");
+
                 b.Property<string>("EncryptedBackupPayload")
                     .HasColumnType("text")
                     .HasColumnName("encrypted_backup_payload");
@@ -2653,13 +1054,13 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(128)")
                     .HasColumnName("encrypted_content_hash");
 
-                b.Property<string>("EncryptionState")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("EncryptedAtRest")
-                    .HasColumnName("encryption_state");
+                b.Property<string>("EncryptedMetadataHeader")
+                    .HasColumnType("text")
+                    .HasColumnName("encrypted_metadata_header");
+
+                b.Property<Guid?>("EncryptionStateId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("encryption_state_id");
 
                 b.Property<string>("FileKeyEncrypted")
                     .HasMaxLength(1000)
@@ -2671,6 +1072,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(250)
                     .HasColumnType("character varying(250)")
                     .HasColumnName("file_name");
+
+                b.Property<Guid?>("FileTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("file_type_id");
 
                 b.Property<bool>("ForceCloseRequested")
                     .ValueGeneratedOnAdd()
@@ -2690,6 +1095,15 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("inactive");
 
+                b.Property<string>("InnerContentSignature")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("inner_content_signature");
+
+                b.Property<Guid?>("InstanceSecurityLevelId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("instance_security_level_id");
+
                 b.Property<bool>("IsHeldInHand")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -2708,6 +1122,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue("")
                     .HasColumnName("key");
 
+                b.Property<DateTime?>("LastOnlineSecurityVerifiedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_online_security_verified_at_utc");
+
                 b.Property<string>("LastRevokedReason")
                     .HasMaxLength(500)
                     .HasColumnType("character varying(500)")
@@ -2725,13 +1143,14 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("timestamp with time zone")
                     .HasColumnName("lease_opened_at_utc");
 
-                b.Property<string>("PermissionLevel")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("ReadOnly")
-                    .HasColumnName("permission_level");
+                b.Property<string>("OuterEnvelopeSignature")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("outer_envelope_signature");
+
+                b.Property<Guid?>("PermissionLevelId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("permission_level_id");
 
                 b.Property<string>("PlaintextContentHash")
                     .IsRequired()
@@ -2749,6 +1168,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(120)
                     .HasColumnType("character varying(120)")
                     .HasColumnName("required_claim_key");
+
+                b.Property<Guid?>("SecurityScopeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("security_scope_id");
 
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
@@ -2772,27 +1195,228 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("CorporationId")
                     .HasDatabaseName("ix_jrb_protected_files_corporation_id");
 
-                b.HasIndex("CurrentHolderUserId")
-                    .HasDatabaseName("ix_jrb_protected_files_current_holder_user_id");
+                b.HasIndex("EffectiveSecurityLevelId")
+                    .HasDatabaseName("ix_jrb_protected_files_effective_security_level_id");
+
+                b.HasIndex("EncryptionStateId")
+                    .HasDatabaseName("ix_jrb_protected_files_encryption_state_id");
+
+                b.HasIndex("InstanceSecurityLevelId")
+                    .HasDatabaseName("ix_jrb_protected_files_instance_security_level_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
                     .HasDatabaseName("ix_jrb_protected_files_key");
 
+                b.HasIndex("PermissionLevelId")
+                    .HasDatabaseName("ix_jrb_protected_files_permission_level_id");
+
+                b.HasIndex("SecurityScopeId")
+                    .HasDatabaseName("ix_jrb_protected_files_security_scope_id");
+
                 b.HasIndex("WorkspaceId")
                     .HasDatabaseName("ix_jrb_protected_files_workspace_id");
-
-                b.HasIndex("IsHeldInHand", "LeaseExpiresAtUtc")
-                    .HasDatabaseName("ix_jrb_protected_files_is_held_in_hand_lease_expires_at_utc");
 
                 b.HasIndex("JarbassAgentId", "RelativeVaultPath")
                     .IsUnique()
                     .HasDatabaseName("ix_jrb_protected_files_jarbass_agent_id_relative_vault_path");
 
+                b.HasIndex("CurrentHolderUserId", "PermissionLevelId", "IsHeldInHand")
+                    .HasDatabaseName("ix_jrb_protected_files_current_holder_user_id_permission_level");
+
+                b.HasIndex("FileTypeId", "SecurityScopeId", "EffectiveSecurityLevelId")
+                    .HasDatabaseName("ix_jrb_protected_files_file_type_id_security_scope_id_effectiv");
+
+                b.HasIndex("IsHeldInHand", "EncryptionStateId", "LeaseExpiresAtUtc")
+                    .HasDatabaseName("ix_jrb_protected_files_is_held_in_hand_encryption_state_id_lea");
+
                 b.ToTable("jrb_protected_files");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityLevel", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)0)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("JarbassShouldIgnore")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("jarbass_should_ignore");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("RequiresEncryptionAtRest")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("requires_encryption_at_rest");
+
+                b.Property<bool>("RequiresOnlineValidation")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("requires_online_validation");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_security_levels");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_security_levels_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_security_levels_corporation_id_code");
+
+                b.HasIndex("Code", "JarbassShouldIgnore", "RequiresOnlineValidation")
+                    .HasDatabaseName("ix_jrb_security_levels_code_jarbass_should_ignore_requires_onl");
+
+                b.ToTable("jrb_security_levels");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityScope", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<bool>("ApplyToInstance")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("apply_to_instance");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)0)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_security_scopes");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_security_scopes_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_security_scopes_corporation_id_code");
+
+                b.ToTable("jrb_security_scopes");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSyncEvent", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3065,7 +1689,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_sync_events");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassWorkflowWatcher", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbWorkflowWatcher", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3253,7 +1877,1447 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("jrb_workflow_watchers");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplication", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("ApplicationStatusId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_status_id");
+
+                b.Property<bool>("AvailableForTrial")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("available_for_trial");
+
+                b.Property<Guid?>("CategoryId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("category_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationDomainId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_domain_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("CustomLayoutHtml")
+                    .HasColumnType("text")
+                    .HasColumnName("custom_layout_html");
+
+                b.Property<bool>("Default")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("default");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
+
+                b.Property<string>("DomainMode")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("MorphusSuggested")
+                    .HasColumnName("domain_mode");
+
+                b.Property<string>("FullDomain")
+                    .HasMaxLength(180)
+                    .HasColumnType("character varying(180)")
+                    .HasColumnName("full_domain");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("LayoutKey")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("sidebar-default")
+                    .HasColumnName("layout_key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<string>("Prefix")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(3)
+                    .HasColumnType("character varying(3)")
+                    .HasDefaultValue("")
+                    .HasColumnName("prefix");
+
+                b.Property<string>("Subdomain")
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("subdomain");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_applications");
+
+                b.HasIndex("ApplicationStatusId")
+                    .HasDatabaseName("ix_mpx_applications_application_status_id");
+
+                b.HasIndex("CategoryId")
+                    .HasDatabaseName("ix_mpx_applications_category_id");
+
+                b.HasIndex("CorporationDomainId")
+                    .HasDatabaseName("ix_mpx_applications_corporation_domain_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_applications_key");
+
+                b.HasIndex("CorporationId", "Prefix")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_applications_corporation_id_prefix");
+
+                b.ToTable("mpx_applications");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationModule", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_application_modules");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_application_modules_application_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_application_modules_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_application_modules_key");
+
+                b.ToTable("mpx_application_modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationSetting", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
+
+                b.Property<string>("EndpointUrl")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("endpoint_url");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsLockedSystem")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_locked_system");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<string>("RefreshPolicy")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("manual")
+                    .HasColumnName("refresh_policy");
+
+                b.Property<string>("SettingKey")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("setting_key");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Value")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasDefaultValue("")
+                    .HasColumnName("value");
+
+                b.Property<string>("ValueType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("string")
+                    .HasColumnName("value_type");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_application_settings");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_application_settings_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_application_settings_key");
+
+                b.HasIndex("ApplicationId", "SettingKey")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_application_settings_application_id_setting_key");
+
+                b.ToTable("mpx_application_settings");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationStatus", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_application_statuses");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_application_statuses_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_application_statuses_key");
+
+                b.ToTable("mpx_application_statuses");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationSubModule", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("ApplicationModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_module_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("CssContent")
+                    .HasColumnType("text")
+                    .HasColumnName("css_content");
+
+                b.Property<string>("CustomHtmlContent")
+                    .HasColumnType("text")
+                    .HasColumnName("custom_html_content");
+
+                b.Property<bool>("Default")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("default");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("HtmlContent")
+                    .HasColumnType("text")
+                    .HasColumnName("html_content");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsCustomHtml")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_custom_html");
+
+                b.Property<string>("JsContent")
+                    .HasColumnType("text")
+                    .HasColumnName("js_content");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<string>("RoutePattern")
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("route_pattern");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("TsContent")
+                    .HasColumnType("text")
+                    .HasColumnName("ts_content");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_application_sub_modules");
+
+                b.HasIndex("ApplicationModuleId")
+                    .HasDatabaseName("ix_mpx_application_sub_modules_application_module_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_application_sub_modules_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_application_sub_modules_key");
+
+                b.ToTable("mpx_application_sub_modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationUser", b =>
+            {
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<bool>("Favorite")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("favorite");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsOwner")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_owner");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("ApplicationId", "UserId")
+                    .HasName("pk_mpx_application_users");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_application_users_corporation_id");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_mpx_application_users_user_id");
+
+                b.ToTable("mpx_application_users");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCategory", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_categories");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_categories_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_categories_key");
+
+                b.ToTable("mpx_categories");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporation", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("CpfCnpj")
+                    .HasMaxLength(14)
+                    .HasColumnType("character varying(14)")
+                    .HasColumnName("cpf_cnpj");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Email")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("email");
+
+                b.Property<string>("FullName")
+                    .HasColumnType("text")
+                    .HasColumnName("full_name");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<string>("PersonType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(2)
+                    .HasColumnType("character varying(2)")
+                    .HasDefaultValue("PJ")
+                    .HasColumnName("person_type");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_corporations");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_corporations_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_corporations_key");
+
+                b.ToTable("mpx_corporations");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationDomain", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
+
+                b.Property<string>("DomainName")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("domain_name");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsPrimary")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_primary");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("OriginType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("CustomerOwned")
+                    .HasColumnName("origin_type");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("VerificationStatus")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("PendingVerification")
+                    .HasColumnName("verification_status");
+
+                b.Property<string>("VerificationToken")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("verification_token");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_corporation_domains");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_corporation_domains_corporation_id");
+
+                b.HasIndex("DomainName")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_corporation_domains_domain_name");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_corporation_domains_key");
+
+                b.ToTable("mpx_corporation_domains");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationDomainRecord", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationDomainId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_domain_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
+
+                b.Property<string>("HostName")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("host_name");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("RecordType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasDefaultValue("CNAME")
+                    .HasColumnName("record_type");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<int>("Ttl")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(3600)
+                    .HasColumnName("ttl");
+
+                b.Property<string>("Value")
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("value");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_corporation_domain_records");
+
+                b.HasIndex("CorporationDomainId")
+                    .HasDatabaseName("ix_mpx_corporation_domain_records_corporation_domain_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_corporation_domain_records_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_corporation_domain_records_key");
+
+                b.ToTable("mpx_corporation_domain_records");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationUser", b =>
+            {
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<bool>("Favorite")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("favorite");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsOwner")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_owner");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("CorporationId", "UserId")
+                    .HasName("pk_mpx_corporation_users");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_mpx_corporation_users_user_id");
+
+                b.ToTable("mpx_corporation_users");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxEntityDefinition", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<string>("ModuleName")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasDefaultValue("Morphus")
+                    .HasColumnName("module_name");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<string>("PluralLabel")
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("plural_label");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("TableName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("table_name");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_entities");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_entities_application_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_entities_key");
+
+                b.HasIndex("CorporationId", "Name")
+                    .HasDatabaseName("ix_mpx_entities_corporation_id_name");
+
+                b.ToTable("mpx_entities");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxEntityProperty", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ColumnName")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("column_name");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("DataType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Text")
+                    .HasColumnName("data_type");
+
+                b.Property<string>("DefaultControlType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Input")
+                    .HasColumnName("default_control_type");
+
+                b.Property<string>("DefaultMask")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("default_mask");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<Guid>("EntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("entity_definition_id");
+
+                b.Property<string>("ForeignKeyPropertyName")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("foreign_key_property_name");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsForeignKey")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_foreign_key");
+
+                b.Property<bool>("IsPrimaryKey")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_primary_key");
+
+                b.Property<bool>("IsRequired")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_required");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<int?>("MaxLength")
+                    .HasColumnType("integer")
+                    .HasColumnName("max_length");
+
+                b.Property<decimal?>("MaxValue")
+                    .HasColumnType("numeric(18,4)")
+                    .HasColumnName("max_value");
+
+                b.Property<int?>("MinLength")
+                    .HasColumnType("integer")
+                    .HasColumnName("min_length");
+
+                b.Property<decimal?>("MinValue")
+                    .HasColumnType("numeric(18,4)")
+                    .HasColumnName("min_value");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<string>("RegexPattern")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("regex_pattern");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid?>("TargetEntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_entity_definition_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_entity_properties");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_entity_properties_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_entity_properties_key");
+
+                b.HasIndex("TargetEntityDefinitionId")
+                    .HasDatabaseName("ix_mpx_entity_properties_target_entity_definition_id");
+
+                b.HasIndex("EntityDefinitionId", "Name")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_entity_properties_entity_definition_id_name");
+
+                b.ToTable("mpx_entity_properties");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFeature", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Description")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("HighlightPhrase")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("highlight_phrase");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("title");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_features");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_features_key");
+
+                b.ToTable("mpx_features");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFeatureHighlight", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("FeatureId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("feature_id");
+
+                b.Property<string>("Highlight")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("highlight");
+
+                b.Property<string>("HighlightIcon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("highlight_icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("title");
+
+                b.Property<string>("TitleIcon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("title_icon");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_feature_highlights");
+
+                b.HasIndex("FeatureId")
+                    .HasDatabaseName("ix_mpx_feature_highlights_feature_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_feature_highlights_key");
+
+                b.ToTable("mpx_feature_highlights");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFileType", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Category")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("Document")
+                    .HasColumnName("category");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<int>("DefaultLeaseMinutes")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(60)
+                    .HasColumnName("default_lease_minutes");
+
+                b.Property<Guid?>("DefaultPermissionLevelId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("default_permission_level_id");
+
+                b.Property<string>("DefaultRequiredClaimKey")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("default_required_claim_key");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Extension")
+                    .IsRequired()
+                    .HasMaxLength(20)
+                    .HasColumnType("character varying(20)")
+                    .HasColumnName("extension");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<int>("MaxSizeInMb")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(10)
+                    .HasColumnName("max_size_in_mb");
+
+                b.Property<string>("MimeType")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("mime_type");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<Guid?>("SecurityLevelId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("security_level_id");
+
+                b.Property<Guid?>("SecurityScopeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("security_scope_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_file_types");
+
+                b.HasIndex("DefaultPermissionLevelId")
+                    .HasDatabaseName("ix_mpx_file_types_default_permission_level_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_file_types_key");
+
+                b.HasIndex("SecurityLevelId")
+                    .HasDatabaseName("ix_mpx_file_types_security_level_id");
+
+                b.HasIndex("SecurityScopeId")
+                    .HasDatabaseName("ix_mpx_file_types_security_scope_id");
+
+                b.HasIndex("CorporationId", "SecurityScopeId", "SecurityLevelId")
+                    .HasDatabaseName("ix_mpx_file_types_corporation_id_security_scope_id_security_le");
+
+                b.ToTable("mpx_file_types");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxMenu", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3351,68 +3415,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_menus");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Module", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_sec_modules");
-
-                b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_sec_modules_application_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_sec_modules_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_sec_modules_key");
-
-                b.ToTable("sec_modules");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ModuleCategory", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxModuleCategory", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3466,7 +3469,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_module_categories");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxNotification", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3650,118 +3653,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_notifications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<string>("Email")
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("email");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<Guid>("ModuleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("module_id");
-
-                b.Property<string>("Name")
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("name");
-
-                b.Property<Guid>("SubModuleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("sub_module_id");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("Id")
-                    .HasName("pk_sec_roles");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_sec_roles_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_sec_roles_key");
-
-                b.HasIndex("ModuleId")
-                    .HasDatabaseName("ix_sec_roles_module_id");
-
-                b.HasIndex("SubModuleId")
-                    .HasDatabaseName("ix_sec_roles_sub_module_id");
-
-                b.ToTable("sec_roles");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.RoleClaim", b =>
-            {
-                b.Property<Guid>("RoleId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("role_id");
-
-                b.Property<Guid>("ClaimId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("claim_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("RoleId", "ClaimId")
-                    .HasName("pk_sec_role_claims");
-
-                b.HasIndex("ClaimId")
-                    .HasDatabaseName("ix_sec_role_claims_claim_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_sec_role_claims_corporation_id");
-
-                b.ToTable("sec_role_claims");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ShowcaseModule", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxShowcaseModule", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3834,18 +3726,128 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_modules");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Station", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxUserNotification", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
                     .HasColumnName("id");
 
-                b.Property<string>("Code")
+                b.Property<bool>("Acknowledged")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("acknowledged");
+
+                b.Property<DateTime?>("AcknowledgedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("acknowledged_at_utc");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at_utc");
+
+                b.Property<bool>("DeliveredInApp")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("delivered_in_app");
+
+                b.Property<bool>("DeliveredViaEmail")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("delivered_via_email");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Dismissed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("dismissed");
+
+                b.Property<DateTime?>("DismissedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("dismissed_at_utc");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
                     .IsRequired()
-                    .HasMaxLength(80)
-                    .HasColumnType("character varying(80)")
-                    .HasColumnName("code");
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<Guid>("NotificationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("notification_id");
+
+                b.Property<bool>("Pinned")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("pinned");
+
+                b.Property<bool>("Read")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("read");
+
+                b.Property<DateTime?>("ReadAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("read_at_utc");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_user_notifications");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_user_notifications_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_user_notifications_key");
+
+                b.HasIndex("NotificationId", "UserId")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_user_notifications_notification_id_user_id");
+
+                b.HasIndex("UserId", "Read", "Dismissed", "CreatedAtUtc")
+                    .HasDatabaseName("ix_mpx_user_notifications_user_id_read_dismissed_created_at_utc");
+
+                b.ToTable("mpx_user_notifications");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspace", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
 
                 b.Property<string>("Color")
                     .HasMaxLength(50)
@@ -3856,19 +3858,16 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
-                b.Property<string>("DefaultLayoutHtml")
-                    .HasColumnType("text")
-                    .HasColumnName("default_layout_html");
-
-                b.Property<string>("Description")
-                    .HasColumnType("text")
-                    .HasColumnName("description");
-
-                b.Property<bool>("HasLayout")
+                b.Property<bool>("Default")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
-                    .HasColumnName("has_layout");
+                    .HasColumnName("default");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("description");
 
                 b.Property<string>("Icon")
                     .HasMaxLength(100)
@@ -3891,14 +3890,9 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
                 b.Property<string>("Name")
                     .IsRequired()
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
                     .HasColumnName("name");
-
-                b.Property<string>("ProcessHandlerKey")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("process_handler_key");
 
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
@@ -3907,20 +3901,697 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("system");
 
                 b.HasKey("Id")
-                    .HasName("pk_wkf_stations");
+                    .HasName("pk_mpx_workspaces");
+
+                b.HasIndex("CorporationId")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_workspaces_corporation_id")
+                    .HasFilter("\"default\" = true");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_wkf_stations_key");
+                    .HasDatabaseName("ix_mpx_workspaces_key");
 
-                b.HasIndex("CorporationId", "Code")
-                    .IsUnique()
-                    .HasDatabaseName("ix_wkf_stations_corporation_id_code");
-
-                b.ToTable("wkf_stations");
+                b.ToTable("mpx_workspaces");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.SubModule", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspaceApplication", b =>
+            {
+                b.Property<Guid>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<bool>("Default")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("default");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<Guid?>("SharedWithWorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("shared_with_workspace_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<int?>("TrialDays")
+                    .HasColumnType("integer")
+                    .HasColumnName("trial_days");
+
+                b.Property<DateTime?>("TrialStartDate")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("trial_start_date");
+
+                b.Property<bool>("TrialUsed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("trial_used");
+
+                b.HasKey("WorkspaceId", "ApplicationId")
+                    .HasName("pk_mpx_workspace_applications");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_workspace_applications_application_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_workspace_applications_corporation_id");
+
+                b.ToTable("mpx_workspace_applications");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspaceUser", b =>
+            {
+                b.Property<Guid>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<bool>("Favorite")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("favorite");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsOwner")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_owner");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("WorkspaceId", "UserId")
+                    .HasName("pk_mpx_workspace_users");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_workspace_users_corporation_id");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_mpx_workspace_users_user_id");
+
+                b.ToTable("mpx_workspace_users");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmail", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("HtmlBody")
+                    .HasColumnType("text")
+                    .HasColumnName("html_body");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsHtmlBody")
+                    .HasColumnType("boolean")
+                    .HasColumnName("is_html_body");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<bool>("MailSent")
+                    .HasColumnType("boolean")
+                    .HasColumnName("mail_sent");
+
+                b.Property<string>("Subject")
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("subject");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("TextBody")
+                    .HasColumnType("text")
+                    .HasColumnName("text_body");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_emails");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_emails_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_emails_key");
+
+                b.ToTable("mpx_emails");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailBcc", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid>("EmailId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("email_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Mail")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("mail");
+
+                b.Property<string>("Name")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_emails_bcc");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_emails_bcc_corporation_id");
+
+                b.HasIndex("EmailId")
+                    .HasDatabaseName("ix_mpx_emails_bcc_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_emails_bcc_key");
+
+                b.ToTable("mpx_emails_bcc");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailCc", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid>("EmailId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("email_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Mail")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("mail");
+
+                b.Property<string>("Name")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_emails_cc");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_emails_cc_corporation_id");
+
+                b.HasIndex("EmailId")
+                    .HasDatabaseName("ix_mpx_emails_cc_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_emails_cc_key");
+
+                b.ToTable("mpx_emails_cc");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailFrom", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid>("EmailId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("email_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Mail")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("mail");
+
+                b.Property<string>("Name")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_emails_from");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_emails_from_corporation_id");
+
+                b.HasIndex("EmailId")
+                    .HasDatabaseName("ix_mpx_emails_from_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_emails_from_key");
+
+                b.ToTable("mpx_emails_from");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailTo", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid>("EmailId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("email_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Mail")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("mail");
+
+                b.Property<string>("Name")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_emails_to");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_emails_to_corporation_id");
+
+                b.HasIndex("EmailId")
+                    .HasDatabaseName("ix_mpx_emails_to_email_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_emails_to_key");
+
+                b.ToTable("mpx_emails_to");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecClaim", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ClaimType")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("claim_type");
+
+                b.Property<string>("ClaimValue")
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("claim_value");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<Guid>("ModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("module_id");
+
+                b.Property<Guid>("SubModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("sub_module_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_sec_claims");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_sec_claims_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_sec_claims_key");
+
+                b.HasIndex("ModuleId")
+                    .HasDatabaseName("ix_sec_claims_module_id");
+
+                b.HasIndex("SubModuleId")
+                    .HasDatabaseName("ix_sec_claims_sub_module_id");
+
+                b.ToTable("sec_claims");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecModule", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_sec_modules");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_sec_modules_application_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_sec_modules_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_sec_modules_key");
+
+                b.ToTable("sec_modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecRole", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Email")
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("email");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<Guid>("ModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("module_id");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("name");
+
+                b.Property<Guid>("SubModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("sub_module_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_sec_roles");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_sec_roles_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_sec_roles_key");
+
+                b.HasIndex("ModuleId")
+                    .HasDatabaseName("ix_sec_roles_module_id");
+
+                b.HasIndex("SubModuleId")
+                    .HasDatabaseName("ix_sec_roles_sub_module_id");
+
+                b.ToTable("sec_roles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecRoleClaim", b =>
+            {
+                b.Property<Guid>("RoleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("role_id");
+
+                b.Property<Guid>("ClaimId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("claim_id");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("RoleId", "ClaimId")
+                    .HasName("pk_sec_role_claims");
+
+                b.HasIndex("ClaimId")
+                    .HasDatabaseName("ix_sec_role_claims_claim_id");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_sec_role_claims_corporation_id");
+
+                b.ToTable("sec_role_claims");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecSubModule", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -3981,7 +4652,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_sub_modules");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.User", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUser", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -4130,7 +4801,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_users");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserClaim", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserClaim", b =>
             {
                 b.Property<Guid>("UserId")
                     .HasColumnType("uuid")
@@ -4168,123 +4839,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_user_claims");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserNotification", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<bool>("Acknowledged")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("acknowledged");
-
-                b.Property<DateTime?>("AcknowledgedAtUtc")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("acknowledged_at_utc");
-
-                b.Property<Guid?>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<DateTime>("CreatedAtUtc")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("created_at_utc");
-
-                b.Property<bool>("DeliveredInApp")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(true)
-                    .HasColumnName("delivered_in_app");
-
-                b.Property<bool>("DeliveredViaEmail")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("delivered_via_email");
-
-                b.Property<string>("Description")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("description");
-
-                b.Property<bool>("Dismissed")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("dismissed");
-
-                b.Property<DateTime?>("DismissedAtUtc")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("dismissed_at_utc");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<Guid>("NotificationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("notification_id");
-
-                b.Property<bool>("Pinned")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("pinned");
-
-                b.Property<bool>("Read")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("read");
-
-                b.Property<DateTime?>("ReadAtUtc")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("read_at_utc");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<Guid>("UserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("user_id");
-
-                b.HasKey("Id")
-                    .HasName("pk_mpx_user_notifications");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_user_notifications_corporation_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_user_notifications_key");
-
-                b.HasIndex("NotificationId", "UserId")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_user_notifications_notification_id_user_id");
-
-                b.HasIndex("UserId", "Read", "Dismissed", "CreatedAtUtc")
-                    .HasDatabaseName("ix_mpx_user_notifications_user_id_read_dismissed_created_at_utc");
-
-                b.ToTable("mpx_user_notifications");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.UserRole", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserRole", b =>
             {
                 b.Property<Guid>("UserId")
                     .HasColumnType("uuid")
@@ -4322,7 +4877,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_user_roles");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserStatus", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserStatus", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -4389,167 +4944,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_user_statuses");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workflow", b =>
-            {
-                b.Property<Guid>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("uuid")
-                    .HasColumnName("id");
-
-                b.Property<int>("CompletedSplitBranches")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("completed_split_branches");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<DateTime>("ExecutedAt")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("executed_at");
-
-                b.Property<Guid?>("ExecutedByUserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("executed_by_user_id");
-
-                b.Property<int>("ExpectedSplitBranches")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("integer")
-                    .HasDefaultValue(0)
-                    .HasColumnName("expected_split_branches");
-
-                b.Property<Guid?>("FromWorkflowTypeConfigId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("from_workflow_type_config_id");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<string>("IpAddress")
-                    .HasMaxLength(60)
-                    .HasColumnType("character varying(60)")
-                    .HasColumnName("ip_address");
-
-                b.Property<bool>("IsCurrentStep")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(true)
-                    .HasColumnName("is_current_step");
-
-                b.Property<Guid?>("JoinTargetConfigId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("join_target_config_id");
-
-                b.Property<string>("Key")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasDefaultValue("")
-                    .HasColumnName("key");
-
-                b.Property<string>("Opinion")
-                    .HasColumnType("text")
-                    .HasColumnName("opinion");
-
-                b.Property<Guid?>("ParentWorkflowId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("parent_workflow_id");
-
-                b.Property<string>("Protocol")
-                    .IsRequired()
-                    .HasMaxLength(60)
-                    .HasColumnType("character varying(60)")
-                    .HasColumnName("protocol");
-
-                b.Property<Guid?>("SplitGroupId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("split_group_id");
-
-                b.Property<string>("Status")
-                    .IsRequired()
-                    .ValueGeneratedOnAdd()
-                    .HasMaxLength(40)
-                    .HasColumnType("character varying(40)")
-                    .HasDefaultValue("Running")
-                    .HasColumnName("status");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<Guid>("ToWorkflowTypeConfigId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("to_workflow_type_config_id");
-
-                b.Property<string>("UserAgent")
-                    .HasMaxLength(300)
-                    .HasColumnType("character varying(300)")
-                    .HasColumnName("user_agent");
-
-                b.Property<bool>("WaitingForSplitJoin")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("waiting_for_split_join");
-
-                b.Property<Guid?>("WorkflowTypeConfigActionId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workflow_type_config_action_id");
-
-                b.Property<Guid?>("WorkflowTypeConfigConditionId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workflow_type_config_condition_id");
-
-                b.Property<Guid>("WorkflowTypeId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workflow_type_id");
-
-                b.HasKey("Id")
-                    .HasName("pk_wkf_workflows");
-
-                b.HasIndex("ExecutedByUserId")
-                    .HasDatabaseName("ix_wkf_workflows_executed_by_user_id");
-
-                b.HasIndex("FromWorkflowTypeConfigId")
-                    .HasDatabaseName("ix_wkf_workflows_from_workflow_type_config_id");
-
-                b.HasIndex("JoinTargetConfigId")
-                    .HasDatabaseName("ix_wkf_workflows_join_target_config_id");
-
-                b.HasIndex("Key")
-                    .IsUnique()
-                    .HasDatabaseName("ix_wkf_workflows_key");
-
-                b.HasIndex("ToWorkflowTypeConfigId")
-                    .HasDatabaseName("ix_wkf_workflows_to_workflow_type_config_id");
-
-                b.HasIndex("WorkflowTypeConfigActionId")
-                    .HasDatabaseName("ix_wkf_workflows_workflow_type_config_action_id");
-
-                b.HasIndex("WorkflowTypeConfigConditionId")
-                    .HasDatabaseName("ix_wkf_workflows_workflow_type_config_condition_id");
-
-                b.HasIndex("WorkflowTypeId")
-                    .HasDatabaseName("ix_wkf_workflows_workflow_type_id");
-
-                b.HasIndex("CorporationId", "Protocol")
-                    .HasDatabaseName("ix_wkf_workflows_corporation_id_protocol");
-
-                b.HasIndex("ParentWorkflowId", "SplitGroupId")
-                    .HasDatabaseName("ix_wkf_workflows_parent_workflow_id_split_group_id");
-
-                b.ToTable("wkf_workflows");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowItem", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfItem", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -4699,7 +5094,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_items");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowItemMetadata", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfItemMetadata", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -4800,7 +5195,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_item_metadatas");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowPermission", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfPermission", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -4918,7 +5313,93 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_permissions");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTask", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStation", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("DefaultLayoutHtml")
+                    .HasColumnType("text")
+                    .HasColumnName("default_layout_html");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("HasLayout")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("has_layout");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<string>("ProcessHandlerKey")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("process_handler_key");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.HasKey("Id")
+                    .HasName("pk_wkf_stations");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_stations_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_stations_corporation_id_code");
+
+                b.ToTable("wkf_stations");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTask", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5071,7 +5552,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_tasks");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTaskOwner", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTaskOwner", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5183,7 +5664,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_task_owners");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowType", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5313,7 +5794,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_types");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfig", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfig", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5487,7 +5968,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_configs");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigAction", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigAction", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5643,7 +6124,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_actions");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigActionFileType", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigActionFileType", b =>
             {
                 b.Property<Guid>("WorkflowTypeConfigActionId")
                     .HasColumnType("uuid")
@@ -5681,7 +6162,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_action_file_types");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigCondition", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigCondition", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -5863,7 +6344,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_conditions");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigField", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigField", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -6073,7 +6554,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_fields");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigNotification", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigNotification", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -6284,7 +6765,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_notifications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigSla", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigSla", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -6375,7 +6856,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_slas");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigValidation", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigValidation", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -6525,7 +7006,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_config_validations");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeContext", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeContext", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
@@ -6663,43 +7144,61 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_type_contexts");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workspace", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfWorkflow", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
                     .HasColumnName("id");
 
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
+                b.Property<int>("CompletedSplitBranches")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("completed_split_branches");
 
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
-                b.Property<bool>("Default")
+                b.Property<DateTime>("ExecutedAt")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("executed_at");
+
+                b.Property<Guid?>("ExecutedByUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("executed_by_user_id");
+
+                b.Property<int>("ExpectedSplitBranches")
                     .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("default");
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("expected_split_branches");
 
-                b.Property<string>("Description")
-                    .HasMaxLength(120)
-                    .HasColumnType("character varying(120)")
-                    .HasColumnName("description");
-
-                b.Property<string>("Icon")
-                    .HasMaxLength(100)
-                    .HasColumnType("character varying(100)")
-                    .HasColumnName("icon");
+                b.Property<Guid?>("FromWorkflowTypeConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("from_workflow_type_config_id");
 
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("inactive");
+
+                b.Property<string>("IpAddress")
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasColumnName("ip_address");
+
+                b.Property<bool>("IsCurrentStep")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("is_current_step");
+
+                b.Property<Guid?>("JoinTargetConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("join_target_config_id");
 
                 b.Property<string>("Key")
                     .IsRequired()
@@ -6709,11 +7208,31 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue("")
                     .HasColumnName("key");
 
-                b.Property<string>("Name")
+                b.Property<string>("Opinion")
+                    .HasColumnType("text")
+                    .HasColumnName("opinion");
+
+                b.Property<Guid?>("ParentWorkflowId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("parent_workflow_id");
+
+                b.Property<string>("Protocol")
                     .IsRequired()
-                    .HasMaxLength(150)
-                    .HasColumnType("character varying(150)")
-                    .HasColumnName("name");
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasColumnName("protocol");
+
+                b.Property<Guid?>("SplitGroupId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("split_group_id");
+
+                b.Property<string>("Status")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Running")
+                    .HasColumnName("status");
 
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
@@ -6721,568 +7240,85 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
-                b.HasKey("Id")
-                    .HasName("pk_mpx_workspaces");
+                b.Property<Guid>("ToWorkflowTypeConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("to_workflow_type_config_id");
 
-                b.HasIndex("CorporationId")
-                    .IsUnique()
-                    .HasDatabaseName("ix_mpx_workspaces_corporation_id")
-                    .HasFilter("\"default\" = true");
+                b.Property<string>("UserAgent")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("user_agent");
+
+                b.Property<bool>("WaitingForSplitJoin")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("waiting_for_split_join");
+
+                b.Property<Guid?>("WorkflowTypeConfigActionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_type_config_action_id");
+
+                b.Property<Guid?>("WorkflowTypeConfigConditionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_type_config_condition_id");
+
+                b.Property<Guid>("WorkflowTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_type_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_wkf_workflows");
+
+                b.HasIndex("ExecutedByUserId")
+                    .HasDatabaseName("ix_wkf_workflows_executed_by_user_id");
+
+                b.HasIndex("FromWorkflowTypeConfigId")
+                    .HasDatabaseName("ix_wkf_workflows_from_workflow_type_config_id");
+
+                b.HasIndex("JoinTargetConfigId")
+                    .HasDatabaseName("ix_wkf_workflows_join_target_config_id");
 
                 b.HasIndex("Key")
                     .IsUnique()
-                    .HasDatabaseName("ix_mpx_workspaces_key");
+                    .HasDatabaseName("ix_wkf_workflows_key");
 
-                b.ToTable("mpx_workspaces");
+                b.HasIndex("ToWorkflowTypeConfigId")
+                    .HasDatabaseName("ix_wkf_workflows_to_workflow_type_config_id");
+
+                b.HasIndex("WorkflowTypeConfigActionId")
+                    .HasDatabaseName("ix_wkf_workflows_workflow_type_config_action_id");
+
+                b.HasIndex("WorkflowTypeConfigConditionId")
+                    .HasDatabaseName("ix_wkf_workflows_workflow_type_config_condition_id");
+
+                b.HasIndex("WorkflowTypeId")
+                    .HasDatabaseName("ix_wkf_workflows_workflow_type_id");
+
+                b.HasIndex("CorporationId", "Protocol")
+                    .HasDatabaseName("ix_wkf_workflows_corporation_id_protocol");
+
+                b.HasIndex("ParentWorkflowId", "SplitGroupId")
+                    .HasDatabaseName("ix_wkf_workflows_parent_workflow_id_split_group_id");
+
+                b.ToTable("wkf_workflows");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceApplication", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbAgent", b =>
             {
-                b.Property<Guid>("WorkspaceId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workspace_id");
-
-                b.Property<Guid>("ApplicationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("application_id");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<bool>("Default")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("default");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<Guid?>("SharedWithWorkspaceId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("shared_with_workspace_id");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.Property<int?>("TrialDays")
-                    .HasColumnType("integer")
-                    .HasColumnName("trial_days");
-
-                b.Property<DateTime?>("TrialStartDate")
-                    .HasColumnType("timestamp with time zone")
-                    .HasColumnName("trial_start_date");
-
-                b.Property<bool>("TrialUsed")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("trial_used");
-
-                b.HasKey("WorkspaceId", "ApplicationId")
-                    .HasName("pk_mpx_workspace_applications");
-
-                b.HasIndex("ApplicationId")
-                    .HasDatabaseName("ix_mpx_workspace_applications_application_id");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_workspace_applications_corporation_id");
-
-                b.ToTable("mpx_workspace_applications");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceUser", b =>
-            {
-                b.Property<Guid>("WorkspaceId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("workspace_id");
-
-                b.Property<Guid>("UserId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("user_id");
-
-                b.Property<string>("Color")
-                    .HasMaxLength(50)
-                    .HasColumnType("character varying(50)")
-                    .HasColumnName("color");
-
-                b.Property<Guid>("CorporationId")
-                    .HasColumnType("uuid")
-                    .HasColumnName("corporation_id");
-
-                b.Property<bool>("Favorite")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("favorite");
-
-                b.Property<bool>("Inactive")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("inactive");
-
-                b.Property<bool>("IsOwner")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("is_owner");
-
-                b.Property<bool>("System")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("boolean")
-                    .HasDefaultValue(false)
-                    .HasColumnName("system");
-
-                b.HasKey("WorkspaceId", "UserId")
-                    .HasName("pk_mpx_workspace_users");
-
-                b.HasIndex("CorporationId")
-                    .HasDatabaseName("ix_mpx_workspace_users_corporation_id");
-
-                b.HasIndex("UserId")
-                    .HasDatabaseName("ix_mpx_workspace_users_user_id");
-
-                b.ToTable("mpx_workspace_users");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Application", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.ApplicationStatus", "ApplicationStatus")
-                    .WithMany("Applications")
-                    .HasForeignKey("ApplicationStatusId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_applications_application_statuses_application_status_id");
-
-                b.HasOne("Mpx.Domain.Entities.Category", "Category")
-                    .WithMany("Applications")
-                    .HasForeignKey("CategoryId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_applications_categories_category_id");
-
-                b.HasOne("Mpx.Domain.Entities.CorporationDomain", "CorporationDomain")
-                    .WithMany("Applications")
-                    .HasForeignKey("CorporationDomainId")
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_mpx_applications_corporation_domains_corporation_domain_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Applications")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_applications_corporations_corporation_id");
-
-                b.Navigation("ApplicationStatus");
-
-                b.Navigation("Category");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("CorporationDomain");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationModule", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany("ApplicationModules")
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_modules_mpx_applications_application_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("ApplicationModules")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_modules_corporations_corporation_id");
-
-                b.Navigation("Application");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationSetting", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany("ApplicationSettings")
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_settings_mpx_applications_application_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("ApplicationSettings")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_settings_corporations_corporation_id");
-
-                b.Navigation("Application");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationStatus", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("ApplicationStatuses")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_statuses_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationSubModule", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.ApplicationModule", "ApplicationModule")
-                    .WithMany("ApplicationSubModules")
-                    .HasForeignKey("ApplicationModuleId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_sub_modules_mpx_application_modules_applica");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("ApplicationSubModules")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_sub_modules_corporations_corporation_id");
-
-                b.Navigation("ApplicationModule");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationUser", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany("ApplicationUsers")
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_users_mpx_applications_application_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("ApplicationUsers")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_users_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "User")
-                    .WithMany("ApplicationUsers")
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_application_users_users_user_id");
-
-                b.Navigation("Application");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("User");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Category", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Categories")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_categories_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Claim", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Claims")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_sec_claims_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Module", "Module")
-                    .WithMany("Claims")
-                    .HasForeignKey("ModuleId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_sec_claims_modules_module_id");
-
-                b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
-                    .WithMany("Claims")
-                    .HasForeignKey("SubModuleId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_sec_claims_sub_modules_sub_module_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Module");
-
-                b.Navigation("SubModule");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Corporation", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "ParentCorporation")
-                    .WithMany("Corporations")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_corporations_mpx_corporations_corporation_id");
-
-                b.Navigation("ParentCorporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationDomain", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("CorporationDomains")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_corporation_domains_mpx_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationDomainRecord", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.CorporationDomain", "CorporationDomain")
-                    .WithMany("DomainRecords")
-                    .HasForeignKey("CorporationDomainId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_corporation_domain_records_mpx_corporation_domains_corp");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("CorporationDomainRecords")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_corporation_domain_records_mpx_corporations_corporation");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("CorporationDomain");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationUser", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("CorporationUsers")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_corporation_users_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "User")
-                    .WithMany("CorporationUsers")
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_corporation_users_users_user_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("User");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Email", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Emails")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_mpx_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailBcc", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("EmailsBcc")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_bcc_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Email", "Email")
-                    .WithMany("EmailBcc")
-                    .HasForeignKey("EmailId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_bcc_emails_email_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Email");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailCc", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("EmailsCc")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_cc_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Email", "Email")
-                    .WithMany("EmailCc")
-                    .HasForeignKey("EmailId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_cc_emails_email_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Email");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailFrom", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("EmailsFrom")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_from_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Email", "Email")
-                    .WithMany("EmailFrom")
-                    .HasForeignKey("EmailId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_from_mpx_emails_email_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Email");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EmailTo", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("EmailsTo")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_to_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Email", "Email")
-                    .WithMany("EmailTo")
-                    .HasForeignKey("EmailId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_emails_to_mpx_emails_email_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Email");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EntityDefinition", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany()
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_mpx_entities_mpx_applications_application_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_entities_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_agents_corporations_corporation_id");
 
-                b.Navigation("Application");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.EntityProperty", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_entity_properties_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
-                    .WithMany("Properties")
-                    .HasForeignKey("EntityDefinitionId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_entity_properties_mpx_entities_entity_definition_id");
-
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "TargetEntityDefinition")
-                    .WithMany("TargetedByProperties")
-                    .HasForeignKey("TargetEntityDefinitionId")
-                    .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_mpx_entity_properties_mpx_entities_target_entity_definition");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("EntityDefinition");
-
-                b.Navigation("TargetEntityDefinition");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.FeatureHighlight", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Feature", "Feature")
-                    .WithMany("Highlights")
-                    .HasForeignKey("FeatureId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_feature_highlights_mpx_features_feature_id");
-
-                b.Navigation("Feature");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.FileType", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_file_types_mpx_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_agents_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_agents_users_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7295,21 +7331,21 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConfig", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbConfig", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_config_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_config_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("Configs")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_jrb_config_jrb_agents_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7322,47 +7358,47 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConflictAlert", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbConflictAlert", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_conflict_alerts_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_conflict_alerts_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_jrb_conflict_alerts_mpx_entities_entity_definition_id");
+                    .HasConstraintName("fk_jrb_conflict_alerts_entity_definitions_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassSyncEvent", "JarbassSyncEvent")
+                b.HasOne("Mpx.Domain.Entities.JrbSyncEvent", "JarbassSyncEvent")
                     .WithMany("ConflictAlerts")
                     .HasForeignKey("JarbassSyncEventId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_jrb_conflict_alerts_jarbass_sync_events_jarbass_sync_event_");
 
-                b.HasOne("Mpx.Domain.Entities.User", "NotifyUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "NotifyUser")
                     .WithMany()
                     .HasForeignKey("NotifyUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_conflict_alerts_users_notify_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "RejectedJarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "RejectedJarbassAgent")
                     .WithMany("ConflictAlerts")
                     .HasForeignKey("RejectedJarbassAgentId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_jrb_conflict_alerts_jrb_agents_rejected_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "ResolvedByUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "ResolvedByUser")
                     .WithMany()
                     .HasForeignKey("ResolvedByUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_conflict_alerts_users_resolved_by_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "WinnerJarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "WinnerJarbassAgent")
                     .WithMany()
                     .HasForeignKey("WinnerJarbassAgentId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7383,27 +7419,38 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WinnerJarbassAgent");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassInsight", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbEncryptionState", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.User", "AcknowledgedByUser")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_encryption_states_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbInsight", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.SecUser", "AcknowledgedByUser")
                     .WithMany()
                     .HasForeignKey("AcknowledgedByUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_insights_users_acknowledged_by_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_insights_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_insights_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_jrb_insights_mpx_entities_entity_definition_id");
+                    .HasConstraintName("fk_jrb_insights_entity_definitions_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("Insights")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7418,15 +7465,15 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("JarbassAgent");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassJob", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbJob", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_jobs_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_jobs_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("Jobs")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -7437,27 +7484,74 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("JarbassAgent");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassProtectedFile", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbPermissionLevel", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_protected_files_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_permission_levels_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "CurrentHolderUser")
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbProtectedFile", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "CurrentHolderUser")
                     .WithMany()
                     .HasForeignKey("CurrentHolderUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_protected_files_users_current_holder_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbSecurityLevel", "EffectiveSecurityLevel")
+                    .WithMany("EffectiveProtectedFiles")
+                    .HasForeignKey("EffectiveSecurityLevelId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_jarbass_security_levels_effective_secur");
+
+                b.HasOne("Mpx.Domain.Entities.JrbEncryptionState", "EncryptionState")
+                    .WithMany("ProtectedFiles")
+                    .HasForeignKey("EncryptionStateId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_jrb_encryption_states_encryption_state_");
+
+                b.HasOne("Mpx.Domain.Entities.MpxFileType", "FileType")
+                    .WithMany("ProtectedFiles")
+                    .HasForeignKey("FileTypeId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_protected_files_file_types_file_type_id");
+
+                b.HasOne("Mpx.Domain.Entities.JrbSecurityLevel", "InstanceSecurityLevel")
+                    .WithMany("InstanceProtectedFiles")
+                    .HasForeignKey("InstanceSecurityLevelId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_jarbass_security_levels_instance_securi");
+
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("ProtectedFiles")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_jrb_protected_files_jrb_agents_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.JrbPermissionLevel", "PermissionLevel")
+                    .WithMany("ProtectedFiles")
+                    .HasForeignKey("PermissionLevelId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_jrb_permission_levels_permission_level_");
+
+                b.HasOne("Mpx.Domain.Entities.JrbSecurityScope", "SecurityScope")
+                    .WithMany("ProtectedFiles")
+                    .HasForeignKey("SecurityScopeId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_jarbass_security_scopes_security_scope_");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7467,39 +7561,73 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
                 b.Navigation("CurrentHolderUser");
 
+                b.Navigation("EffectiveSecurityLevel");
+
+                b.Navigation("EncryptionState");
+
+                b.Navigation("FileType");
+
+                b.Navigation("InstanceSecurityLevel");
+
                 b.Navigation("JarbassAgent");
+
+                b.Navigation("PermissionLevel");
+
+                b.Navigation("SecurityScope");
 
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityLevel", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_jrb_sync_events_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_security_levels_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityScope", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_security_scopes_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSyncEvent", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_sync_events_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_jrb_sync_events_mpx_entities_entity_definition_id");
+                    .HasConstraintName("fk_jrb_sync_events_entity_definitions_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("SyncEvents")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_jrb_sync_events_jrb_agents_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassSyncEvent", "ParentSyncEvent")
+                b.HasOne("Mpx.Domain.Entities.JrbSyncEvent", "ParentSyncEvent")
                     .WithMany("ChildSyncEvents")
                     .HasForeignKey("ParentSyncEventId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_jrb_sync_events_jrb_sync_events_parent_sync_event_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7516,42 +7644,42 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("User");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassWorkflowWatcher", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbWorkflowWatcher", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_jrb_workflow_watchers_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_jrb_workflow_watchers_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany("WorkflowWatchers")
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_jrb_workflow_watchers_jrb_agents_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "JoinWorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "JoinWorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("JoinWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_jrb_workflow_watchers_workflow_type_configs_join_workflow_t");
 
-                b.HasOne("Mpx.Domain.Entities.Workflow", "ParentWorkflow")
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "ParentWorkflow")
                     .WithMany()
                     .HasForeignKey("ParentWorkflowId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_jrb_workflow_watchers_workflows_parent_workflow_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "SourceWorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "SourceWorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("SourceWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_jrb_workflow_watchers_workflow_type_configs_source_workflow");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigCondition", "WorkflowTypeConfigCondition")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigCondition", "WorkflowTypeConfigCondition")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigConditionId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7570,35 +7698,348 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigCondition");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplication", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
+                b.HasOne("Mpx.Domain.Entities.MpxApplicationStatus", "ApplicationStatus")
+                    .WithMany("Applications")
+                    .HasForeignKey("ApplicationStatusId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_applications_application_statuses_application_status_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCategory", "Category")
+                    .WithMany("Applications")
+                    .HasForeignKey("CategoryId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_applications_categories_category_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporationDomain", "CorporationDomain")
+                    .WithMany("Applications")
+                    .HasForeignKey("CorporationDomainId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_applications_corporation_domains_corporation_domain_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Applications")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_applications_corporations_corporation_id");
+
+                b.Navigation("ApplicationStatus");
+
+                b.Navigation("Category");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("CorporationDomain");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationModule", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany("ApplicationModules")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_modules_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("ApplicationModules")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_modules_corporations_corporation_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationSetting", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany("ApplicationSettings")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_settings_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("ApplicationSettings")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_settings_corporations_corporation_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationStatus", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("ApplicationStatuses")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_statuses_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationSubModule", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplicationModule", "ApplicationModule")
+                    .WithMany("ApplicationSubModules")
+                    .HasForeignKey("ApplicationModuleId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_sub_modules_mpx_application_modules_applica");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("ApplicationSubModules")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_sub_modules_corporations_corporation_id");
+
+                b.Navigation("ApplicationModule");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationUser", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany("ApplicationUsers")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_users_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("ApplicationUsers")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_users_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
+                    .WithMany("ApplicationUsers")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_application_users_users_user_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCategory", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Categories")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_categories_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporation", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "ParentCorporation")
+                    .WithMany("Corporations")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_corporations_mpx_corporations_corporation_id");
+
+                b.Navigation("ParentCorporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationDomain", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("CorporationDomains")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_corporation_domains_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationDomainRecord", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporationDomain", "CorporationDomain")
+                    .WithMany("DomainRecords")
+                    .HasForeignKey("CorporationDomainId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_corporation_domain_records_mpx_corporation_domains_corp");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("CorporationDomainRecords")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_corporation_domain_records_mpx_corporations_corporation");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("CorporationDomain");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationUser", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("CorporationUsers")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_corporation_users_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
+                    .WithMany("CorporationUsers")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_corporation_users_users_user_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxEntityDefinition", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany()
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_entities_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_entities_mpx_corporations_corporation_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxEntityProperty", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_entity_properties_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
+                    .WithMany("Properties")
+                    .HasForeignKey("EntityDefinitionId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_entity_properties_mpx_entities_entity_definition_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "TargetEntityDefinition")
+                    .WithMany("TargetedByProperties")
+                    .HasForeignKey("TargetEntityDefinitionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_entity_properties_mpx_entities_target_entity_definition");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("EntityDefinition");
+
+                b.Navigation("TargetEntityDefinition");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFeatureHighlight", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxFeature", "Feature")
+                    .WithMany("Highlights")
+                    .HasForeignKey("FeatureId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_feature_highlights_mpx_features_feature_id");
+
+                b.Navigation("Feature");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFileType", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_file_types_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.JrbPermissionLevel", "DefaultPermissionLevel")
+                    .WithMany("FileTypes")
+                    .HasForeignKey("DefaultPermissionLevelId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_file_types_jrb_permission_levels_default_permission_lev");
+
+                b.HasOne("Mpx.Domain.Entities.JrbSecurityLevel", "SecurityLevel")
+                    .WithMany("FileTypes")
+                    .HasForeignKey("SecurityLevelId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_file_types_jrb_security_levels_security_level_id");
+
+                b.HasOne("Mpx.Domain.Entities.JrbSecurityScope", "SecurityScope")
+                    .WithMany("FileTypes")
+                    .HasForeignKey("SecurityScopeId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_file_types_jrb_security_scopes_security_scope_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("DefaultPermissionLevel");
+
+                b.Navigation("SecurityLevel");
+
+                b.Navigation("SecurityScope");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxMenu", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
                     .WithMany("Menus")
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_mpx_menus_mpx_applications_application_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("Menus")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_mpx_menus_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Menu", "ParentMenu")
+                b.HasOne("Mpx.Domain.Entities.MpxMenu", "ParentMenu")
                     .WithMany("SubMenus")
                     .HasForeignKey("MenuId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_mpx_menus_mpx_menus_menu_id");
 
-                b.HasOne("Mpx.Domain.Entities.Module", "Module")
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
                     .WithMany()
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_menus_modules_module_id");
 
-                b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
+                b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
                     .WithMany()
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7615,84 +8056,63 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("SubModule");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Module", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxNotification", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany("Modules")
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_sec_modules_mpx_applications_application_id");
-
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Modules")
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_sec_modules_mpx_corporations_corporation_id");
-
-                b.Navigation("Application");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
                     .WithMany()
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_mpx_applications_application_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_mpx_notifications_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "CreatedByUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "CreatedByUser")
                     .WithMany()
                     .HasForeignKey("CreatedByUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_users_created_by_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_mpx_entities_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                b.HasOne("Mpx.Domain.Entities.JrbAgent", "JarbassAgent")
                     .WithMany()
                     .HasForeignKey("JarbassAgentId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_jrb_agents_jarbass_agent_id");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassConflictAlert", "JarbassConflictAlert")
+                b.HasOne("Mpx.Domain.Entities.JrbConflictAlert", "JarbassConflictAlert")
                     .WithMany()
                     .HasForeignKey("JarbassConflictAlertId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_jrb_conflict_alerts_jarbass_conflict_aler");
 
-                b.HasOne("Mpx.Domain.Entities.JarbassInsight", "JarbassInsight")
+                b.HasOne("Mpx.Domain.Entities.JrbInsight", "JarbassInsight")
                     .WithMany()
                     .HasForeignKey("JarbassInsightId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_jrb_insights_jarbass_insight_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workflow", "Workflow")
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "Workflow")
                     .WithMany()
                     .HasForeignKey("WorkflowId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_workflows_workflow_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTask", "WorkflowTask")
+                b.HasOne("Mpx.Domain.Entities.WkfTask", "WorkflowTask")
                     .WithMany()
                     .HasForeignKey("WorkflowTaskId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_notifications_workflow_tasks_workflow_task_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -7719,23 +8139,283 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxShowcaseModule", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxModuleCategory", "Category")
+                    .WithMany("Modules")
+                    .HasForeignKey("CategoryId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_modules_mpx_module_categories_category_id");
+
+                b.Navigation("Category");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxUserNotification", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_user_notifications_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxNotification", "Notification")
+                    .WithMany("UserNotifications")
+                    .HasForeignKey("NotificationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_user_notifications_mpx_notifications_notification_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_user_notifications_users_user_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Notification");
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspace", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Workspaces")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspaces_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspaceApplication", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_applications_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_applications_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
+                    .WithMany("WorkspaceApplications")
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_applications_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspaceUser", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("WorkspaceUsers")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_users_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
+                    .WithMany("WorkspaceUsers")
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_users_users_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
+                    .WithMany("WorkspaceUsers")
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_workspace_users_mpx_workspaces_workspace_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("User");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmail", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Emails")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailBcc", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("EmailsBcc")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_bcc_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.RlyEmail", "Email")
+                    .WithMany("EmailBcc")
+                    .HasForeignKey("EmailId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_bcc_emails_email_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Email");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailCc", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("EmailsCc")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_cc_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.RlyEmail", "Email")
+                    .WithMany("EmailCc")
+                    .HasForeignKey("EmailId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_cc_emails_email_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Email");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailFrom", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("EmailsFrom")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_from_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.RlyEmail", "Email")
+                    .WithMany("EmailFrom")
+                    .HasForeignKey("EmailId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_from_mpx_emails_email_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Email");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmailTo", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("EmailsTo")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_to_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.RlyEmail", "Email")
+                    .WithMany("EmailTo")
+                    .HasForeignKey("EmailId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_emails_to_mpx_emails_email_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Email");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecClaim", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Claims")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_sec_claims_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
+                    .WithMany("Claims")
+                    .HasForeignKey("ModuleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_sec_claims_modules_module_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
+                    .WithMany("Claims")
+                    .HasForeignKey("SubModuleId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_sec_claims_sub_modules_sub_module_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Module");
+
+                b.Navigation("SubModule");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecModule", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany("Modules")
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_sec_modules_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany("Modules")
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_sec_modules_mpx_corporations_corporation_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.SecRole", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("Roles")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_sec_roles_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Module", "Module")
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
                     .WithMany("Roles")
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_sec_roles_sec_modules_module_id");
 
-                b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
+                b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
                     .WithMany("Roles")
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -7749,23 +8429,23 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("SubModule");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.RoleClaim", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecRoleClaim", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Claim", "Claim")
+                b.HasOne("Mpx.Domain.Entities.SecClaim", "Claim")
                     .WithMany("RoleClaims")
                     .HasForeignKey("ClaimId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_sec_role_claims_sec_claims_claim_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("RoleClaims")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_sec_role_claims_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "Role")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "Role")
                     .WithMany("RoleClaims")
                     .HasForeignKey("RoleId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -7779,40 +8459,16 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Role");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.ShowcaseModule", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecSubModule", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.ModuleCategory", "Category")
-                    .WithMany("Modules")
-                    .HasForeignKey("CategoryId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_modules_mpx_module_categories_category_id");
-
-                b.Navigation("Category");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Station", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_wkf_stations_mpx_corporations_corporation_id");
-
-                b.Navigation("Corporation");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.SubModule", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("SubModules")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_sec_sub_modules_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Module", "Module")
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
                     .WithMany("SubModules")
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Restrict)
@@ -7824,15 +8480,15 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Module");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.User", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUser", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("Users")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_sec_users_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.UserStatus", "UserStatus")
+                b.HasOne("Mpx.Domain.Entities.SecUserStatus", "UserStatus")
                     .WithMany("Users")
                     .HasForeignKey("UserStatusId")
                     .OnDelete(DeleteBehavior.Restrict)
@@ -7843,23 +8499,23 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("UserStatus");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserClaim", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserClaim", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Claim", "Claim")
+                b.HasOne("Mpx.Domain.Entities.SecClaim", "Claim")
                     .WithMany("UserClaims")
                     .HasForeignKey("ClaimId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_sec_user_claims_sec_claims_claim_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("UserClaims")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_sec_user_claims_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany("UserClaims")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -7873,52 +8529,23 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("User");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserNotification", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserRole", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mpx_user_notifications_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.Notification", "Notification")
-                    .WithMany("UserNotifications")
-                    .HasForeignKey("NotificationId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_user_notifications_mpx_notifications_notification_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "User")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_user_notifications_sec_users_user_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("Notification");
-
-                b.Navigation("User");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.UserRole", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("UserRoles")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_sec_user_roles_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "Role")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "Role")
                     .WithMany("UserRoles")
                     .HasForeignKey("RoleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_sec_user_roles_sec_roles_role_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany("UserRoles")
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -7932,9 +8559,9 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("User");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserStatus", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserStatus", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany("UserStatus")
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
@@ -7944,131 +8571,53 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Corporation");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workflow", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfItem", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany()
-                    .HasForeignKey("CorporationId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_wkf_workflows_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "ExecutedByUser")
-                    .WithMany()
-                    .HasForeignKey("ExecutedByUserId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_sec_users_executed_by_user_id");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "FromWorkflowTypeConfig")
-                    .WithMany()
-                    .HasForeignKey("FromWorkflowTypeConfigId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_workflow_type_configs_from_workflow_type_conf");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "JoinTargetConfig")
-                    .WithMany()
-                    .HasForeignKey("JoinTargetConfigId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_workflow_type_configs_join_target_config_id");
-
-                b.HasOne("Mpx.Domain.Entities.Workflow", "ParentWorkflow")
-                    .WithMany("ChildWorkflows")
-                    .HasForeignKey("ParentWorkflowId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_wkf_workflows_parent_workflow_id");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "ToWorkflowTypeConfig")
-                    .WithMany()
-                    .HasForeignKey("ToWorkflowTypeConfigId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_wkf_workflows_workflow_type_configs_to_workflow_type_config");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
-                    .WithMany()
-                    .HasForeignKey("WorkflowTypeConfigActionId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_workflow_type_config_actions_workflow_type_co");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigCondition", "WorkflowTypeConfigCondition")
-                    .WithMany()
-                    .HasForeignKey("WorkflowTypeConfigConditionId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflows_workflow_type_config_conditions_workflow_type");
-
-                b.HasOne("Mpx.Domain.Entities.WorkflowType", "WorkflowType")
-                    .WithMany("Workflows")
-                    .HasForeignKey("WorkflowTypeId")
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired()
-                    .HasConstraintName("fk_wkf_workflows_workflow_types_workflow_type_id");
-
-                b.Navigation("Corporation");
-
-                b.Navigation("ExecutedByUser");
-
-                b.Navigation("FromWorkflowTypeConfig");
-
-                b.Navigation("JoinTargetConfig");
-
-                b.Navigation("ParentWorkflow");
-
-                b.Navigation("ToWorkflowTypeConfig");
-
-                b.Navigation("WorkflowType");
-
-                b.Navigation("WorkflowTypeConfigAction");
-
-                b.Navigation("WorkflowTypeConfigCondition");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowItem", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.User", "AddedByUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "AddedByUser")
                     .WithMany()
                     .HasForeignKey("AddedByUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_items_sec_users_added_by_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "AddedInConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "AddedInConfig")
                     .WithMany()
                     .HasForeignKey("AddedInConfigId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_items_workflow_type_configs_added_in_config_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_items_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_items_mpx_entities_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowItem", "ParentWorkflowItem")
+                b.HasOne("Mpx.Domain.Entities.WkfItem", "ParentWorkflowItem")
                     .WithMany("ChildItems")
                     .HasForeignKey("ParentWorkflowItemId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_items_wkf_workflow_items_parent_workflow_item_");
 
-                b.HasOne("Mpx.Domain.Entities.Workflow", "Workflow")
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "Workflow")
                     .WithMany("Items")
                     .HasForeignKey("WorkflowId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_wkf_workflow_items_wkf_workflows_workflow_id");
+                    .HasConstraintName("fk_wkf_workflow_items_workflows_workflow_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigField", "WorkflowTypeConfigField")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigField", "WorkflowTypeConfigField")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigFieldId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_items_workflow_type_config_fields_workflow_typ");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeContext", "WorkflowTypeContext")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeContext", "WorkflowTypeContext")
                     .WithMany("Items")
                     .HasForeignKey("WorkflowTypeContextId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -8091,35 +8640,35 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeContext");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowItemMetadata", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfItemMetadata", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_item_metadatas_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Claim", "RequiredClaim")
+                b.HasOne("Mpx.Domain.Entities.SecClaim", "RequiredClaim")
                     .WithMany()
                     .HasForeignKey("RequiredClaimId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_item_metadatas_sec_claims_required_claim_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowItem", "WorkflowItem")
+                b.HasOne("Mpx.Domain.Entities.WkfItem", "WorkflowItem")
                     .WithMany("Metadatas")
                     .HasForeignKey("WorkflowItemId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_item_metadatas_wkf_workflow_items_workflow_ite");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigField", "WorkflowTypeConfigField")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigField", "WorkflowTypeConfigField")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigFieldId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_item_metadatas_workflow_type_config_fields_wor");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -8136,63 +8685,63 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigField");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowPermission", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfPermission", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Claim", "Claim")
+                b.HasOne("Mpx.Domain.Entities.SecClaim", "Claim")
                     .WithMany()
                     .HasForeignKey("ClaimId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_sec_claims_claim_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_permissions_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "Role")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "Role")
                     .WithMany()
                     .HasForeignKey("RoleId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_sec_roles_role_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_sec_users_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
                     .WithMany("Permissions")
                     .HasForeignKey("WorkflowTypeConfigActionId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_workflow_type_config_actions_workf");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigField", "WorkflowTypeConfigField")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigField", "WorkflowTypeConfigField")
                     .WithMany("Permissions")
                     .HasForeignKey("WorkflowTypeConfigFieldId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_workflow_type_config_fields_workfl");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Permissions")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_wkf_workflow_permissions_workflow_type_configs_workflow_typ");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowType", "WorkflowType")
+                b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
                     .WithMany("Permissions")
                     .HasForeignKey("WorkflowTypeId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_permissions_workflow_types_workflow_type_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("fk_wkf_workflow_permissions_workspaces_workspace_id");
+                    .HasConstraintName("fk_wkf_workflow_permissions_mpx_workspaces_workspace_id");
 
                 b.Navigation("Claim");
 
@@ -8213,35 +8762,47 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTask", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStation", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_wkf_stations_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTask", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_tasks_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "TargetRole")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "TargetRole")
                     .WithMany()
                     .HasForeignKey("TargetRoleId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_tasks_sec_roles_target_role_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "TargetWorkspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "TargetWorkspace")
                     .WithMany()
                     .HasForeignKey("TargetWorkspaceId")
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("fk_wkf_workflow_tasks_workspaces_target_workspace_id");
+                    .HasConstraintName("fk_wkf_workflow_tasks_mpx_workspaces_target_workspace_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workflow", "Workflow")
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "Workflow")
                     .WithMany("Tasks")
                     .HasForeignKey("WorkflowId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
-                    .HasConstraintName("fk_wkf_workflow_tasks_wkf_workflows_workflow_id");
+                    .HasConstraintName("fk_wkf_workflow_tasks_workflows_workflow_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
@@ -8259,36 +8820,36 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfig");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTaskOwner", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTaskOwner", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_task_owners_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "TransferredToUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "TransferredToUser")
                     .WithMany()
                     .HasForeignKey("TransferredToUserId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_task_owners_sec_users_transferred_to_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "User")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
                     .WithMany()
                     .HasForeignKey("UserId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_task_owners_sec_users_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTask", "WorkflowTask")
+                b.HasOne("Mpx.Domain.Entities.WkfTask", "WorkflowTask")
                     .WithMany("Owners")
                     .HasForeignKey("WorkflowTaskId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_task_owners_wkf_workflow_tasks_workflow_task_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigActionId")
                     .OnDelete(DeleteBehavior.Restrict)
@@ -8305,44 +8866,44 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigAction");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowType", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
                     .WithMany()
                     .HasForeignKey("ApplicationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_types_mpx_applications_application_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_types_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Module", "Module")
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
                     .WithMany()
                     .HasForeignKey("ModuleId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_types_sec_modules_module_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "RootEntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "RootEntityDefinition")
                     .WithMany()
                     .HasForeignKey("RootEntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_types_mpx_entities_root_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.SubModule", "SubModule")
+                b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
                     .WithMany()
                     .HasForeignKey("SubModuleId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_types_sec_sub_modules_sub_module_id");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_wkf_workflow_types_workspaces_workspace_id");
+                    .HasConstraintName("fk_wkf_workflow_types_mpx_workspaces_workspace_id");
 
                 b.Navigation("Application");
 
@@ -8357,23 +8918,23 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspace");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfig", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfig", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_configs_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.Station", "Station")
+                b.HasOne("Mpx.Domain.Entities.WkfStation", "Station")
                     .WithMany("WorkflowTypeConfigs")
                     .HasForeignKey("StationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_configs_wkf_stations_station_id");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowType", "WorkflowType")
+                b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
                     .WithMany("Configs")
                     .HasForeignKey("WorkflowTypeId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8387,22 +8948,22 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowType");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigAction", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigAction", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_actions_mpx_corporations_corporati");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "NextWorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "NextWorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("NextWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_type_config_actions_workflow_type_configs_next");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Actions")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8416,23 +8977,23 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfig");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigActionFileType", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigActionFileType", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_action_file_types_mpx_corporations");
 
-                b.HasOne("Mpx.Domain.Entities.FileType", "FileType")
+                b.HasOne("Mpx.Domain.Entities.MpxFileType", "FileType")
                     .WithMany()
                     .HasForeignKey("FileTypeId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_action_file_types_mpx_file_types_f");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
                     .WithMany("AllowedFileTypes")
                     .HasForeignKey("WorkflowTypeConfigActionId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8446,29 +9007,29 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigAction");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigCondition", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigCondition", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_conditions_mpx_corporations_corpor");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "ElseNextWorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "ElseNextWorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("ElseNextWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_type_config_conditions_workflow_type_configs_e");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "NextWorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "NextWorkflowTypeConfig")
                     .WithMany()
                     .HasForeignKey("NextWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_conditions_workflow_type_configs_n");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Conditions")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8484,41 +9045,41 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfig");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigField", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigField", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_fields_mpx_corporations_corporatio");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany()
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_fields_mpx_entities_entity_definit");
 
-                b.HasOne("Mpx.Domain.Entities.EntityProperty", "EntityProperty")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityProperty", "EntityProperty")
                     .WithMany()
                     .HasForeignKey("EntityPropertyId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_fields_mpx_entity_properties_entit");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "TargetEntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "TargetEntityDefinition")
                     .WithMany()
                     .HasForeignKey("TargetEntityDefinitionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_fields_mpx_entities_target_entity_");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Fields")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_fields_wkf_workflow_type_configs_w");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeContext", "WorkflowTypeContext")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeContext", "WorkflowTypeContext")
                     .WithMany("Fields")
                     .HasForeignKey("WorkflowTypeContextId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -8537,59 +9098,59 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeContext");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigNotification", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigNotification", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Role", "BccRole")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "BccRole")
                     .WithMany()
                     .HasForeignKey("BccRoleId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_sec_roles_bcc_role_id");
 
-                b.HasOne("Mpx.Domain.Entities.User", "BccUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "BccUser")
                     .WithMany()
                     .HasForeignKey("BccUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_sec_users_bcc_user_id");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "CcRole")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "CcRole")
                     .WithMany()
                     .HasForeignKey("CcRoleId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_sec_roles_cc_role_id");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_mpx_corporations_cor");
 
-                b.HasOne("Mpx.Domain.Entities.Role", "TargetRole")
+                b.HasOne("Mpx.Domain.Entities.SecRole", "TargetRole")
                     .WithMany()
                     .HasForeignKey("TargetRoleId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_sec_roles_target_rol");
 
-                b.HasOne("Mpx.Domain.Entities.User", "TargetUser")
+                b.HasOne("Mpx.Domain.Entities.SecUser", "TargetUser")
                     .WithMany()
                     .HasForeignKey("TargetUserId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_sec_users_target_use");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigActionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_wkf_workflow_type_co");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Notifications")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_notifications_wkf_workflow_type_co1");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigSla", "WorkflowTypeConfigSla")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigSla", "WorkflowTypeConfigSla")
                     .WithMany("Notifications")
                     .HasForeignKey("WorkflowTypeConfigSlaId")
                     .OnDelete(DeleteBehavior.SetNull)
@@ -8614,16 +9175,16 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigSla");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigSla", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigSla", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_slas_mpx_corporations_corporation_");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Slas")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8635,22 +9196,22 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfig");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigValidation", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigValidation", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_config_validations_mpx_corporations_corpo");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigAction", "WorkflowTypeConfigAction")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
                     .WithMany()
                     .HasForeignKey("WorkflowTypeConfigActionId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_config_validations_wkf_workflow_type_conf");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "WorkflowTypeConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "WorkflowTypeConfig")
                     .WithMany("Validations")
                     .HasForeignKey("WorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8664,41 +9225,41 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigAction");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeContext", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeContext", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "AddedInConfig")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "AddedInConfig")
                     .WithMany("AddedContexts")
                     .HasForeignKey("AddedInConfigId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_contexts_wkf_workflow_type_configs_added_");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
                     .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_contexts_mpx_corporations_corporation_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityDefinition", "EntityDefinition")
                     .WithMany("WorkflowContexts")
                     .HasForeignKey("EntityDefinitionId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_contexts_mpx_entities_entity_definition_id");
 
-                b.HasOne("Mpx.Domain.Entities.EntityProperty", "ForeignKeyProperty")
+                b.HasOne("Mpx.Domain.Entities.MpxEntityProperty", "ForeignKeyProperty")
                     .WithMany()
                     .HasForeignKey("ForeignKeyPropertyId")
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_wkf_workflow_type_contexts_mpx_entity_properties_foreign_ke");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowTypeContext", "ParentContext")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeContext", "ParentContext")
                     .WithMany("ChildContexts")
                     .HasForeignKey("ParentContextId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_type_contexts_wkf_workflow_type_contexts_paren");
 
-                b.HasOne("Mpx.Domain.Entities.WorkflowType", "WorkflowType")
+                b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
                     .WithMany("Contexts")
                     .HasForeignKey("WorkflowTypeId")
                     .OnDelete(DeleteBehavior.Cascade)
@@ -8718,79 +9279,137 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowType");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workspace", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfWorkflow", b =>
             {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("Workspaces")
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
                     .HasForeignKey("CorporationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_mpx_workspaces_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_wkf_workflows_mpx_corporations_corporation_id");
 
-                b.Navigation("Corporation");
-            });
+                b.HasOne("Mpx.Domain.Entities.SecUser", "ExecutedByUser")
+                    .WithMany()
+                    .HasForeignKey("ExecutedByUserId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_sec_users_executed_by_user_id");
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceApplication", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Application", "Application")
-                    .WithMany("WorkspaceApplications")
-                    .HasForeignKey("ApplicationId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_applications_mpx_applications_application_id");
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "FromWorkflowTypeConfig")
+                    .WithMany()
+                    .HasForeignKey("FromWorkflowTypeConfigId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_type_configs_from_workflow_type_");
 
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("WorkspaceApplications")
-                    .HasForeignKey("CorporationId")
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "JoinTargetConfig")
+                    .WithMany()
+                    .HasForeignKey("JoinTargetConfigId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_type_configs_join_target_config_");
+
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "ParentWorkflow")
+                    .WithMany("ChildWorkflows")
+                    .HasForeignKey("ParentWorkflowId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflows_parent_workflow_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "ToWorkflowTypeConfig")
+                    .WithMany()
+                    .HasForeignKey("ToWorkflowTypeConfigId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_applications_mpx_corporations_corporation_id");
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_type_configs_to_workflow_type_co");
 
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
-                    .WithMany("WorkspaceApplications")
-                    .HasForeignKey("WorkspaceId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_applications_workspaces_workspace_id");
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigAction", "WorkflowTypeConfigAction")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTypeConfigActionId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_type_config_actions_workflow_typ");
 
-                b.Navigation("Application");
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfigCondition", "WorkflowTypeConfigCondition")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTypeConfigConditionId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_type_config_conditions_workflow_");
 
-                b.Navigation("Corporation");
-
-                b.Navigation("Workspace");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkspaceUser", b =>
-            {
-                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
-                    .WithMany("WorkspaceUsers")
-                    .HasForeignKey("CorporationId")
+                b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
+                    .WithMany("Workflows")
+                    .HasForeignKey("WorkflowTypeId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_users_mpx_corporations_corporation_id");
-
-                b.HasOne("Mpx.Domain.Entities.User", "User")
-                    .WithMany("WorkspaceUsers")
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_users_sec_users_user_id");
-
-                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
-                    .WithMany("WorkspaceUsers")
-                    .HasForeignKey("WorkspaceId")
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .IsRequired()
-                    .HasConstraintName("fk_mpx_workspace_users_mpx_workspaces_workspace_id");
+                    .HasConstraintName("fk_wkf_workflows_wkf_workflow_types_workflow_type_id");
 
                 b.Navigation("Corporation");
 
-                b.Navigation("User");
+                b.Navigation("ExecutedByUser");
 
-                b.Navigation("Workspace");
+                b.Navigation("FromWorkflowTypeConfig");
+
+                b.Navigation("JoinTargetConfig");
+
+                b.Navigation("ParentWorkflow");
+
+                b.Navigation("ToWorkflowTypeConfig");
+
+                b.Navigation("WorkflowType");
+
+                b.Navigation("WorkflowTypeConfigAction");
+
+                b.Navigation("WorkflowTypeConfigCondition");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Application", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbAgent", b =>
+            {
+                b.Navigation("Configs");
+
+                b.Navigation("ConflictAlerts");
+
+                b.Navigation("Insights");
+
+                b.Navigation("Jobs");
+
+                b.Navigation("ProtectedFiles");
+
+                b.Navigation("SyncEvents");
+
+                b.Navigation("WorkflowWatchers");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbEncryptionState", b =>
+            {
+                b.Navigation("ProtectedFiles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbPermissionLevel", b =>
+            {
+                b.Navigation("FileTypes");
+
+                b.Navigation("ProtectedFiles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityLevel", b =>
+            {
+                b.Navigation("EffectiveProtectedFiles");
+
+                b.Navigation("FileTypes");
+
+                b.Navigation("InstanceProtectedFiles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSecurityScope", b =>
+            {
+                b.Navigation("FileTypes");
+
+                b.Navigation("ProtectedFiles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JrbSyncEvent", b =>
+            {
+                b.Navigation("ChildSyncEvents");
+
+                b.Navigation("ConflictAlerts");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplication", b =>
             {
                 b.Navigation("ApplicationModules");
 
@@ -8805,29 +9424,22 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkspaceApplications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationModule", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationModule", b =>
             {
                 b.Navigation("ApplicationSubModules");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.ApplicationStatus", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxApplicationStatus", b =>
             {
                 b.Navigation("Applications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Category", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCategory", b =>
             {
                 b.Navigation("Applications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Claim", b =>
-            {
-                b.Navigation("RoleClaims");
-
-                b.Navigation("UserClaims");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Corporation", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporation", b =>
             {
                 b.Navigation("ApplicationModules");
 
@@ -8888,14 +9500,55 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workspaces");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.CorporationDomain", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxCorporationDomain", b =>
             {
                 b.Navigation("Applications");
 
                 b.Navigation("DomainRecords");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Email", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxEntityDefinition", b =>
+            {
+                b.Navigation("Properties");
+
+                b.Navigation("TargetedByProperties");
+
+                b.Navigation("WorkflowContexts");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFeature", b =>
+            {
+                b.Navigation("Highlights");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxFileType", b =>
+            {
+                b.Navigation("ProtectedFiles");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxMenu", b =>
+            {
+                b.Navigation("SubMenus");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxModuleCategory", b =>
+            {
+                b.Navigation("Modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxNotification", b =>
+            {
+                b.Navigation("UserNotifications");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspace", b =>
+            {
+                b.Navigation("WorkspaceApplications");
+
+                b.Navigation("WorkspaceUsers");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.RlyEmail", b =>
             {
                 b.Navigation("EmailBcc");
 
@@ -8906,50 +9559,14 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("EmailTo");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.EntityDefinition", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecClaim", b =>
             {
-                b.Navigation("Properties");
+                b.Navigation("RoleClaims");
 
-                b.Navigation("TargetedByProperties");
-
-                b.Navigation("WorkflowContexts");
+                b.Navigation("UserClaims");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Feature", b =>
-            {
-                b.Navigation("Highlights");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
-            {
-                b.Navigation("Configs");
-
-                b.Navigation("ConflictAlerts");
-
-                b.Navigation("Insights");
-
-                b.Navigation("Jobs");
-
-                b.Navigation("ProtectedFiles");
-
-                b.Navigation("SyncEvents");
-
-                b.Navigation("WorkflowWatchers");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
-            {
-                b.Navigation("ChildSyncEvents");
-
-                b.Navigation("ConflictAlerts");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
-            {
-                b.Navigation("SubMenus");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Module", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecModule", b =>
             {
                 b.Navigation("Claims");
 
@@ -8958,36 +9575,21 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("SubModules");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.ModuleCategory", b =>
-            {
-                b.Navigation("Modules");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
-            {
-                b.Navigation("UserNotifications");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecRole", b =>
             {
                 b.Navigation("RoleClaims");
 
                 b.Navigation("UserRoles");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Station", b =>
-            {
-                b.Navigation("WorkflowTypeConfigs");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.SubModule", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecSubModule", b =>
             {
                 b.Navigation("Claims");
 
                 b.Navigation("Roles");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.User", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUser", b =>
             {
                 b.Navigation("ApplicationUsers");
 
@@ -9000,33 +9602,29 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkspaceUsers");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.UserStatus", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.SecUserStatus", b =>
             {
                 b.Navigation("Users");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workflow", b =>
-            {
-                b.Navigation("ChildWorkflows");
-
-                b.Navigation("Items");
-
-                b.Navigation("Tasks");
-            });
-
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowItem", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfItem", b =>
             {
                 b.Navigation("ChildItems");
 
                 b.Navigation("Metadatas");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTask", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStation", b =>
+            {
+                b.Navigation("WorkflowTypeConfigs");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTask", b =>
             {
                 b.Navigation("Owners");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowType", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>
             {
                 b.Navigation("Configs");
 
@@ -9037,7 +9635,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workflows");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfig", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfig", b =>
             {
                 b.Navigation("Actions");
 
@@ -9056,24 +9654,24 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Validations");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigAction", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigAction", b =>
             {
                 b.Navigation("AllowedFileTypes");
 
                 b.Navigation("Permissions");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigField", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigField", b =>
             {
                 b.Navigation("Permissions");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeConfigSla", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeConfigSla", b =>
             {
                 b.Navigation("Notifications");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.WorkflowTypeContext", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTypeContext", b =>
             {
                 b.Navigation("ChildContexts");
 
@@ -9082,11 +9680,13 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Items");
             });
 
-        modelBuilder.Entity("Mpx.Domain.Entities.Workspace", b =>
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfWorkflow", b =>
             {
-                b.Navigation("WorkspaceApplications");
+                b.Navigation("ChildWorkflows");
 
-                b.Navigation("WorkspaceUsers");
+                b.Navigation("Items");
+
+                b.Navigation("Tasks");
             });
 #pragma warning restore 612, 618
     }

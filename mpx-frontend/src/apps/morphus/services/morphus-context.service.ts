@@ -153,12 +153,12 @@ export class MpxContextService {
 
   readonly isFlowContext = computed(() => {
     const url = this.currentUrl() || '';
-    return url.startsWith('/flow') || this.isSubdomainHost('flow');
+    return url.startsWith('/workflow') || this.isSubdomainHost('workflow');
   });
 
   readonly isSendContext = computed(() => {
     const url = this.currentUrl() || '';
-    return url.startsWith('/send') || this.isSubdomainHost('send');
+    return url.startsWith('/relay') || this.isSubdomainHost('relay');
   });
 
   readonly isAppRuntimeContext = computed(() => {
@@ -1150,7 +1150,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_DASHBOARD',
             applicationId: '',
             label: 'Painel de Workflows',
-            url: '/flow',
+            url: '/workflow',
             icon: 'workflow',
             order: 1,
           },
@@ -1178,7 +1178,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_TYPES',
             applicationId: '',
             label: 'Tipos de Fluxo (Canvas)',
-            url: '/flow',
+            url: '/workflow',
             icon: 'git-branch',
             order: 1,
           },
@@ -1187,7 +1187,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_STATIONS',
             applicationId: '',
             label: 'Catálogo de Estações',
-            url: '/flow',
+            url: '/workflow',
             icon: 'layers',
             order: 2,
           },
@@ -1196,7 +1196,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_CONDITIONS',
             applicationId: '',
             label: 'Condições & Regras',
-            url: '/flow',
+            url: '/workflow',
             icon: 'filter',
             order: 3,
           },
@@ -1215,7 +1215,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_TASKS',
             applicationId: '',
             label: 'Fila de Tarefas & Quórum',
-            url: '/flow',
+            url: '/workflow',
             icon: 'circle-check',
             order: 1,
           },
@@ -1224,7 +1224,7 @@ export class MpxContextService {
             key: 'FLOW_ITEM_SLAS',
             applicationId: '',
             label: 'Monitoramento de SLAs',
-            url: '/flow',
+            url: '/workflow',
             icon: 'timer',
             order: 2,
           },
@@ -1248,7 +1248,7 @@ export class MpxContextService {
             key: 'SEND_ITEM_DASHBOARD',
             applicationId: '',
             label: 'Painel de Disparo',
-            url: '/send',
+            url: '/relay',
             icon: 'send',
             order: 1,
           },
@@ -1276,7 +1276,7 @@ export class MpxContextService {
             key: 'SEND_ITEM_DOMAINS',
             applicationId: '',
             label: 'Domínios (SPF / DKIM)',
-            url: '/send',
+            url: '/relay',
             icon: 'globe',
             order: 1,
           },
@@ -1285,7 +1285,7 @@ export class MpxContextService {
             key: 'SEND_ITEM_TEMPLATES',
             applicationId: '',
             label: 'Templates HTML',
-            url: '/send',
+            url: '/relay',
             icon: 'file-text',
             order: 2,
           },
@@ -1294,7 +1294,7 @@ export class MpxContextService {
             key: 'SEND_ITEM_PLAYGROUND',
             applicationId: '',
             label: 'Playground & SDKs',
-            url: '/send',
+            url: '/relay',
             icon: 'rocket',
             order: 3,
           },
@@ -1303,7 +1303,7 @@ export class MpxContextService {
             key: 'SEND_ITEM_KEYS',
             applicationId: '',
             label: 'API Keys & Logs',
-            url: '/send',
+            url: '/relay',
             icon: 'key-round',
             order: 4,
           },

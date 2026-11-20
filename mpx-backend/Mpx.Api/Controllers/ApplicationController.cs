@@ -8,7 +8,7 @@ using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
 
-using Application = Mpx.Domain.Entities.Application;
+using Application = Mpx.Domain.Entities.MpxApplication;
 
 [Authorize]
 [ApiController]

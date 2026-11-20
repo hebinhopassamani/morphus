@@ -1,10 +1,10 @@
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 using Mpx.Core.Interfaces;
 
 namespace Mpx.Application.Dtos;
 
-using Application = Mpx.Domain.Entities.Application;
+using Application = Mpx.Domain.Entities.MpxApplication;
 
 public class ApplicationDto : ApplicationReflectedDto, IMpxProjection<Application, ApplicationDto>
 {

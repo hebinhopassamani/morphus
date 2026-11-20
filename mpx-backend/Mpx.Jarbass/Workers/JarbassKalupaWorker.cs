@@ -11,7 +11,8 @@ public sealed class JarbassKalupaWorker(
     ILogger<JarbassKalupaWorker> logger,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
-    JarbassFileVaultGuardian vaultGuardian)
+    JarbassFileVaultGuardian vaultGuardian,
+    JarbassDocumentSecurityGuard securityGuard)
     : MpxJarbassWorker(logger, serviceProvider, configuration, "Kalupa", defaultIntervalSeconds: 10)
 {
   protected override async Task ExecuteCycleAsync(IServiceProvider scopedProvider, CancellationToken stoppingToken)
@@ -19,13 +20,42 @@ public sealed class JarbassKalupaWorker(
     var dbContext = scopedProvider.GetRequiredService<MpxDbContext>();
     var masterSecret = Configuration["Jarbass:VaultMasterSecret"] ?? "Morphus#Jarbass#VaultGuardian#CIA#2026!";
     var nowUtc = DateTime.UtcNow;
+    var isOnline = await dbContext.Database.CanConnectAsync(stoppingToken);
 
     var heldFiles = await dbContext.JarbassProtectedFiles
+        .Include(f => f.FileType)
+          .ThenInclude(ft => ft!.SecurityLevel)
+        .Include(f => f.SecurityScope)
+        .Include(f => f.InstanceSecurityLevel)
+        .Include(f => f.EffectiveSecurityLevel)
+        .Include(f => f.PermissionLevel)
+        .Include(f => f.EncryptionState)
         .Where(f => !f.Inactive && f.IsHeldInHand)
         .ToListAsync(stoppingToken);
 
     foreach (var file in heldFiles)
     {
+      var decision = await securityGuard.EvaluateDocumentAccessAsync(dbContext, file, isOnline, masterSecret, stoppingToken);
+
+      // Nível com JarbassShouldIgnore = true: Totalmente liberado — o Jarbass nem olha!
+      if (decision.JarbassShouldIgnore)
+      {
+        continue;
+      }
+
+      if (decision.SignatureTampered)
+      {
+        await RestoreAndLockOnTamperAsync(dbContext, file, masterSecret, decision.Reason, stoppingToken);
+        continue;
+      }
+
+      // Se o nível de segurança (ex.: StrictOnline sem internet ou permissão User/Role/Claim revogada) reprovar: fecha na cara do usuário!
+      if (!decision.Allowed)
+      {
+        await LockAndCloseInFaceAsync(dbContext, file, masterSecret, decision.Reason, stoppingToken);
+        continue;
+      }
+
       var leaseExpired = file.LeaseExpiresAtUtc.HasValue && file.LeaseExpiresAtUtc.Value <= nowUtc;
 
       if (file.ForceCloseRequested || leaseExpired)
@@ -45,16 +75,18 @@ public sealed class JarbassKalupaWorker(
         continue;
       }
 
-      if (string.Equals(file.PermissionLevel, "ReadOnly", StringComparison.OrdinalIgnoreCase))
+      // Verifica pela tabela 1:N JarbassPermissionLevel se a escrita é proibida (AllowWrite == false)
+      var allowWrite = file.PermissionLevel?.AllowWrite ?? false;
+      if (!allowWrite)
       {
         var currentBytes = await File.ReadAllBytesAsync(file.FullLocalPath, stoppingToken);
         var currentHash = vaultGuardian.ComputeSha256(currentBytes);
 
         if (!string.Equals(currentHash, file.PlaintextContentHash, StringComparison.OrdinalIgnoreCase))
         {
-          // O usuário tentou editar o arquivo aberto em modo Read-Only!
+          // O usuário tentou editar o arquivo aberto em modo Somente Leitura (AllowWrite = false)!
           await RestoreAndLockOnTamperAsync(dbContext, file, masterSecret,
-              "Tentativa não autorizada de modificação em arquivo Read-Only sob custódia do Jarbass.",
+              "Tentativa não autorizada de modificação em arquivo Somente Leitura sob custódia do Jarbass.",
               stoppingToken);
         }
       }
@@ -66,8 +98,16 @@ public sealed class JarbassKalupaWorker(
       JarbassProtectedFile file,
       string masterSecret,
       string reason,
-      CancellationToken stoppingToken)
+      CancellationToken stoppingToken,
+      bool isTamperLock = false)
   {
+    var targetStateCode = isTamperLock
+        ? Mpx.Domain.Enums.JarbassEncryptionStateEnum.LockedOnTamper
+        : Mpx.Domain.Enums.JarbassEncryptionStateEnum.EncryptedAtRest;
+    var targetState = await dbContext.JarbassEncryptionStates
+        .AsNoTracking()
+        .FirstOrDefaultAsync(s => s.Code == targetStateCode, stoppingToken);
+
     if (!string.IsNullOrWhiteSpace(file.EncryptedBackupPayload) && !string.IsNullOrWhiteSpace(file.FullLocalPath))
     {
       var dir = Path.GetDirectoryName(file.FullLocalPath);
@@ -80,15 +120,16 @@ public sealed class JarbassKalupaWorker(
     else if (File.Exists(file.FullLocalPath) && !vaultGuardian.IsFileEncryptedEnvelope(file.FullLocalPath))
     {
       var plainBytes = await File.ReadAllBytesAsync(file.FullLocalPath, stoppingToken);
-      var encrypted = vaultGuardian.EncryptContentAesGcm(plainBytes, masterSecret);
-      file.EncryptedBackupPayload = encrypted;
-      file.EncryptedContentHash = vaultGuardian.ComputeSha256(encrypted);
-      await File.WriteAllTextAsync(file.FullLocalPath, encrypted, Encoding.UTF8, stoppingToken);
+      var doubleSigned = securityGuard.SealDocumentForTransportAndRest(file, plainBytes, masterSecret, targetState?.Id);
+      await File.WriteAllTextAsync(file.FullLocalPath, doubleSigned.CombinedDiskFileContent, Encoding.UTF8, stoppingToken);
     }
 
     file.IsHeldInHand = false;
     file.ForceCloseRequested = false;
-    file.EncryptionState = "EncryptedAtRest";
+    if (targetState is not null)
+    {
+      file.EncryptionStateId = targetState.Id;
+    }
     file.LastRevokedReason = reason;
 
     await dbContext.SaveChangesAsync(stoppingToken);
@@ -105,11 +146,11 @@ public sealed class JarbassKalupaWorker(
     file.TamperAttemptsCount += 1;
     file.LastTamperAttemptUtc = DateTime.UtcNow;
 
-    await LockAndCloseInFaceAsync(dbContext, file, masterSecret, reason, stoppingToken);
+    await LockAndCloseInFaceAsync(dbContext, file, masterSecret, reason, stoppingToken, isTamperLock: true);
 
     dbContext.JarbassInsights.Add(new JarbassInsight
     {
-      Id = Guid.NewGuid(),
+      Id = Guid.CreateVersion7(),
       CorporationId = file.CorporationId,
       JarbassAgentId = file.JarbassAgentId,
       TargetEntityId = file.Id,
@@ -119,7 +160,7 @@ public sealed class JarbassKalupaWorker(
       Title = $"Jarbass fechou e trancou o arquivo '{file.FileName}' na cara do usuário",
       Details = $"{reason} Caminho: {file.RelativeVaultPath}. Tentativas acumuladas: {file.TamperAttemptsCount}.",
       AutoHealed = true,
-      AutoHealAction = "Conteúdo original restaurado e arquivo recriptografado imediatamente (EncryptedAtRest).",
+      AutoHealAction = "Conteúdo original restaurado e arquivo recriptografado com Dupla Assinatura Digital (LockedOnTamper).",
       OccurredAtUtc = DateTime.UtcNow,
       System = true
     });

@@ -15,14 +15,16 @@ O arquivo oficial da Solution na raiz de `mpx-backend/` chama-se **`Mpx.slnx`**.
 O projeto **`Mpx.Core`** é a base universal do motor Morphus: **ele não depende de nenhum outro projeto `Mpx.*`, e todos os outros 5 projetos enxergam o `Mpx.Core`**.
 
 ```text
-                  ┌──────────────────────┐
-                  │       Mpx.Core       │  ◄── Motor Puro do Morphus (100% Genérico <T>)
-                  │ (Todo mundo vê ele!) │      Zero entidades ou regras de negócio específicas!
-                  └──────────▲───────────┘
-                             │
-       ┌──────────────┬──────┴───────┬──────────────┬──────────────┐
-       │              │              │              │              │
-  Mpx.Domain   Mpx.Infrastructure  Mpx.Application  Mpx.Api  Mpx.CrossCutting
+                       ┌──────────────────────┐
+                       │       Mpx.Core       │  ◄── Motor Puro do Morphus (100% Genérico <T>)
+                       │ (Todo mundo vê ele!) │      Zero entidades ou regras de negócio específicas!
+                       └──────────▲───────────┘
+                                  │
+        ┌──────────────┬──────────┼──────────┬──────────────┬──────────────┐
+        │              │          │          │              │              │
+   Mpx.Domain   Mpx.Infrastructure│   Mpx.Application    Mpx.Api     Mpx.Jarbass
+                                  │
+                           Mpx.CrossCutting
 ```
 
 ### 1.2. Responsabilidade e Estrutura de Pastas de Cada Projeto
@@ -35,20 +37,21 @@ mpx-backend/
  ├── Mpx.Core/                         ➔ Motor Genérico Puro (<T>) e Utilitários Base
  │    ├── Controllers/                 ➔ IMpxController.cs, MpxController.cs
  │    ├── Dtos/                        ➔ IMpxProjection.cs, MpxProjection.cs, MpxDto.cs, MpxRelatedDto.cs, MpxDeleteDependencySummary.cs
- │    ├── Entities/                    ➔ MpxEntity.cs, MpxRelatedEntity.cs
+ │    ├── Entities/                    ➔ MpxEntity.cs (com Guid.CreateVersion7()), MpxRelatedEntity.cs
  │    ├── Filters/                     ➔ MpxFilter.cs, MpxFilterParameter.cs
  │    ├── Handlers/                    ➔ IMpxHandler.cs, MpxHandler.cs
  │    ├── Interfaces/                  ➔ IMpxRepository.cs, IMpxTenant.cs, IMpxTransaction.cs, IUnitOfWork.cs
  │    ├── Security/                    ➔ MpxKey.cs, MpxSecurity.cs
  │    └── Validators/                  ➔ IMpxValidator.cs, MpxValidator.cs, MpxDocumentValidator.cs
  │
- ├── Mpx.Domain/                       ➔ Entidades de Negócio, Contratos de Repositório e Modelos de Segurança
- │    ├── Entities/                    ➔ Agrupadas em subpastas por domínio (mantendo namespace Mpx.Domain.Entities):
- │    │    ├── Mail/                   ➔ Email.cs, EmailBcc.cs, EmailCc.cs, EmailFrom.cs, EmailTo.cs
- │    │    ├── Morphus/                ➔ Application.cs, Corporation.cs, Workspace.cs, Menu.cs, Category.cs...
- │    │    ├── Security/               ➔ User.cs, Role.cs, Claim.cs, Module.cs, SubModule.cs, UserStatus.cs...
- │    │    ├── Website/                ➔ Feature.cs, FeatureHighlight.cs, ModuleCategory.cs, ShowcaseModule.cs
- │    │    └── Workflow/               ➔ WorkflowType.cs, Station.cs, StationType.cs, WorkflowTypeConfig.cs, Workflow.cs...
+ ├── Mpx.Domain/                       ➔ Entidades de Negócio (Sigla de 3 Letras da Pasta), Enums de Decisão e Contratos
+ │    ├── Entities/                    ➔ Agrupadas em subpastas simétricas com o Front-end (namespace Mpx.Domain.Entities):
+ │    │    ├── Jarbass/                ➔ JrbAgent.cs, JrbConfig.cs, JrbJob.cs, JrbSyncEvent.cs, JrbProtectedFile.cs, JrbSecurityLevel.cs...
+ │    │    ├── Morphus/                ➔ MpxApplication.cs, MpxCorporation.cs, MpxWorkspace.cs, MpxFileType.cs, MpxFeature.cs, MpxNotification.cs...
+ │    │    ├── Relay/                  ➔ RlyEmail.cs, RlyEmailBcc.cs, RlyEmailCc.cs, RlyEmailFrom.cs, RlyEmailTo.cs
+ │    │    ├── Security/               ➔ SecUser.cs, SecRole.cs, SecUserRole.cs, SecClaim.cs, SecUserClaim.cs, SecRoleClaim.cs, SecModule.cs...
+ │    │    └── Workflow/               ➔ WkfWorkflow.cs, WkfStation.cs, WkfTask.cs, WkfItem.cs, WkfPermission.cs, WkfType.cs, WkfTypeConfig.cs...
+ │    ├── Enums/                       ➔ Enums técnicos (short) vinculados ao campo Code das tabelas 1:N para decisão switch/case
  │    ├── Interfaces/                  ➔ Exclusivamente contratos de repositórios de entidades (IUserRepository.cs, ICorporationRepository.cs...)
  │    └── Security/                    ➔ MpxAccountSeed.cs, MpxSession.cs e classes individuais de Request/Response de Segurança
  │
@@ -67,14 +70,18 @@ mpx-backend/
  ├── Mpx.Infrastructure/               ➔ Persistência EF Core, PostgreSQL e Multi-Tenant
  │    ├── Data/                        ➔ NENHUM arquivo solto diretamente na raiz de Data/
  │    │    ├── Core/                   ➔ MpxDbContext.cs, MpxDbContextFactory.cs, MpxTransaction.cs, MpxRepository.cs
- │    │    ├── EntitiesConfiguration/  ➔ Configurações Fluent API (*Configuration.cs)
+ │    │    ├── EntitiesConfiguration/  ➔ Configurações Fluent API (*Configuration.cs) nas mesmas 5 subpastas de Entities/
  │    │    ├── Migrations/             ➔ Migrations do EF Core e MpxDbContextModelSnapshot.cs
  │    │    └── Repositories/           ➔ Exclusivamente repositórios das entidades (*Repository.cs)
  │    ├── Interfaces/                  ➔ ITenantProvider.cs
  │    └── MultiTenant/                 ➔ TenantProvider.cs, DesignTimeTenantProvider.cs
  │
- ├── Mpx.CrossCutting/                 ➔ Injeção de Dependência, Políticas JWT/Claims e Bootstrap de Banco
+ ├── Mpx.CrossCutting/                 ➔ Injeção de Dependência, Políticas JWT/Claims, Reflection (.Reflected) e Bootstrap de Banco
  │    └── DependencyInjection.cs
+ │
+ ├── Mpx.Jarbass/                      ➔ Windows Service Autônomo 24/7 (.NET 11 Worker Service)
+ │    ├── Security/                    ➔ JarbassTimeGuard.cs, JarbassFileVaultGuardian.cs, JarbassDocumentSecurityGuard.cs, JarbassExecutionCoordinator.cs
+ │    └── Workers/                     ➔ Base/MpxJarbassWorker.cs, JarbassCatalogWorker.cs, JarbassEmailWorker.cs, JarbassKalupaWorker.cs, JarbassWorkflowWorker.cs, JarbassMaintenanceWorker.cs
  │
  └── Mpx.Api/                          ➔ Camada de Entrada HTTP / REST Controllers
       ├── Controllers/                 ➔ Controllers de negócio herdando de MpxController<T>
@@ -110,19 +117,26 @@ mpx-backend/
   - Contratos do motor: `IMpxController<T>`, `IMpxHandler<T>`, `IMpxValidator<T>`, `IMpxRepository<TEntity>`, `IMpxProjection<TEntity, TDto>`, `IMpxTenant`, `IMpxTransaction`.
   - Contratos de negócio: `IUserRepository`, `ICorporationRepository`, `ICorporationValidator`, `IWorkspaceValidator`.
 
-### 3.2. Entidades de Negócio (Nomes Limpos, Sem Prefixo `Mpx`)
-- Entidades de negócio em `Mpx.Domain/Entities/` representam tabelas reais do domínio e **NÃO** levam prefixo `Mpx` ou `Morphus`, mantendo paridade 1:1 com as entidades do Frontend:
-  - `Application.cs`, `Corporation.cs`, `Workspace.cs`, `User.cs`, `Role.cs`, `Claim.cs`, `Module.cs`, `SubModule.cs`, `Menu.cs`, `Category.cs`, `Email.cs`, etc.
-- **Resolução do Conflito de Namespace `Application` no C#**:
-  - Como o projeto da camada de aplicação se chama `Mpx.Application`, nos arquivos dentro de `Mpx.Application` ou `Mpx.Api` que referenciam a entidade `Application`, declarar o alias abaixo da linha do `namespace`:
-    ```csharp
-    namespace Mpx.Application.Handlers;
+### 3.2. Entidades de Negócio (Sigla Obrigatória de 3 Letras por Contexto/Pasta: `Mpx*`, `Sec*`, `Wkf*`, `Jrb*`, `Rly*`, `Klp*`)
+- Todas as entidades em `Mpx.Domain/Entities/<Contexto>/` e suas configurações em `Mpx.Infrastructure/Data/EntitiesConfiguration/<Contexto>/` começam obrigatoriamente com a **sigla de 3 letras do seu contexto/pasta** (em total simetria com o prefixo da tabela no PostgreSQL e com as sub-aplicações do Front-end):
+  - **`Morphus/` (`Mpx*` ➔ `mpx_*`)**: `MpxApplication`, `MpxCorporation`, `MpxWorkspace`, `MpxCategory`, `MpxMenu`, `MpxFileType`, `MpxNotification`, `MpxUserNotification`, `MpxFeature`, `MpxShowcaseModule`, `MpxEntityDefinition`, `MpxEntityProperty`...
+  - **`Security/` (`Sec*` ➔ `sec_*`)**: `SecUser`, `SecUserStatus`, `SecRole`, `SecUserRole`, `SecClaim`, `SecUserClaim`, `SecRoleClaim`, `SecModule`, `SecSubModule`.
+  - **`Workflow/` (`Wkf*` ➔ `wkf_*`)**: `WkfWorkflow`, `WkfStation`, `WkfTask`, `WkfTaskOwner`, `WkfItem`, `WkfItemMetadata`, `WkfPermission`, `WkfType`, `WkfTypeConfig`...
+  - **`Jarbass/` (`Jrb*` ➔ `jrb_*`)**: `JrbAgent`, `JrbConfig`, `JrbJob`, `JrbSyncEvent`, `JrbConflictAlert`, `JrbInsight`, `JrbProtectedFile`, `JrbWorkflowWatcher`, `JrbSecurityLevel`, `JrbSecurityScope`, `JrbPermissionLevel`, `JrbEncryptionState`.
+  - **`Relay/` (`Rly*` ➔ `rly_*`)**: `RlyEmail`, `RlyEmailTo`, `RlyEmailFrom`, `RlyEmailCc`, `RlyEmailBcc`.
+  - **`Kalupa/` (`Klp*` ➔ `klp_*`)**: `KlpDocument`, `KlpTemplate`, `KlpTag`...
+- **Eliminação Total de Colisões de Namespace**:
+  - Graças às siglas de 3 letras (`SecClaim`, `MpxApplication`, `SecModule`, `WkfTask`), **nunca ocorre colisão** com tipos do .NET ou namespaces internos (como `System.Security.Claims.Claim` do Identity da Microsoft, `Mpx.Application`, `System.Reflection.Module` ou `System.Threading.Tasks.Task`), dispensando aliases de `using` no topo dos arquivos.
 
-    using Application = Mpx.Domain.Entities.Application;
-    ```
+### 3.3. Geração de Chaves Únicas (`MpxKey`) e Identificadores (`UUID v7`)
+- Toda entidade base `MpxEntity` nasce com `Id = Guid.CreateVersion7()` (ordenação temporal nativa em B-Tree sem fragmentação de índice) e chave única de 12 caracteres `Key = MpxKey.Generate()`.
 
-### 3.3. Geração de Chaves Únicas (`MpxKey`)
-- Toda geração de chave única de 12 caracteres (`Key`) no ecossistema é responsabilidade central do **`Mpx.Core.Security.MpxKey`** (`MpxKey.Generate()`), consumida por `MpxEntity`, `MpxDbContext` e `MpxAccountSeed`.
+### 3.4. Padrão de Projeto: Tabela de Domínio `1:N` (`Code` + `Label`) vs. `Enum` (`short` para Decisão `switch/case`)
+- **PROIBIDO usar `string` solta sem índice** para status, níveis, escopos ou classificações que serão filtrados no banco.
+- **Quando o valor possui `Label` para exibição em tela ou seleção em combos (especialmente no `App Builder` via `.Reflected`)**:
+  - **SEMPRE criar uma Tabela de Domínio `1:N` no Banco de Dados** herdando de `MpxEntity` (ex.: `JrbSecurityLevel`, `JrbSecurityScope`, `JrbPermissionLevel`, `JrbEncryptionState`, `SecUserStatus`, `MpxApplicationStatus`), contendo `Code` e `Label` (além de flags booleanas de comportamento, `Icon`, `Color`, `Order`, `Description`) e relacionada via Foreign Key `Guid` indexada.
+- **Quando há tomada de decisão interna no código (`switch/case` de motor técnico)**:
+  - Criar o **`Enum` (`: short`)** com o mesmo código numérico e **vincular a propriedade `Code` da tabela `1:N` diretamente ao `Enum`** (ex.: `public JarbassSecurityLevelEnum Code { get; set; }`). Assim, a tela e o `App Builder` consomem o `Label` da relação `1:N`, enquanto o C# executa `switch (entity.SecurityLevel.Code)` 100% tipado!
 
 ---
 

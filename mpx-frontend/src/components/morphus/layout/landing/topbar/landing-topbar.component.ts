@@ -150,7 +150,7 @@ export class MpxLandingTopBarComponent {
     if (typeof window !== 'undefined') {
       const host = window.location.hostname.toLowerCase();
       if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
-        window.location.href = `${window.location.protocol}//cloud.morphus.one`;
+        window.location.href = `${window.location.protocol}//morphus.morphus.one`;
         return;
       }
     }

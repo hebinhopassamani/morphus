@@ -12,6 +12,7 @@ builder.Services.AddWindowsService(options =>
 builder.Services.AddMorphusWorkerDependencyInjection(builder.Configuration);
 builder.Services.AddSingleton<JarbassTimeGuard>();
 builder.Services.AddSingleton<JarbassFileVaultGuardian>();
+builder.Services.AddSingleton<JarbassDocumentSecurityGuard>();
 builder.Services.AddSingleton<JarbassExecutionCoordinator>();
 
 // Registro de Workers Independentes (cada um com seu próprio relógio e escopo isolado)

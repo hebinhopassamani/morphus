@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
@@ -6,7 +6,7 @@ using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-using Application = Mpx.Domain.Entities.Application;
+using Application = Mpx.Domain.Entities.MpxApplication;
 
 public class WorkspaceApplicationHandler(
     IWorkspaceApplicationRepository workspaceApplicationRepository,

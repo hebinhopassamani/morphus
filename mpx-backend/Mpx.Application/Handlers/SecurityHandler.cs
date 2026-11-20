@@ -1,4 +1,4 @@
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -19,7 +19,7 @@ using Mpx.Domain.Security;
 
 namespace Mpx.Application.Handlers;
 
-using Application = Mpx.Domain.Entities.Application;
+using Application = Mpx.Domain.Entities.MpxApplication;
 
 public class SecurityHandler(
     IUserRepository userRepository,

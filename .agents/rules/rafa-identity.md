@@ -35,3 +35,7 @@ trigger: always_on
      1. Gerar/atualizar o arquivo limpo da conversa em `C:\Projetos\Morphus\.agents\conversations\full-conversations\MPX_XXXXXXXXXX.md`;
      2. Atualizar a tabela índice em `C:\Projetos\Morphus\.agents\conversations\conversations.md` com o link clicável `[MPX_XXXXXXXXXX](./full-conversations/MPX_XXXXXXXXXX.md)`, além das colunas `SUBJECT`, `SUMMARY` e `TAGS` (separadas por espaço no formato `#tag1 #tag2`);
      3. Commitar e subir (versionar no Git) tanto o `conversations.md` quanto os arquivos de `full-conversations/`.
+6. **Padrão de Projeto: Tabela de Banco `1:N` (Quando Exibir `Label` / `App Builder`) vs. `Enum` (Quando for Apenas Tomada de Decisão `switch/case`)**:
+   - **Nunca usar `string` solta sem índice** para status, níveis, escopos ou classificações que terão muitos registros filtrados.
+   - **Se o valor tiver um `Label` para ser exibido na tela ao usuário ou selecionado em combos (especialmente no `App Builder` via `.Reflected`)**: **SEMPRE criar uma Tabela de Domínio `1:N` no Banco de Dados** herdando de `MpxEntity` (com `Code`, `Name`, flags booleanas, `Icon`, `Color`, `Order`, `Description` e Foreign Key `Guid` indexada).
+   - **Se for apenas para tomada de decisão interna no código (`switch/case` de motor técnico)**: **pode usar `enum` (`short`/`int`)** — podendo inclusive coexistir na própria tabela `1:N` (ex.: `DecisionLevel`, `DecisionType`) para que a tela e o `App Builder` usem o relacionamento `1:N` com `Label` enquanto o motor C# toma decisões tipadas via `enum`!

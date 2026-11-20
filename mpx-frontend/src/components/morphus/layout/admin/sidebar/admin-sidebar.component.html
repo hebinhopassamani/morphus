@@ -73,9 +73,9 @@
           class="inline-flex items-center gap-x-3 rounded-xl"
           [routerLink]="
             context.isFlowContext()
-              ? '/flow'
+              ? '/workflow'
               : context.isSendContext()
-                ? '/send'
+                ? '/relay'
                 : context.isSecurityContext()
                   ? '/security'
                   : '/morphus'

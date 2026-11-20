@@ -1,0 +1,16 @@
+﻿using Mpx.Core.Entities;
+
+namespace Mpx.Domain.Entities;
+
+public class MpxShowcaseModule : MpxEntity
+{
+  public Guid CategoryId { get; set; }
+  public string? Icon { get; set; }
+  public required string Title { get; set; }
+  public required string Description { get; set; }
+  public required string ActionText { get; set; }
+  public int Order { get; set; }
+
+  public virtual MpxModuleCategory? Category { get; set; }
+}
+

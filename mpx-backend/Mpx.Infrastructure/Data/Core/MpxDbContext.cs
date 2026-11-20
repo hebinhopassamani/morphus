@@ -197,6 +197,10 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<JarbassSyncEvent> JarbassSyncEvents { get; set; }
   public DbSet<JarbassConflictAlert> JarbassConflictAlerts { get; set; }
   public DbSet<JarbassInsight> JarbassInsights { get; set; }
+  public DbSet<JarbassSecurityScope> JarbassSecurityScopes { get; set; }
+  public DbSet<JarbassSecurityLevel> JarbassSecurityLevels { get; set; }
+  public DbSet<JarbassPermissionLevel> JarbassPermissionLevels { get; set; }
+  public DbSet<JarbassEncryptionState> JarbassEncryptionStates { get; set; }
   public DbSet<JarbassProtectedFile> JarbassProtectedFiles { get; set; }
   public DbSet<JarbassWorkflowWatcher> JarbassWorkflowWatchers { get; set; }
   public DbSet<Notification> Notifications { get; set; }

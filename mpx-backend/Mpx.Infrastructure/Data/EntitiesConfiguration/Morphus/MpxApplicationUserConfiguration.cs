@@ -1,0 +1,42 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+using Mpx.Domain.Entities;
+
+namespace Mpx.Infrastructure.Data.EntitiesConfiguration;
+
+public class MpxApplicationUserConfiguration : IEntityTypeConfiguration<MpxApplicationUser>
+{
+  public void Configure(EntityTypeBuilder<MpxApplicationUser> builder)
+  {
+    builder.ToTable("mpx_application_users");
+
+    builder.HasKey(au => new { au.ApplicationId, au.UserId });
+
+    builder.Property(au => au.ApplicationId).IsRequired();
+    builder.Property(au => au.UserId).IsRequired();
+    builder.Property(au => au.WorkspaceId).IsRequired(false);
+    builder.Property(au => au.CorporationId).IsRequired();
+    builder.Property(au => au.Color).IsRequired(false).HasMaxLength(250);
+    builder.Property(au => au.Favorite).IsRequired().HasDefaultValue(false);
+    builder.Property(au => au.Inactive).IsRequired().HasDefaultValue(false);
+    builder.Property(au => au.System).IsRequired().HasDefaultValue(false);
+    builder.Property(au => au.IsOwner).IsRequired().HasDefaultValue(false);
+
+    builder.HasOne(au => au.Application)
+           .WithMany(a => a.ApplicationUsers)
+           .HasForeignKey(au => au.ApplicationId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+    builder.HasOne(au => au.User)
+           .WithMany(u => u.ApplicationUsers)
+           .HasForeignKey(au => au.UserId)
+           .OnDelete(DeleteBehavior.Cascade);
+
+    builder.HasOne(au => au.Corporation)
+           .WithMany(c => c.ApplicationUsers)
+           .HasForeignKey(au => au.CorporationId)
+           .OnDelete(DeleteBehavior.Restrict);
+  }
+}
+

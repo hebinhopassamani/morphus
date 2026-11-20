@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
 using Microsoft.AspNetCore.Http;
@@ -11,7 +11,7 @@ using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
-using Application = Mpx.Domain.Entities.Application;
+using Application = Mpx.Domain.Entities.MpxApplication;
 
 public class ApplicationHandler(
     IApplicationRepository applicationRepository,

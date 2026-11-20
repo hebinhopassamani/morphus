@@ -15,11 +15,10 @@
     "module": "preserve",
     "paths": {
       "@morphus/*": ["./src/apps/morphus/*"],
-      "@website/*": ["./src/apps/website/*"],
       "@security/*": ["./src/apps/security/*"],
-      "@flow/*": ["./src/apps/flow/*"],
+      "@workflow/*": ["./src/apps/workflow/*"],
       "@kalupa/*": ["./src/apps/kalupa/*"],
-      "@send/*": ["./src/apps/send/*"],
+      "@relay/*": ["./src/apps/relay/*"],
       "@app-builder/*": ["./src/apps/app-builder/*"],
       "@core/*": ["./src/core/*"],
       "@src/*": ["./src/*"],
