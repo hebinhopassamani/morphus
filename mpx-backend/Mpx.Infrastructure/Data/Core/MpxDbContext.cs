@@ -191,6 +191,17 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<WorkflowItem> WorkflowItems { get; set; }
   public DbSet<WorkflowItemMetadata> WorkflowItemMetadatas { get; set; }
 
+  public DbSet<JarbassAgent> JarbassAgents { get; set; }
+  public DbSet<JarbassConfig> JarbassConfigs { get; set; }
+  public DbSet<JarbassJob> JarbassJobs { get; set; }
+  public DbSet<JarbassSyncEvent> JarbassSyncEvents { get; set; }
+  public DbSet<JarbassConflictAlert> JarbassConflictAlerts { get; set; }
+  public DbSet<JarbassInsight> JarbassInsights { get; set; }
+  public DbSet<JarbassProtectedFile> JarbassProtectedFiles { get; set; }
+  public DbSet<JarbassWorkflowWatcher> JarbassWorkflowWatchers { get; set; }
+  public DbSet<Notification> Notifications { get; set; }
+  public DbSet<UserNotification> UserNotifications { get; set; }
+
   public async Task<IMpxTransaction> BeginTransactionAsync()
   {
     var efTransaction = await Database.BeginTransactionAsync();

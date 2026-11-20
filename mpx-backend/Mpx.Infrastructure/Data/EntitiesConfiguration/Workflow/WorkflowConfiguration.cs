@@ -27,8 +27,14 @@ public class WorkflowConfiguration : IEntityTypeConfiguration<Workflow>
     builder.Property(w => w.UserAgent).IsRequired(false).HasMaxLength(300);
     builder.Property(w => w.Status).IsRequired().HasMaxLength(40).HasDefaultValue("Running");
     builder.Property(w => w.IsCurrentStep).IsRequired().HasDefaultValue(true);
+    builder.Property(w => w.SplitGroupId).IsRequired(false);
+    builder.Property(w => w.JoinTargetConfigId).IsRequired(false);
+    builder.Property(w => w.ExpectedSplitBranches).IsRequired().HasDefaultValue(0);
+    builder.Property(w => w.CompletedSplitBranches).IsRequired().HasDefaultValue(0);
+    builder.Property(w => w.WaitingForSplitJoin).IsRequired().HasDefaultValue(false);
 
     builder.HasIndex(w => new { w.CorporationId, w.Protocol });
+    builder.HasIndex(w => new { w.ParentWorkflowId, w.SplitGroupId });
 
     builder.HasOne(w => w.Corporation)
            .WithMany()
@@ -55,6 +61,12 @@ public class WorkflowConfiguration : IEntityTypeConfiguration<Workflow>
     builder.HasOne(w => w.ToWorkflowTypeConfig)
            .WithMany()
            .HasForeignKey(w => w.ToWorkflowTypeConfigId)
+           .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne(w => w.JoinTargetConfig)
+           .WithMany()
+           .HasForeignKey(w => w.JoinTargetConfigId)
+           .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
 
     builder.HasOne(w => w.WorkflowTypeConfigAction)

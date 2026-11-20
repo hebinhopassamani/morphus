@@ -20,12 +20,18 @@ public class Workflow : MpxEntity, IMpxTenant
   public string? UserAgent { get; set; }
   public string Status { get; set; } = "Running";
   public bool IsCurrentStep { get; set; } = true;
+  public Guid? SplitGroupId { get; set; }
+  public Guid? JoinTargetConfigId { get; set; }
+  public int ExpectedSplitBranches { get; set; }
+  public int CompletedSplitBranches { get; set; }
+  public bool WaitingForSplitJoin { get; set; }
 
   public virtual Corporation? Corporation { get; set; }
   public virtual WorkflowType? WorkflowType { get; set; }
   public virtual Workflow? ParentWorkflow { get; set; }
   public virtual WorkflowTypeConfig? FromWorkflowTypeConfig { get; set; }
   public virtual WorkflowTypeConfig? ToWorkflowTypeConfig { get; set; }
+  public virtual WorkflowTypeConfig? JoinTargetConfig { get; set; }
   public virtual WorkflowTypeConfigAction? WorkflowTypeConfigAction { get; set; }
   public virtual WorkflowTypeConfigCondition? WorkflowTypeConfigCondition { get; set; }
   public virtual User? ExecutedByUser { get; set; }

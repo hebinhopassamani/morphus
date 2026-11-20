@@ -16,7 +16,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120125627_AddEntityCatalogAndWorkflowContext";
+    public override string LastMigrationId => "20261120181319_AddJarbassAndNotifications";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1825,6 +1825,1434 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_file_types");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("EnvironmentMode")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Server")
+                    .HasColumnName("environment_mode");
+
+                b.Property<DateTime?>("HighWaterMarkUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("high_water_mark_utc");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("IpAddress")
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasColumnName("ip_address");
+
+                b.Property<bool>("IsOfflineCapable")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("is_offline_capable");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("LastChainHash")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("last_chain_hash");
+
+                b.Property<long>("LastCpuTickAnchor")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("last_cpu_tick_anchor");
+
+                b.Property<DateTime?>("LastHeartbeatUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_heartbeat_utc");
+
+                b.Property<long>("LastSyncedSequenceNumber")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("last_synced_sequence_number");
+
+                b.Property<DateTime?>("LastTrustedServerUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_trusted_server_utc");
+
+                b.Property<string>("MachineName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("machine_name");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<string>("OperatingSystem")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("operating_system");
+
+                b.Property<string>("Status")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Online")
+                    .HasColumnName("status");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid?>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.Property<string>("Version")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("1.0.0")
+                    .HasColumnName("version");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_agents");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_agents_key");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_jrb_agents_user_id");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_jrb_agents_workspace_id");
+
+                b.HasIndex("CorporationId", "MachineName")
+                    .HasDatabaseName("ix_jrb_agents_corporation_id_machine_name");
+
+                b.ToTable("jrb_agents");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConfig", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ApiKeyEncrypted")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("api_key_encrypted");
+
+                b.Property<DateTime?>("ApiKeyExpiresAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("api_key_expires_at_utc");
+
+                b.Property<string>("ApiKeyHash")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("api_key_hash");
+
+                b.Property<string>("ApiKeyPrefix")
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("api_key_prefix");
+
+                b.Property<bool>("ApiKeyRevoked")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("api_key_revoked");
+
+                b.Property<bool>("AutoHealEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("auto_heal_enabled");
+
+                b.Property<bool>("BlockSyncOnClockTampering")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("block_sync_on_clock_tampering");
+
+                b.Property<bool>("CatalogReflectionEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("catalog_reflection_enabled");
+
+                b.Property<int>("CatalogReflectionIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(60)
+                    .HasColumnName("catalog_reflection_interval_seconds");
+
+                b.Property<string>("ClientAppFolderPath")
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("client_app_folder_path");
+
+                b.Property<string>("ClientDatabaseConnectionStringEncrypted")
+                    .HasMaxLength(2000)
+                    .HasColumnType("character varying(2000)")
+                    .HasColumnName("client_database_connection_string_encrypted");
+
+                b.Property<string>("ClientDatabaseProvider")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("PostgreSQL")
+                    .HasColumnName("client_database_provider");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<bool>("EmailDispatcherEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("email_dispatcher_enabled");
+
+                b.Property<int>("EmailDispatcherIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(10)
+                    .HasColumnName("email_dispatcher_interval_seconds");
+
+                b.Property<string>("EnvironmentMode")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Server")
+                    .HasColumnName("environment_mode");
+
+                b.Property<DateTime?>("HighWaterMarkUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("high_water_mark_utc");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsPaired")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_paired");
+
+                b.Property<bool>("IsSingleton")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("is_singleton");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<bool>("KalupaSyncEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("kalupa_sync_enabled");
+
+                b.Property<int>("KalupaSyncIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(15)
+                    .HasColumnName("kalupa_sync_interval_seconds");
+
+                b.Property<string>("KalupaVaultFolderPath")
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("kalupa_vault_folder_path");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("LastChainHash")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("last_chain_hash");
+
+                b.Property<long>("LastCpuTickAnchor")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("last_cpu_tick_anchor");
+
+                b.Property<long>("LastSyncedSequenceNumber")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("last_synced_sequence_number");
+
+                b.Property<DateTime?>("LastTrustedServerUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_trusted_server_utc");
+
+                b.Property<int>("MaxAllowedClockDriftSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(45)
+                    .HasColumnName("max_allowed_clock_drift_seconds");
+
+                b.Property<string>("MorphusServerUrl")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasDefaultValue("https://api.morphus.one")
+                    .HasColumnName("morphus_server_url");
+
+                b.Property<bool>("OfflineSyncEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("offline_sync_enabled");
+
+                b.Property<int>("OfflineSyncIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(10)
+                    .HasColumnName("offline_sync_interval_seconds");
+
+                b.Property<DateTime?>("PairedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("paired_at_utc");
+
+                b.Property<string>("SigningSecretEncrypted")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("signing_secret_encrypted");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<bool>("WorkflowWatcherEnabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("workflow_watcher_enabled");
+
+                b.Property<int>("WorkflowWatcherIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(15)
+                    .HasColumnName("workflow_watcher_interval_seconds");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_config");
+
+                b.HasIndex("JarbassAgentId")
+                    .HasDatabaseName("ix_jrb_config_jarbass_agent_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_config_key");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_jrb_config_workspace_id");
+
+                b.HasIndex("CorporationId", "JarbassAgentId")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_config_corporation_id_jarbass_agent_id");
+
+                b.ToTable("jrb_config");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConflictAlert", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<DateTime>("DetectedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("detected_at_utc");
+
+                b.Property<Guid?>("EntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("entity_definition_id");
+
+                b.Property<string>("EntityName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("entity_name");
+
+                b.Property<Guid>("ExistingEntityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("existing_entity_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<Guid>("JarbassSyncEventId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_sync_event_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Message")
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("message");
+
+                b.Property<Guid?>("NotifyUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("notify_user_id");
+
+                b.Property<Guid>("RejectedEntityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("rejected_entity_id");
+
+                b.Property<Guid>("RejectedJarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("rejected_jarbass_agent_id");
+
+                b.Property<string>("RejectedPayloadJson")
+                    .HasColumnType("text")
+                    .HasColumnName("rejected_payload_json");
+
+                b.Property<string>("ResolutionStatus")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("PendingUserAction")
+                    .HasColumnName("resolution_status");
+
+                b.Property<DateTime?>("ResolvedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("resolved_at_utc");
+
+                b.Property<Guid?>("ResolvedByUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("resolved_by_user_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("UniqueKeyName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("unique_key_name");
+
+                b.Property<string>("UniqueKeyValue")
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("unique_key_value");
+
+                b.Property<Guid?>("WinnerJarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("winner_jarbass_agent_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_conflict_alerts");
+
+                b.HasIndex("EntityDefinitionId")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_entity_definition_id");
+
+                b.HasIndex("JarbassSyncEventId")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_jarbass_sync_event_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_conflict_alerts_key");
+
+                b.HasIndex("RejectedJarbassAgentId")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_rejected_jarbass_agent_id");
+
+                b.HasIndex("ResolvedByUserId")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_resolved_by_user_id");
+
+                b.HasIndex("WinnerJarbassAgentId")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_winner_jarbass_agent_id");
+
+                b.HasIndex("CorporationId", "ResolutionStatus")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_corporation_id_resolution_status");
+
+                b.HasIndex("NotifyUserId", "ResolutionStatus")
+                    .HasDatabaseName("ix_jrb_conflict_alerts_notify_user_id_resolution_status");
+
+                b.ToTable("jrb_conflict_alerts");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassInsight", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<bool>("Acknowledged")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("acknowledged");
+
+                b.Property<DateTime?>("AcknowledgedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("acknowledged_at_utc");
+
+                b.Property<Guid?>("AcknowledgedByUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("acknowledged_by_user_id");
+
+                b.Property<string>("AutoHealAction")
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("auto_heal_action");
+
+                b.Property<bool>("AutoHealed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("auto_healed");
+
+                b.Property<string>("Category")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("Prevention")
+                    .HasColumnName("category");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("code");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Details")
+                    .IsRequired()
+                    .HasMaxLength(2000)
+                    .HasColumnType("character varying(2000)")
+                    .HasColumnName("details");
+
+                b.Property<Guid?>("EntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("entity_definition_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<DateTime>("OccurredAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("occurred_at_utc");
+
+                b.Property<string>("Severity")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(30)
+                    .HasColumnType("character varying(30)")
+                    .HasDefaultValue("Info")
+                    .HasColumnName("severity");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid?>("TargetEntityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_entity_id");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("title");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_insights");
+
+                b.HasIndex("AcknowledgedByUserId")
+                    .HasDatabaseName("ix_jrb_insights_acknowledged_by_user_id");
+
+                b.HasIndex("EntityDefinitionId")
+                    .HasDatabaseName("ix_jrb_insights_entity_definition_id");
+
+                b.HasIndex("JarbassAgentId")
+                    .HasDatabaseName("ix_jrb_insights_jarbass_agent_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_insights_key");
+
+                b.HasIndex("CorporationId", "Acknowledged", "OccurredAtUtc")
+                    .HasDatabaseName("ix_jrb_insights_corporation_id_acknowledged_occurred_at_utc");
+
+                b.ToTable("jrb_insights");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassJob", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("Category")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("System")
+                    .HasColumnName("category");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(80)
+                    .HasColumnType("character varying(80)")
+                    .HasColumnName("code");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Enabled")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("enabled");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<int>("IntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(60)
+                    .HasColumnName("interval_seconds");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<long?>("LastDurationMs")
+                    .HasColumnType("bigint")
+                    .HasColumnName("last_duration_ms");
+
+                b.Property<string>("LastErrorMessage")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("last_error_message");
+
+                b.Property<string>("LastRunStatus")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Idle")
+                    .HasColumnName("last_run_status");
+
+                b.Property<DateTime?>("LastRunUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_run_utc");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<DateTime?>("NextRunUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("next_run_utc");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<long>("TotalFailures")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("total_failures");
+
+                b.Property<long>("TotalRuns")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("total_runs");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_jobs");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_jrb_jobs_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_jobs_key");
+
+                b.HasIndex("JarbassAgentId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_jobs_jarbass_agent_id_code");
+
+                b.ToTable("jrb_jobs");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassProtectedFile", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<Guid?>("CurrentHolderUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("current_holder_user_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("EncryptedBackupPayload")
+                    .HasColumnType("text")
+                    .HasColumnName("encrypted_backup_payload");
+
+                b.Property<string>("EncryptedContentHash")
+                    .IsRequired()
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("encrypted_content_hash");
+
+                b.Property<string>("EncryptionState")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("EncryptedAtRest")
+                    .HasColumnName("encryption_state");
+
+                b.Property<string>("FileKeyEncrypted")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("file_key_encrypted");
+
+                b.Property<string>("FileName")
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("file_name");
+
+                b.Property<bool>("ForceCloseRequested")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("force_close_requested");
+
+                b.Property<string>("FullLocalPath")
+                    .IsRequired()
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("full_local_path");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsHeldInHand")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_held_in_hand");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("LastRevokedReason")
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("last_revoked_reason");
+
+                b.Property<DateTime?>("LastTamperAttemptUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_tamper_attempt_utc");
+
+                b.Property<DateTime?>("LeaseExpiresAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("lease_expires_at_utc");
+
+                b.Property<DateTime?>("LeaseOpenedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("lease_opened_at_utc");
+
+                b.Property<string>("PermissionLevel")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("ReadOnly")
+                    .HasColumnName("permission_level");
+
+                b.Property<string>("PlaintextContentHash")
+                    .IsRequired()
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("plaintext_content_hash");
+
+                b.Property<string>("RelativeVaultPath")
+                    .IsRequired()
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("relative_vault_path");
+
+                b.Property<string>("RequiredClaimKey")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("required_claim_key");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<int>("TamperAttemptsCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("tamper_attempts_count");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_protected_files");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_jrb_protected_files_corporation_id");
+
+                b.HasIndex("CurrentHolderUserId")
+                    .HasDatabaseName("ix_jrb_protected_files_current_holder_user_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_protected_files_key");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_jrb_protected_files_workspace_id");
+
+                b.HasIndex("IsHeldInHand", "LeaseExpiresAtUtc")
+                    .HasDatabaseName("ix_jrb_protected_files_is_held_in_hand_lease_expires_at_utc");
+
+                b.HasIndex("JarbassAgentId", "RelativeVaultPath")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_protected_files_jarbass_agent_id_relative_vault_path");
+
+                b.ToTable("jrb_protected_files");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ChangedFieldsJson")
+                    .HasColumnType("text")
+                    .HasColumnName("changed_fields_json");
+
+                b.Property<int?>("ClockSkewSeconds")
+                    .HasColumnType("integer")
+                    .HasColumnName("clock_skew_seconds");
+
+                b.Property<bool>("ClockTampered")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("clock_tampered");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<long>("CpuTickAtEvent")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint")
+                    .HasDefaultValue(0L)
+                    .HasColumnName("cpu_tick_at_event");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<string>("EfCommandText")
+                    .HasColumnType("text")
+                    .HasColumnName("ef_command_text");
+
+                b.Property<string>("EfParametersJson")
+                    .HasColumnType("text")
+                    .HasColumnName("ef_parameters_json");
+
+                b.Property<Guid?>("EntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("entity_definition_id");
+
+                b.Property<string>("EntityName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("entity_name");
+
+                b.Property<string>("EnvironmentMode")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Server")
+                    .HasColumnName("environment_mode");
+
+                b.Property<string>("ErrorMessage")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("error_message");
+
+                b.Property<bool>("Executed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("executed");
+
+                b.Property<string>("ExecutionChannel")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("DirectEntity")
+                    .HasColumnName("execution_channel");
+
+                b.Property<DateTime?>("ExecutionCompletedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("execution_completed_at_utc");
+
+                b.Property<long?>("ExecutionDurationMs")
+                    .HasColumnType("bigint")
+                    .HasColumnName("execution_duration_ms");
+
+                b.Property<DateTime?>("ExecutionStartedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("execution_started_at_utc");
+
+                b.Property<bool>("ExecutionSucceeded")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("execution_succeeded");
+
+                b.Property<string>("Hash")
+                    .IsRequired()
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("hash");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("IpAddress")
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasColumnName("ip_address");
+
+                b.Property<Guid>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("MachineName")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasDefaultValue("")
+                    .HasColumnName("machine_name");
+
+                b.Property<string>("Operation")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(30)
+                    .HasColumnType("character varying(30)")
+                    .HasDefaultValue("Create")
+                    .HasColumnName("operation");
+
+                b.Property<Guid?>("ParentSyncEventId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("parent_sync_event_id");
+
+                b.Property<string>("PayloadJson")
+                    .HasColumnType("text")
+                    .HasColumnName("payload_json");
+
+                b.Property<string>("PreviousHash")
+                    .HasMaxLength(128)
+                    .HasColumnType("character varying(128)")
+                    .HasColumnName("previous_hash");
+
+                b.Property<DateTime>("ReportedDeviceUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("reported_device_utc");
+
+                b.Property<int>("RetryCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("retry_count");
+
+                b.Property<int?>("RowsAffected")
+                    .HasColumnType("integer")
+                    .HasColumnName("rows_affected");
+
+                b.Property<long>("SequenceNumber")
+                    .HasColumnType("bigint")
+                    .HasColumnName("sequence_number");
+
+                b.Property<string>("SourceEndpoint")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("source_endpoint");
+
+                b.Property<string>("SyncStatus")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Pending")
+                    .HasColumnName("sync_status");
+
+                b.Property<bool>("Synced")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("synced");
+
+                b.Property<DateTime?>("SyncedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("synced_at_utc");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<string>("TableName")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("table_name");
+
+                b.Property<Guid>("TargetEntityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_entity_id");
+
+                b.Property<string>("TargetEntityKey")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("target_entity_key");
+
+                b.Property<Guid>("TransactionGroupId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("transaction_group_id");
+
+                b.Property<DateTime>("TrustedOccurredAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("trusted_occurred_at_utc");
+
+                b.Property<string>("UniqueKeyName")
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("unique_key_name");
+
+                b.Property<string>("UniqueKeyValue")
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("unique_key_value");
+
+                b.Property<Guid?>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_sync_events");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_jrb_sync_events_corporation_id");
+
+                b.HasIndex("EntityDefinitionId")
+                    .HasDatabaseName("ix_jrb_sync_events_entity_definition_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_sync_events_key");
+
+                b.HasIndex("ParentSyncEventId")
+                    .HasDatabaseName("ix_jrb_sync_events_parent_sync_event_id");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_jrb_sync_events_user_id");
+
+                b.HasIndex("JarbassAgentId", "SequenceNumber")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_sync_events_jarbass_agent_id_sequence_number");
+
+                b.HasIndex("SyncStatus", "TrustedOccurredAtUtc")
+                    .HasDatabaseName("ix_jrb_sync_events_sync_status_trusted_occurred_at_utc");
+
+                b.HasIndex("Synced", "SequenceNumber")
+                    .HasDatabaseName("ix_jrb_sync_events_synced_sequence_number");
+
+                b.ToTable("jrb_sync_events");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassWorkflowWatcher", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("BlockingBranchSummary")
+                    .HasMaxLength(1000)
+                    .HasColumnType("character varying(1000)")
+                    .HasColumnName("blocking_branch_summary");
+
+                b.Property<int>("CompletedBranchesCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("completed_branches_count");
+
+                b.Property<bool>("CompletedOfflineOnTime")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("completed_offline_on_time");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<DateTime?>("EffectiveTrustedJoinedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("effective_trusted_joined_at_utc");
+
+                b.Property<int>("ExpectedBranchesCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(1)
+                    .HasColumnName("expected_branches_count");
+
+                b.Property<int>("FailedBranchesCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("failed_branches_count");
+
+                b.Property<bool>("HoldTargetInactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("hold_target_inactive");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<Guid>("JoinWorkflowTypeConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("join_workflow_type_config_id");
+
+                b.Property<DateTime?>("JoinedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("joined_at_utc");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<DateTime?>("LastPolledAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("last_polled_at_utc");
+
+                b.Property<int>("MaxRetries")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(3)
+                    .HasColumnName("max_retries");
+
+                b.Property<string>("MergeMode")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("WaitAll")
+                    .HasColumnName("merge_mode");
+
+                b.Property<DateTime>("NextPollAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("next_poll_at_utc");
+
+                b.Property<Guid>("ParentWorkflowId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("parent_workflow_id");
+
+                b.Property<int>("PollIntervalSeconds")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(15)
+                    .HasColumnName("poll_interval_seconds");
+
+                b.Property<int>("RetryCount")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("retry_count");
+
+                b.Property<Guid?>("SourceWorkflowTypeConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("source_workflow_type_config_id");
+
+                b.Property<Guid?>("SplitGroupId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("split_group_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime?>("TimeoutAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("timeout_at_utc");
+
+                b.Property<string>("WatcherStatus")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("Watching")
+                    .HasColumnName("watcher_status");
+
+                b.Property<string>("WatcherType")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasDefaultValue("SplitJoinBarrier")
+                    .HasColumnName("watcher_type");
+
+                b.Property<Guid?>("WorkflowTypeConfigConditionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_type_config_condition_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_jrb_workflow_watchers");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_corporation_id");
+
+                b.HasIndex("JarbassAgentId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_jarbass_agent_id");
+
+                b.HasIndex("JoinWorkflowTypeConfigId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_join_workflow_type_config_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_jrb_workflow_watchers_key");
+
+                b.HasIndex("SourceWorkflowTypeConfigId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_source_workflow_type_config_id");
+
+                b.HasIndex("WorkflowTypeConfigConditionId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_workflow_type_config_condition_id");
+
+                b.HasIndex("ParentWorkflowId", "SplitGroupId")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_parent_workflow_id_split_group_id");
+
+                b.HasIndex("WatcherStatus", "NextPollAtUtc")
+                    .HasDatabaseName("ix_jrb_workflow_watchers_watcher_status_next_poll_at_utc");
+
+                b.ToTable("jrb_workflow_watchers");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
             {
                 b.Property<Guid>("Id")
@@ -2036,6 +3464,190 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDatabaseName("ix_mpx_module_categories_key");
 
                 b.ToTable("mpx_module_categories");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<string>("ActionLabel")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("action_label");
+
+                b.Property<string>("ActionUrl")
+                    .HasMaxLength(500)
+                    .HasColumnType("character varying(500)")
+                    .HasColumnName("action_url");
+
+                b.Property<Guid?>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<string>("Category")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("System")
+                    .HasColumnName("category");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at_utc");
+
+                b.Property<Guid?>("CreatedByUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("created_by_user_id");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<Guid?>("EntityDefinitionId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("entity_definition_id");
+
+                b.Property<DateTime?>("ExpiresAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("expires_at_utc");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<Guid?>("JarbassAgentId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_agent_id");
+
+                b.Property<Guid?>("JarbassConflictAlertId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_conflict_alert_id");
+
+                b.Property<Guid?>("JarbassInsightId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("jarbass_insight_id");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Message")
+                    .IsRequired()
+                    .HasMaxLength(2000)
+                    .HasColumnType("character varying(2000)")
+                    .HasColumnName("message");
+
+                b.Property<string>("PayloadJson")
+                    .HasColumnType("text")
+                    .HasColumnName("payload_json");
+
+                b.Property<string>("Severity")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(30)
+                    .HasColumnType("character varying(30)")
+                    .HasDefaultValue("Info")
+                    .HasColumnName("severity");
+
+                b.Property<string>("SourceModule")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("Jarbass")
+                    .HasColumnName("source_module");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid?>("TargetEntityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_entity_id");
+
+                b.Property<string>("Title")
+                    .IsRequired()
+                    .HasMaxLength(200)
+                    .HasColumnType("character varying(200)")
+                    .HasColumnName("title");
+
+                b.Property<Guid?>("WorkflowId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_id");
+
+                b.Property<Guid?>("WorkflowTaskId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_task_id");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_notifications");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_notifications_application_id");
+
+                b.HasIndex("CreatedByUserId")
+                    .HasDatabaseName("ix_mpx_notifications_created_by_user_id");
+
+                b.HasIndex("EntityDefinitionId")
+                    .HasDatabaseName("ix_mpx_notifications_entity_definition_id");
+
+                b.HasIndex("JarbassAgentId")
+                    .HasDatabaseName("ix_mpx_notifications_jarbass_agent_id");
+
+                b.HasIndex("JarbassConflictAlertId")
+                    .HasDatabaseName("ix_mpx_notifications_jarbass_conflict_alert_id");
+
+                b.HasIndex("JarbassInsightId")
+                    .HasDatabaseName("ix_mpx_notifications_jarbass_insight_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_notifications_key");
+
+                b.HasIndex("WorkflowId")
+                    .HasDatabaseName("ix_mpx_notifications_workflow_id");
+
+                b.HasIndex("WorkflowTaskId")
+                    .HasDatabaseName("ix_mpx_notifications_workflow_task_id");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_mpx_notifications_workspace_id");
+
+                b.HasIndex("CorporationId", "SourceModule", "CreatedAtUtc")
+                    .HasDatabaseName("ix_mpx_notifications_corporation_id_source_module_created_at_u");
+
+                b.ToTable("mpx_notifications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
@@ -2556,6 +4168,122 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("sec_user_claims");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.UserNotification", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<bool>("Acknowledged")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("acknowledged");
+
+                b.Property<DateTime?>("AcknowledgedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("acknowledged_at_utc");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at_utc");
+
+                b.Property<bool>("DeliveredInApp")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(true)
+                    .HasColumnName("delivered_in_app");
+
+                b.Property<bool>("DeliveredViaEmail")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("delivered_via_email");
+
+                b.Property<string>("Description")
+                    .HasMaxLength(300)
+                    .HasColumnType("character varying(300)")
+                    .HasColumnName("description");
+
+                b.Property<bool>("Dismissed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("dismissed");
+
+                b.Property<DateTime?>("DismissedAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("dismissed_at_utc");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<Guid>("NotificationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("notification_id");
+
+                b.Property<bool>("Pinned")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("pinned");
+
+                b.Property<bool>("Read")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("read");
+
+                b.Property<DateTime?>("ReadAtUtc")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("read_at_utc");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_user_notifications");
+
+                b.HasIndex("CorporationId")
+                    .HasDatabaseName("ix_mpx_user_notifications_corporation_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_user_notifications_key");
+
+                b.HasIndex("NotificationId", "UserId")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_user_notifications_notification_id_user_id");
+
+                b.HasIndex("UserId", "Read", "Dismissed", "CreatedAtUtc")
+                    .HasDatabaseName("ix_mpx_user_notifications_user_id_read_dismissed_created_at_utc");
+
+                b.ToTable("mpx_user_notifications");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.UserRole", b =>
             {
                 b.Property<Guid>("UserId")
@@ -2668,6 +4396,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("id");
 
+                b.Property<int>("CompletedSplitBranches")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("completed_split_branches");
+
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
@@ -2679,6 +4413,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("ExecutedByUserId")
                     .HasColumnType("uuid")
                     .HasColumnName("executed_by_user_id");
+
+                b.Property<int>("ExpectedSplitBranches")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("expected_split_branches");
 
                 b.Property<Guid?>("FromWorkflowTypeConfigId")
                     .HasColumnType("uuid")
@@ -2701,6 +4441,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(true)
                     .HasColumnName("is_current_step");
 
+                b.Property<Guid?>("JoinTargetConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("join_target_config_id");
+
                 b.Property<string>("Key")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -2722,6 +4466,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(60)
                     .HasColumnType("character varying(60)")
                     .HasColumnName("protocol");
+
+                b.Property<Guid?>("SplitGroupId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("split_group_id");
 
                 b.Property<string>("Status")
                     .IsRequired()
@@ -2746,6 +4494,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(300)")
                     .HasColumnName("user_agent");
 
+                b.Property<bool>("WaitingForSplitJoin")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("waiting_for_split_join");
+
                 b.Property<Guid?>("WorkflowTypeConfigActionId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_config_action_id");
@@ -2767,12 +4521,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("FromWorkflowTypeConfigId")
                     .HasDatabaseName("ix_wkf_workflows_from_workflow_type_config_id");
 
+                b.HasIndex("JoinTargetConfigId")
+                    .HasDatabaseName("ix_wkf_workflows_join_target_config_id");
+
                 b.HasIndex("Key")
                     .IsUnique()
                     .HasDatabaseName("ix_wkf_workflows_key");
-
-                b.HasIndex("ParentWorkflowId")
-                    .HasDatabaseName("ix_wkf_workflows_parent_workflow_id");
 
                 b.HasIndex("ToWorkflowTypeConfigId")
                     .HasDatabaseName("ix_wkf_workflows_to_workflow_type_config_id");
@@ -2788,6 +4542,9 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
                 b.HasIndex("CorporationId", "Protocol")
                     .HasDatabaseName("ix_wkf_workflows_corporation_id_protocol");
+
+                b.HasIndex("ParentWorkflowId", "SplitGroupId")
+                    .HasDatabaseName("ix_wkf_workflows_parent_workflow_id_split_group_id");
 
                 b.ToTable("wkf_workflows");
             });
@@ -5511,6 +7268,308 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Corporation");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_agents_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_agents_users_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_agents_workspaces_workspace_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("User");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConfig", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_config_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("Configs")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("fk_jrb_config_jrb_agents_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_config_workspaces_workspace_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("JarbassAgent");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassConflictAlert", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_conflict_alerts_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                    .WithMany()
+                    .HasForeignKey("EntityDefinitionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_conflict_alerts_mpx_entities_entity_definition_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassSyncEvent", "JarbassSyncEvent")
+                    .WithMany("ConflictAlerts")
+                    .HasForeignKey("JarbassSyncEventId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_conflict_alerts_jarbass_sync_events_jarbass_sync_event_");
+
+                b.HasOne("Mpx.Domain.Entities.User", "NotifyUser")
+                    .WithMany()
+                    .HasForeignKey("NotifyUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_conflict_alerts_users_notify_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "RejectedJarbassAgent")
+                    .WithMany("ConflictAlerts")
+                    .HasForeignKey("RejectedJarbassAgentId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_conflict_alerts_jrb_agents_rejected_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "ResolvedByUser")
+                    .WithMany()
+                    .HasForeignKey("ResolvedByUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_conflict_alerts_users_resolved_by_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "WinnerJarbassAgent")
+                    .WithMany()
+                    .HasForeignKey("WinnerJarbassAgentId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_conflict_alerts_jrb_agents_winner_jarbass_agent_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("EntityDefinition");
+
+                b.Navigation("JarbassSyncEvent");
+
+                b.Navigation("NotifyUser");
+
+                b.Navigation("RejectedJarbassAgent");
+
+                b.Navigation("ResolvedByUser");
+
+                b.Navigation("WinnerJarbassAgent");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassInsight", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.User", "AcknowledgedByUser")
+                    .WithMany()
+                    .HasForeignKey("AcknowledgedByUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_insights_users_acknowledged_by_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_insights_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                    .WithMany()
+                    .HasForeignKey("EntityDefinitionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_insights_mpx_entities_entity_definition_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("Insights")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_insights_jrb_agents_jarbass_agent_id");
+
+                b.Navigation("AcknowledgedByUser");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("EntityDefinition");
+
+                b.Navigation("JarbassAgent");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassJob", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_jobs_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("Jobs")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("fk_jrb_jobs_jrb_agents_jarbass_agent_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("JarbassAgent");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassProtectedFile", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_protected_files_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "CurrentHolderUser")
+                    .WithMany()
+                    .HasForeignKey("CurrentHolderUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_protected_files_users_current_holder_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("ProtectedFiles")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("fk_jrb_protected_files_jrb_agents_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_protected_files_workspaces_workspace_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("CurrentHolderUser");
+
+                b.Navigation("JarbassAgent");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_sync_events_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                    .WithMany()
+                    .HasForeignKey("EntityDefinitionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_sync_events_mpx_entities_entity_definition_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("SyncEvents")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_sync_events_jrb_agents_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassSyncEvent", "ParentSyncEvent")
+                    .WithMany("ChildSyncEvents")
+                    .HasForeignKey("ParentSyncEventId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_sync_events_jrb_sync_events_parent_sync_event_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_sync_events_users_user_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("EntityDefinition");
+
+                b.Navigation("JarbassAgent");
+
+                b.Navigation("ParentSyncEvent");
+
+                b.Navigation("User");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassWorkflowWatcher", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_workflow_watchers_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany("WorkflowWatchers")
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_workflow_watchers_jrb_agents_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "JoinWorkflowTypeConfig")
+                    .WithMany()
+                    .HasForeignKey("JoinWorkflowTypeConfigId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_workflow_watchers_workflow_type_configs_join_workflow_t");
+
+                b.HasOne("Mpx.Domain.Entities.Workflow", "ParentWorkflow")
+                    .WithMany()
+                    .HasForeignKey("ParentWorkflowId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_jrb_workflow_watchers_workflows_parent_workflow_id");
+
+                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "SourceWorkflowTypeConfig")
+                    .WithMany()
+                    .HasForeignKey("SourceWorkflowTypeConfigId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_jrb_workflow_watchers_workflow_type_configs_source_workflow");
+
+                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfigCondition", "WorkflowTypeConfigCondition")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTypeConfigConditionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_jrb_workflow_watchers_workflow_type_config_conditions_workf");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("JarbassAgent");
+
+                b.Navigation("JoinWorkflowTypeConfig");
+
+                b.Navigation("ParentWorkflow");
+
+                b.Navigation("SourceWorkflowTypeConfig");
+
+                b.Navigation("WorkflowTypeConfigCondition");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
             {
                 b.HasOne("Mpx.Domain.Entities.Application", "Application")
@@ -5575,6 +7634,89 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Application");
 
                 b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Application", "Application")
+                    .WithMany()
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_notifications_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "CreatedByUser")
+                    .WithMany()
+                    .HasForeignKey("CreatedByUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_users_created_by_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.EntityDefinition", "EntityDefinition")
+                    .WithMany()
+                    .HasForeignKey("EntityDefinitionId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_mpx_entities_entity_definition_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassAgent", "JarbassAgent")
+                    .WithMany()
+                    .HasForeignKey("JarbassAgentId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_jrb_agents_jarbass_agent_id");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassConflictAlert", "JarbassConflictAlert")
+                    .WithMany()
+                    .HasForeignKey("JarbassConflictAlertId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_jrb_conflict_alerts_jarbass_conflict_aler");
+
+                b.HasOne("Mpx.Domain.Entities.JarbassInsight", "JarbassInsight")
+                    .WithMany()
+                    .HasForeignKey("JarbassInsightId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_jrb_insights_jarbass_insight_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workflow", "Workflow")
+                    .WithMany()
+                    .HasForeignKey("WorkflowId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_workflows_workflow_id");
+
+                b.HasOne("Mpx.Domain.Entities.WorkflowTask", "WorkflowTask")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTaskId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_workflow_tasks_workflow_task_id");
+
+                b.HasOne("Mpx.Domain.Entities.Workspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_notifications_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("CreatedByUser");
+
+                b.Navigation("EntityDefinition");
+
+                b.Navigation("JarbassAgent");
+
+                b.Navigation("JarbassConflictAlert");
+
+                b.Navigation("JarbassInsight");
+
+                b.Navigation("Workflow");
+
+                b.Navigation("WorkflowTask");
+
+                b.Navigation("Workspace");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>
@@ -5731,6 +7873,35 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("User");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.UserNotification", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_user_notifications_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.Notification", "Notification")
+                    .WithMany("UserNotifications")
+                    .HasForeignKey("NotificationId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_user_notifications_mpx_notifications_notification_id");
+
+                b.HasOne("Mpx.Domain.Entities.User", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_user_notifications_sec_users_user_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Notification");
+
+                b.Navigation("User");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.UserRole", b =>
             {
                 b.HasOne("Mpx.Domain.Entities.Corporation", "Corporation")
@@ -5794,6 +7965,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflows_workflow_type_configs_from_workflow_type_conf");
 
+                b.HasOne("Mpx.Domain.Entities.WorkflowTypeConfig", "JoinTargetConfig")
+                    .WithMany()
+                    .HasForeignKey("JoinTargetConfigId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_workflows_workflow_type_configs_join_target_config_id");
+
                 b.HasOne("Mpx.Domain.Entities.Workflow", "ParentWorkflow")
                     .WithMany("ChildWorkflows")
                     .HasForeignKey("ParentWorkflowId")
@@ -5831,6 +8008,8 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("ExecutedByUser");
 
                 b.Navigation("FromWorkflowTypeConfig");
+
+                b.Navigation("JoinTargetConfig");
 
                 b.Navigation("ParentWorkflow");
 
@@ -6741,6 +8920,30 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Highlights");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassAgent", b =>
+            {
+                b.Navigation("Configs");
+
+                b.Navigation("ConflictAlerts");
+
+                b.Navigation("Insights");
+
+                b.Navigation("Jobs");
+
+                b.Navigation("ProtectedFiles");
+
+                b.Navigation("SyncEvents");
+
+                b.Navigation("WorkflowWatchers");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.JarbassSyncEvent", b =>
+            {
+                b.Navigation("ChildSyncEvents");
+
+                b.Navigation("ConflictAlerts");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.Menu", b =>
             {
                 b.Navigation("SubMenus");
@@ -6758,6 +8961,11 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("Mpx.Domain.Entities.ModuleCategory", b =>
             {
                 b.Navigation("Modules");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.Notification", b =>
+            {
+                b.Navigation("UserNotifications");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.Role", b =>

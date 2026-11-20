@@ -29,13 +29,28 @@ public static class DependencyInjection
   public static WebApplicationBuilder AddMorphusDependencyInjection(this WebApplicationBuilder builder)
   {
     AddCors(builder);
-    AddMpxDbContext(builder);
-    AddDependencyInjection(builder);
+    AddMpxDbContext(builder.Services, builder.Configuration);
+    AddDependencyInjection(builder.Services);
     AddJsonSettings(builder);
     AddMpxJwtAuthentication(builder);
     AddMpxAuthorizationPolicies(builder);
 
     return builder;
+  }
+
+  public static IServiceCollection AddMorphusWorkerDependencyInjection(this IServiceCollection services, IConfiguration configuration)
+  {
+    AddMpxDbContext(services, configuration);
+    AddDependencyInjection(services);
+
+    return services;
+  }
+
+  public static void SyncMorphusEntityCatalog(this IServiceProvider services)
+  {
+    using var scope = services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<MpxDbContext>();
+    SeedSystemEntityCatalog(dbContext);
   }
 
   public static WebApplication ApplyMorphusMigrations(this WebApplication app)
@@ -327,6 +342,8 @@ public static class DependencyInjection
       return "Security";
     if (tableName.StartsWith("wkf_", StringComparison.OrdinalIgnoreCase))
       return "Workflow";
+    if (tableName.StartsWith("jrb_", StringComparison.OrdinalIgnoreCase))
+      return "Jarbass";
     if (tableName.StartsWith("mpx_emails", StringComparison.OrdinalIgnoreCase))
       return "Send";
     if (tableName.StartsWith("mpx_feature", StringComparison.OrdinalIgnoreCase) ||
@@ -342,6 +359,7 @@ public static class DependencyInjection
     {
       "Security" => entityName.Contains("User") ? "users" : "shield-check",
       "Workflow" => "workflow",
+      "Jarbass" => "bot",
       "Send" => "send",
       "Website" => "globe",
       _ => entityName.Contains("Corporation") ? "building-2" : "database"
@@ -409,66 +427,66 @@ public static class DependencyInjection
     return builder;
   }
 
-  private static WebApplicationBuilder AddDependencyInjection(this WebApplicationBuilder builder)
+  private static IServiceCollection AddDependencyInjection(IServiceCollection services)
   {
-    builder.Services.AddHttpContextAccessor();
-    builder.Services.AddScoped<ITenantProvider, TenantProvider>();
+    services.AddHttpContextAccessor();
+    services.AddScoped<ITenantProvider, TenantProvider>();
 
-    builder.Services.AddScoped<MpxDbContext>();
-    builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<MpxDbContext>());
+    services.AddScoped<MpxDbContext>();
+    services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<MpxDbContext>());
 
     // Repositórios
-    builder.Services.AddScoped(typeof(IMpxRepository<>), typeof(MpxRepository<>));
-    builder.Services.AddScoped<ICorporationRepository, CorporationRepository>();
-    builder.Services.AddScoped<ICorporationUserRepository, CorporationUserRepository>();
-    builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
-    builder.Services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
-    builder.Services.AddScoped<IWorkspaceApplicationRepository, WorkspaceApplicationRepository>();
-    builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
-    builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
-    builder.Services.AddScoped<IMenuRepository, MenuRepository>();
-    builder.Services.AddScoped<IUserRepository, UserRepository>();
-    builder.Services.AddScoped<IUserStatusRepository, UserStatusRepository>();
-    builder.Services.AddScoped<IModuleRepository, ModuleRepository>();
-    builder.Services.AddScoped<ISubModuleRepository, SubModuleRepository>();
-    builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-    builder.Services.AddScoped<IClaimRepository, ClaimRepository>();
-    builder.Services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
-    builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
-    builder.Services.AddScoped<IUserClaimRepository, UserClaimRepository>();
-    builder.Services.AddScoped<IEmailRepository, EmailRepository>();
+    services.AddScoped(typeof(IMpxRepository<>), typeof(MpxRepository<>));
+    services.AddScoped<ICorporationRepository, CorporationRepository>();
+    services.AddScoped<ICorporationUserRepository, CorporationUserRepository>();
+    services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
+    services.AddScoped<IWorkspaceUserRepository, WorkspaceUserRepository>();
+    services.AddScoped<IWorkspaceApplicationRepository, WorkspaceApplicationRepository>();
+    services.AddScoped<IApplicationRepository, ApplicationRepository>();
+    services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
+    services.AddScoped<IMenuRepository, MenuRepository>();
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<IUserStatusRepository, UserStatusRepository>();
+    services.AddScoped<IModuleRepository, ModuleRepository>();
+    services.AddScoped<ISubModuleRepository, SubModuleRepository>();
+    services.AddScoped<IRoleRepository, RoleRepository>();
+    services.AddScoped<IClaimRepository, ClaimRepository>();
+    services.AddScoped<IRoleClaimRepository, RoleClaimRepository>();
+    services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+    services.AddScoped<IUserClaimRepository, UserClaimRepository>();
+    services.AddScoped<IEmailRepository, EmailRepository>();
 
     // Validators da Camada Application
-    builder.Services.AddScoped<ICorporationValidator, CorporationValidator>();
-    builder.Services.AddScoped<IWorkspaceValidator, WorkspaceValidator>();
+    services.AddScoped<ICorporationValidator, CorporationValidator>();
+    services.AddScoped<IWorkspaceValidator, WorkspaceValidator>();
 
     // Handlers da Camada Application
-    builder.Services.AddScoped<SecurityHandler>();
-    builder.Services.AddScoped<EmailHandler>();
-    builder.Services.AddScoped<CorporationHandler>();
-    builder.Services.AddScoped<CorporationUserHandler>();
-    builder.Services.AddScoped<WorkspaceHandler>();
-    builder.Services.AddScoped<WorkspaceUserHandler>();
-    builder.Services.AddScoped<WorkspaceApplicationHandler>();
-    builder.Services.AddScoped<ApplicationHandler>();
-    builder.Services.AddScoped<ApplicationUserHandler>();
-    builder.Services.AddScoped<MenuHandler>();
-    builder.Services.AddScoped<UserHandler>();
-    builder.Services.AddScoped<UserStatusHandler>();
-    builder.Services.AddScoped<ModuleHandler>();
-    builder.Services.AddScoped<SubModuleHandler>();
-    builder.Services.AddScoped<RoleHandler>();
-    builder.Services.AddScoped<ClaimHandler>();
-    builder.Services.AddScoped<RoleClaimHandler>();
-    builder.Services.AddScoped<UserRoleHandler>();
-    builder.Services.AddScoped<UserClaimHandler>();
+    services.AddScoped<SecurityHandler>();
+    services.AddScoped<EmailHandler>();
+    services.AddScoped<CorporationHandler>();
+    services.AddScoped<CorporationUserHandler>();
+    services.AddScoped<WorkspaceHandler>();
+    services.AddScoped<WorkspaceUserHandler>();
+    services.AddScoped<WorkspaceApplicationHandler>();
+    services.AddScoped<ApplicationHandler>();
+    services.AddScoped<ApplicationUserHandler>();
+    services.AddScoped<MenuHandler>();
+    services.AddScoped<UserHandler>();
+    services.AddScoped<UserStatusHandler>();
+    services.AddScoped<ModuleHandler>();
+    services.AddScoped<SubModuleHandler>();
+    services.AddScoped<RoleHandler>();
+    services.AddScoped<ClaimHandler>();
+    services.AddScoped<RoleClaimHandler>();
+    services.AddScoped<UserRoleHandler>();
+    services.AddScoped<UserClaimHandler>();
 
-    return builder;
+    return services;
   }
 
-  private static WebApplicationBuilder AddMpxDbContext(this WebApplicationBuilder builder)
+  private static IServiceCollection AddMpxDbContext(IServiceCollection services, IConfiguration configuration)
   {
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
 
     var connectionBuilder = new NpgsqlConnectionStringBuilder(connectionString)
     {
@@ -476,14 +494,14 @@ public static class DependencyInjection
                ?? throw new InvalidOperationException("Nenhuma senha de banco de dados configurada")
     };
 
-    builder.Services.AddDbContext<MpxDbContext>(options =>
+    services.AddDbContext<MpxDbContext>(options =>
              options.UseSnakeCaseNamingConvention()
                     .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                     .UseNpgsql(connectionBuilder.ConnectionString, b => b
                     .MigrationsAssembly(typeof(MpxDbContext)
                     .Assembly.FullName)));
 
-    return builder;
+    return services;
   }
 
   private static WebApplicationBuilder AddJsonSettings(this WebApplicationBuilder builder)

@@ -5,4 +5,5 @@
   <Project Path="Mpx.CrossCutting/Mpx.CrossCutting.csproj" />
   <Project Path="Mpx.Domain/Mpx.Domain.csproj" />
   <Project Path="Mpx.Infrastructure/Mpx.Infrastructure.csproj" />
+  <Project Path="Mpx.Jarbass/Mpx.Jarbass.csproj" />
 </Solution>
