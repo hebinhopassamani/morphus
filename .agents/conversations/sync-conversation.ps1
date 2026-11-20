@@ -8,6 +8,9 @@
     [Parameter(Mandatory = $true)]
     [string]$Summary,
 
+    [Parameter(Mandatory = $true)]
+    [string]$Tags,
+
     [Parameter(Mandatory = $false)]
     [string]$TranscriptJsonlPath = ""
 )
@@ -23,15 +26,19 @@ if (-not (Test-Path $fullConvDir)) {
     New-Item -ItemType Directory -Path $fullConvDir -Force | Out-Null
 }
 
+$safeSubject = ($Subject -replace '\|', '\|' -replace '\r?\n', ' ').Trim()
+$safeSummary = ($Summary -replace '\|', '\|' -replace '\r?\n', ' ').Trim()
+$safeTags = ($Tags -replace '\|', '\|' -replace '\r?\n', ' ').Trim()
+
 # 1. Generate clean Markdown transcript file if TranscriptJsonlPath is provided
 if ($TranscriptJsonlPath -and (Test-Path $TranscriptJsonlPath)) {
     $lines = Get-Content -Path $TranscriptJsonlPath -Encoding UTF8
     $sb = New-Object System.Text.StringBuilder
-    [void]$sb.AppendLine("# $ConversationId — $Subject")
+    [void]$sb.AppendLine("# $ConversationId — $safeSubject")
     [void]$sb.AppendLine("")
-    [void]$sb.AppendLine("| CONVERSATION ID | DATE | SUBJECT | SUMMARY |")
-    [void]$sb.AppendLine("| :--- | :--- | :--- | :--- |")
-    [void]$sb.AppendLine("| **$ConversationId** | $(Get-Date -Format 'dd/MM/yyyy HH:mm') | $Subject | $Summary |")
+    [void]$sb.AppendLine("| CONVERSATION ID | DATE | SUBJECT | SUMMARY | TAGS |")
+    [void]$sb.AppendLine("| :--- | :--- | :--- | :--- | :--- |")
+    [void]$sb.AppendLine("| **$ConversationId** | $(Get-Date -Format 'dd/MM/yyyy HH:mm') | $safeSubject | $safeSummary | $safeTags |")
     [void]$sb.AppendLine("")
     [void]$sb.AppendLine("---")
     [void]$sb.AppendLine("")
@@ -67,16 +74,14 @@ if ($TranscriptJsonlPath -and (Test-Path $TranscriptJsonlPath)) {
 }
 
 # 2. Update conversations.md index table (zero file locks, live reload in editor/Obsidian)
-$safeSubject = ($Subject -replace '\|', '\|' -replace '\r?\n', ' ').Trim()
-$safeSummary = ($Summary -replace '\|', '\|' -replace '\r?\n', ' ').Trim()
-$newRow = "| [$ConversationId](./full-conversations/$mdFileName) | $safeSubject | $safeSummary |"
+$newRow = "| [$ConversationId](./full-conversations/$mdFileName) | $safeSubject | $safeSummary | $safeTags |"
 
 if (-not (Test-Path $mdIndexPath)) {
     $initContent = @(
         "# Índice Oficial de Conversas — Ecossistema Morphus",
         "",
-        "| CONVERSATION ID | SUBJECT | SUMMARY |",
-        "| :--- | :--- | :--- |",
+        "| CONVERSATION ID | SUBJECT | SUMMARY | TAGS |",
+        "| :--- | :--- | :--- | :--- |",
         $newRow
     ) -join "`r`n"
     [System.IO.File]::WriteAllText($mdIndexPath, $initContent + "`r`n", [System.Text.Encoding]::UTF8)
@@ -87,7 +92,13 @@ else {
     $outLines = New-Object System.Collections.Generic.List[string]
 
     foreach ($line in $existingLines) {
-        if ($line.Contains("[$ConversationId]")) {
+        if ($line -match '^\|\s*CONVERSATION ID\s*\|') {
+            $outLines.Add("| CONVERSATION ID | SUBJECT | SUMMARY | TAGS |")
+        }
+        elseif ($line -match '^\|\s*:---') {
+            $outLines.Add("| :--- | :--- | :--- | :--- |")
+        }
+        elseif ($line.Contains("[$ConversationId]")) {
             $outLines.Add($newRow)
             $updated = $true
         }

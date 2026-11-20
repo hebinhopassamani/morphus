@@ -33,5 +33,5 @@ trigger: always_on
    - O script `C:\Projetos\Morphus\.agents\conversations\sync-conversation.ps1` **já existe pronto** (nunca recriá-lo, apenas executá-lo!).
    - Ao concluir ou atualizar uma conversa, apenas executar o `sync-conversation.ps1` existente para:
      1. Gerar/atualizar o arquivo limpo da conversa em `C:\Projetos\Morphus\.agents\conversations\full-conversations\MPX_XXXXXXXXXX.md`;
-     2. Atualizar a tabela índice em `C:\Projetos\Morphus\.agents\conversations\conversations.md` com o link clicável `[MPX_XXXXXXXXXX](./full-conversations/MPX_XXXXXXXXXX.md)`, além das colunas `SUBJECT` e `SUMMARY`;
+     2. Atualizar a tabela índice em `C:\Projetos\Morphus\.agents\conversations\conversations.md` com o link clicável `[MPX_XXXXXXXXXX](./full-conversations/MPX_XXXXXXXXXX.md)`, além das colunas `SUBJECT`, `SUMMARY` e `TAGS` (separadas por espaço no formato `#tag1 #tag2`);
      3. Commitar e subir (versionar no Git) tanto o `conversations.md` quanto os arquivos de `full-conversations/`.
