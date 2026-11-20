@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
     <div class="flex flex-col flex-auto min-w-0 p-6 md:p-10">
       <div class="flex items-center gap-4 mb-6">
         <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400">
-          <mat-icon svgIcon="lucide:workflow" class="icon-size-6"></mat-icon>
+          <mat-icon svgIcon="workflow" class="size-6"></mat-icon>
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight">Morphus Flow</h1>

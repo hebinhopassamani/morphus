@@ -32,9 +32,19 @@ export interface EcosystemAppItem {
       [matMenuTriggerFor]="launcherMenu"
       matTooltip="Aplicações Morphus"
       aria-label="Aplicações Morphus"
-      class="relative z-10 text-neutral-11 hover:bg-neutral-a3 hover:text-neutral-12"
+      class="relative z-10 flex items-center justify-center text-neutral-11 hover:bg-neutral-a3 hover:text-neutral-12"
     >
-      <mat-icon svgIcon="grip" class="size-5!" />
+      <svg class="size-5 fill-current" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="5" cy="5" r="2" />
+        <circle cx="12" cy="5" r="2" />
+        <circle cx="19" cy="5" r="2" />
+        <circle cx="5" cy="12" r="2" />
+        <circle cx="12" cy="12" r="2" />
+        <circle cx="19" cy="12" r="2" />
+        <circle cx="5" cy="19" r="2" />
+        <circle cx="12" cy="19" r="2" />
+        <circle cx="19" cy="19" r="2" />
+      </svg>
     </button>
 
     <mat-menu
