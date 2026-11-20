@@ -1,4 +1,4 @@
-import { Routes, UrlSegment } from '@angular/router';
+import { Routes } from '@angular/router';
 import { MpxSecurityGuard } from '@core/morphus';
 
 const isSubdomain = (target: string): boolean => {
@@ -63,31 +63,37 @@ export const routes: Routes = [
     loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isSubdomain('cloud') ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isSubdomain('cloud')],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isSubdomain('security') ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isSubdomain('security')],
     loadChildren: () => import('@security/security.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isSubdomain('flow') ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isSubdomain('flow')],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@flow/flow.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isSubdomain('kalupa') ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isSubdomain('kalupa')],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@kalupa/kalupa.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isSubdomain('send') ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isSubdomain('send')],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@send/send.routes').then((m) => m.routes),
   },
   {
-    matcher: (segments: UrlSegment[]) => (isCustomAppDomain() ? { consumed: [] } : null),
+    path: '',
+    canMatch: [() => isCustomAppDomain()],
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
   },

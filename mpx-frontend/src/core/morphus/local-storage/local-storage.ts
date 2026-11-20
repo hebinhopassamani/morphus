@@ -104,7 +104,11 @@ export class MpxLocalStorage {
     }
 
     if (this.localStorage) {
-      return this.localStorage.getItem(key);
+      const localVal = this.localStorage.getItem(key);
+      if (localVal !== null) {
+        this.setSharedCookie(key, localVal);
+      }
+      return localVal;
     }
 
     return null;
@@ -142,15 +146,42 @@ export class MpxLocalStorage {
       if (!domain || !this.window?.document) {
         return;
       }
-      const encodedKey = encodeURIComponent(`mpx_sso_${key}`);
+      const baseKey = encodeURIComponent(`mpx_sso_${key}`);
       const encodedVal = encodeURIComponent(value);
-      if (encodedVal.length > 3800) {
+      const chunkSize = 2800;
+
+      if (encodedVal.length <= chunkSize) {
+        this.window.document.cookie = `${baseKey}=${encodedVal}; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
         return;
       }
-      this.window.document.cookie = `${encodedKey}=${encodedVal}; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+
+      const chunksCount = Math.ceil(encodedVal.length / chunkSize);
+      if (chunksCount > 8) {
+        return;
+      }
+      this.window.document.cookie = `${baseKey}=__CHUNKED__:${chunksCount}; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+      for (let i = 0; i < chunksCount; i++) {
+        const chunk = encodedVal.substring(i * chunkSize, (i + 1) * chunkSize);
+        this.window.document.cookie = `${baseKey}__${i}=${chunk}; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+      }
     } catch {
       // Ignore cookie write errors
     }
+  }
+
+  private getRawCookieValue(cookieName: string): string | null {
+    if (!this.window?.document?.cookie) {
+      return null;
+    }
+    const targetName = `${cookieName}=`;
+    const parts = this.window.document.cookie.split(';');
+    for (const raw of parts) {
+      const part = raw.trim();
+      if (part.startsWith(targetName)) {
+        return part.substring(targetName.length);
+      }
+    }
+    return null;
   }
 
   private getSharedCookie(key: string): string | null {
@@ -159,15 +190,27 @@ export class MpxLocalStorage {
       if (!domain || !this.window?.document?.cookie) {
         return null;
       }
-      const targetName = `${encodeURIComponent(`mpx_sso_${key}`)}=`;
-      const parts = this.window.document.cookie.split(';');
-      for (const raw of parts) {
-        const part = raw.trim();
-        if (part.startsWith(targetName)) {
-          return decodeURIComponent(part.substring(targetName.length));
-        }
+      const baseKey = encodeURIComponent(`mpx_sso_${key}`);
+      const mainVal = this.getRawCookieValue(baseKey);
+      if (mainVal === null) {
+        return null;
       }
-      return null;
+      if (mainVal.startsWith('__CHUNKED__:')) {
+        const count = parseInt(mainVal.substring('__CHUNKED__:'.length), 10);
+        if (!count || Number.isNaN(count)) {
+          return null;
+        }
+        let combined = '';
+        for (let i = 0; i < count; i++) {
+          const chunk = this.getRawCookieValue(`${baseKey}__${i}`);
+          if (chunk === null) {
+            return null;
+          }
+          combined += chunk;
+        }
+        return decodeURIComponent(combined);
+      }
+      return decodeURIComponent(mainVal);
     } catch {
       return null;
     }
@@ -179,8 +222,11 @@ export class MpxLocalStorage {
       if (!domain || !this.window?.document) {
         return;
       }
-      const encodedKey = encodeURIComponent(`mpx_sso_${key}`);
-      this.window.document.cookie = `${encodedKey}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
+      const baseKey = encodeURIComponent(`mpx_sso_${key}`);
+      this.window.document.cookie = `${baseKey}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
+      for (let i = 0; i < 8; i++) {
+        this.window.document.cookie = `${baseKey}__${i}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
+      }
     } catch {
       // Ignore cookie delete errors
     }

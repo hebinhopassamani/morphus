@@ -7,7 +7,7 @@ import {
   MatCardHeader,
 } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MpxSecurity } from '@core/morphus';
 import { MpxContextService } from '@morphus/services/morphus-context.service';
 
@@ -69,15 +69,21 @@ import { MpxContextService } from '@morphus/services/morphus-context.service';
       </div>
 
       <div class="flex flex-wrap items-center gap-3">
-        <a
+        <button
+          type="button"
           matButton
           class="secondary border border-neutral-a6"
-          [routerLink]="['/morphus']"
+          (click)="goToCloud()"
         >
           <mat-icon svgIcon="building-2" />
           Morphus Cloud
-        </a>
-        <a matButton class="primary filled" [routerLink]="['/flow']">
+        </button>
+        <a
+          matButton
+          class="primary filled"
+          [routerLink]="['.']"
+          [queryParams]="{ view: 'studio' }"
+        >
           <mat-icon svgIcon="workflow" />
           Novo Workflow
         </a>
@@ -225,6 +231,18 @@ import { MpxContextService } from '@morphus/services/morphus-context.service';
 export class FlowDashboardComponent {
   protected readonly auth = inject(MpxSecurity);
   protected readonly context = inject(MpxContextService);
+  private readonly router = inject(Router);
+
+  protected goToCloud(): void {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//cloud.morphus.one`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/morphus');
+  }
 
   protected readonly stats = computed(() => [
     {

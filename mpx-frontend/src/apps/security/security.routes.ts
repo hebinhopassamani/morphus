@@ -20,11 +20,15 @@ export const routes: Routes = [
       if (segments.length > 0 && LANDING_LAYOUT_ROUTES.has(segments[0].path)) {
         return { consumed: [] };
       }
-      if (segments.length === 0 && !inject(MpxSecurity).isAuthenticated()) {
-        return { consumed: [] };
-      }
       return null;
     },
+    component: MpxLandingLayout,
+    loadChildren: () => import('@security/pages/landing.routes').then((m) => m.routes),
+  },
+  {
+    path: '',
+    pathMatch: 'full',
+    canMatch: [() => !inject(MpxSecurity).isAuthenticated()],
     component: MpxLandingLayout,
     loadChildren: () => import('@security/pages/landing.routes').then((m) => m.routes),
   },
