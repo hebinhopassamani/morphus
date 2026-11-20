@@ -55,7 +55,7 @@
     "js/ts.preferences.importModuleSpecifier": "non-relative",
     "js/ts.updateImportsOnFileMove.enabled": "never",
     "terminal.explorerKind": "both",
-    "prettier.prettierPath": "./node_modules/prettier",
+    "prettier.prettierPath": "./mpx-frontend/node_modules/prettier",
     "prettier.configPath": "./.prettierrc",
     "html.format.wrapLineLength": 145,
     "breadcrumbs.enabled": false,
