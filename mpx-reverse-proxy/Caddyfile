@@ -23,3 +23,8 @@ kalupa.{$MORPHUS_DOMAIN} {
 
 	reverse_proxy mpx-kalupa:5678
 }
+
+# Redirecionamento oficial do portfólio de domínios Morphus para o ecossistema principal (morphus.one)
+morphus.uk, www.morphus.uk, morphus.mx, www.morphus.mx, morphus.dev, www.morphus.dev, morphus.pro, www.morphus.pro, morphus.me, www.morphus.me {
+	redir https://{$MORPHUS_DOMAIN}{uri} permanent
+}
