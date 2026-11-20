@@ -406,7 +406,7 @@ export class SettingsProfile {
       photo: user?.picture || '',
       name: user?.name || 'Usuário Morphus',
       username: (user?.email?.split('@')[0] || 'morphus').toLowerCase(),
-      email: user?.email || 'contato@morphus.one',
+      email: user?.email || 'contact@morphus.one',
       title: 'System Administrator',
       bio: 'Administrador do ecossistema Morphus.',
       birthday: '1990-06-12',

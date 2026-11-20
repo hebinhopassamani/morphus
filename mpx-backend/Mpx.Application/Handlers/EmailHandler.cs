@@ -41,7 +41,7 @@ public class EmailHandler
     };
 
     _senderName = _configuration["SmtpSettings:SenderName"] ?? "Morphus";
-    _senderEmail = _configuration["SmtpSettings:SenderEmail"] ?? "contato@morphus.one";
+    _senderEmail = _configuration["SmtpSettings:SenderEmail"] ?? "contact@morphus.one";
 
     var recursosEmbutidos = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceNames();
 

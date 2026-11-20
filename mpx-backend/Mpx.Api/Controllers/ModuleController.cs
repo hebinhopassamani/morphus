@@ -80,7 +80,7 @@ public class ModuleController(
         .SetVariable("{{Nome}}", "Equipe Morphus")
         .SetVariable("{{Empresa}}", "Morphus Enterprise Suite")
         .SetVariable("{{LinkPainel}}", "https://morphus.one")
-        .MailTo("contato@morphus.one", "Equipe Morphus")
+        .MailTo("contact@morphus.one", "Equipe Morphus")
         .SendEmailAsync();
 
     return Ok(new { message = "Auditoria disparada com sucesso! O motor de e-mails processou a fila no PostgreSQL." });

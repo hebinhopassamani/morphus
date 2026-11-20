@@ -111,7 +111,7 @@ public class WebsiteController(MpxDbContext dbContext, EmailHandler emailHandler
 
     var (seedCorp, _) = MpxAccountSeed.CreateCorporationBaseForOnboarding(
         "Morphus",
-        "contato@morphus.one",
+        "contact@morphus.one",
         Guid.Empty);
 
     var categoryMap = seedCorp.Categories.ToDictionary(c => c.Id);

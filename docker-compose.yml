@@ -113,9 +113,9 @@ services:
       - N8N_SMTP_HOST=${N8N_SMTP_HOST:-smtp.hostinger.com}
       - N8N_SMTP_PORT=${N8N_SMTP_PORT:-465}
       - N8N_SMTP_SSL=${N8N_SMTP_SSL:-true}
-      - N8N_SMTP_USER=${N8N_SMTP_USER:-contato@morphus.one}
+      - N8N_SMTP_USER=${N8N_SMTP_USER:-contact@morphus.one}
       - N8N_SMTP_PASS=XRhVr5$$Lo4$$i
-      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER:-contato@morphus.one}
+      - N8N_SMTP_SENDER=${N8N_SMTP_SENDER:-contact@morphus.one}
       - NODE_ENV=production
       - GENERIC_TIMEZONE=America/Sao_Paulo
       - TZ=America/Sao_Paulo
