@@ -9,6 +9,8 @@ import {
 import { MPX_WINDOW } from '../window/window.provider';
 
 const STORAGE_STATE_KEY = makeStateKey<[string, string][]>('APP_STORAGE_STATE');
+const MPX_CIPHER_PREFIX = 'mpx1.';
+const MPX_STORAGE_SECRET = 'Morphus#One#Enterprise#Vault#2026#MpxKeyStream!9x7Q';
 
 @Injectable({
   providedIn: 'root',
@@ -78,11 +80,13 @@ export class MpxLocalStorage {
       return;
     }
 
+    const encrypted = this.encryptValue(key, value);
+
     if (this.localStorage) {
-      this.localStorage.setItem(key, value);
+      this.localStorage.setItem(key, encrypted);
     }
 
-    this.setSharedCookie(key, value);
+    this.setSharedCookie(key, encrypted);
   }
 
   /**
@@ -104,14 +108,35 @@ export class MpxLocalStorage {
         }
         return null;
       }
-      if (this.localStorage && this.localStorage.getItem(key) !== fromCookie) {
+
+      const decrypted = this.decryptValue(key, fromCookie);
+      if (decrypted === null) {
+        this.removeItem(key);
+        return null;
+      }
+
+      if (!fromCookie.startsWith(MPX_CIPHER_PREFIX)) {
+        this.setItem(key, decrypted);
+      } else if (this.localStorage && this.localStorage.getItem(key) !== fromCookie) {
         this.localStorage.setItem(key, fromCookie);
       }
-      return fromCookie;
+      return decrypted;
     }
 
     if (this.localStorage) {
-      return this.localStorage.getItem(key);
+      const rawLocal = this.localStorage.getItem(key);
+      if (rawLocal === null) {
+        return null;
+      }
+      const decrypted = this.decryptValue(key, rawLocal);
+      if (decrypted === null) {
+        this.localStorage.removeItem(key);
+        return null;
+      }
+      if (!rawLocal.startsWith(MPX_CIPHER_PREFIX)) {
+        this.localStorage.setItem(key, this.encryptValue(key, decrypted));
+      }
+      return decrypted;
     }
 
     return null;
@@ -263,5 +288,132 @@ export class MpxLocalStorage {
     }
 
     return null;
+  }
+
+  private deriveSeed(input: string, salt: number): number {
+    let h = (0x811c9dc5 ^ salt) >>> 0;
+    for (let i = 0; i < input.length; i++) {
+      h ^= input.charCodeAt(i);
+      h = Math.imul(h, 0x01000193) >>> 0;
+    }
+    return h >>> 0;
+  }
+
+  private nextStreamWord(state: { s0: number; s1: number }): number {
+    let x = state.s0 >>> 0;
+    const y = state.s1 >>> 0;
+    state.s0 = y;
+    x ^= (x << 23) >>> 0;
+    x ^= x >>> 17;
+    x ^= y ^ (y >>> 26);
+    state.s1 = x >>> 0;
+    return (state.s0 + state.s1) >>> 0;
+  }
+
+  private computeMacHex(key: string, ivHex: string, cipherBytes: Uint8Array): string {
+    const context = `${MPX_STORAGE_SECRET}|${key}|${ivHex}`;
+    let h1 = this.deriveSeed(context, 0x9e3779b9);
+    let h2 = this.deriveSeed(context, 0x85ebca6b);
+    for (let i = 0; i < cipherBytes.length; i++) {
+      const b = cipherBytes[i];
+      h1 = Math.imul(h1 ^ b, 0x01000193) >>> 0;
+      h2 = Math.imul(h2 ^ ((b + i) & 0xff), 0xc2b2ae35) >>> 0;
+    }
+    return h1.toString(16).padStart(8, '0') + h2.toString(16).padStart(8, '0');
+  }
+
+  private toBase64Url(bytes: Uint8Array): string {
+    let binary = '';
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  private fromBase64Url(b64url: string): Uint8Array {
+    let b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4 !== 0) {
+      b64 += '=';
+    }
+    const binary = atob(b64);
+    const out = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      out[i] = binary.charCodeAt(i);
+    }
+    return out;
+  }
+
+  private encryptValue(key: string, plainText: string): string {
+    try {
+      const randA = Math.floor(Math.random() * 0xffffffff) >>> 0;
+      const randB = (Date.now() ^ Math.floor(Math.random() * 0xffffffff)) >>> 0;
+      const ivHex = randA.toString(16).padStart(8, '0') + randB.toString(16).padStart(8, '0');
+
+      const seedMaterial = `${MPX_STORAGE_SECRET}:${key}:${ivHex}`;
+      const state = {
+        s0: this.deriveSeed(seedMaterial, 0xa5a5a5a5) || 0x13579bdf,
+        s1: this.deriveSeed(seedMaterial, 0x5a5a5a5a) || 0x2468ace0,
+      };
+
+      const plainBytes = new TextEncoder().encode(plainText);
+      const cipherBytes = new Uint8Array(plainBytes.length);
+      let word = 0;
+      for (let i = 0; i < plainBytes.length; i++) {
+        if ((i & 3) === 0) {
+          word = this.nextStreamWord(state);
+        }
+        const mask = (word >>> ((i & 3) * 8)) & 0xff;
+        cipherBytes[i] = plainBytes[i] ^ mask;
+      }
+
+      const macHex = this.computeMacHex(key, ivHex, cipherBytes);
+      const payload = this.toBase64Url(cipherBytes);
+      return `${MPX_CIPHER_PREFIX}${ivHex}.${macHex}.${payload}`;
+    } catch {
+      return plainText;
+    }
+  }
+
+  private decryptValue(key: string, storedValue: string): string | null {
+    if (!storedValue.startsWith(MPX_CIPHER_PREFIX)) {
+      return storedValue;
+    }
+    try {
+      const rest = storedValue.substring(MPX_CIPHER_PREFIX.length);
+      const parts = rest.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+      const [ivHex, macHex, payload] = parts;
+      if (ivHex.length !== 16 || macHex.length !== 16 || !payload) {
+        return null;
+      }
+
+      const cipherBytes = this.fromBase64Url(payload);
+      const expectedMac = this.computeMacHex(key, ivHex, cipherBytes);
+      if (expectedMac !== macHex) {
+        return null;
+      }
+
+      const seedMaterial = `${MPX_STORAGE_SECRET}:${key}:${ivHex}`;
+      const state = {
+        s0: this.deriveSeed(seedMaterial, 0xa5a5a5a5) || 0x13579bdf,
+        s1: this.deriveSeed(seedMaterial, 0x5a5a5a5a) || 0x2468ace0,
+      };
+
+      const plainBytes = new Uint8Array(cipherBytes.length);
+      let word = 0;
+      for (let i = 0; i < cipherBytes.length; i++) {
+        if ((i & 3) === 0) {
+          word = this.nextStreamWord(state);
+        }
+        const mask = (word >>> ((i & 3) * 8)) & 0xff;
+        plainBytes[i] = cipherBytes[i] ^ mask;
+      }
+
+      return new TextDecoder().decode(plainBytes);
+    } catch {
+      return null;
+    }
   }
 }
