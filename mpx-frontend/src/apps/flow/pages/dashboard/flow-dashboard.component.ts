@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight">Morphus Flow</h1>
-          <p class="text-sm text-secondary">flow.morphus.me — Estúdio Visual de Workflows, Estações, SLAs e Comitês</p>
+          <p class="text-sm text-secondary">flow.morphus.one — Estúdio Visual de Workflows, Estações, SLAs e Comitês</p>
         </div>
       </div>
 

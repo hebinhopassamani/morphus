@@ -896,7 +896,7 @@
           (click)="selectModalDomainMode('MorphusShared')"
         >
           <span class="text-[10px] font-bold uppercase text-primary-11">Opção 1</span>
-          <span class="text-xs font-bold text-neutral-12">Domínio morphus.me</span>
+          <span class="text-xs font-bold text-neutral-12">Domínio morphus.one</span>
         </button>
 
         <button
@@ -929,7 +929,7 @@
           @if (preview && !preview.firstAttemptAvailable && !domainCustomPrefixOpen()) {
             <div class="rounded-xl border border-amber-a6 bg-amber-a2 p-3.5 text-xs text-amber-12">
               <p class="font-bold">
-                Da forma que configurou sua aplicação, escolhendo o domínio <code class="font-mono">morphus.me</code> com o nome "{{ entity().name }}" e a sigla "{{ (entity().prefix || '').toUpperCase() }}", o domínio que ficaria assim:
+                Da forma que configurou sua aplicação, escolhendo o domínio <code class="font-mono">morphus.one</code> com o nome "{{ entity().name }}" e a sigla "{{ (entity().prefix || '').toUpperCase() }}", o domínio que ficaria assim:
               </p>
               <p class="mt-1 font-mono text-sm font-bold underline">
                 {{ preview.firstAttemptDomain }}
@@ -957,7 +957,7 @@
                     'app') +
                     '.' +
                     appPrefixLower() +
-                    '.morphus.me'
+                    '.morphus.one'
                 }}
               </span>
               @if (preview?.customAttemptAvailable === false) {
@@ -984,7 +984,7 @@
               {{
                 domainCustomPrefixOpen()
                   ? 'Fechar campo personalizado'
-                  : 'NÃO, quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.me'
+                  : 'NÃO, quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.one'
               }}
             </button>
 
@@ -1002,7 +1002,7 @@
           @if (domainCustomPrefixOpen()) {
             <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-white p-3.5 dark:bg-neutral-1">
               <label class="text-xs font-semibold text-neutral-12">
-                Escolha livremente o que vem antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.me</code>:
+                Escolha livremente o que vem antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.one</code>:
               </label>
               <div class="flex flex-wrap items-center gap-2">
                 <input
@@ -1013,7 +1013,7 @@
                   class="h-9 w-56 rounded-lg border border-primary-8 bg-transparent px-3 font-mono text-sm font-bold text-neutral-12 outline-none"
                 />
                 <span class="font-mono text-sm font-semibold text-neutral-a11">
-                  .{{ appPrefixLower() }}.morphus.me
+                  .{{ appPrefixLower() }}.morphus.one
                 </span>
               </div>
             </div>

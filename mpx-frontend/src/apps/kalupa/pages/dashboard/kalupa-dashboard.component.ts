@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight">Kalupa</h1>
-          <p class="text-sm text-secondary">kalupa.morphus.me — Motor Inteligente de Estruturação de Conhecimento &amp; Sync</p>
+          <p class="text-sm text-secondary">kalupa.morphus.one — Motor Inteligente de Estruturação de Conhecimento &amp; Sync</p>
         </div>
       </div>
 

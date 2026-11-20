@@ -66,7 +66,7 @@ import { SettingsUnsavedChanges } from '@morphus/pages/settings/ui/unsaved-chang
                 type="text"
                 [formField]="workspaceForm.slug"
               />
-              <span matTextPrefix>morphus.me/</span>
+              <span matTextPrefix>morphus.one/</span>
             </mat-form-field>
           </div>
 

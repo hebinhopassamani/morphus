@@ -111,19 +111,19 @@ public class ApplicationHandler(
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     // Também reserva os domínios oficiais de sistema
-    usedFullDomains.Add("morphus.me");
-    usedFullDomains.Add("www.morphus.me");
-    usedFullDomains.Add("cloud.morphus.me");
-    usedFullDomains.Add("security.morphus.me");
-    usedFullDomains.Add("flow.morphus.me");
-    usedFullDomains.Add("kalupa.morphus.me");
-    usedFullDomains.Add("send.morphus.me");
-    usedFullDomains.Add("morphus.mpx.morphus.me");
-    usedFullDomains.Add("seguranca.sec.morphus.me");
-    usedFullDomains.Add("website.web.morphus.me");
-    usedFullDomains.Add("kalupa.kal.morphus.me");
-    usedFullDomains.Add("flow.flw.morphus.me");
-    usedFullDomains.Add("send.snd.morphus.me");
+    usedFullDomains.Add("morphus.one");
+    usedFullDomains.Add("www.morphus.one");
+    usedFullDomains.Add("cloud.morphus.one");
+    usedFullDomains.Add("security.morphus.one");
+    usedFullDomains.Add("flow.morphus.one");
+    usedFullDomains.Add("kalupa.morphus.one");
+    usedFullDomains.Add("send.morphus.one");
+    usedFullDomains.Add("morphus.mpx.morphus.one");
+    usedFullDomains.Add("seguranca.sec.morphus.one");
+    usedFullDomains.Add("website.web.morphus.one");
+    usedFullDomains.Add("kalupa.kal.morphus.one");
+    usedFullDomains.Add("flow.flw.morphus.one");
+    usedFullDomains.Add("send.snd.morphus.one");
 
     var words = ExtractCleanLowerWords(cleanName);
     if (words.Count == 0)
@@ -140,7 +140,7 @@ public class ApplicationHandler(
     }
 
     var firstSubdomain = progressiveSubdomains[0];
-    var firstFullDomain = $"{firstSubdomain}.{prefixLower}.morphus.me";
+    var firstFullDomain = $"{firstSubdomain}.{prefixLower}.morphus.one";
     var firstAvailable = !usedFullDomains.Contains(firstFullDomain) && !nameAndPrefixConflict;
 
     string? suggestedSubdomain = null;
@@ -148,7 +148,7 @@ public class ApplicationHandler(
 
     foreach (var candidateSub in progressiveSubdomains)
     {
-      var candidateFull = $"{candidateSub}.{prefixLower}.morphus.me";
+      var candidateFull = $"{candidateSub}.{prefixLower}.morphus.one";
       if (!usedFullDomains.Contains(candidateFull))
       {
         suggestedSubdomain = candidateSub;
@@ -170,7 +170,7 @@ public class ApplicationHandler(
       {
         if (string.Equals(mode, "MorphusSuggested", StringComparison.OrdinalIgnoreCase) || request.CorporationDomainId is null || request.CorporationDomainId == Guid.Empty)
         {
-          customAttemptDomain = $"{customAttemptSubdomain}.{prefixLower}.morphus.me";
+          customAttemptDomain = $"{customAttemptSubdomain}.{prefixLower}.morphus.one";
           customAttemptAvailable = !usedFullDomains.Contains(customAttemptDomain);
         }
         else
@@ -198,7 +198,7 @@ public class ApplicationHandler(
       ProgressiveCandidates = progressiveSubdomains
           .Select(sub =>
           {
-            var full = $"{sub}.{prefixLower}.morphus.me";
+            var full = $"{sub}.{prefixLower}.morphus.one";
             return new DomainCandidateItem
             {
               Subdomain = sub,
@@ -319,7 +319,7 @@ public class ApplicationHandler(
         var sysSub = SanitizeDomainLabel(ExtractCleanLowerWords(application.Name).FirstOrDefault() ?? "app");
         application.DomainMode = "MorphusSuggested";
         application.Subdomain = sysSub;
-        application.FullDomain = $"{sysSub}.{application.Prefix.ToLowerInvariant()}.morphus.me";
+        application.FullDomain = $"{sysSub}.{application.Prefix.ToLowerInvariant()}.morphus.one";
       }
       return;
     }
@@ -347,10 +347,10 @@ public class ApplicationHandler(
         .Select(a => a.FullDomain!.Trim().ToLowerInvariant())
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-    usedFullDomains.Add("morphus.mpx.morphus.me");
-    usedFullDomains.Add("seguranca.sec.morphus.me");
-    usedFullDomains.Add("website.web.morphus.me");
-    usedFullDomains.Add("kalupa.kal.morphus.me");
+    usedFullDomains.Add("morphus.mpx.morphus.one");
+    usedFullDomains.Add("seguranca.sec.morphus.one");
+    usedFullDomains.Add("website.web.morphus.one");
+    usedFullDomains.Add("kalupa.kal.morphus.one");
 
     var mode = string.IsNullOrWhiteSpace(application.DomainMode) ? "MorphusSuggested" : application.DomainMode.Trim();
     application.DomainMode = mode;
@@ -383,7 +383,7 @@ public class ApplicationHandler(
       return;
     }
 
-    // Modo MorphusSuggested (.morphus.me)
+    // Modo MorphusSuggested (.morphus.one)
     application.CorporationDomainId = null;
     var requestedSub = SanitizeDomainLabel(application.Subdomain);
     if (string.IsNullOrWhiteSpace(requestedSub))
@@ -397,7 +397,7 @@ public class ApplicationHandler(
       throw new InvalidOperationException($"O subdomínio '{requestedSub}' é reservado para aplicações oficiais do ecossistema Morphus.");
     }
 
-    var morphusFullDomain = $"{requestedSub}.{prefixLower}.morphus.me";
+    var morphusFullDomain = $"{requestedSub}.{prefixLower}.morphus.one";
     if (usedFullDomains.Contains(morphusFullDomain))
     {
       throw new InvalidOperationException($"O domínio '{morphusFullDomain}' já está sendo utilizado. Escolha outro prefixo de domínio ou altere a sigla.");

@@ -1,8 +1,8 @@
 {
-	email contato@morphus.me
+	email contato@morphus.one
 }
 
-# Rota do ecossistema principal Morphus e subdomínios oficiais (*.morphus.me)
+# Rota do ecossistema principal Morphus e subdomínios oficiais (*.morphus.one)
 {$MORPHUS_DOMAIN}, www.{$MORPHUS_DOMAIN}, cloud.{$MORPHUS_DOMAIN}, security.{$MORPHUS_DOMAIN}, flow.{$MORPHUS_DOMAIN}, kalupa.{$MORPHUS_DOMAIN}, send.{$MORPHUS_DOMAIN} {
 	encode zstd gzip
 

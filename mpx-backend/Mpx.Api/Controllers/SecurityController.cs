@@ -54,7 +54,7 @@ public class SecurityController(SecurityHandler securityHandler, MpxDbContext db
   {
     try
     {
-      var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.me";
+      var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.one";
       var session = await securityHandler.CreateAccountAndLoginAsync(request, origin);
       return Ok(session);
     }
@@ -83,7 +83,7 @@ public class SecurityController(SecurityHandler securityHandler, MpxDbContext db
     if (!Guid.TryParse(userIdClaim, out var userId))
       return Unauthorized();
 
-    var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.me";
+    var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.one";
     var sent = await securityHandler.ResendConfirmationEmailAsync(userId, origin);
     if (!sent)
       return BadRequest(new { message = "Não foi possível reenviar o e-mail de confirmação." });
@@ -95,7 +95,7 @@ public class SecurityController(SecurityHandler securityHandler, MpxDbContext db
   [HttpPost("forgot-password")]
   public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
   {
-    var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.me";
+    var origin = Request.Headers.Origin.FirstOrDefault() ?? "https://morphus.one";
     await securityHandler.RequestPasswordResetAsync(request, origin);
     return Ok(new { message = "Se o e-mail estiver cadastrado, enviamos o link de recuperação." });
   }

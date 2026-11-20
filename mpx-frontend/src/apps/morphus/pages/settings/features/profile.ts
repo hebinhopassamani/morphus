@@ -146,7 +146,7 @@ import { SettingsUpdateEmail } from '@morphus/pages/settings/ui/update-email';
                 type="text"
                 [formField]="profileForm.username"
               />
-              <span matTextPrefix>morphus.me/&#64;</span>
+              <span matTextPrefix>morphus.one/&#64;</span>
             </mat-form-field>
           </div>
 
@@ -406,14 +406,14 @@ export class SettingsProfile {
       photo: user?.picture || '',
       name: user?.name || 'Usuário Morphus',
       username: (user?.email?.split('@')[0] || 'morphus').toLowerCase(),
-      email: user?.email || 'contato@morphus.me',
+      email: user?.email || 'contato@morphus.one',
       title: 'System Administrator',
       bio: 'Administrador do ecossistema Morphus.',
       birthday: '1990-06-12',
       phone: '+55 (27) 99999-0000',
       location: 'Brasil',
       pronouns: 'ele/dele',
-      website: 'morphus.me',
+      website: 'morphus.one',
       status: 'available',
       workStart: '9:00 AM',
       workEnd: '6:00 PM',

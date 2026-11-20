@@ -13,7 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight">Morphus Send</h1>
-          <p class="text-sm text-secondary">send.morphus.me — Motor Transacional de Disparo de E-mails, Domínios e Templates</p>
+          <p class="text-sm text-secondary">send.morphus.one — Motor Transacional de Disparo de E-mails, Domínios e Templates</p>
         </div>
       </div>
 

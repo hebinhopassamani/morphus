@@ -130,8 +130,8 @@ export class MpxLocalStorage {
 
   private getSharedCookieDomain(): string | null {
     const host = this.window?.location?.hostname?.toLowerCase() ?? '';
-    if (host === 'morphus.me' || host.endsWith('.morphus.me')) {
-      return '.morphus.me';
+    if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+      return '.morphus.one';
     }
     return null;
   }

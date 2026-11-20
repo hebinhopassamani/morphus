@@ -178,10 +178,10 @@ public static class DependencyInjection
         policy.WithOrigins(
                 "http://localhost:4200",
                 "https://localhost:4200",
-                "https://morphus.me",
-                "https://www.morphus.me",
+                "https://morphus.one",
+                "https://www.morphus.one",
                 "https://morphus.site",
-                "https://homolog.morphus.me",
+                "https://homolog.morphus.one",
                 "http://179.197.232.25",
                 "http://192.168.0.100"
                 )
@@ -292,8 +292,8 @@ public static class DependencyInjection
         ?? builder.Configuration["JWT:SecretKey"]
         ?? throw new InvalidOperationException("Chave secreta JWT não configurada.");
 
-    var validIssuer = builder.Configuration["JWT:ValidIssuer"] ?? "https://morphus.me";
-    var validAudience = builder.Configuration["JWT:ValidAudience"] ?? "https://morphus.me";
+    var validIssuer = builder.Configuration["JWT:ValidIssuer"] ?? "https://morphus.one";
+    var validAudience = builder.Configuration["JWT:ValidAudience"] ?? "https://morphus.one";
 
     builder.Services.AddAuthentication(options =>
     {

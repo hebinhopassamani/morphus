@@ -99,7 +99,7 @@ export class AppSettingsPageComponent {
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/[^a-z0-9-]/g, '');
-    return `${firstWord || 'kalupa'}.morphus.me`;
+    return `${firstWord || 'kalupa'}.morphus.one`;
   });
 
   protected readonly appPrefixLower = computed<string>(() => {
@@ -142,7 +142,7 @@ export class AppSettingsPageComponent {
     const corpId = app?.corporationId || this.auth.corporation()?.id || '';
     const fullDomain = this.isNativeMorphusApp()
       ? this.nativeMorphusDomain()
-      : app?.fullDomain || `${this.subdomainDraft() || 'app'}.${this.appPrefixLower()}.morphus.me`;
+      : app?.fullDomain || `${this.subdomainDraft() || 'app'}.${this.appPrefixLower()}.morphus.one`;
     return [
       {
         settingKey: 'APP_NAME',

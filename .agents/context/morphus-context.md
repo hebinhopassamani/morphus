@@ -6,7 +6,7 @@ O projeto Morphus é dividido em dois aplicativos uma para o front end e outro p
 
 - mpx-frontend e mpx-backend =&gt; As duas aplicações fazem parte de um único repositório no github (Monorepositorio) e
 - Hoje nos temos uma VPS rodando ubtu linux e docker, porém apenas a aplicação frontend e um banco de dados postgres foram publicado lá.
-- Temos também um domínio registrado e apontando para o frontend https://www.morphus.me
+- Temos também um domínio registrado e apontando para o frontend https://www.morphus.one
 - Também thems uma conta no https://www.auth0.com ele faz hoje tofda nossa parte de autenticação ee validação de usuários, ao chegar no frontend por exemplo, o usuário e redirecionado para a pagina de login deles, mas esta pagina esta toda customizada para o morphus
 - Também já está configurado fazer login com o google. existe no google cloud uma aplicação chamada morphus configurada.
 

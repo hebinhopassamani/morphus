@@ -50,7 +50,7 @@ export interface EcosystemAppItem {
           <span class="text-xs font-bold tracking-wider uppercase text-neutral-a10">
             Ecossistema Morphus
           </span>
-          <span class="text-[11px] font-medium text-primary-a11">*.morphus.me</span>
+          <span class="text-[11px] font-medium text-primary-a11">*.morphus.one</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2">
@@ -121,7 +121,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'portal',
       name: 'Morphus',
-      subtitle: 'morphus.me',
+      subtitle: 'morphus.one',
       subdomain: '',
       localRoute: '/website/home',
       icon: 'globe',
@@ -131,7 +131,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'cloud',
       name: 'Cloud',
-      subtitle: 'cloud.morphus.me',
+      subtitle: 'cloud.morphus.one',
       subdomain: 'cloud',
       localRoute: '/morphus',
       icon: 'cloud',
@@ -141,7 +141,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'security',
       name: 'Security',
-      subtitle: 'security.morphus.me',
+      subtitle: 'security.morphus.one',
       subdomain: 'security',
       localRoute: '/security',
       icon: 'shield-check',
@@ -151,7 +151,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'flow',
       name: 'Flow',
-      subtitle: 'flow.morphus.me',
+      subtitle: 'flow.morphus.one',
       subdomain: 'flow',
       localRoute: '/flow',
       icon: 'workflow',
@@ -161,7 +161,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'kalupa',
       name: 'Kalupa',
-      subtitle: 'kalupa.morphus.me',
+      subtitle: 'kalupa.morphus.one',
       subdomain: 'kalupa',
       localRoute: '/kalupa',
       icon: 'sparkles',
@@ -171,7 +171,7 @@ export class MpxAppLauncherComponent {
     {
       id: 'send',
       name: 'Send',
-      subtitle: 'send.morphus.me',
+      subtitle: 'send.morphus.one',
       subdomain: 'send',
       localRoute: '/send',
       icon: 'send',
@@ -188,10 +188,10 @@ export class MpxAppLauncherComponent {
   protected openEcosystemApp(item: EcosystemAppItem): void {
     if (typeof window !== 'undefined') {
       const host = window.location.hostname.toLowerCase();
-      if (host === 'morphus.me' || host.endsWith('.morphus.me')) {
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
         const targetHost = item.subdomain
-          ? `${item.subdomain}.morphus.me`
-          : 'morphus.me';
+          ? `${item.subdomain}.morphus.one`
+          : 'morphus.one';
         window.location.href = `${window.location.protocol}//${targetHost}`;
         return;
       }

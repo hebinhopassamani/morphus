@@ -24,8 +24,8 @@ const resolveRootRedirect = (): string => {
       if (
         host !== 'localhost' &&
         host !== '127.0.0.1' &&
-        host !== 'morphus.me' &&
-        host !== 'www.morphus.me' &&
+        host !== 'morphus.one' &&
+        host !== 'www.morphus.one' &&
         !host.startsWith('192.168.')
       ) {
         return 'app';

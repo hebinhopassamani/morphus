@@ -282,7 +282,7 @@ public class SecurityHandler(
     }
 
     var cleanEmail = request.AdminEmail.Trim().ToLowerInvariant();
-    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.me" : frontendBaseUrl.TrimEnd('/');
+    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.one" : frontendBaseUrl.TrimEnd('/');
 
     // Fluxo Novo: Cria apenas o User (com OnboardingCompleted = false e EmailConfirmed = false)
     // para validar o e-mail em tempo real e configurar Matriz, Workspace e Apps na tela de Onboarding
@@ -528,7 +528,7 @@ public class SecurityHandler(
         {
           if (!string.IsNullOrWhiteSpace(user.Email))
           {
-            var panelUrl = GetHeaderValue("Origin")?.TrimEnd('/') ?? "https://morphus.me";
+            var panelUrl = GetHeaderValue("Origin")?.TrimEnd('/') ?? "https://morphus.one";
             await emailHandler
                 .NewEmail(newCorporation.Id)
                 .Subject("Bem-vindo ao Morphus")
@@ -925,7 +925,7 @@ public class SecurityHandler(
 
     var encodedEmail = Uri.EscapeDataString(user.Email);
     var encodedToken = Uri.EscapeDataString(confirmToken);
-    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.me" : frontendBaseUrl.TrimEnd('/');
+    var baseUrl = string.IsNullOrWhiteSpace(frontendBaseUrl) ? "https://morphus.one" : frontendBaseUrl.TrimEnd('/');
     var confirmLink = $"{baseUrl}/security/confirm-email?email={encodedEmail}&token={encodedToken}";
 
     await emailHandler
@@ -1149,8 +1149,8 @@ public class SecurityHandler(
       Subject = new ClaimsIdentity(claims),
       NotBefore = createdAtUtc,
       Expires = expiresAtUtc,
-      Issuer = configuration["JWT:ValidIssuer"] ?? "https://morphus.me",
-      Audience = configuration["JWT:ValidAudience"] ?? "https://morphus.me",
+      Issuer = configuration["JWT:ValidIssuer"] ?? "https://morphus.one",
+      Audience = configuration["JWT:ValidAudience"] ?? "https://morphus.one",
       SigningCredentials = signingCredentials
     };
 

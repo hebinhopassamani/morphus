@@ -136,10 +136,10 @@
               Opção 1 · Gratuito
             </span>
             <span class="text-sm font-bold text-neutral-12">
-              Domínio Morphus (morphus.me)
+              Domínio Morphus (morphus.one)
             </span>
             <span class="text-xs text-neutral-a11">
-              Subdomínio imediato no formato <code class="font-mono">nome.{{ appPrefixLower() }}.morphus.me</code>
+              Subdomínio imediato no formato <code class="font-mono">nome.{{ appPrefixLower() }}.morphus.one</code>
             </span>
           </button>
 
@@ -193,7 +193,7 @@
                   Atenção sobre a disponibilidade do domínio:
                 </p>
                 <p class="mt-1 leading-relaxed">
-                  Da forma que configurou sua aplicação, escolhendo o domínio <strong class="font-mono">morphus.me</strong> com o nome
+                  Da forma que configurou sua aplicação, escolhendo o domínio <strong class="font-mono">morphus.one</strong> com o nome
                   <strong>{{ appNameDraft() }}</strong> e a sigla <strong>{{ (activeApp()?.prefix || '').toUpperCase() }}</strong>,
                   o domínio inicial <strong class="font-mono underline">{{ preview.firstAttemptDomain }}</strong> já está sendo utilizado.
                 </p>
@@ -221,7 +221,7 @@
                         'app') +
                         '.' +
                         appPrefixLower() +
-                        '.morphus.me'
+                        '.morphus.one'
                     }}
                   </span>
                   @if (preview?.customAttemptAvailable === false) {
@@ -247,17 +247,17 @@
                   {{
                     customMorphusPrefixOpen()
                       ? 'Fechar edição manual'
-                      : 'Quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.me'
+                      : 'Quero escolher o que vem antes de .' + appPrefixLower() + '.morphus.one'
                   }}
                 </button>
               </div>
             </div>
 
-            <!-- Campo para o usuário digitar livremente o que vem antes de .sigla.morphus.me -->
+            <!-- Campo para o usuário digitar livremente o que vem antes de .sigla.morphus.one -->
             @if (customMorphusPrefixOpen()) {
               <div class="flex flex-col gap-2 rounded-xl border border-neutral-a4 bg-white p-4 dark:bg-neutral-2">
                 <label class="text-xs font-semibold text-neutral-12">
-                  Digite livremente o prefixo antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.me</code> (o que não pode mudar é apenas <code class="font-mono">morphus.me</code>):
+                  Digite livremente o prefixo antes de <code class="font-mono">.{{ appPrefixLower() }}.morphus.one</code> (o que não pode mudar é apenas <code class="font-mono">morphus.one</code>):
                 </label>
                 <div class="flex flex-wrap items-center gap-2">
                   <input
@@ -268,7 +268,7 @@
                     class="h-10 w-64 rounded-xl border border-primary-8 bg-transparent px-3 font-mono text-sm font-bold text-neutral-12 outline-none"
                   />
                   <span class="font-mono text-sm font-semibold text-neutral-a11">
-                    .{{ appPrefixLower() }}.morphus.me
+                    .{{ appPrefixLower() }}.morphus.one
                   </span>
                 </div>
               </div>
