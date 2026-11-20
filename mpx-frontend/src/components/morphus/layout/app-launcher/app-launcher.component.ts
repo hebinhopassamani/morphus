@@ -16,6 +16,7 @@ export interface EcosystemAppItem {
   subdomain: string;
   localRoute: string;
   icon: string;
+  imageUrl?: string;
   iconBgClass: string;
   iconTextClass: string;
 }
@@ -60,10 +61,14 @@ export interface EcosystemAppItem {
               class="group flex cursor-pointer flex-col items-center gap-y-1.5 rounded-2xl p-2.5 text-center transition hover:bg-neutral-a3"
             >
               <div
-                class="flex size-12 items-center justify-center rounded-2xl shadow-2xs transition-transform group-hover:scale-105"
+                class="flex size-12 items-center justify-center overflow-hidden rounded-2xl shadow-2xs transition-transform group-hover:scale-105"
                 [class]="item.iconBgClass + ' ' + item.iconTextClass"
               >
-                <mat-icon [svgIcon]="item.icon" class="size-6!" />
+                @if (item.imageUrl) {
+                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-contain p-1" />
+                } @else {
+                  <mat-icon [svgIcon]="item.icon" class="size-6!" />
+                }
               </div>
               <span class="w-full truncate text-xs font-semibold text-neutral-12">
                 {{ item.name }}
@@ -170,7 +175,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'send',
       localRoute: '/send',
       icon: 'send',
-      iconBgClass: 'bg-sky-500/15 ring-1 ring-sky-500/30',
+      imageUrl: '/brands/morphus-send-logo.png',
+      iconBgClass: 'bg-white dark:bg-neutral-3 ring-1 ring-neutral-a4',
       iconTextClass: 'text-sky-500 dark:text-sky-300',
     },
   ];
