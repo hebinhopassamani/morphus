@@ -34,9 +34,31 @@ public class WkfTypeConfigConfiguration : IEntityTypeConfiguration<WkfTypeConfig
     builder.Property(c => c.RapporteurTieBreaker).IsRequired().HasDefaultValue(false);
     builder.Property(c => c.SlaMinutes).IsRequired(false);
     builder.Property(c => c.HoldInactiveUntilApproved).IsRequired().HasDefaultValue(false);
+    builder.Property(c => c.TargetSubWorkflowTypeId).IsRequired(false);
+    builder.Property(c => c.ReturnInputConfigId).IsRequired(false);
+    builder.Property(c => c.TargetRouteId).IsRequired(false);
+    builder.Property(c => c.IsIsolatedErrorCatcher).IsRequired().HasDefaultValue(false);
     builder.Property(c => c.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(c => c.Color).IsRequired(false).HasMaxLength(50);
     builder.Property(c => c.Description).IsRequired(false).HasColumnType("text");
+
+    builder.HasOne(c => c.TargetSubWorkflowType)
+           .WithMany()
+           .HasForeignKey(c => c.TargetSubWorkflowTypeId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(c => c.ReturnInputConfig)
+           .WithMany()
+           .HasForeignKey(c => c.ReturnInputConfigId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(c => c.TargetRoute)
+           .WithMany(r => r.RedirectWorkflowConfigs)
+           .HasForeignKey(c => c.TargetRouteId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(c => c.Corporation)
            .WithMany()

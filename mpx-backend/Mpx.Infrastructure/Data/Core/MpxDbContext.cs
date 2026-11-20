@@ -42,6 +42,16 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
             .Property(nameof(MpxEntity.Inactive))
             .IsRequired()
             .HasDefaultValue(false);
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MpxEntity.CreatedAt))
+            .IsRequired()
+            .HasDefaultValueSql("now()");
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MpxEntity.UpdatedAt))
+            .IsRequired()
+            .HasDefaultValueSql("now()");
       }
       else if (typeof(MpxRelatedEntity).IsAssignableFrom(entityType.ClrType))
       {
@@ -54,6 +64,16 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
             .Property(nameof(MpxRelatedEntity.Inactive))
             .IsRequired()
             .HasDefaultValue(false);
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MpxRelatedEntity.CreatedAt))
+            .IsRequired()
+            .HasDefaultValueSql("now()");
+
+        builder.Entity(entityType.ClrType)
+            .Property(nameof(MpxRelatedEntity.UpdatedAt))
+            .IsRequired()
+            .HasDefaultValueSql("now()");
       }
 
       if (typeof(IMpxTenant).IsAssignableFrom(entityType.ClrType))
@@ -86,13 +106,42 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
 
   public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
   {
-    var addedEntityEntries = ChangeTracker.Entries<MpxEntity>()
-        .Where(e => e.State == EntityState.Added && string.IsNullOrWhiteSpace(e.Entity.Key))
-        .ToList();
+    var now = DateTime.UtcNow;
 
-    foreach (var entry in addedEntityEntries)
+    foreach (var entry in ChangeTracker.Entries<MpxEntity>())
     {
-      entry.Entity.Key = MpxKey.Generate();
+      if (entry.State == EntityState.Added)
+      {
+        if (string.IsNullOrWhiteSpace(entry.Entity.Key))
+        {
+          entry.Entity.Key = MpxKey.Generate();
+        }
+        if (entry.Entity.CreatedAt == default)
+        {
+          entry.Entity.CreatedAt = now;
+        }
+        entry.Entity.UpdatedAt = now;
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        entry.Entity.UpdatedAt = now;
+      }
+    }
+
+    foreach (var entry in ChangeTracker.Entries<MpxRelatedEntity>())
+    {
+      if (entry.State == EntityState.Added)
+      {
+        if (entry.Entity.CreatedAt == default)
+        {
+          entry.Entity.CreatedAt = now;
+        }
+        entry.Entity.UpdatedAt = now;
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        entry.Entity.UpdatedAt = now;
+      }
     }
 
     var addedTenantEntries = ChangeTracker.Entries<IMpxTenant>()
@@ -205,6 +254,13 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<JarbassWorkflowWatcher> JarbassWorkflowWatchers { get; set; }
   public DbSet<Notification> Notifications { get; set; }
   public DbSet<UserNotification> UserNotifications { get; set; }
+  public DbSet<MpxRoute> Routes { get; set; }
+  public DbSet<MpxErrorSeverity> ErrorSeverities { get; set; }
+  public DbSet<MpxErrorState> ErrorStates { get; set; }
+  public DbSet<MpxErrorCode> ErrorCodes { get; set; }
+  public DbSet<MpxError> Errors { get; set; }
+  public DbSet<WkfTriggerType> WorkflowTriggerTypes { get; set; }
+  public DbSet<WkfStationType> WorkflowStationTypes { get; set; }
 
   public async Task<IMpxTransaction> BeginTransactionAsync()
   {

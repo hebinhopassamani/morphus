@@ -16,7 +16,7 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261120201012_AddJarbassDocumentSecurityAndEntityPrefixStandard";
+    public override string LastMigrationId => "20261120233405_AddWorkflowTriggersStationsRoutesAndErrorEngine";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -40,6 +40,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -138,6 +144,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid?>("UserId")
                     .HasColumnType("uuid")
@@ -251,6 +263,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -390,6 +408,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("WorkflowWatcherEnabled")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -436,6 +460,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -534,6 +564,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(250)")
                     .HasColumnName("unique_key_value");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("WinnerJarbassAgentId")
                     .HasColumnType("uuid")
                     .HasColumnName("winner_jarbass_agent_id");
@@ -590,6 +626,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -650,6 +692,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_jrb_encryption_states");
@@ -715,6 +763,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasMaxLength(300)
                     .HasColumnType("character varying(300)")
@@ -776,6 +830,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(200)")
                     .HasColumnName("title");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_jrb_insights");
 
@@ -822,6 +882,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -907,6 +973,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(0L)
                     .HasColumnName("total_runs");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_jrb_jobs");
 
@@ -964,6 +1036,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasMaxLength(300)
                     .HasColumnType("character varying(300)")
@@ -1006,6 +1084,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_jrb_permission_levels");
 
@@ -1030,6 +1114,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid?>("CurrentHolderUserId")
                     .HasColumnType("uuid")
@@ -1185,6 +1275,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(0)
                     .HasColumnName("tamper_attempts_count");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("WorkspaceId")
                     .HasColumnType("uuid")
                     .HasColumnName("workspace_id");
@@ -1255,6 +1351,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasMaxLength(300)
                     .HasColumnType("character varying(300)")
@@ -1315,6 +1417,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_jrb_security_levels");
 
@@ -1360,6 +1468,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasMaxLength(300)
                     .HasColumnType("character varying(300)")
@@ -1401,6 +1515,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_jrb_security_scopes");
@@ -1446,6 +1566,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("bigint")
                     .HasDefaultValue(0L)
                     .HasColumnName("cpu_tick_at_event");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -1653,6 +1779,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(250)")
                     .HasColumnName("unique_key_value");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("UserId")
                     .HasColumnType("uuid")
                     .HasColumnName("user_id");
@@ -1716,6 +1848,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -1826,6 +1964,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("timestamp with time zone")
                     .HasColumnName("timeout_at_utc");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("WatcherStatus")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -1911,6 +2055,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("CustomLayoutHtml")
                     .HasColumnType("text")
                     .HasColumnName("custom_layout_html");
@@ -1991,6 +2141,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_applications");
 
@@ -2033,6 +2189,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -2081,6 +2243,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_application_modules");
 
@@ -2111,6 +2279,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(120)
@@ -2174,6 +2348,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Value")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -2223,6 +2403,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasColumnType("text")
                     .HasColumnName("description");
@@ -2261,6 +2447,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_application_statuses");
 
@@ -2293,6 +2485,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("CssContent")
                     .HasColumnType("text")
@@ -2378,6 +2576,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("ts_content");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_application_sub_modules");
 
@@ -2413,6 +2617,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Favorite")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -2436,6 +2646,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid?>("WorkspaceId")
                     .HasColumnType("uuid")
@@ -2468,6 +2684,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -2507,6 +2729,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_categories");
 
@@ -2540,6 +2768,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(14)
                     .HasColumnType("character varying(14)")
                     .HasColumnName("cpf_cnpj");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(120)
@@ -2595,6 +2829,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_corporations");
 
@@ -2618,6 +2858,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(120)
@@ -2664,6 +2910,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("VerificationStatus")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -2708,6 +2960,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(120)
@@ -2754,6 +3012,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(3600)
                     .HasColumnName("ttl");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Value")
                     .IsRequired()
                     .HasMaxLength(500)
@@ -2791,6 +3055,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(50)")
                     .HasColumnName("color");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Favorite")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -2815,6 +3085,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("CorporationId", "UserId")
                     .HasName("pk_mpx_corporation_users");
 
@@ -2838,6 +3114,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -2900,6 +3182,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(120)")
                     .HasColumnName("table_name");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_entities");
 
@@ -2931,6 +3219,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("DataType")
                     .IsRequired()
@@ -3048,6 +3342,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("target_entity_definition_id");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_entity_properties");
 
@@ -3068,12 +3368,487 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_entity_properties");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxError", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<string>("ContextSnapshot")
+                    .HasColumnType("text")
+                    .HasColumnName("context_snapshot");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<Guid>("ErrorCodeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("error_code_id");
+
+                b.Property<Guid>("ErrorStateId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("error_state_id");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Message")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("message");
+
+                b.Property<string>("Method")
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("method");
+
+                b.Property<Guid?>("OriginConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("origin_config_id");
+
+                b.Property<string>("ResolutionNotes")
+                    .HasColumnType("text")
+                    .HasColumnName("resolution_notes");
+
+                b.Property<DateTime?>("ResolvedAt")
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("resolved_at");
+
+                b.Property<Guid?>("ResolvedByUserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("resolved_by_user_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<Guid?>("UserId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("user_id");
+
+                b.Property<string>("UserMessage")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("user_message");
+
+                b.Property<string>("UserSnapshot")
+                    .HasColumnType("text")
+                    .HasColumnName("user_snapshot");
+
+                b.Property<Guid?>("WorkflowId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_id");
+
+                b.Property<Guid?>("WorkflowTaskId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_task_id");
+
+                b.Property<Guid?>("WorkflowTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workflow_type_id");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_errors");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_errors_application_id");
+
+                b.HasIndex("ErrorCodeId")
+                    .HasDatabaseName("ix_mpx_errors_error_code_id");
+
+                b.HasIndex("ErrorStateId")
+                    .HasDatabaseName("ix_mpx_errors_error_state_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_errors_key");
+
+                b.HasIndex("OriginConfigId")
+                    .HasDatabaseName("ix_mpx_errors_origin_config_id");
+
+                b.HasIndex("ResolvedByUserId")
+                    .HasDatabaseName("ix_mpx_errors_resolved_by_user_id");
+
+                b.HasIndex("UserId")
+                    .HasDatabaseName("ix_mpx_errors_user_id");
+
+                b.HasIndex("WorkflowTaskId")
+                    .HasDatabaseName("ix_mpx_errors_workflow_task_id");
+
+                b.HasIndex("WorkflowTypeId")
+                    .HasDatabaseName("ix_mpx_errors_workflow_type_id");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_mpx_errors_workspace_id");
+
+                b.HasIndex("WorkflowId", "OriginConfigId")
+                    .HasDatabaseName("ix_mpx_errors_workflow_id_origin_config_id");
+
+                b.HasIndex("CorporationId", "ErrorStateId", "CreatedAt")
+                    .HasDatabaseName("ix_mpx_errors_corporation_id_error_state_id_created_at");
+
+                b.ToTable("mpx_errors");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorCode", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasMaxLength(40)
+                    .HasColumnType("character varying(40)")
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("FriendlyMessage")
+                    .IsRequired()
+                    .HasColumnType("text")
+                    .HasColumnName("friendly_message");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("name");
+
+                b.Property<Guid>("SeverityId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("severity_id");
+
+                b.Property<int>("Sla")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(60)
+                    .HasColumnName("sla");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_error_codes");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_error_codes_application_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_codes_key");
+
+                b.HasIndex("SeverityId")
+                    .HasDatabaseName("ix_mpx_error_codes_severity_id");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_mpx_error_codes_workspace_id");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_codes_corporation_id_code");
+
+                b.ToTable("mpx_error_codes");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorSeverity", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)0)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("InvolvesEntireCorporation")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("involves_entire_corporation");
+
+                b.Property<bool>("InvolvesEntireWorkspace")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("involves_entire_workspace");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_error_severities");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_severities_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_severities_corporation_id_code");
+
+                b.ToTable("mpx_error_severities");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorState", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)0)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsTerminal")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_terminal");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_error_states");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_states_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_error_states_corporation_id_code");
+
+                b.ToTable("mpx_error_states");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.MpxFeature", b =>
             {
                 b.Property<Guid>("Id")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
                     .HasColumnName("id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .IsRequired()
@@ -3118,6 +3893,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(200)")
                     .HasColumnName("title");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_features");
 
@@ -3134,6 +3915,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .ValueGeneratedOnAdd()
                     .HasColumnType("uuid")
                     .HasColumnName("id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid>("FeatureId")
                     .HasColumnType("uuid")
@@ -3187,6 +3974,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(100)")
                     .HasColumnName("title_icon");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_feature_highlights");
 
@@ -3218,6 +4011,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<int>("DefaultLeaseMinutes")
                     .ValueGeneratedOnAdd()
@@ -3295,6 +4094,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_file_types");
 
@@ -3331,6 +4136,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -3375,6 +4186,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(0)
                     .HasColumnName("order");
 
+                b.Property<Guid?>("RouteId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("route_id");
+
                 b.Property<Guid?>("SubModuleId")
                     .HasColumnType("uuid")
                     .HasColumnName("sub_module_id");
@@ -3384,6 +4199,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Url")
                     .HasMaxLength(250)
@@ -3409,6 +4230,9 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("ModuleId")
                     .HasDatabaseName("ix_mpx_menus_module_id");
 
+                b.HasIndex("RouteId")
+                    .HasDatabaseName("ix_mpx_menus_route_id");
+
                 b.HasIndex("SubModuleId")
                     .HasDatabaseName("ix_mpx_menus_sub_module_id");
 
@@ -3426,6 +4250,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(50)
                     .HasColumnType("character varying(50)")
                     .HasColumnName("color");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
@@ -3458,6 +4288,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_mpx_module_categories");
@@ -3506,6 +4342,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<DateTime>("CreatedAtUtc")
                     .HasColumnType("timestamp with time zone")
@@ -3601,6 +4443,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(200)")
                     .HasColumnName("title");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("WorkflowId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_id");
@@ -3653,6 +4501,135 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("mpx_notifications");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxRoute", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<Guid?>("ApplicationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("application_id");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsPublic")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_public");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<Guid?>("ModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("module_id");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<string>("Path")
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .HasColumnType("character varying(250)")
+                    .HasColumnName("path");
+
+                b.Property<Guid?>("SubModuleId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("sub_module_id");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<Guid?>("WorkspaceId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("workspace_id");
+
+                b.HasKey("Id")
+                    .HasName("pk_mpx_routes");
+
+                b.HasIndex("ApplicationId")
+                    .HasDatabaseName("ix_mpx_routes_application_id");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_routes_key");
+
+                b.HasIndex("ModuleId")
+                    .HasDatabaseName("ix_mpx_routes_module_id");
+
+                b.HasIndex("SubModuleId")
+                    .HasDatabaseName("ix_mpx_routes_sub_module_id");
+
+                b.HasIndex("WorkspaceId")
+                    .HasDatabaseName("ix_mpx_routes_workspace_id");
+
+                b.HasIndex("CorporationId", "Path")
+                    .IsUnique()
+                    .HasDatabaseName("ix_mpx_routes_corporation_id_path");
+
+                b.ToTable("mpx_routes");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.MpxShowcaseModule", b =>
             {
                 b.Property<Guid>("Id")
@@ -3669,6 +4646,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CategoryId")
                     .HasColumnType("uuid")
                     .HasColumnName("category_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .IsRequired()
@@ -3713,6 +4696,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(150)")
                     .HasColumnName("title");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_modules");
 
@@ -3746,6 +4735,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<DateTime>("CreatedAtUtc")
                     .HasColumnType("timestamp with time zone")
@@ -3818,6 +4813,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("UserId")
                     .HasColumnType("uuid")
                     .HasColumnName("user_id");
@@ -3857,6 +4858,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<bool>("Default")
                     .ValueGeneratedOnAdd()
@@ -3900,6 +4907,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_workspaces");
 
@@ -3928,6 +4941,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<bool>("Default")
                     .ValueGeneratedOnAdd()
@@ -3965,6 +4984,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("trial_used");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("WorkspaceId", "ApplicationId")
                     .HasName("pk_mpx_workspace_applications");
 
@@ -3996,6 +5021,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Favorite")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -4020,6 +5051,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("WorkspaceId", "UserId")
                     .HasName("pk_mpx_workspace_users");
 
@@ -4042,6 +5079,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("HtmlBody")
                     .HasColumnType("text")
@@ -4084,6 +5127,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("text")
                     .HasColumnName("text_body");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_mpx_emails");
 
@@ -4107,6 +5156,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid>("EmailId")
                     .HasColumnType("uuid")
@@ -4142,6 +5197,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_mpx_emails_bcc");
@@ -4170,6 +5231,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("EmailId")
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
@@ -4204,6 +5271,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_mpx_emails_cc");
@@ -4232,6 +5305,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("EmailId")
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
@@ -4266,6 +5345,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_mpx_emails_from");
@@ -4294,6 +5379,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("EmailId")
                     .HasColumnType("uuid")
                     .HasColumnName("email_id");
@@ -4328,6 +5419,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_mpx_emails_to");
@@ -4368,6 +5465,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasColumnType("text")
                     .HasColumnName("description");
@@ -4399,6 +5502,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_sec_claims");
@@ -4434,6 +5543,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasColumnType("text")
                     .HasColumnName("description");
@@ -4464,6 +5579,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_sec_modules");
 
@@ -4490,6 +5611,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -4534,6 +5661,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_sec_roles");
 
@@ -4567,6 +5700,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -4578,6 +5717,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("RoleId", "ClaimId")
                     .HasName("pk_sec_role_claims");
@@ -4601,6 +5746,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -4636,6 +5787,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_sec_sub_modules");
 
@@ -4666,6 +5823,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid?>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Email")
                     .IsRequired()
@@ -4772,6 +5935,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("terms_confirmed");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("UserStatusId")
                     .HasColumnType("uuid")
                     .HasColumnName("user_status_id");
@@ -4815,6 +5984,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -4826,6 +6001,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("UserId", "ClaimId")
                     .HasName("pk_sec_user_claims");
@@ -4853,6 +6034,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -4864,6 +6051,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("UserId", "RoleId")
                     .HasName("pk_sec_user_roles");
@@ -4892,6 +6085,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -4931,6 +6130,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.HasKey("Id")
                     .HasName("pk_sec_user_statuses");
 
@@ -4962,6 +6167,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("EntityAlias")
                     .HasMaxLength(120)
@@ -5048,6 +6259,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_id");
@@ -5105,6 +6322,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("DataType")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -5153,6 +6376,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasMaxLength(120)
                     .HasColumnType("character varying(120)")
                     .HasColumnName("tag");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Value")
                     .HasColumnType("text")
@@ -5228,6 +6457,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -5251,6 +6486,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<Guid?>("UserId")
                     .HasColumnType("uuid")
@@ -5335,6 +6576,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("DefaultLayoutHtml")
                     .HasColumnType("text")
                     .HasColumnName("default_layout_html");
@@ -5379,11 +6626,21 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("character varying(120)")
                     .HasColumnName("process_handler_key");
 
+                b.Property<Guid?>("StationTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("station_type_id");
+
                 b.Property<bool>("System")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("Id")
                     .HasName("pk_wkf_stations");
@@ -5392,11 +6649,133 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .IsUnique()
                     .HasDatabaseName("ix_wkf_stations_key");
 
+                b.HasIndex("StationTypeId")
+                    .HasDatabaseName("ix_wkf_stations_station_type_id");
+
                 b.HasIndex("CorporationId", "Code")
                     .IsUnique()
                     .HasDatabaseName("ix_wkf_stations_corporation_id_code");
 
                 b.ToTable("wkf_stations");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStationType", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)2)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<bool>("HasLayout")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("has_layout");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<bool>("IsInputPort")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_input_port");
+
+                b.Property<bool>("IsIsolatedErrorCatcher")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_isolated_error_catcher");
+
+                b.Property<bool>("IsOutputPort")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_output_port");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.HasKey("Id")
+                    .HasName("pk_wkf_station_types");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_station_types_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_station_types_corporation_id_code");
+
+                b.ToTable("wkf_station_types");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.WkfTask", b =>
@@ -5419,8 +6798,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnName("corporation_id");
 
                 b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
                     .HasColumnType("timestamp with time zone")
-                    .HasColumnName("created_at");
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<int>("CurrentOwnersCount")
                     .ValueGeneratedOnAdd()
@@ -5516,6 +6897,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("target_workspace_id");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_id");
@@ -5571,6 +6958,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool?>("FollowedRapporteur")
                     .HasColumnType("boolean")
                     .HasColumnName("followed_rapporteur");
@@ -5622,6 +7015,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("transferred_to_user_id");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("UserAgent")
                     .HasMaxLength(300)
                     .HasColumnType("character varying(300)")
@@ -5664,6 +7063,113 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.ToTable("wkf_workflow_task_owners");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTriggerType", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uuid")
+                    .HasColumnName("id");
+
+                b.Property<short>("Code")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("smallint")
+                    .HasDefaultValue((short)0)
+                    .HasColumnName("code");
+
+                b.Property<string>("Color")
+                    .HasMaxLength(50)
+                    .HasColumnType("character varying(50)")
+                    .HasColumnName("color");
+
+                b.Property<Guid?>("CorporationId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
+                b.Property<string>("Description")
+                    .HasColumnType("text")
+                    .HasColumnName("description");
+
+                b.Property<string>("Icon")
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasColumnName("icon");
+
+                b.Property<bool>("Inactive")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("inactive");
+
+                b.Property<string>("Key")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(100)
+                    .HasColumnType("character varying(100)")
+                    .HasDefaultValue("")
+                    .HasColumnName("key");
+
+                b.Property<string>("Label")
+                    .IsRequired()
+                    .HasMaxLength(150)
+                    .HasColumnType("character varying(150)")
+                    .HasColumnName("label");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasMaxLength(120)
+                    .HasColumnType("character varying(120)")
+                    .HasColumnName("name");
+
+                b.Property<int>("Order")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("integer")
+                    .HasDefaultValue(0)
+                    .HasColumnName("order");
+
+                b.Property<bool>("RequiresRoute")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("requires_route");
+
+                b.Property<bool>("RequiresSchedule")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("requires_schedule");
+
+                b.Property<bool>("System")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
+                b.HasKey("Id")
+                    .HasName("pk_wkf_trigger_types");
+
+                b.HasIndex("Key")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_trigger_types_key");
+
+                b.HasIndex("CorporationId", "Code")
+                    .IsUnique()
+                    .HasDatabaseName("ix_wkf_trigger_types_corporation_id_code");
+
+                b.ToTable("wkf_trigger_types");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>
             {
                 b.Property<Guid>("Id")
@@ -5683,6 +7189,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasColumnType("text")
@@ -5736,13 +7248,34 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<string>("TriggerEvent")
+                    .ValueGeneratedOnAdd()
+                    .HasMaxLength(60)
+                    .HasColumnType("character varying(60)")
+                    .HasDefaultValue("OnScreenLoad")
+                    .HasColumnName("trigger_event");
+
+                b.Property<Guid?>("TriggerRouteId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("trigger_route_id");
+
                 b.Property<string>("TriggerType")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
                     .HasMaxLength(60)
                     .HasColumnType("character varying(60)")
-                    .HasDefaultValue("Manual")
+                    .HasDefaultValue("HtmlAction")
                     .HasColumnName("trigger_type");
+
+                b.Property<Guid?>("TriggerTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("trigger_type_id");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<double>("ViewportX")
                     .ValueGeneratedOnAdd()
@@ -5788,6 +7321,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.HasIndex("SubModuleId")
                     .HasDatabaseName("ix_wkf_workflow_types_sub_module_id");
 
+                b.HasIndex("TriggerRouteId")
+                    .HasDatabaseName("ix_wkf_workflow_types_trigger_route_id");
+
+                b.HasIndex("TriggerTypeId")
+                    .HasDatabaseName("ix_wkf_workflow_types_trigger_type_id");
+
                 b.HasIndex("WorkspaceId")
                     .HasDatabaseName("ix_wkf_workflow_types_workspace_id");
 
@@ -5823,6 +7362,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("CustomLayoutHtml")
                     .HasColumnType("text")
@@ -5864,6 +7409,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("inactive");
+
+                b.Property<bool>("IsIsolatedErrorCatcher")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("boolean")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_isolated_error_catcher");
 
                 b.Property<string>("Key")
                     .IsRequired()
@@ -5927,6 +7478,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("requires_rapporteur_first");
 
+                b.Property<Guid?>("ReturnInputConfigId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("return_input_config_id");
+
                 b.Property<int?>("SlaMinutes")
                     .HasColumnType("integer")
                     .HasColumnName("sla_minutes");
@@ -5940,6 +7495,20 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<Guid?>("TargetRouteId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_route_id");
+
+                b.Property<Guid?>("TargetSubWorkflowTypeId")
+                    .HasColumnType("uuid")
+                    .HasColumnName("target_sub_workflow_type_id");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<double?>("Width")
                     .HasColumnType("double precision")
@@ -5959,8 +7528,17 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .IsUnique()
                     .HasDatabaseName("ix_wkf_workflow_type_configs_key");
 
+                b.HasIndex("ReturnInputConfigId")
+                    .HasDatabaseName("ix_wkf_workflow_type_configs_return_input_config_id");
+
                 b.HasIndex("StationId")
                     .HasDatabaseName("ix_wkf_workflow_type_configs_station_id");
+
+                b.HasIndex("TargetRouteId")
+                    .HasDatabaseName("ix_wkf_workflow_type_configs_target_route_id");
+
+                b.HasIndex("TargetSubWorkflowTypeId")
+                    .HasDatabaseName("ix_wkf_workflow_type_configs_target_sub_workflow_type_id");
 
                 b.HasIndex("WorkflowTypeId")
                     .HasDatabaseName("ix_wkf_workflow_type_configs_workflow_type_id");
@@ -6007,6 +7585,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("CustomCss")
                     .HasColumnType("text")
@@ -6101,6 +7685,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowTypeConfigId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_config_id");
@@ -6138,6 +7728,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<bool>("Inactive")
                     .ValueGeneratedOnAdd()
                     .HasColumnType("boolean")
@@ -6149,6 +7745,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("boolean")
                     .HasDefaultValue(false)
                     .HasColumnName("system");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.HasKey("WorkflowTypeConfigActionId", "FileTypeId")
                     .HasName("pk_wkf_workflow_type_config_action_file_types");
@@ -6196,6 +7798,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("DataType")
                     .IsRequired()
@@ -6304,6 +7912,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("integer")
                     .HasColumnName("timeout_minutes");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Value")
                     .HasColumnType("text")
                     .HasColumnName("value");
@@ -6362,6 +7976,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("CustomCss")
                     .HasColumnType("text")
@@ -6518,6 +8138,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("target_entity_definition_id");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowTypeConfigId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_config_id");
@@ -6615,6 +8241,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("EntityEmailPropertyPath")
                     .HasMaxLength(200)
@@ -6716,6 +8348,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue("OnEnter")
                     .HasColumnName("trigger_event");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid?>("WorkflowTypeConfigActionId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_config_action_id");
@@ -6784,6 +8422,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
 
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("Description")
                     .HasColumnType("text")
                     .HasColumnName("description");
@@ -6836,6 +8480,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowTypeConfigId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_config_id");
@@ -6877,6 +8527,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("DataType")
                     .IsRequired()
@@ -6963,6 +8619,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<string>("ValidationType")
                     .IsRequired()
                     .ValueGeneratedOnAdd()
@@ -7026,6 +8688,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("Description")
                     .HasMaxLength(300)
@@ -7111,6 +8779,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .HasDefaultValue(false)
                     .HasColumnName("system");
 
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
+
                 b.Property<Guid>("WorkflowTypeId")
                     .HasColumnType("uuid")
                     .HasColumnName("workflow_type_id");
@@ -7160,6 +8834,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("CorporationId")
                     .HasColumnType("uuid")
                     .HasColumnName("corporation_id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("created_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<DateTime>("ExecutedAt")
                     .HasColumnType("timestamp with time zone")
@@ -7243,6 +8923,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Property<Guid>("ToWorkflowTypeConfigId")
                     .HasColumnType("uuid")
                     .HasColumnName("to_workflow_type_config_id");
+
+                b.Property<DateTime>("UpdatedAt")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("timestamp with time zone")
+                    .HasColumnName("updated_at")
+                    .HasDefaultValueSql("now()");
 
                 b.Property<string>("UserAgent")
                     .HasMaxLength(300)
@@ -7963,6 +9649,159 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("TargetEntityDefinition");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxError", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany()
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_errors_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_errors_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxErrorCode", "ErrorCode")
+                    .WithMany("Errors")
+                    .HasForeignKey("ErrorCodeId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_errors_mpx_error_codes_error_code_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxErrorState", "ErrorState")
+                    .WithMany("Errors")
+                    .HasForeignKey("ErrorStateId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_errors_error_states_error_state_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "OriginConfig")
+                    .WithMany()
+                    .HasForeignKey("OriginConfigId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_workflow_type_configs_origin_config_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "ResolvedByUser")
+                    .WithMany()
+                    .HasForeignKey("ResolvedByUserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_users_resolved_by_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecUser", "User")
+                    .WithMany()
+                    .HasForeignKey("UserId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_users_user_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfWorkflow", "Workflow")
+                    .WithMany()
+                    .HasForeignKey("WorkflowId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_workflows_workflow_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfTask", "WorkflowTask")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTaskId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_workflow_tasks_workflow_task_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
+                    .WithMany()
+                    .HasForeignKey("WorkflowTypeId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_errors_workflow_types_workflow_type_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_errors_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("ErrorCode");
+
+                b.Navigation("ErrorState");
+
+                b.Navigation("OriginConfig");
+
+                b.Navigation("ResolvedByUser");
+
+                b.Navigation("User");
+
+                b.Navigation("Workflow");
+
+                b.Navigation("WorkflowTask");
+
+                b.Navigation("WorkflowType");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorCode", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany()
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_error_codes_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_error_codes_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxErrorSeverity", "Severity")
+                    .WithMany("ErrorCodes")
+                    .HasForeignKey("SeverityId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired()
+                    .HasConstraintName("fk_mpx_error_codes_error_severities_severity_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_error_codes_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Severity");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorSeverity", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_error_severities_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorState", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_error_states_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.MpxFeatureHighlight", b =>
             {
                 b.HasOne("Mpx.Domain.Entities.MpxFeature", "Feature")
@@ -8039,6 +9878,12 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_mpx_menus_modules_module_id");
 
+                b.HasOne("Mpx.Domain.Entities.MpxRoute", "Route")
+                    .WithMany("Menus")
+                    .HasForeignKey("RouteId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_menus_routes_route_id");
+
                 b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
                     .WithMany()
                     .HasForeignKey("SubModuleId")
@@ -8052,6 +9897,8 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Module");
 
                 b.Navigation("ParentMenu");
+
+                b.Navigation("Route");
 
                 b.Navigation("SubModule");
             });
@@ -8135,6 +9982,49 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("Workflow");
 
                 b.Navigation("WorkflowTask");
+
+                b.Navigation("Workspace");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxRoute", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
+                    .WithMany()
+                    .HasForeignKey("ApplicationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_routes_mpx_applications_application_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_routes_mpx_corporations_corporation_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecModule", "Module")
+                    .WithMany()
+                    .HasForeignKey("ModuleId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_routes_modules_module_id");
+
+                b.HasOne("Mpx.Domain.Entities.SecSubModule", "SubModule")
+                    .WithMany()
+                    .HasForeignKey("SubModuleId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_mpx_routes_sub_modules_sub_module_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
+                    .WithMany()
+                    .HasForeignKey("WorkspaceId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mpx_routes_workspaces_workspace_id");
+
+                b.Navigation("Application");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("Module");
+
+                b.Navigation("SubModule");
 
                 b.Navigation("Workspace");
             });
@@ -8771,6 +10661,25 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasConstraintName("fk_wkf_stations_mpx_corporations_corporation_id");
 
+                b.HasOne("Mpx.Domain.Entities.WkfStationType", "StationType")
+                    .WithMany("Stations")
+                    .HasForeignKey("StationTypeId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_stations_workflow_station_types_station_type_id");
+
+                b.Navigation("Corporation");
+
+                b.Navigation("StationType");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStationType", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_station_types_mpx_corporations_corporation_id");
+
                 b.Navigation("Corporation");
             });
 
@@ -8866,6 +10775,17 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigAction");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTriggerType", b =>
+            {
+                b.HasOne("Mpx.Domain.Entities.MpxCorporation", "Corporation")
+                    .WithMany()
+                    .HasForeignKey("CorporationId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_wkf_trigger_types_mpx_corporations_corporation_id");
+
+                b.Navigation("Corporation");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>
             {
                 b.HasOne("Mpx.Domain.Entities.MpxApplication", "Application")
@@ -8899,6 +10819,18 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .OnDelete(DeleteBehavior.Restrict)
                     .HasConstraintName("fk_wkf_workflow_types_sec_sub_modules_sub_module_id");
 
+                b.HasOne("Mpx.Domain.Entities.MpxRoute", "TriggerRoute")
+                    .WithMany("TriggerWorkflowTypes")
+                    .HasForeignKey("TriggerRouteId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_workflow_types_mpx_routes_trigger_route_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfTriggerType", "TriggerTypeDefinition")
+                    .WithMany("WorkflowTypes")
+                    .HasForeignKey("TriggerTypeId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_workflow_types_wkf_trigger_types_trigger_type_id");
+
                 b.HasOne("Mpx.Domain.Entities.MpxWorkspace", "Workspace")
                     .WithMany()
                     .HasForeignKey("WorkspaceId")
@@ -8915,6 +10847,10 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
                 b.Navigation("SubModule");
 
+                b.Navigation("TriggerRoute");
+
+                b.Navigation("TriggerTypeDefinition");
+
                 b.Navigation("Workspace");
             });
 
@@ -8927,12 +10863,30 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_configs_mpx_corporations_corporation_id");
 
+                b.HasOne("Mpx.Domain.Entities.WkfTypeConfig", "ReturnInputConfig")
+                    .WithMany()
+                    .HasForeignKey("ReturnInputConfigId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_workflow_type_configs_wkf_workflow_type_configs_return_");
+
                 b.HasOne("Mpx.Domain.Entities.WkfStation", "Station")
                     .WithMany("WorkflowTypeConfigs")
                     .HasForeignKey("StationId")
                     .OnDelete(DeleteBehavior.Restrict)
                     .IsRequired()
                     .HasConstraintName("fk_wkf_workflow_type_configs_wkf_stations_station_id");
+
+                b.HasOne("Mpx.Domain.Entities.MpxRoute", "TargetRoute")
+                    .WithMany("RedirectWorkflowConfigs")
+                    .HasForeignKey("TargetRouteId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_workflow_type_configs_mpx_routes_target_route_id");
+
+                b.HasOne("Mpx.Domain.Entities.WkfType", "TargetSubWorkflowType")
+                    .WithMany()
+                    .HasForeignKey("TargetSubWorkflowTypeId")
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("fk_wkf_workflow_type_configs_workflow_types_target_sub_workflo");
 
                 b.HasOne("Mpx.Domain.Entities.WkfType", "WorkflowType")
                     .WithMany("Configs")
@@ -8943,7 +10897,13 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
 
                 b.Navigation("Corporation");
 
+                b.Navigation("ReturnInputConfig");
+
                 b.Navigation("Station");
+
+                b.Navigation("TargetRoute");
+
+                b.Navigation("TargetSubWorkflowType");
 
                 b.Navigation("WorkflowType");
             });
@@ -9516,6 +11476,21 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowContexts");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorCode", b =>
+            {
+                b.Navigation("Errors");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorSeverity", b =>
+            {
+                b.Navigation("ErrorCodes");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxErrorState", b =>
+            {
+                b.Navigation("Errors");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.MpxFeature", b =>
             {
                 b.Navigation("Highlights");
@@ -9539,6 +11514,15 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("Mpx.Domain.Entities.MpxNotification", b =>
             {
                 b.Navigation("UserNotifications");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.MpxRoute", b =>
+            {
+                b.Navigation("Menus");
+
+                b.Navigation("RedirectWorkflowConfigs");
+
+                b.Navigation("TriggerWorkflowTypes");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.MpxWorkspace", b =>
@@ -9619,9 +11603,19 @@ partial class MpxDbContextModelSnapshot : ModelSnapshot
                 b.Navigation("WorkflowTypeConfigs");
             });
 
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfStationType", b =>
+            {
+                b.Navigation("Stations");
+            });
+
         modelBuilder.Entity("Mpx.Domain.Entities.WkfTask", b =>
             {
                 b.Navigation("Owners");
+            });
+
+        modelBuilder.Entity("Mpx.Domain.Entities.WkfTriggerType", b =>
+            {
+                b.Navigation("WorkflowTypes");
             });
 
         modelBuilder.Entity("Mpx.Domain.Entities.WkfType", b =>

@@ -15,6 +15,7 @@ public class WkfStationConfiguration : IEntityTypeConfiguration<WkfStation>
     builder.Property(s => s.Name).IsRequired().HasMaxLength(120);
     builder.Property(s => s.Code).IsRequired().HasMaxLength(80);
     builder.Property(s => s.CorporationId).IsRequired();
+    builder.Property(s => s.StationTypeId).IsRequired(false);
     builder.Property(s => s.HasLayout).IsRequired().HasDefaultValue(false);
     builder.Property(s => s.DefaultLayoutHtml).IsRequired(false).HasColumnType("text");
     builder.Property(s => s.ProcessHandlerKey).IsRequired(false).HasMaxLength(120);
@@ -23,6 +24,12 @@ public class WkfStationConfiguration : IEntityTypeConfiguration<WkfStation>
     builder.Property(s => s.Description).IsRequired(false).HasColumnType("text");
 
     builder.HasIndex(s => new { s.CorporationId, s.Code }).IsUnique();
+
+    builder.HasOne(s => s.StationType)
+           .WithMany(t => t.Stations)
+           .HasForeignKey(s => s.StationTypeId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(s => s.Corporation)
            .WithMany()

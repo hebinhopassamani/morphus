@@ -12,7 +12,6 @@ public class WkfTask : MpxEntity, IMpxTenant
   public Guid? TargetWorkspaceId { get; set; }
   public int MaxOwners { get; set; } = 1;
   public int CurrentOwnersCount { get; set; }
-  public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
   public DateTime? ClaimedAt { get; set; }
   public DateTime? CompletedAt { get; set; }
   public DateTime? DueDate { get; set; }

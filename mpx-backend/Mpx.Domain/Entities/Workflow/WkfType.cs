@@ -13,7 +13,10 @@ public class WkfType : MpxEntity, IMpxTenant
   public Guid? SubModuleId { get; set; }
   public Guid? RootEntityDefinitionId { get; set; }
   public string? EntityName { get; set; }
-  public string TriggerType { get; set; } = "Internal";
+  public Guid? TriggerTypeId { get; set; }
+  public Guid? TriggerRouteId { get; set; }
+  public string TriggerType { get; set; } = "HtmlAction";
+  public string? TriggerEvent { get; set; } = "OnScreenLoad";
   public double ViewportX { get; set; }
   public double ViewportY { get; set; }
   public double ViewportZoom { get; set; } = 1.0;
@@ -27,6 +30,8 @@ public class WkfType : MpxEntity, IMpxTenant
   public virtual SecModule? Module { get; set; }
   public virtual SecSubModule? SubModule { get; set; }
   public virtual MpxEntityDefinition? RootEntityDefinition { get; set; }
+  public virtual WkfTriggerType? TriggerTypeDefinition { get; set; }
+  public virtual MpxRoute? TriggerRoute { get; set; }
 
   public virtual ICollection<WkfTypeContext> Contexts { get; set; } = [];
   public virtual ICollection<WkfTypeConfig> Configs { get; set; } = [];

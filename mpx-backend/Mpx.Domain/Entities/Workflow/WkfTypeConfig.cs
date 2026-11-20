@@ -27,6 +27,10 @@ public class WkfTypeConfig : MpxEntity, IMpxTenant
   public bool RapporteurTieBreaker { get; set; }
   public int? SlaMinutes { get; set; }
   public bool HoldInactiveUntilApproved { get; set; }
+  public Guid? TargetSubWorkflowTypeId { get; set; }
+  public Guid? ReturnInputConfigId { get; set; }
+  public Guid? TargetRouteId { get; set; }
+  public bool IsIsolatedErrorCatcher { get; set; }
   public string? Icon { get; set; }
   public string? Color { get; set; }
   public string? Description { get; set; }
@@ -34,6 +38,9 @@ public class WkfTypeConfig : MpxEntity, IMpxTenant
   public virtual MpxCorporation? Corporation { get; set; }
   public virtual WkfType? WorkflowType { get; set; }
   public virtual WkfStation? Station { get; set; }
+  public virtual WkfType? TargetSubWorkflowType { get; set; }
+  public virtual WkfTypeConfig? ReturnInputConfig { get; set; }
+  public virtual MpxRoute? TargetRoute { get; set; }
 
   public virtual ICollection<WkfTypeContext> AddedContexts { get; set; } = [];
   public virtual ICollection<WkfTypeConfigAction> Actions { get; set; } = [];

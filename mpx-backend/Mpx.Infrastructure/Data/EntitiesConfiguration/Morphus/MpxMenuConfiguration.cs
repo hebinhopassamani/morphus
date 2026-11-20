@@ -16,11 +16,18 @@ public class MpxMenuConfiguration : IEntityTypeConfiguration<MpxMenu>
     builder.Property(b => b.ModuleId).IsRequired(false);
     builder.Property(b => b.SubModuleId).IsRequired(false);
     builder.Property(b => b.Order).IsRequired().HasDefaultValue(0);
+    builder.Property(b => b.RouteId).IsRequired(false);
     builder.Property(b => b.Url).IsRequired(false).HasMaxLength(250);
     builder.Property(b => b.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(b => b.System).IsRequired().HasDefaultValue(false);
     builder.Property(b => b.CorporationId).IsRequired();
     builder.Property(b => b.Description).IsRequired(false).HasColumnType("text");
+
+    builder.HasOne(b => b.Route)
+           .WithMany(r => r.Menus)
+           .HasForeignKey(b => b.RouteId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(b => b.Application)
            .WithMany(a => a.Menus)

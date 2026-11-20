@@ -20,13 +20,28 @@ public class WkfTypeConfiguration : IEntityTypeConfiguration<WkfType>
     builder.Property(w => w.SubModuleId).IsRequired(false);
     builder.Property(w => w.RootEntityDefinitionId).IsRequired(false);
     builder.Property(w => w.EntityName).IsRequired(false).HasMaxLength(120);
-    builder.Property(w => w.TriggerType).IsRequired().HasMaxLength(60).HasDefaultValue("Manual");
+    builder.Property(w => w.TriggerTypeId).IsRequired(false);
+    builder.Property(w => w.TriggerRouteId).IsRequired(false);
+    builder.Property(w => w.TriggerType).IsRequired().HasMaxLength(60).HasDefaultValue("HtmlAction");
+    builder.Property(w => w.TriggerEvent).IsRequired(false).HasMaxLength(60).HasDefaultValue("OnScreenLoad");
     builder.Property(w => w.ViewportX).IsRequired().HasDefaultValue(0);
     builder.Property(w => w.ViewportY).IsRequired().HasDefaultValue(0);
     builder.Property(w => w.ViewportZoom).IsRequired().HasDefaultValue(1.0);
     builder.Property(w => w.Icon).IsRequired(false).HasMaxLength(100);
     builder.Property(w => w.Color).IsRequired(false).HasMaxLength(50);
     builder.Property(w => w.Description).IsRequired(false).HasColumnType("text");
+
+    builder.HasOne(w => w.TriggerTypeDefinition)
+           .WithMany(t => t.WorkflowTypes)
+           .HasForeignKey(w => w.TriggerTypeId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(w => w.TriggerRoute)
+           .WithMany(r => r.TriggerWorkflowTypes)
+           .HasForeignKey(w => w.TriggerRouteId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(w => w.Corporation)
            .WithMany()
