@@ -114,4 +114,37 @@ else {
     [System.IO.File]::WriteAllLines($mdIndexPath, $outLines, [System.Text.Encoding]::UTF8)
 }
 
-Write-Output "Updated conversations.md index for $ConversationId!"
+# 3. Auto-update recent memory snapshot inside rafa-identity.md rules (zero extra token reads on new conversations)
+$allRows = [System.IO.File]::ReadAllLines($mdIndexPath, [System.Text.Encoding]::UTF8) | Where-Object { $_ -match '^\|\s*\[MPX_\d+\]' }
+$recentRows = $allRows | Select-Object -Last 4
+$memoryLines = New-Object System.Collections.Generic.List[string]
+$memoryLines.Add("<!-- MPX_RECENT_MEMORY_START -->")
+$memoryLines.Add("## Memória Recente (Últimas Conversas & Contexto Vivo — Injetado Automaticamente)")
+foreach ($r in $recentRows) {
+    $parts = $r.Split('|')
+    if ($parts.Count -ge 4) {
+        $idPart = ($parts[1] -replace '\[([^\]]+)\]\([^\)]+\)', '$1').Trim()
+        $subjPart = $parts[2].Trim()
+        $sumPart = $parts[3].Trim()
+        if ($sumPart.Length -gt 260) { $sumPart = $sumPart.Substring(0, 257) + "..." }
+        $memoryLines.Add("- **$idPart ($subjPart)**: $sumPart")
+    }
+}
+$memoryLines.Add("<!-- MPX_RECENT_MEMORY_END -->")
+$memoryBlock = ($memoryLines -join "`r`n")
+
+$rulePaths = @(
+    "C:\Projetos\Morphus\.agents\rules\rafa-identity.md",
+    "C:\Users\hebin\.gemini\config\rules\rafa-identity.md"
+)
+foreach ($rp in $rulePaths) {
+    if (Test-Path $rp) {
+        $ruleContent = [System.IO.File]::ReadAllText($rp, [System.Text.Encoding]::UTF8)
+        if ($ruleContent -match '(?s)<!-- MPX_RECENT_MEMORY_START -->.*?<!-- MPX_RECENT_MEMORY_END -->') {
+            $updatedRule = [regex]::Replace($ruleContent, '(?s)<!-- MPX_RECENT_MEMORY_START -->.*?<!-- MPX_RECENT_MEMORY_END -->', $memoryBlock)
+            [System.IO.File]::WriteAllText($rp, $updatedRule, [System.Text.Encoding]::UTF8)
+        }
+    }
+}
+
+Write-Output "Updated conversations.md index and rafa-identity.md memory snapshot for $ConversationId!"

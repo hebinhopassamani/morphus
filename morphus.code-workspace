@@ -1,10 +1,25 @@
 {
+  // ============================================================================
+  // 1. O QUE "folders" FAZ?
+  // ============================================================================
+  // Define quais pastas raízes aparecem na árvore de arquivos (Explorer) deste Workspace.
+  // - "path": "." -> Carrega a pasta atual (C:\Projetos\Morphus) como raiz do projeto.
+  // - Permite trabalhar com 1 única pasta ("Single-Root") ou adicionar várias pastas de outros
+  //   repositórios ("Multi-Root") dentro da mesma janela do VS Code sem misturar o Git de cada uma.
   "folders": [
     {
       "path": ".",
     },
   ],
 
+  // ============================================================================
+  // 2. O QUE "tasks" FAZ?
+  // ============================================================================
+  // Substitui o arquivo ".vscode/tasks.json". Define comandos e scripts automatizados (npm, dotnet, shell)
+  // que o VS Code pode executar em segundo plano ou antes de iniciar o Debug (via "preLaunchTask").
+  // - Aqui estão configurados "npm: start" (ng serve) e "npm: test" (ng test) apontando para "mpx-frontend/".
+  // - O "problemMatcher" ($tsc) vigia o terminal para detectar quando a compilação do Angular começa
+  //   ("Changes detected") e quando termina ("bundle generation complete"), avisando o VS Code a hora exata de abrir o Chrome.
   "tasks": {
     "version": "2.0.0",
     "tasks": [
@@ -48,9 +63,74 @@
       },
     ],
   },
+
+  // ============================================================================
+  // 3. O QUE "extensions" FAZ?
+  // ============================================================================
+  // Substitui o arquivo ".vscode/extensions.json". Define a lista de extensões oficiais recomendadas para o projeto.
+  // Quando um desenvolvedor abre este workspace pela primeira vez, o VS Code sugere instalar automaticamente
+  // essas extensões (Angular Language Service, C#, Prettier e Material Icon Theme) para garantir o mesmo ambiente para todos.
   "extensions": {
     "recommendations": ["angular.ng-template", "ms-dotnettools.csharp", "esbenp.prettier-vscode", "pkief.material-icon-theme"],
   },
+
+  // ============================================================================
+  // 4. O QUE "launch" FAZ?
+  // ============================================================================
+  // Substitui o arquivo ".vscode/launch.json" (fica na raiz do .code-workspace, irmão de "folders", "tasks" e "settings").
+  // Popula o menu "Run and Debug" (Ctrl+Shift+D) e o atalho F5 com os perfis de execução e depuração (breakpoints):
+  // - "Frontend: ng serve"   -> Dispara a task "npm: start" e abre o Chrome em http://localhost:4200 com debugger conectado.
+  // - "Frontend: ng test"    -> Dispara a task "npm: test" e abre o Chrome na página de debug do Karma (porta 9876).
+  // - "Backend: Mpx.Api"     -> Inicia a API C# (.NET 11 CoreCLR) com o debugger anexado e variável ASPNETCORE_ENVIRONMENT=Development.
+  // - "Service: Mpx.Jarbass" -> Inicia o serviço/worker Mpx.Jarbass em C# com o debugger anexado.
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "Frontend: ng serve",
+        "type": "chrome",
+        "request": "launch",
+        "preLaunchTask": "npm: start",
+        "url": "http://localhost:4200/",
+      },
+      {
+        "name": "Frontend: ng test",
+        "type": "chrome",
+        "request": "launch",
+        "preLaunchTask": "npm: test",
+        "url": "http://localhost:9876/debug.html",
+      },
+      {
+        "name": "Backend: Mpx.Api",
+        "type": "coreclr",
+        "request": "launch",
+        "program": "${workspaceFolder}/mpx-backend/Mpx.Api/bin/Debug/net11.0/Mpx.Api.dll",
+        "cwd": "${workspaceFolder}/mpx-backend/Mpx.Api",
+        "stopAtEntry": false,
+        "env": {
+          "ASPNETCORE_ENVIRONMENT": "Development",
+        },
+      },
+      {
+        "name": "Service: Mpx.Jarbass",
+        "type": "coreclr",
+        "request": "launch",
+        "program": "${workspaceFolder}/mpx-backend/Mpx.Jarbass/bin/Debug/net11.0/Mpx.Jarbass.dll",
+        "cwd": "${workspaceFolder}/mpx-backend/Mpx.Jarbass",
+        "stopAtEntry": false,
+        "env": {
+          "DOTNET_ENVIRONMENT": "Development",
+        },
+      },
+    ],
+  },
+
+  // ============================================================================
+  // 5. O QUE "settings" FAZ?
+  // ============================================================================
+  // Substitui o arquivo ".vscode/settings.json". Guarda todas as regras de editor específicas do Morphus
+  // (Prettier, ESLint ao salvar, arquivos ocultos no Explorer e o mapeamento completo de ícones do Material Icon Theme)
+  // mantendo seu User Settings Global limpo.
   "settings": {
     // 1. Configurações de Formatação e Lint do Projeto (Preferências visuais/fontes vêm do User Settings Global)
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -129,48 +209,6 @@
     },
     "[svg]": {
       "editor.defaultFormatter": "esbenp.prettier-vscode",
-    },
-
-    "launch": {
-      "version": "0.2.0",
-      "configurations": [
-        {
-          "name": "Frontend: ng serve",
-          "type": "chrome",
-          "request": "launch",
-          "preLaunchTask": "npm: start",
-          "url": "http://localhost:4200/",
-        },
-        {
-          "name": "Frontend: ng test",
-          "type": "chrome",
-          "request": "launch",
-          "preLaunchTask": "npm: test",
-          "url": "http://localhost:9876/debug.html",
-        },
-        {
-          "name": "Backend: Mpx.Api",
-          "type": "coreclr",
-          "request": "launch",
-          "program": "${workspaceFolder}/mpx-backend/Mpx.Api/bin/Debug/net11.0/Mpx.Api.dll",
-          "cwd": "${workspaceFolder}/mpx-backend/Mpx.Api",
-          "stopAtEntry": false,
-          "env": {
-            "ASPNETCORE_ENVIRONMENT": "Development",
-          },
-        },
-        {
-          "name": "Service: Mpx.Jarbass",
-          "type": "coreclr",
-          "request": "launch",
-          "program": "${workspaceFolder}/mpx-backend/Mpx.Jarbass/bin/Debug/net11.0/Mpx.Jarbass.dll",
-          "cwd": "${workspaceFolder}/mpx-backend/Mpx.Jarbass",
-          "stopAtEntry": false,
-          "env": {
-            "DOTNET_ENVIRONMENT": "Development",
-          },
-        },
-      ],
     },
     // 2. Todo o Monstro de Ícones Isolado Aqui Dentro!
     "material-icon-theme.folders.color": "#C870CC",
