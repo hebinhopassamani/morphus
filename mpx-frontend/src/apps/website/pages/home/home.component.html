@@ -193,12 +193,17 @@
     class="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/35 via-white/55 to-white/85 dark:from-[#0D061A]/55 dark:via-[#0D061A]/75 dark:to-[#0D061A]"
   ></div>
 
-  <!-- Ícone Cristal Oficial Flutuante -->
+  <!-- Ícone Oficial Flutuante (Light & Dark) -->
   <div class="relative mb-5 flex items-center justify-center">
     <img
-      src="/brands/app-icon-crystal.jpg"
-      alt="Morphus Crystal Icon"
-      class="size-20 rounded-2xl border border-[#00E5FF]/35 object-cover shadow-2xl"
+      src="/brands/favicon_light_512.png"
+      alt="Morphus Logo"
+      class="size-20 rounded-2xl object-cover shadow-xl dark:hidden"
+    />
+    <img
+      src="/brands/favicon_dark_512.png"
+      alt="Morphus Logo"
+      class="hidden size-20 rounded-2xl object-cover shadow-2xl dark:block"
     />
   </div>
 
@@ -228,22 +233,24 @@
 
   <div class="relative mt-8 flex flex-wrap items-center justify-center gap-4">
     @if (!context.hasUsedOrActiveTrial()) {
-      <a
+      <button
+        type="button"
         matButton
         class="primary large font-semibold tracking-wider uppercase"
-        routerLink="/security/signup"
+        (click)="goToSignUp()"
       >
         Comece grátis
         <mat-icon svgIcon="arrow-right" iconPositionEnd />
-      </a>
+      </button>
     }
-    <a
+    <button
+      type="button"
       matButton
       class="secondary large border border-neutral-a5 bg-white/80 font-semibold tracking-wider uppercase text-neutral-12! hover:bg-neutral-a3 dark:border-white/20 dark:bg-white/10 dark:text-white! dark:hover:bg-white/20"
-      [routerLink]="auth.isAuthenticated() ? '/morphus' : '/security/signin'"
+      (click)="goToPlatformOrSignIn()"
     >
       {{ auth.isAuthenticated() ? 'Acessar plataforma' : 'Entre' }}
-    </a>
+    </button>
   </div>
 
   <!-- Mini vitrine visual da arquitetura Morphus -->
@@ -292,7 +299,8 @@
 <footer class="mt-auto border-t border-neutral-a4 pt-8 text-sm text-neutral-a11">
   <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
     <div class="flex items-center gap-x-2">
-      <img src="/brands/app-icon-crystal.jpg" alt="Morphus" class="size-6 rounded-md object-cover" />
+      <img src="/brands/favicon_light_512.png" alt="Morphus" class="size-6 rounded-md object-cover dark:hidden" />
+      <img src="/brands/favicon_dark_512.png" alt="Morphus" class="hidden size-6 rounded-md object-cover dark:block" />
       <span class="bg-gradient-to-r from-[#00E5FF] via-[#A855F7] to-[#FF007A] bg-clip-text font-extrabold uppercase text-transparent">Morphus</span>
       <span>&copy; 2026 Todos os direitos reservados.</span>
     </div>

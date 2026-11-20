@@ -1291,6 +1291,43 @@ export class HomeComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  protected goToSignIn(): void {
+    if (this.isBrowser) {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//security.morphus.one`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/security');
+  }
+
+  protected goToSignUp(): void {
+    if (this.isBrowser) {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//security.morphus.one/signup`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/security/signup');
+  }
+
+  protected goToPlatformOrSignIn(): void {
+    if (!this.auth.isAuthenticated()) {
+      this.goToSignIn();
+      return;
+    }
+    if (this.isBrowser) {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//cloud.morphus.one`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/morphus');
+  }
+
   protected viewWorkspaceApplications(ws: Workspace): void {
     if (ws.id && ws.id !== this.context.activeWorkspace()?.id) {
       this.context.selectWorkspace(ws, false);

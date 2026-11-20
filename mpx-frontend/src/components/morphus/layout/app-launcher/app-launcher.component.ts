@@ -60,7 +60,7 @@ export interface EcosystemAppItem {
           <span class="text-xs font-bold tracking-wider uppercase text-neutral-a10">
             Ecossistema Morphus
           </span>
-          <span class="text-[11px] font-medium text-primary-a11">*.morphus.one</span>
+          <span class="text-[11px] font-medium text-primary-a11">morphus.one</span>
         </div>
 
         <div class="grid grid-cols-3 gap-2">
@@ -135,8 +135,8 @@ export class MpxAppLauncherComponent {
       subdomain: '',
       localRoute: '/',
       icon: 'globe',
-      imageUrl: '/brands/morphus-one-logo.jpg',
-      iconBgClass: 'bg-[#120924] ring-1 ring-white/10',
+      imageUrl: '/logos/morphus_one_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-cyan-500 dark:text-cyan-300',
     },
     {
@@ -146,7 +146,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'cloud',
       localRoute: '/morphus',
       icon: 'cloud',
-      iconBgClass: 'bg-indigo-a3 ring-1 ring-indigo-a5',
+      imageUrl: '/logos/morphus_cloud_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-indigo-a11',
     },
     {
@@ -156,7 +157,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'security',
       localRoute: '/security',
       icon: 'shield-check',
-      iconBgClass: 'bg-violet-a3 ring-1 ring-violet-a5',
+      imageUrl: '/logos/morphus_security_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-violet-a11',
     },
     {
@@ -166,7 +168,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'flow',
       localRoute: '/flow',
       icon: 'workflow',
-      iconBgClass: 'bg-amber-a3 ring-1 ring-amber-a5',
+      imageUrl: '/logos/morphus_flow_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-amber-a11',
     },
     {
@@ -176,7 +179,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'kalupa',
       localRoute: '/kalupa',
       icon: 'sparkles',
-      iconBgClass: 'bg-jade-a3 ring-1 ring-jade-a5',
+      imageUrl: '/logos/morphus_kalupa_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-jade-a11',
     },
     {
@@ -186,8 +190,8 @@ export class MpxAppLauncherComponent {
       subdomain: 'send',
       localRoute: '/send',
       icon: 'send',
-      imageUrl: '/brands/morphus-send-logo.png',
-      iconBgClass: 'bg-white dark:bg-neutral-3 ring-1 ring-neutral-a4',
+      imageUrl: '/logos/morphus_send_logo.png',
+      iconBgClass: 'bg-transparent',
       iconTextClass: 'text-sky-500 dark:text-sky-300',
     },
   ];

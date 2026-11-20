@@ -3,6 +3,11 @@ import { MpxSecurityGuard } from '@core/morphus';
 
 export const routes: Routes = [
   {
+    path: '',
+    pathMatch: 'full',
+    loadChildren: () => import('@security/pages/signin/signin.routes').then((m) => m.routes),
+  },
+  {
     path: 'signin',
     loadChildren: () => import('@security/pages/signin/signin.routes').then((m) => m.routes),
   },

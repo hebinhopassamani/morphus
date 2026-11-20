@@ -29,36 +29,6 @@ const isCustomAppDomain = (): boolean => {
 
 export const routes: Routes = [
   {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isSubdomain('cloud') ? { consumed: [] } : null,
-    redirectTo: 'morphus',
-  },
-  {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isSubdomain('security') ? { consumed: [] } : null,
-    redirectTo: 'security',
-  },
-  {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isSubdomain('flow') ? { consumed: [] } : null,
-    redirectTo: 'flow',
-  },
-  {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isSubdomain('kalupa') ? { consumed: [] } : null,
-    redirectTo: 'kalupa',
-  },
-  {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isSubdomain('send') ? { consumed: [] } : null,
-    redirectTo: 'send',
-  },
-  {
-    matcher: (segments: UrlSegment[]) =>
-      segments.length === 0 && isCustomAppDomain() ? { consumed: [] } : null,
-    redirectTo: 'app',
-  },
-  {
     path: 'morphus',
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
@@ -89,6 +59,35 @@ export const routes: Routes = [
   },
   {
     path: 'app',
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isSubdomain('cloud') ? { consumed: [] } : null),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isSubdomain('security') ? { consumed: [] } : null),
+    loadChildren: () => import('@security/security.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isSubdomain('flow') ? { consumed: [] } : null),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@flow/flow.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isSubdomain('kalupa') ? { consumed: [] } : null),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@kalupa/kalupa.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isSubdomain('send') ? { consumed: [] } : null),
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@send/send.routes').then((m) => m.routes),
+  },
+  {
+    matcher: (segments: UrlSegment[]) => (isCustomAppDomain() ? { consumed: [] } : null),
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
   },

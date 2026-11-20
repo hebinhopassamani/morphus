@@ -137,4 +137,37 @@ export class MpxLandingTopBarComponent {
       : this.router.url || '/';
     this.auth.openCorporationSelector(currentUrl, 'website');
   }
+
+  protected goToSignIn(): void {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//security.morphus.one`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/security');
+  }
+
+  protected goToSignUp(): void {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//security.morphus.one/signup`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/security/signup');
+  }
+
+  protected goToCloudAdmin(): void {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        window.location.href = `${window.location.protocol}//cloud.morphus.one`;
+        return;
+      }
+    }
+    void this.router.navigateByUrl('/morphus');
+  }
 }

@@ -8,8 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
   template: `
     <div class="flex flex-col flex-auto min-w-0 p-6 md:p-10">
       <div class="flex items-center gap-4 mb-6">
-        <div class="flex items-center justify-center w-14 h-14 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 shadow-sm">
-          <img src="/brands/morphus-send-logo.png" alt="Morphus Send" class="w-full h-full object-contain" />
+        <div class="flex items-center justify-center w-14 h-14 overflow-hidden rounded-2xl shadow-sm">
+          <img src="/logos/morphus_send_logo.png" alt="Morphus Send" class="w-full h-full object-cover" />
         </div>
         <div>
           <h1 class="text-2xl font-bold tracking-tight">Morphus Send</h1>

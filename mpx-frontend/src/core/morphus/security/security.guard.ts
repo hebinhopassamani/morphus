@@ -12,7 +12,17 @@ export const MpxSecurityGuard: CanActivateFn = (route, state) => {
   const router = inject(Router);
 
   if (!security.isAuthenticated()) {
-    return router.createUrlTree(['/security/signin'], {
+    if (typeof window !== 'undefined') {
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        if (host !== 'security.morphus.one') {
+          window.location.href = `${window.location.protocol}//security.morphus.one`;
+          return false;
+        }
+        return router.createUrlTree(['/']);
+      }
+    }
+    return router.createUrlTree(['/security'], {
       queryParams: state.url && state.url !== '/morphus' ? { returnUrl: state.url } : undefined,
     });
   }
