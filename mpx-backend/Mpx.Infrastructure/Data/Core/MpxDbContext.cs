@@ -170,6 +170,24 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<ModuleCategory> ModuleCategories { get; set; }
   public DbSet<ShowcaseModule> ShowcaseModules { get; set; }
 
+  public DbSet<FileType> FileTypes { get; set; }
+  public DbSet<Station> Stations { get; set; }
+  public DbSet<WorkflowType> WorkflowTypes { get; set; }
+  public DbSet<WorkflowTypeConfig> WorkflowTypeConfigs { get; set; }
+  public DbSet<WorkflowTypeConfigAction> WorkflowTypeConfigActions { get; set; }
+  public DbSet<WorkflowTypeConfigActionFileType> WorkflowTypeConfigActionFileTypes { get; set; }
+  public DbSet<WorkflowTypeConfigCondition> WorkflowTypeConfigConditions { get; set; }
+  public DbSet<WorkflowTypeConfigField> WorkflowTypeConfigFields { get; set; }
+  public DbSet<WorkflowTypeConfigValidation> WorkflowTypeConfigValidations { get; set; }
+  public DbSet<WorkflowTypeConfigSla> WorkflowTypeConfigSlas { get; set; }
+  public DbSet<WorkflowTypeConfigNotification> WorkflowTypeConfigNotifications { get; set; }
+  public DbSet<WorkflowPermission> WorkflowPermissions { get; set; }
+  public DbSet<Workflow> Workflows { get; set; }
+  public DbSet<WorkflowTask> WorkflowTasks { get; set; }
+  public DbSet<WorkflowTaskOwner> WorkflowTaskOwners { get; set; }
+  public DbSet<WorkflowItem> WorkflowItems { get; set; }
+  public DbSet<WorkflowItemMetadata> WorkflowItemMetadatas { get; set; }
+
   public async Task<IMpxTransaction> BeginTransactionAsync()
   {
     var efTransaction = await Database.BeginTransactionAsync();

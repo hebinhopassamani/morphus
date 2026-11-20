@@ -13,6 +13,7 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     builder.HasKey(r => r.Id);
 
     builder.Property(r => r.Name).IsRequired().HasMaxLength(100);
+    builder.Property(r => r.Email).IsRequired(false).HasMaxLength(150);
     builder.Property(r => r.Key).IsRequired().HasMaxLength(100);
     builder.Property(r => r.System).IsRequired().HasDefaultValue(false);
     builder.Property(r => r.CorporationId).IsRequired();

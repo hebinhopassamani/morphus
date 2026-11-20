@@ -109,6 +109,8 @@
 
     <!-- Botões de ação alinhados à direita -->
     <div class="flex items-center gap-x-2 sm:gap-x-3">
+      <mpx-app-launcher />
+
       @if (auth.isAuthenticated() && auth.user(); as user) {
         @if (auth.needsOnboarding()) {
           <a matButton class="primary small" routerLink="/security/onboarding">

@@ -11,6 +11,7 @@ import { MpxSecurity } from '@core/morphus';
 import { Scheme, MpxTheming } from '@core/morphus';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
 import { MpxContextService } from '@morphus/services/morphus-context.service';
+import { MpxAppLauncherComponent } from '../../app-launcher/app-launcher.component';
 
 @Component({
   imports: [
@@ -22,6 +23,7 @@ import { MpxContextService } from '@morphus/services/morphus-context.service';
     MatTooltipModule,
     MatPseudoCheckbox,
     RouterLink,
+    MpxAppLauncherComponent,
   ],
   selector: 'mpx-admin-topbar',
   templateUrl: './admin-topbar.component.html',

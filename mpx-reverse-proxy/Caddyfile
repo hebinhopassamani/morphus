@@ -2,8 +2,8 @@
 	email contato@morphus.me
 }
 
-# Rota do ecossistema principal Morphus
-{$MORPHUS_DOMAIN} {
+# Rota do ecossistema principal Morphus e subdomínios oficiais (*.morphus.me)
+{$MORPHUS_DOMAIN}, www.{$MORPHUS_DOMAIN}, cloud.{$MORPHUS_DOMAIN}, security.{$MORPHUS_DOMAIN}, flow.{$MORPHUS_DOMAIN}, kalupa.{$MORPHUS_DOMAIN}, send.{$MORPHUS_DOMAIN} {
 	encode zstd gzip
 
 	# Repassa chamadas de API para o container da API .NET

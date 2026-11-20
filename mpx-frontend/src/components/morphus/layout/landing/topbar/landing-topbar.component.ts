@@ -12,6 +12,7 @@ import { Workspace } from '@morphus/entities/workspace';
 import { THEME_PRESETS } from '@morphus/pages/settings/data/preferences';
 import { MpxContextService } from '@morphus/services/morphus-context.service';
 import { CorporationSummary } from '@security/entities/session';
+import { MpxAppLauncherComponent } from '../../app-launcher/app-launcher.component';
 
 @Component({
   imports: [
@@ -24,6 +25,7 @@ import { CorporationSummary } from '@security/entities/session';
     MatMenuTrigger,
     MatDivider,
     RouterLink,
+    MpxAppLauncherComponent,
   ],
   selector: 'mpx-landing-topbar',
   templateUrl: './landing-topbar.component.html',

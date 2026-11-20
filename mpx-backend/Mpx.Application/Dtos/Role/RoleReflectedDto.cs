@@ -8,6 +8,7 @@ namespace Mpx.Application.Dtos;
 public class RoleReflectedDto : MpxDto<Role, RoleReflectedDto>
 {
   public string Name { get; set; } = string.Empty;
+  public string? Email { get; set; }
   public Guid ModuleId { get; set; }
   public Guid SubModuleId { get; set; }
   public string? Description { get; set; }
@@ -22,6 +23,7 @@ public class RoleReflectedDto : MpxDto<Role, RoleReflectedDto>
     ModuleId = r.ModuleId,
     SubModuleId = r.SubModuleId,
     Name = r.Name,
+    Email = r.Email,
     Description = r.Description
   };
 }

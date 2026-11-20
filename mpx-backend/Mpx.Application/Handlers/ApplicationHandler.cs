@@ -20,6 +20,24 @@ public class ApplicationHandler(
     IHttpContextAccessor httpContext)
     : MpxHandler<Application>(httpContext)
 {
+  private static readonly HashSet<string> ReservedMorphusSubdomains = new(StringComparer.OrdinalIgnoreCase)
+  {
+    "www",
+    "morphus",
+    "cloud",
+    "security",
+    "seguranca",
+    "flow",
+    "workflow",
+    "kalupa",
+    "send",
+    "mail",
+    "website",
+    "api",
+    "admin",
+    "auth"
+  };
+
   public Task<Application?> GetByIdAsync(Guid id) => applicationRepository.GetByIdAsync(id);
 
   public Task<List<Application>> GetListAsync() => applicationRepository.GetListAsync();
@@ -93,10 +111,19 @@ public class ApplicationHandler(
         .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
     // Também reserva os domínios oficiais de sistema
+    usedFullDomains.Add("morphus.me");
+    usedFullDomains.Add("www.morphus.me");
+    usedFullDomains.Add("cloud.morphus.me");
+    usedFullDomains.Add("security.morphus.me");
+    usedFullDomains.Add("flow.morphus.me");
+    usedFullDomains.Add("kalupa.morphus.me");
+    usedFullDomains.Add("send.morphus.me");
     usedFullDomains.Add("morphus.mpx.morphus.me");
     usedFullDomains.Add("seguranca.sec.morphus.me");
     usedFullDomains.Add("website.web.morphus.me");
     usedFullDomains.Add("kalupa.kal.morphus.me");
+    usedFullDomains.Add("flow.flw.morphus.me");
+    usedFullDomains.Add("send.snd.morphus.me");
 
     var words = ExtractCleanLowerWords(cleanName);
     if (words.Count == 0)
@@ -362,6 +389,12 @@ public class ApplicationHandler(
     if (string.IsNullOrWhiteSpace(requestedSub))
     {
       requestedSub = ExtractCleanLowerWords(cleanName).FirstOrDefault() ?? "app";
+    }
+
+    if (string.Equals(mode, "MorphusSuggested", StringComparison.OrdinalIgnoreCase) &&
+        ReservedMorphusSubdomains.Contains(requestedSub))
+    {
+      throw new InvalidOperationException($"O subdomínio '{requestedSub}' é reservado para aplicações oficiais do ecossistema Morphus.");
     }
 
     var morphusFullDomain = $"{requestedSub}.{prefixLower}.morphus.me";

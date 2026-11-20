@@ -1,10 +1,43 @@
 import { Routes } from '@angular/router';
 import { MpxSecurityGuard } from '@core/morphus';
 
+const resolveRootRedirect = (): string => {
+  if (typeof window === 'undefined') {
+    return 'website';
+  }
+
+  const host = window.location.hostname.toLowerCase();
+  const subdomain = host.split('.')[0];
+
+  switch (subdomain) {
+    case 'cloud':
+      return 'morphus';
+    case 'security':
+      return 'security';
+    case 'flow':
+      return 'flow';
+    case 'kalupa':
+      return 'kalupa';
+    case 'send':
+      return 'send';
+    default:
+      if (
+        host !== 'localhost' &&
+        host !== '127.0.0.1' &&
+        host !== 'morphus.me' &&
+        host !== 'www.morphus.me' &&
+        !host.startsWith('192.168.')
+      ) {
+        return 'app';
+      }
+      return 'website';
+  }
+};
+
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'website',
+    redirectTo: resolveRootRedirect,
     pathMatch: 'full',
   },
   {
@@ -37,8 +70,28 @@ export const routes: Routes = [
     loadChildren: () => import('@morphus/morphus.routes').then((m) => m.routes),
   },
   {
+    path: 'cloud',
+    redirectTo: 'morphus',
+    pathMatch: 'prefix',
+  },
+  {
     path: 'security',
     loadChildren: () => import('@security/security.routes').then((m) => m.routes),
+  },
+  {
+    path: 'flow',
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@flow/flow.routes').then((m) => m.routes),
+  },
+  {
+    path: 'kalupa',
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@kalupa/kalupa.routes').then((m) => m.routes),
+  },
+  {
+    path: 'send',
+    canActivate: [MpxSecurityGuard],
+    loadChildren: () => import('@send/send.routes').then((m) => m.routes),
   },
   {
     path: 'app',

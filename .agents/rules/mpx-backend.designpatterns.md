@@ -43,7 +43,12 @@ mpx-backend/
  │    └── Validators/                  ➔ IMpxValidator.cs, MpxValidator.cs, MpxDocumentValidator.cs
  │
  ├── Mpx.Domain/                       ➔ Entidades de Negócio, Contratos de Repositório e Modelos de Segurança
- │    ├── Entities/                    ➔ Exclusivamente entidades reais do banco (Application.cs, Corporation.cs, User.cs...)
+ │    ├── Entities/                    ➔ Agrupadas em subpastas por domínio (mantendo namespace Mpx.Domain.Entities):
+ │    │    ├── Mail/                   ➔ Email.cs, EmailBcc.cs, EmailCc.cs, EmailFrom.cs, EmailTo.cs
+ │    │    ├── Morphus/                ➔ Application.cs, Corporation.cs, Workspace.cs, Menu.cs, Category.cs...
+ │    │    ├── Security/               ➔ User.cs, Role.cs, Claim.cs, Module.cs, SubModule.cs, UserStatus.cs...
+ │    │    ├── Website/                ➔ Feature.cs, FeatureHighlight.cs, ModuleCategory.cs, ShowcaseModule.cs
+ │    │    └── Workflow/               ➔ WorkflowType.cs, Station.cs, StationType.cs, WorkflowTypeConfig.cs, Workflow.cs...
  │    ├── Interfaces/                  ➔ Exclusivamente contratos de repositórios de entidades (IUserRepository.cs, ICorporationRepository.cs...)
  │    └── Security/                    ➔ MpxAccountSeed.cs, MpxSession.cs e classes individuais de Request/Response de Segurança
  │

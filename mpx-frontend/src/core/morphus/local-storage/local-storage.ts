@@ -81,6 +81,8 @@ export class MpxLocalStorage {
     if (this.localStorage) {
       this.localStorage.setItem(key, value);
     }
+
+    this.setSharedCookie(key, value);
   }
 
   /**
@@ -91,6 +93,14 @@ export class MpxLocalStorage {
   getItem(key: string): string | null {
     if (this.isServer) {
       return this.storage.get(key) ?? null;
+    }
+
+    const fromCookie = this.getSharedCookie(key);
+    if (fromCookie !== null) {
+      if (this.localStorage && this.localStorage.getItem(key) !== fromCookie) {
+        this.localStorage.setItem(key, fromCookie);
+      }
+      return fromCookie;
     }
 
     if (this.localStorage) {
@@ -113,6 +123,66 @@ export class MpxLocalStorage {
 
     if (this.localStorage) {
       this.localStorage.removeItem(key);
+    }
+
+    this.removeSharedCookie(key);
+  }
+
+  private getSharedCookieDomain(): string | null {
+    const host = this.window?.location?.hostname?.toLowerCase() ?? '';
+    if (host === 'morphus.me' || host.endsWith('.morphus.me')) {
+      return '.morphus.me';
+    }
+    return null;
+  }
+
+  private setSharedCookie(key: string, value: string): void {
+    try {
+      const domain = this.getSharedCookieDomain();
+      if (!domain || !this.window?.document) {
+        return;
+      }
+      const encodedKey = encodeURIComponent(`mpx_sso_${key}`);
+      const encodedVal = encodeURIComponent(value);
+      if (encodedVal.length > 3800) {
+        return;
+      }
+      this.window.document.cookie = `${encodedKey}=${encodedVal}; Domain=${domain}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+    } catch {
+      // Ignore cookie write errors
+    }
+  }
+
+  private getSharedCookie(key: string): string | null {
+    try {
+      const domain = this.getSharedCookieDomain();
+      if (!domain || !this.window?.document?.cookie) {
+        return null;
+      }
+      const targetName = `${encodeURIComponent(`mpx_sso_${key}`)}=`;
+      const parts = this.window.document.cookie.split(';');
+      for (const raw of parts) {
+        const part = raw.trim();
+        if (part.startsWith(targetName)) {
+          return decodeURIComponent(part.substring(targetName.length));
+        }
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  private removeSharedCookie(key: string): void {
+    try {
+      const domain = this.getSharedCookieDomain();
+      if (!domain || !this.window?.document) {
+        return;
+      }
+      const encodedKey = encodeURIComponent(`mpx_sso_${key}`);
+      this.window.document.cookie = `${encodedKey}=; Domain=${domain}; Path=/; Max-Age=0; SameSite=Lax; Secure`;
+    } catch {
+      // Ignore cookie delete errors
     }
   }
 

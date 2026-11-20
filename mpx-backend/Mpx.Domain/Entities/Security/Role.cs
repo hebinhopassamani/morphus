@@ -6,6 +6,7 @@ namespace Mpx.Domain.Entities;
 public class Role : MpxEntity, IMpxTenant
 {
   public required string Name { get; set; }
+  public string? Email { get; set; }
   public Guid CorporationId { get; set; }
   public Guid ModuleId { get; set; }
   public Guid SubModuleId { get; set; }

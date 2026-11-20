@@ -23,3 +23,10 @@ csharp_new_line_before_catch = true
 # Preferências de codificação (Var vs Tipo explícito)
 csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
+
+# Obriga namespace file-scoped (com ponto e vírgula, sem bloco de chaves)
+csharp_style_namespace_declarations = file_scoped:warning
+
+# Permite agrupar entidades, DTOs e validators em subpastas mantendo o namespace pai limpo
+dotnet_style_namespace_match_folder = false:none
+dotnet_diagnostic.IDE0130.severity = none
