@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
-using Mpx.Application.MorphusValidator;
+
+using Mpx.Core.Validators;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -8,7 +9,7 @@ namespace Mpx.Application.Validators;
 public class WorkspaceValidator(
     IWorkspaceRepository workspaceRepository,
     IHttpContextAccessor httpContext)
-    : MorphusValidator<Workspace>(httpContext), IWorkspaceValidator
+    : MpxValidator<Workspace>(httpContext), IWorkspaceValidator
 {
   public Task ValidateWorkspace(Workspace workspace)
   {

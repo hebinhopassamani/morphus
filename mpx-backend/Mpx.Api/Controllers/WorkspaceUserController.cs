@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
 using Mpx.Domain.Entities;
 
@@ -82,3 +83,4 @@ public class WorkspaceUserController(WorkspaceUserHandler workspaceUserHandler) 
     return Ok(true);
   }
 }
+

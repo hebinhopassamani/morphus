@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class Feature : MorphusEntity
+public class Feature : MpxEntity
 {
   public required string Title { get; set; }
   public required string HighlightPhrase { get; set; }
@@ -9,3 +11,4 @@ public class Feature : MorphusEntity
 
   public virtual ICollection<FeatureHighlight> Highlights { get; set; } = [];
 }
+

@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class CorporationDomain : MorphusEntity, IMorphusTenant
+public class CorporationDomain : MpxEntity, IMpxTenant
 {
   public required string DomainName { get; set; }
   public string OriginType { get; set; } = "CustomerOwned"; // "MorphusShared" | "CustomerOwned" | "PurchasedWithMorphus"
@@ -14,5 +15,6 @@ public class CorporationDomain : MorphusEntity, IMorphusTenant
 
   public virtual Corporation? Corporation { get; set; }
   public virtual ICollection<CorporationDomainRecord> DomainRecords { get; set; } = [];
-  public virtual ICollection<MorphusApplication> Applications { get; set; } = [];
+  public virtual ICollection<Application> Applications { get; set; } = [];
 }
+

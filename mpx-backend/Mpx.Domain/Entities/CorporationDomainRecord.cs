@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class CorporationDomainRecord : MorphusEntity, IMorphusTenant
+public class CorporationDomainRecord : MpxEntity, IMpxTenant
 {
   public Guid CorporationId { get; set; }
   public Guid CorporationDomainId { get; set; }
@@ -15,3 +16,4 @@ public class CorporationDomainRecord : MorphusEntity, IMorphusTenant
   public virtual Corporation? Corporation { get; set; }
   public virtual CorporationDomain? CorporationDomain { get; set; }
 }
+

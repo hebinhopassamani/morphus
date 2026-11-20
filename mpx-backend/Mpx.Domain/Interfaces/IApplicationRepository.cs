@@ -1,20 +1,21 @@
+﻿using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces;
 
-public interface IApplicationRepository : IMorphusRepository<MorphusApplication>
+public interface IApplicationRepository : IMpxRepository<Application>
 {
-  Task<List<MorphusApplication>> GetListAsync();
-  Task<List<MorphusApplication>> GetByWorkspaceAsync(Guid workspaceId);
-  Task<MorphusApplication?> GetByKeyAsync(string key);
+  Task<List<Application>> GetListAsync();
+  Task<List<Application>> GetByWorkspaceAsync(Guid workspaceId);
+  Task<Application?> GetByKeyAsync(string key);
   Task<List<Category>> GetCategoriesAsync();
-  Task EnsureInitialWorkspaceAndDashboardForNewAppAsync(MorphusApplication application);
+  Task EnsureInitialWorkspaceAndDashboardForNewAppAsync(Application application);
   Task SyncApplicationWorkspacesAsync(Guid applicationId, List<Guid> workspaceIds);
   Task<ApplicationModule> SaveModuleAsync(Guid applicationId, ApplicationModule module);
   Task DeleteModuleAsync(Guid moduleId);
   Task<ApplicationSubModule> SaveSubModulePageAsync(Guid moduleId, ApplicationSubModule page);
   Task DeleteSubModulePageAsync(Guid pageId);
-  Task<List<MorphusApplication>> GetAllApplicationsIgnoreFiltersAsync();
+  Task<List<Application>> GetAllApplicationsIgnoreFiltersAsync();
   Task<List<CorporationDomain>> GetCorporationDomainsAsync();
   Task<List<CorporationDomain>> GetAllCorporationDomainsIgnoreFiltersAsync();
   Task<CorporationDomain> SaveCorporationDomainAsync(CorporationDomain domain);
@@ -22,3 +23,4 @@ public interface IApplicationRepository : IMorphusRepository<MorphusApplication>
   Task<ApplicationSetting> SaveApplicationSettingAsync(Guid applicationId, ApplicationSetting setting);
   Task DeleteApplicationSettingAsync(Guid settingId);
 }
+

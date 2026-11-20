@@ -1,9 +1,12 @@
 using Microsoft.Extensions.Configuration;
-using mpx.Domain.Interfaces;
+
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
+
+using Application = Mpx.Domain.Entities.Application;
 
 public class WorkspaceApplicationHandler(
     IWorkspaceApplicationRepository workspaceApplicationRepository,
@@ -13,7 +16,7 @@ public class WorkspaceApplicationHandler(
   private int GetDefaultTrialDays() =>
       int.TryParse(configuration["TrialSettings:DefaultDays"], out var days) && days > 0 ? days : 14;
 
-  public Task<List<MorphusApplication>> GetEntitiesToRelateAsync(Guid workspaceId) =>
+  public Task<List<Application>> GetEntitiesToRelateAsync(Guid workspaceId) =>
       workspaceApplicationRepository.GetEntitiesToRelateAsync(workspaceId);
 
   public Task<List<WorkspaceApplication>> GetRelatedEntitiesAsync(Guid workspaceId) =>
@@ -190,3 +193,5 @@ public class WorkspaceApplicationHandler(
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+

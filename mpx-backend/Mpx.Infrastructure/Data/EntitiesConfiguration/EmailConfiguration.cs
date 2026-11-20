@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Mpx.Domain.Entities;
 
 namespace Mpx.Infrastructure.Data.EntitiesConfiguration;
@@ -21,7 +22,7 @@ public class EmailConfiguration : IEntityTypeConfiguration<Email>
            .HasForeignKey(e => e.CorporationId)
            .OnDelete(DeleteBehavior.Restrict);
 
-    // MAPEAMENTO DOS FILHOS USANDO A NAVEGAÇÃO INTERNA DO EF CORE (Garante o varchar(150))
+    // MAPEAMENTO DOS FILHOS USANDO A NAVEGAÃ‡ÃƒO INTERNA DO EF CORE (Garante o varchar(150))
     // 1. Relacionamento e campos da tabela EmailTo
     builder.HasMany(e => e.EmailTo)
            .WithOne(t => t.Email)
@@ -47,3 +48,4 @@ public class EmailConfiguration : IEntityTypeConfiguration<Email>
            .OnDelete(DeleteBehavior.Cascade);
   }
 }
+

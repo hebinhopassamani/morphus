@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class ApplicationSetting : MorphusEntity, IMorphusTenant
+public class ApplicationSetting : MpxEntity, IMpxTenant
 {
   public Guid CorporationId { get; set; }
   public Guid ApplicationId { get; set; }
@@ -17,5 +18,6 @@ public class ApplicationSetting : MorphusEntity, IMorphusTenant
   public string? Description { get; set; }
 
   public virtual Corporation? Corporation { get; set; }
-  public virtual MorphusApplication? Application { get; set; }
+  public virtual Application? Application { get; set; }
 }
+

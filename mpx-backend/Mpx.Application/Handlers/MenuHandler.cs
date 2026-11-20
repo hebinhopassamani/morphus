@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -10,7 +11,7 @@ public class MenuHandler(
     IMenuRepository menuRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<Menu>(httpContext)
+    : MpxHandler<Menu>(httpContext)
 {
   public Task<Menu?> GetByIdAsync(Guid id) => menuRepository.GetByIdAsync(id);
 
@@ -52,3 +53,5 @@ public class MenuHandler(
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+

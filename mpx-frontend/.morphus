@@ -53,6 +53,7 @@ src/
 
 - **NUNCA declare duas ou mais classes, interfaces, enums ou componentes dentro do mesmo arquivo.**
 - Sempre separe cada estrutura em seu próprio arquivo físico.
+- **Única Exceção Permitida**: Arquivos de tipagem **`*.type.ts`** (`export type ...`) quando agrupam *type aliases* fortemente acoplados ao mesmo tipo primitivo.
 - Isso garante que, ao bater o olho no nome do arquivo na árvore do VS Code (e no seu ícone do Material Icon Theme), o desenvolvedor **já saiba exatamente o nome da única estrutura que existe lá dentro sem precisar abrir o arquivo**.
 
 ---

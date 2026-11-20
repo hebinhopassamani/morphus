@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class ShowcaseModule : MorphusEntity
+public class ShowcaseModule : MpxEntity
 {
   public Guid CategoryId { get; set; }
   public string? Icon { get; set; }
@@ -11,3 +13,4 @@ public class ShowcaseModule : MorphusEntity
 
   public virtual ModuleCategory? Category { get; set; }
 }
+

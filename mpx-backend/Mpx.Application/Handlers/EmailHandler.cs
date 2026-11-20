@@ -1,11 +1,15 @@
-using Microsoft.Extensions.Configuration;
-using MimeKit;
+using System.Reflection;
+
 using MailKit.Net.Smtp;
 using MailKit.Security;
-using System.Reflection;
-using Mpx.Domain.Interfaces;
-using mpx.Domain.Interfaces;
+
+using Microsoft.Extensions.Configuration;
+
+using MimeKit;
+
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
+using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
 
@@ -297,3 +301,5 @@ public class EmailHandler
     return this;
   }
 }
+
+

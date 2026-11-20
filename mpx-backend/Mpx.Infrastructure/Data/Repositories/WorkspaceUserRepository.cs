@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class WorkspaceUserRepository(MorphusDbContext context) : MorphusRepository<WorkspaceUser>(context), IWorkspaceUserRepository
+public class WorkspaceUserRepository(MpxDbContext context) : MpxRepository<WorkspaceUser>(context), IWorkspaceUserRepository
 {
   public async Task<List<User>> GetEntitiesToRelateAsync(Guid workspaceId)
   {
@@ -57,3 +59,4 @@ public class WorkspaceUserRepository(MorphusDbContext context) : MorphusReposito
     return entity;
   }
 }
+

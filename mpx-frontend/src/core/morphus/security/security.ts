@@ -50,6 +50,7 @@ export class MpxSecurity {
 
   private readonly sessionState = signal<MpxSession | null>(null);
   private readonly loadingState = signal<boolean>(false);
+  private activeLoadingCount = 0;
   private readonly errorState = signal<{ message: string } | null>(null);
   private readonly expirationTimerState = signal<string>('');
   readonly autoRefresh = signal<boolean>(true);
@@ -63,6 +64,16 @@ export class MpxSecurity {
 
   readonly session = this.sessionState.asReadonly();
   readonly isLoading = this.loadingState.asReadonly();
+
+  private beginLoading(): void {
+    this.activeLoadingCount++;
+    this.loadingState.set(true);
+  }
+
+  private endLoading(): void {
+    this.activeLoadingCount = Math.max(0, this.activeLoadingCount - 1);
+    this.loadingState.set(this.activeLoadingCount > 0);
+  }
   readonly error = this.errorState.asReadonly();
   readonly expirationTimer = this.expirationTimerState.asReadonly();
 
@@ -299,7 +310,7 @@ export class MpxSecurity {
   }
 
   loginWithGoogle(request: GoogleLoginRequest): Observable<MpxSession> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<MpxSession>(`${this.apiUrl}/google-login`, request).pipe(
@@ -316,7 +327,7 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
@@ -343,7 +354,7 @@ export class MpxSecurity {
   }
 
   loginWithCredentials(request: LoginRequest): Observable<MpxSession> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<MpxSession>(`${this.apiUrl}/login`, request).pipe(
@@ -359,12 +370,12 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
   createAccount(request: CreateAccountRequest): Observable<MpxSession> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<MpxSession>(`${this.apiUrl}/create-account`, request).pipe(
@@ -380,7 +391,7 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
@@ -389,7 +400,7 @@ export class MpxSecurity {
   }
 
   confirmEmail(request: ConfirmEmailRequest): Observable<{ message: string }> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<{ message: string }>(`${this.apiUrl}/confirm-email`, request).pipe(
@@ -399,7 +410,7 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
@@ -423,7 +434,7 @@ export class MpxSecurity {
   }
 
   saveOnboardingCorporationStep(request: OnboardingCorporationStepRequest): Observable<MpxSession> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<MpxSession>(`${this.apiUrl}/onboarding/step-corporation`, request).pipe(
@@ -439,12 +450,12 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
   saveOnboardingWorkspaceStep(request: OnboardingWorkspaceStepRequest): Observable<OnboardingStateResponse> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<OnboardingStateResponse>(`${this.apiUrl}/onboarding/step-workspace`, request).pipe(
@@ -454,12 +465,12 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
   completeOnboarding(request: OnboardingCompleteRequest): Observable<MpxSession> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<MpxSession>(`${this.apiUrl}/onboarding/complete`, request).pipe(
@@ -475,12 +486,12 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
   forgotPassword(request: ForgotPasswordRequest): Observable<{ message: string }> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<{ message: string }>(`${this.apiUrl}/forgot-password`, request).pipe(
@@ -489,12 +500,12 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
   resetPassword(request: ResetPasswordRequest): Observable<{ message: string }> {
-    this.loadingState.set(true);
+    this.beginLoading();
     this.errorState.set(null);
 
     return this.http.post<{ message: string }>(`${this.apiUrl}/reset-password`, request).pipe(
@@ -503,7 +514,7 @@ export class MpxSecurity {
         this.errorState.set({ message });
         return throwError(() => err);
       }),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 
@@ -569,7 +580,7 @@ export class MpxSecurity {
 
   switchCorporation(corporationId: string): Observable<MpxSession> {
     const payload: SwitchCorporationRequest = { corporationId };
-    this.loadingState.set(true);
+    this.beginLoading();
 
     return this.http.post<MpxSession>(`${this.apiUrl}/switch-corporation`, payload).pipe(
       delay(1200),
@@ -579,7 +590,7 @@ export class MpxSecurity {
           corporationSelected: true,
         }),
       ),
-      finalize(() => this.loadingState.set(false)),
+      finalize(() => this.endLoading()),
     );
   }
 

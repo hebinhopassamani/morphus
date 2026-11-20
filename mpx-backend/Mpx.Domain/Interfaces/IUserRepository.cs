@@ -1,8 +1,9 @@
+﻿using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces;
 
-public interface IUserRepository : IMorphusRepository<User>
+public interface IUserRepository : IMpxRepository<User>
 {
   Task<List<User>> GetListAsync();
   Task<User?> GetByRefreshTokenAsync(string refreshToken);
@@ -11,3 +12,4 @@ public interface IUserRepository : IMorphusRepository<User>
   Task<User?> GetByIdWithAccessAsync(Guid userId);
   Task<bool> ExistsEmailAsync(string email, Guid? userId = null);
 }
+

@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Mpx.Domain.Entities;
 
 namespace Mpx.Infrastructure.Data.EntitiesConfiguration;
@@ -35,4 +36,5 @@ public class ClaimConfiguration : IEntityTypeConfiguration<Claim>
            .OnDelete(DeleteBehavior.Cascade);
   }
 }
+
 

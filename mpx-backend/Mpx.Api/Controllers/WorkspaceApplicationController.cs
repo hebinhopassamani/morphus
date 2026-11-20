@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
 using Mpx.Domain.Entities;
 
@@ -70,3 +71,4 @@ public class WorkspaceApplicationController(WorkspaceApplicationHandler workspac
   public async Task<IActionResult> StartTrial([FromBody] WorkspaceApplication workspaceApplication) =>
       Ok(await workspaceApplicationHandler.StartTrialAsync(workspaceApplication));
 }
+

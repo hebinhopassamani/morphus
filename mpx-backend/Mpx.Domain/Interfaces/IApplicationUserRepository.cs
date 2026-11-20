@@ -1,8 +1,9 @@
+﻿using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces;
 
-public interface IApplicationUserRepository : IMorphusRepository<ApplicationUser>
+public interface IApplicationUserRepository : IMpxRepository<ApplicationUser>
 {
   Task<List<User>> GetEntitiesToRelateAsync(Guid applicationId);
   Task<List<ApplicationUser>> GetRelatedEntitiesAsync(Guid applicationId);
@@ -10,3 +11,4 @@ public interface IApplicationUserRepository : IMorphusRepository<ApplicationUser
   Task<ApplicationUser> AddRelationshipAsync(ApplicationUser entity);
   ApplicationUser RemoveRelationship(ApplicationUser entity);
 }
+

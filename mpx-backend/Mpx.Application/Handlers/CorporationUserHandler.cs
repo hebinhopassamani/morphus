@@ -1,4 +1,4 @@
-using mpx.Domain.Interfaces;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -108,4 +108,6 @@ public class CorporationUserHandler(ICorporationUserRepository corporationUserRe
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+
 

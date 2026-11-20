@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
 using Mpx.Application.Validators;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -14,7 +15,7 @@ public class WorkspaceController(
     IWorkspaceValidator mpsValidator,
     WorkspaceHandler workspaceHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<Workspace>(httpContext)
+    : MpxController<Workspace>(httpContext)
 {
   private readonly IWorkspaceValidator validator = mpsValidator;
 
@@ -82,3 +83,4 @@ public class WorkspaceController(
     return MorphusErrorMessage(validator.ErrorMessage);
   }
 }
+

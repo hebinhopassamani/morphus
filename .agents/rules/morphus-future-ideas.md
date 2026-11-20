@@ -111,6 +111,11 @@ description: Ideias futuras, visões de produto e módulos planejados para o eco
        4. **Disparo Autenticado em Nome do Cliente (2 Abordagens possíveis)**:
           - **Abordagem Nativa (`MimeKit.Cryptography.DkimSigner`)**: O próprio `MimeKit` (já usado no `EmailHandler`) assina digitalmente cada `MimeMessage` com a chave privada DKIM daquele domínio antes de entregar ao servidor SMTP/Relay.
           - **Abordagem White-Label (O segredo da Resend com AWS SES)**: A API C# se comunica por trás dos panos com o SDK da AWS SES (`CreateEmailIdentity`), exibe os tokens DNS na tela do `morphus-mail` com a identidade visual do Morphus e utiliza a reputação de IPs da Amazon pagando frações de centavo por milheiro.
+  5. **Extinção da Pasta Física `EmailTemplates` ➔ Templates 100% no Banco de Dados + Editor Visual de Templates de E-mail**:
+     - A pasta física `mpx-backend\Mpx.Application\EmailTemplates` (`confirm-email.html`, `password-reset.html`, `welcome.html`) deixará de existir em disco e seus templates passarão a morar **100% no banco de dados** (por Corporação, com seed padrão e personalização total pelo cliente).
+     - **Reaproveitamento do Nosso Editor Visual de Páginas (`App Builder` ➔ `Editor de Templates de E-mail`)**:
+       - Utilizando o mesmo motor fortíssimo de edição HTML/visual do `App Builder`, o cliente poderá desenhar e editar seus templates de e-mail visualmente.
+       - **Injeção Visual de Variáveis de Contexto**: O editor expõe na barra de ferramentas todas as variáveis dinâmicas daquele contexto/evento (ex.: Nome do Usuário, Nome da Corporação, Link de Confirmação, Token, Valor da Fatura) para o usuário inserir com 1 clique, sem precisar decorar nomes técnicos de variáveis ou saber que elas existem no código!
 
 ## 5. Catálogo de Aplicações Comercializáveis & Provisionamento Sob Demanda (Ex.: `Kalupa` — Teste Grátis 14 Dias)
 - **O Que é o Kalupa (Proposta de Valor & Agnosticismo de Editor)**:

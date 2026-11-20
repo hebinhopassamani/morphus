@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class EmailFrom : MorphusEntity, IMorphusTenant
+public class EmailFrom : MpxEntity, IMpxTenant
 {
   public required string Mail { get; set; }
   public string? Name { get; set; }
@@ -13,3 +14,4 @@ public class EmailFrom : MorphusEntity, IMorphusTenant
   public required virtual Email Email { get; set; }
   public virtual Corporation? Corporation { get; set; }
 }
+

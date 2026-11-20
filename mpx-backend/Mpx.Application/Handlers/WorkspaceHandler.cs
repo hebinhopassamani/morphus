@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+﻿using Microsoft.AspNetCore.Http;
+
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -11,7 +12,7 @@ public class WorkspaceHandler(
     IWorkspaceUserRepository workspaceUserRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<Workspace>(httpContext)
+    : MpxHandler<Workspace>(httpContext)
 {
   public Task<Workspace?> GetByIdAsync(Guid id) => workspaceRepository.GetByIdAsync(id);
 
@@ -75,3 +76,5 @@ public class WorkspaceHandler(
     await workspaceRepository.EnsureDefaultWorkspaceExistsAsync();
   }
 }
+
+

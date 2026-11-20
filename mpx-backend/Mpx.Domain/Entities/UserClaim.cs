@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class UserClaim : MorphusRelatedEntity
+public class UserClaim : MpxRelatedEntity
 {
   public Guid UserId { get; set; }
   public Guid ClaimId { get; set; }
@@ -9,3 +11,4 @@ public class UserClaim : MorphusRelatedEntity
   public virtual Claim? Claim { get; set; }
   public virtual Corporation? Corporation { get; set; }
 }
+

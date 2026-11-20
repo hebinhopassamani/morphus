@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class SubModule : MorphusEntity, IMorphusTenant
+public class SubModule : MpxEntity, IMpxTenant
 {
   public required string Name { get; set; }
   public Guid ModuleId { get; set; }
@@ -14,3 +15,4 @@ public class SubModule : MorphusEntity, IMorphusTenant
   public virtual ICollection<Role> Roles { get; set; } = [];
   public virtual ICollection<Claim> Claims { get; set; } = [];
 }
+

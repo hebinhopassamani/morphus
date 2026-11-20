@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class Email : MorphusEntity, IMorphusTenant
+public class Email : MpxEntity, IMpxTenant
 {
   public string? Subject { get; set; }
   public string? HtmlBody { get; set; }
@@ -61,3 +62,4 @@ public class Email : MorphusEntity, IMorphusTenant
     });
   }
 }
+

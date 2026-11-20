@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
 using Mpx.Domain.Entities;
 
@@ -44,4 +45,5 @@ public class UserController(UserHandler userHandler) : ControllerBase
     return NoContent();
   }
 }
+
 

@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class UserRepository(MorphusDbContext context) : MorphusRepository<User>(context), IUserRepository
+public class UserRepository(MpxDbContext context) : MpxRepository<User>(context), IUserRepository
 {
   public override async Task<User?> GetByIdAsync(Guid id)
   {
@@ -108,4 +110,5 @@ public class UserRepository(MorphusDbContext context) : MorphusRepository<User>(
     return await query.AnyAsync();
   }
 }
+
 

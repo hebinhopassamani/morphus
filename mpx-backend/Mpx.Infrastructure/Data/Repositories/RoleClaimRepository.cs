@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<RoleClaim>(context), IRoleClaimRepository
+public class RoleClaimRepository(MpxDbContext context) : MpxRepository<RoleClaim>(context), IRoleClaimRepository
 {
   public async Task<List<Claim>> GetEntitiesToRelateAsync(Guid roleId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null)
   {
@@ -84,4 +86,5 @@ public class RoleClaimRepository(MorphusDbContext context) : MorphusRepository<R
     return entity;
   }
 }
+
 

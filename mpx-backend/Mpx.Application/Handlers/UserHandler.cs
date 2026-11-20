@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
+using Mpx.Core.Security;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
@@ -12,7 +14,7 @@ public class UserHandler(
     ICorporationUserRepository corporationUserRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<User>(httpContext)
+    : MpxHandler<User>(httpContext)
 {
   public Task<User?> GetByIdAsync(Guid id) => userRepository.GetByIdAsync(id);
 
@@ -41,7 +43,7 @@ public class UserHandler(
 
     if (!string.IsNullOrWhiteSpace(plainPassword))
     {
-      user.PasswordHash = MorphusSecurity.HashPassword(plainPassword);
+      user.PasswordHash = MpxSecurity.HashPassword(plainPassword);
     }
 
     await userRepository.AddAsync(user);
@@ -79,7 +81,7 @@ public class UserHandler(
 
     if (!string.IsNullOrWhiteSpace(newPlainPassword))
     {
-      existing.PasswordHash = MorphusSecurity.HashPassword(newPlainPassword);
+      existing.PasswordHash = MpxSecurity.HashPassword(newPlainPassword);
     }
 
     userRepository.Update(existing);
@@ -100,4 +102,6 @@ public class UserHandler(
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+
 

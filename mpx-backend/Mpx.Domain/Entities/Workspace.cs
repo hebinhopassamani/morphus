@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class Workspace : MorphusEntity, IMorphusTenant
+public class Workspace : MpxEntity, IMpxTenant
 {
   public required string Name { get; set; }
   public string? Description { get; set; }
@@ -15,3 +16,4 @@ public class Workspace : MorphusEntity, IMorphusTenant
   public virtual ICollection<WorkspaceApplication> WorkspaceApplications { get; set; } = [];
   public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = [];
 }
+

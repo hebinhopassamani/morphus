@@ -1,11 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<Workspace>(context), IWorkspaceRepository
+public class WorkspaceRepository(MpxDbContext context) : MpxRepository<Workspace>(context), IWorkspaceRepository
 {
   private static bool _trialSchemaEnsured;
 
@@ -106,3 +108,4 @@ public class WorkspaceRepository(MorphusDbContext context) : MorphusRepository<W
     }
   }
 }
+

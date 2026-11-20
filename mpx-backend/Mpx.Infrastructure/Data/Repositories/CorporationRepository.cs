@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class CorporationRepository(MorphusDbContext context) : MorphusRepository<Corporation>(context), ICorporationRepository
+public class CorporationRepository(MpxDbContext context) : MpxRepository<Corporation>(context), ICorporationRepository
 {
   public async Task<List<Corporation>> GetListAsync(Guid activeCorporationId)
   {
@@ -51,3 +53,4 @@ public class CorporationRepository(MorphusDbContext context) : MorphusRepository
         .FirstOrDefaultAsync(c => c.Id == corporationId);
   }
 }
+

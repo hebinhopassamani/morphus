@@ -1,8 +1,9 @@
+﻿using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces;
 
-public interface IWorkspaceUserRepository : IMorphusRepository<WorkspaceUser>
+public interface IWorkspaceUserRepository : IMpxRepository<WorkspaceUser>
 {
   Task<List<User>> GetEntitiesToRelateAsync(Guid workspaceId);
   Task<List<WorkspaceUser>> GetRelatedEntitiesAsync(Guid workspaceId);
@@ -10,3 +11,4 @@ public interface IWorkspaceUserRepository : IMorphusRepository<WorkspaceUser>
   Task<WorkspaceUser> AddRelationshipAsync(WorkspaceUser entity);
   WorkspaceUser RemoveRelationship(WorkspaceUser entity);
 }
+

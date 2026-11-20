@@ -1,10 +1,12 @@
-﻿using Mpx.Domain.Entities;
+﻿using Mpx.Core.Interfaces;
+using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces
 {
-  public interface IEmailRepository : IMorphusRepository<Email>
+  public interface IEmailRepository : IMpxRepository<Email>
   {
 
   }
 }
+
 

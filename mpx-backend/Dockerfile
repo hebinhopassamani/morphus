@@ -3,9 +3,10 @@ WORKDIR /src
 
 # Copia os arquivos de solução e projetos primeiro para aproveitar o cache de camadas do Docker
 COPY ["global.json", "./"]
-COPY ["morphus-bkd.slnx", "./"]
+COPY ["Mpx.slnx", "./"]
 COPY ["Mpx.Api/Mpx.Api.csproj", "Mpx.Api/"]
 COPY ["Mpx.Application/Mpx.Application.csproj", "Mpx.Application/"]
+COPY ["Mpx.Core/Mpx.Core.csproj", "Mpx.Core/"]
 COPY ["Mpx.CrossCutting/Mpx.CrossCutting.csproj", "Mpx.CrossCutting/"]
 COPY ["Mpx.Domain/Mpx.Domain.csproj", "Mpx.Domain/"]
 COPY ["Mpx.Infrastructure/Mpx.Infrastructure.csproj", "Mpx.Infrastructure/"]

@@ -13,14 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Mpx.Domain\Mpx.Domain.csproj" />     
+    <ProjectReference Include="..\Mpx.Core\Mpx.Core.csproj" />
+    <ProjectReference Include="..\Mpx.Domain\Mpx.Domain.csproj" />
   </ItemGroup>
 
-    <ItemGroup>
-      <!-- Diz ao .NET para copiar fisicamente a pasta inteira para onde a API for executada -->
-      <None Include="EmailTemplates\**\*.html">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="EmailTemplates\**\*.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>

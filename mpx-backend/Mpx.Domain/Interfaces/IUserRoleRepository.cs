@@ -1,8 +1,9 @@
+﻿using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Domain.Interfaces;
 
-public interface IUserRoleRepository : IMorphusRepository<UserRole>
+public interface IUserRoleRepository : IMpxRepository<UserRole>
 {
   Task<List<Role>> GetEntitiesToRelateAsync(Guid userId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null);
   Task<List<UserRole>> GetRelatedEntitiesAsync(Guid userId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null);
@@ -10,4 +11,5 @@ public interface IUserRoleRepository : IMorphusRepository<UserRole>
   Task<UserRole> AddRelationshipAsync(UserRole entity);
   UserRole RemoveRelationship(UserRole entity);
 }
+
 

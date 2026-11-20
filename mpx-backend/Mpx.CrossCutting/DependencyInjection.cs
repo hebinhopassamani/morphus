@@ -9,12 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-using mpx.Domain.Interfaces;
-using Mpx.Domain.Interfaces;
-using Mpx.Domain.Security;
 using Mpx.Application.Handlers;
 using Mpx.Application.Validators;
-using Mpx.Infrastructure.Data;
+using Mpx.Core.Interfaces;
+using Mpx.Domain.Interfaces;
+using Mpx.Domain.Security;
+using Mpx.Infrastructure.Data.Core;
 using Mpx.Infrastructure.Data.Repositories;
 using Mpx.Infrastructure.Interfaces;
 using Mpx.Infrastructure.MultiTenant;
@@ -28,11 +28,11 @@ public static class DependencyInjection
   public static WebApplicationBuilder AddMorphusDependencyInjection(this WebApplicationBuilder builder)
   {
     AddCors(builder);
-    AddMorphusDbContext(builder);
+    AddMpxDbContext(builder);
     AddDependencyInjection(builder);
     AddJsonSettings(builder);
-    AddMorphusJwtAuthentication(builder);
-    AddMorphusAuthorizationPolicies(builder);
+    AddMpxJwtAuthentication(builder);
+    AddMpxAuthorizationPolicies(builder);
 
     return builder;
   }
@@ -40,7 +40,7 @@ public static class DependencyInjection
   public static WebApplication ApplyMorphusMigrations(this WebApplication app)
   {
     using var scope = app.Services.CreateScope();
-    var dbContext = scope.ServiceProvider.GetRequiredService<MorphusDbContext>();
+    var dbContext = scope.ServiceProvider.GetRequiredService<MpxDbContext>();
 
     if (string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB"), "true", StringComparison.OrdinalIgnoreCase))
     {
@@ -147,7 +147,7 @@ public static class DependencyInjection
 
     if (!dbContext.Features.Any() || !dbContext.ModuleCategories.Any())
     {
-      var (features, categories) = MorphusAccountSeed.CreateDefaultShowcaseContent();
+      var (features, categories) = MpxAccountSeed.CreateDefaultShowcaseContent();
       if (!dbContext.Features.Any())
       {
         dbContext.Features.AddRange(features);
@@ -200,11 +200,11 @@ public static class DependencyInjection
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
-    builder.Services.AddScoped<MorphusDbContext>();
-    builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<MorphusDbContext>());
+    builder.Services.AddScoped<MpxDbContext>();
+    builder.Services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<MpxDbContext>());
 
     // Repositórios
-    builder.Services.AddScoped(typeof(IMorphusRepository<>), typeof(MorphusRepository<>));
+    builder.Services.AddScoped(typeof(IMpxRepository<>), typeof(MpxRepository<>));
     builder.Services.AddScoped<ICorporationRepository, CorporationRepository>();
     builder.Services.AddScoped<ICorporationUserRepository, CorporationUserRepository>();
     builder.Services.AddScoped<IWorkspaceRepository, WorkspaceRepository>();
@@ -252,7 +252,7 @@ public static class DependencyInjection
     return builder;
   }
 
-  private static WebApplicationBuilder AddMorphusDbContext(this WebApplicationBuilder builder)
+  private static WebApplicationBuilder AddMpxDbContext(this WebApplicationBuilder builder)
   {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -262,11 +262,11 @@ public static class DependencyInjection
                ?? throw new InvalidOperationException("Nenhuma senha de banco de dados configurada")
     };
 
-    builder.Services.AddDbContext<MorphusDbContext>(options =>
+    builder.Services.AddDbContext<MpxDbContext>(options =>
              options.UseSnakeCaseNamingConvention()
                     .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning))
                     .UseNpgsql(connectionBuilder.ConnectionString, b => b
-                    .MigrationsAssembly(typeof(MorphusDbContext)
+                    .MigrationsAssembly(typeof(MpxDbContext)
                     .Assembly.FullName)));
 
     return builder;
@@ -286,7 +286,7 @@ public static class DependencyInjection
     return builder;
   }
 
-  private static WebApplicationBuilder AddMorphusJwtAuthentication(this WebApplicationBuilder builder)
+  private static WebApplicationBuilder AddMpxJwtAuthentication(this WebApplicationBuilder builder)
   {
     var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
         ?? builder.Configuration["JWT:SecretKey"]
@@ -319,7 +319,7 @@ public static class DependencyInjection
     return builder;
   }
 
-  private static WebApplicationBuilder AddMorphusAuthorizationPolicies(this WebApplicationBuilder builder)
+  private static WebApplicationBuilder AddMpxAuthorizationPolicies(this WebApplicationBuilder builder)
   {
     var auth = builder.Services.AddAuthorizationBuilder();
 
@@ -346,7 +346,7 @@ public static class DependencyInjection
     auth.AddPolicy("USER_CLAIM_ACTIVATE", p => p.RequireClaim("USER_CLAIM", "ACTIVATE"));
     auth.AddPolicy("USER_CLAIM_INACTIVATE", p => p.RequireClaim("USER_CLAIM", "INACTIVATE"));
 
-    //UserStatus
+    // UserStatus
     auth.AddPolicy("USER_STATUS_GET_BY_ID", p => p.RequireClaim("USER_STATUS", "GET_BY_ID"));
     auth.AddPolicy("USER_STATUS_LIST", p => p.RequireClaim("USER_STATUS", "LIST"));
     auth.AddPolicy("USER_STATUS_CREATE", p => p.RequireClaim("USER_STATUS", "CREATE"));

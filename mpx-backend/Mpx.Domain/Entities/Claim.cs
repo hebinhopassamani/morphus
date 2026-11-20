@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class Claim : MorphusEntity, IMorphusTenant
+public class Claim : MpxEntity, IMpxTenant
 {
   public required string ClaimType { get; set; }
   public required string ClaimValue { get; set; }
@@ -18,3 +19,4 @@ public class Claim : MorphusEntity, IMorphusTenant
   public virtual ICollection<RoleClaim> RoleClaims { get; set; } = [];
   public virtual ICollection<UserClaim> UserClaims { get; set; } = [];
 }
+

@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class CorporationUser : MorphusRelatedEntity
+public class CorporationUser : MpxRelatedEntity
 {
   public Guid UserId { get; set; }
   public bool IsOwner { get; set; }
@@ -10,3 +12,4 @@ public class CorporationUser : MorphusRelatedEntity
   public virtual Corporation? Corporation { get; set; }
   public virtual User? User { get; set; }
 }
+

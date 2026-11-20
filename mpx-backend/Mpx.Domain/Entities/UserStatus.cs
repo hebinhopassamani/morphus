@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class UserStatus : MorphusEntity, IMorphusTenant
+public class UserStatus : MpxEntity, IMpxTenant
 {
   public required string Name { get; set; }
   public string Label { get; set; } = string.Empty;
@@ -13,3 +14,4 @@ public class UserStatus : MorphusEntity, IMorphusTenant
   public virtual Corporation? Corporation { get; set; }
   public virtual ICollection<User> Users { get; set; } = [];
 }
+

@@ -1,8 +1,9 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
 using Mpx.Application.Validators;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -14,7 +15,7 @@ public class CorporationController(
     ICorporationValidator mpsValidator,
     CorporationHandler corporationHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<Corporation>(httpContext)
+    : MpxController<Corporation>(httpContext)
 {
   private readonly ICorporationValidator validator = mpsValidator;
 
@@ -85,3 +86,4 @@ public class CorporationController(
     return MorphusErrorMessage(validator.ErrorMessage);
   }
 }
+

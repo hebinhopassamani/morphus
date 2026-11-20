@@ -1,16 +1,18 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
+using Mpx.Application.Dtos;
 using Mpx.Application.Handlers;
 using Mpx.Domain.Security;
-using Mpx.Infrastructure.Data;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/website")]
 [AllowAnonymous]
-public class WebsiteController(MorphusDbContext dbContext, EmailHandler emailHandler) : ControllerBase
+public class WebsiteController(MpxDbContext dbContext, EmailHandler emailHandler) : ControllerBase
 {
   [HttpGet("showcase")]
   public async Task<IActionResult> GetShowcaseAsync()
@@ -107,7 +109,7 @@ public class WebsiteController(MorphusDbContext dbContext, EmailHandler emailHan
       return Ok(distinctApps);
     }
 
-    var (seedCorp, _) = MorphusAccountSeed.CreateCorporationBaseForOnboarding(
+    var (seedCorp, _) = MpxAccountSeed.CreateCorporationBaseForOnboarding(
         "Morphus",
         "contato@morphus.me",
         Guid.Empty);
@@ -140,16 +142,8 @@ public class WebsiteController(MorphusDbContext dbContext, EmailHandler emailHan
     return Ok(fallbackApps);
   }
 
-  public record ContactFormRequest(
-      string Name,
-      string Email,
-      string? Company,
-      string? Phone,
-      string? Subject,
-      string Message);
-
   [HttpPost("contact")]
-  public async Task<IActionResult> SubmitContactAsync([FromBody] ContactFormRequest request)
+  public async Task<IActionResult> SubmitContactAsync([FromBody] ContactFormDto request)
   {
     if (string.IsNullOrWhiteSpace(request.Name) ||
         string.IsNullOrWhiteSpace(request.Email) ||
@@ -192,3 +186,4 @@ public class WebsiteController(MorphusDbContext dbContext, EmailHandler emailHan
     });
   }
 }
+

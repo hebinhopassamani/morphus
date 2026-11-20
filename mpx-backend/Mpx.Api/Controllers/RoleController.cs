@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -12,7 +13,7 @@ namespace Mpx.Api.Controllers;
 public class RoleController(
     RoleHandler roleHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<Role>(httpContext)
+    : MpxController<Role>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "ROLE_GET_BY_ID")]
@@ -48,3 +49,4 @@ public class RoleController(
     return NoContent();
   }
 }
+

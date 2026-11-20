@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class MenuRepository(MorphusDbContext context) : MorphusRepository<Menu>(context), IMenuRepository
+public class MenuRepository(MpxDbContext context) : MpxRepository<Menu>(context), IMenuRepository
 {
   public async Task<List<Menu>> GetListAsync()
   {
@@ -73,3 +75,4 @@ public class MenuRepository(MorphusDbContext context) : MorphusRepository<Menu>(
     return roots;
   }
 }
+

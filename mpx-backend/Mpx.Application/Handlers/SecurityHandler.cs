@@ -4,15 +4,22 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json.Serialization;
+
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
-using mpx.Domain.Interfaces;
+
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
+using Mpx.Core.Security;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
 
 namespace Mpx.Application.Handlers;
+
+using Application = Mpx.Domain.Entities.Application;
 
 public class SecurityHandler(
     IUserRepository userRepository,
@@ -23,7 +30,9 @@ public class SecurityHandler(
     IApplicationUserRepository applicationUserRepository,
     EmailHandler emailHandler,
     IUnitOfWork unitOfWork,
-    IConfiguration configuration)
+    IConfiguration configuration,
+    IHttpContextAccessor httpContext)
+    : MpxHandler<MpxSession>(httpContext)
 {
   private static readonly HttpClient GoogleHttpClient = new();
 
@@ -42,7 +51,7 @@ public class SecurityHandler(
     public string? Picture { get; set; }
   }
 
-  public async Task<MorphusSession?> LoginWithGoogleAsync(GoogleLoginRequest request)
+  public async Task<MpxSession?> LoginWithGoogleAsync(GoogleLoginRequest request)
   {
     GoogleUserInfoResponse? googleUser = null;
 
@@ -82,7 +91,7 @@ public class SecurityHandler(
         Id = Guid.NewGuid(),
         Name = displayName,
         Email = email,
-        PasswordHash = MorphusSecurity.HashPassword(MorphusSecurity.GenerateSecureToken()),
+        PasswordHash = MpxSecurity.HashPassword(MpxSecurity.GenerateSecureToken()),
         Picture = googleUser.Picture,
         EmailConfirmed = true,
         TermsConfirmed = true,
@@ -142,7 +151,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> LoginAsync(LoginRequest request)
+  public async Task<MpxSession?> LoginAsync(LoginRequest request)
   {
     if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
       return null;
@@ -151,7 +160,7 @@ public class SecurityHandler(
     if (user is null || string.IsNullOrWhiteSpace(user.PasswordHash))
       return null;
 
-    if (!MorphusSecurity.VerifyPassword(request.Password, user.PasswordHash))
+    if (!MpxSecurity.VerifyPassword(request.Password, user.PasswordHash))
       return null;
 
     var activeCorporationUsers = user.CorporationUsers
@@ -185,7 +194,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> RefreshTokenAsync(RefreshTokenRequest request)
+  public async Task<MpxSession?> RefreshTokenAsync(RefreshTokenRequest request)
   {
     if (string.IsNullOrWhiteSpace(request.RefreshToken))
       return null;
@@ -228,7 +237,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> RefreshSessionOrSwitchCorporationAsync(Guid userId, Guid? targetCorporationId)
+  public async Task<MpxSession?> RefreshSessionOrSwitchCorporationAsync(Guid userId, Guid? targetCorporationId)
   {
     var user = await userRepository.GetByIdWithAccessAsync(userId);
     if (user is null)
@@ -265,7 +274,7 @@ public class SecurityHandler(
     return session;
   }
 
-  public async Task<MorphusSession?> CreateAccountAndLoginAsync(CreateAccountRequest request, string? frontendBaseUrl = null)
+  public async Task<MpxSession?> CreateAccountAndLoginAsync(CreateAccountRequest request, string? frontendBaseUrl = null)
   {
     if (await userRepository.ExistsEmailAsync(request.AdminEmail))
     {
@@ -283,14 +292,14 @@ public class SecurityHandler(
           ? cleanEmail.Split('@')[0]
           : request.AdminName.Trim();
 
-      var confirmToken = MorphusSecurity.GenerateSecureToken();
+      var confirmToken = MpxSecurity.GenerateSecureToken();
 
       var newUser = new User
       {
         Id = Guid.NewGuid(),
         Name = initialName,
         Email = cleanEmail,
-        PasswordHash = MorphusSecurity.HashPassword(request.AdminPassword),
+        PasswordHash = MpxSecurity.HashPassword(request.AdminPassword),
         PhoneNumber = request.PhoneNumber,
         SecurityStamp = confirmToken,
         Inactive = false,
@@ -337,7 +346,7 @@ public class SecurityHandler(
     Corporation corporation;
     try
     {
-      var seedResult = MorphusAccountSeed.CreateInitialAccountGraph(request);
+      var seedResult = MpxAccountSeed.CreateInitialAccountGraph(request);
       corporation = seedResult.Corporation;
 
       await corporationRepository.AddAsync(corporation);
@@ -357,6 +366,7 @@ public class SecurityHandler(
           .LoadHtmlFile("welcome")
           .SetVariable("{{Nome}}", request.AdminName ?? cleanEmail)
           .SetVariable("{{Empresa}}", request.CorporationName)
+          .SetVariable("{{LinkPainel}}", baseUrl)
           .MailTo(cleanEmail, request.AdminName ?? cleanEmail)
           .SendEmailAsync();
     }
@@ -423,7 +433,7 @@ public class SecurityHandler(
                         !string.Equals(a.Key, "WEBSITE", StringComparison.OrdinalIgnoreCase))
             .OrderBy(a => a.System ? 0 : 1)
             .ThenBy(a => a.Name)
-            .Select(a => new MorphusApplication
+            .Select(a => new Application
             {
               Id = a.Id,
               CorporationId = a.CorporationId,
@@ -444,7 +454,7 @@ public class SecurityHandler(
     return state;
   }
 
-  public async Task<MorphusSession?> SaveOnboardingCorporationStepAsync(
+  public async Task<MpxSession?> SaveOnboardingCorporationStepAsync(
       Guid userId,
       OnboardingCorporationStepRequest request)
   {
@@ -501,7 +511,7 @@ public class SecurityHandler(
       using var transaction = await unitOfWork.BeginTransactionAsync();
       try
       {
-        var (newCorporation, activeStatusId) = MorphusAccountSeed.CreateCorporationBaseForOnboarding(
+        var (newCorporation, activeStatusId) = MpxAccountSeed.CreateCorporationBaseForOnboarding(
             cleanCorpName,
             user.Email ?? string.Empty,
             user.Id);
@@ -518,12 +528,14 @@ public class SecurityHandler(
         {
           if (!string.IsNullOrWhiteSpace(user.Email))
           {
+            var panelUrl = GetHeaderValue("Origin")?.TrimEnd('/') ?? "https://morphus.me";
             await emailHandler
                 .NewEmail(newCorporation.Id)
                 .Subject("Bem-vindo ao Morphus")
                 .LoadHtmlFile("welcome")
                 .SetVariable("{{Nome}}", cleanUserName)
                 .SetVariable("{{Empresa}}", cleanCorpName)
+                .SetVariable("{{LinkPainel}}", panelUrl)
                 .MailTo(user.Email, cleanUserName)
                 .SendEmailAsync();
           }
@@ -548,7 +560,7 @@ public class SecurityHandler(
         corpGraph.FullName = cleanCorpName;
         if (string.IsNullOrWhiteSpace(corpGraph.Key))
         {
-          corpGraph.Key = MorphusEntity.GenerateKey();
+          corpGraph.Key = MpxKey.Generate();
         }
         corporationRepository.Update(corpGraph);
       }
@@ -650,7 +662,7 @@ public class SecurityHandler(
       existingWorkspace.Name = cleanWorkspaceName;
       if (string.IsNullOrWhiteSpace(existingWorkspace.Key))
       {
-        existingWorkspace.Key = MorphusEntity.GenerateKey();
+        existingWorkspace.Key = MpxKey.Generate();
       }
       workspaceRepository.Update(existingWorkspace);
     }
@@ -660,7 +672,7 @@ public class SecurityHandler(
     return await GetOnboardingStateAsync(userId);
   }
 
-  public async Task<MorphusSession?> CompleteOnboardingAsync(
+  public async Task<MpxSession?> CompleteOnboardingAsync(
       Guid userId,
       OnboardingCompleteRequest request)
   {
@@ -821,7 +833,7 @@ public class SecurityHandler(
     if (user is null || string.IsNullOrWhiteSpace(user.Email) || user.CorporationId is null)
       return;
 
-    var resetToken = MorphusSecurity.GenerateSecureToken();
+    var resetToken = MpxSecurity.GenerateSecureToken();
     user.SecurityStamp = resetToken;
 
     userRepository.Update(user);
@@ -860,8 +872,8 @@ public class SecurityHandler(
     if (!CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes))
       return false;
 
-    user.PasswordHash = MorphusSecurity.HashPassword(request.NewPassword);
-    user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+    user.PasswordHash = MpxSecurity.HashPassword(request.NewPassword);
+    user.SecurityStamp = MpxSecurity.GenerateSecureToken();
     user.RefreshToken = null;
     user.RefreshTokenExpiration = null;
 
@@ -892,7 +904,7 @@ public class SecurityHandler(
       return false;
 
     user.EmailConfirmed = true;
-    user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+    user.SecurityStamp = MpxSecurity.GenerateSecureToken();
 
     userRepository.Update(user);
     await unitOfWork.SaveChangesAsync();
@@ -905,7 +917,7 @@ public class SecurityHandler(
     if (user is null || string.IsNullOrWhiteSpace(user.Email) || user.EmailConfirmed)
       return false;
 
-    var confirmToken = MorphusSecurity.GenerateSecureToken();
+    var confirmToken = MpxSecurity.GenerateSecureToken();
     user.SecurityStamp = confirmToken;
 
     userRepository.Update(user);
@@ -1020,7 +1032,7 @@ public class SecurityHandler(
     };
   }
 
-  private MorphusSession BuildAuthorizedSession(
+  private MpxSession BuildAuthorizedSession(
       User user,
       Corporation? activeCorporation,
       List<CorporationUser> activeCorporationUsers)
@@ -1036,15 +1048,15 @@ public class SecurityHandler(
     var claims = BuildClaims(user, activeCorporation);
     var jwtString = GenerateJwtToken(claims, nowUtc, accessExpiresUtc);
 
-    var newRefreshToken = MorphusSecurity.GenerateSecureToken();
+    var newRefreshToken = MpxSecurity.GenerateSecureToken();
     user.RefreshToken = newRefreshToken;
     user.RefreshTokenExpiration = refreshExpiresUtc;
     if (user.EmailConfirmed || string.IsNullOrWhiteSpace(user.SecurityStamp))
     {
-      user.SecurityStamp = MorphusSecurity.GenerateSecureToken();
+      user.SecurityStamp = MpxSecurity.GenerateSecureToken();
     }
 
-    return new MorphusSession
+    return new MpxSession
     {
       User = new User
       {
@@ -1205,3 +1217,5 @@ public class SecurityHandler(
     return authClaims;
   }
 }
+
+

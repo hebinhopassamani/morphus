@@ -15,7 +15,9 @@ import { MpxLandingTopBarComponent } from './topbar/landing-topbar.component';
 export class MpxLandingLayout {
   private readonly router = inject(Router);
 
-  public readonly showTopBar = input<boolean>(true);
+  public readonly showTopBar = input(true, {
+    transform: (value: boolean | undefined) => value ?? true,
+  });
 
   private readonly currentUrl = toSignal(
     this.router.events.pipe(

@@ -1,12 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+
+using Mpx.Core.Security;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class ApplicationRepository(MorphusDbContext context) : MorphusRepository<MorphusApplication>(context), IApplicationRepository
+public class ApplicationRepository(MpxDbContext context) : MpxRepository<Application>(context), IApplicationRepository
 {
-  public override async Task<MorphusApplication?> GetByIdAsync(Guid id)
+  public override async Task<Application?> GetByIdAsync(Guid id)
   {
     var app = await _context.Applications
         .AsNoTracking()
@@ -32,7 +35,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
     return app;
   }
 
-  public async Task<List<MorphusApplication>> GetListAsync()
+  public async Task<List<Application>> GetListAsync()
   {
     var list = await _context.Applications
         .AsNoTracking()
@@ -59,7 +62,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
     return list;
   }
 
-  public async Task<List<MorphusApplication>> GetByWorkspaceAsync(Guid workspaceId)
+  public async Task<List<Application>> GetByWorkspaceAsync(Guid workspaceId)
   {
     return await _context.Applications
         .AsNoTracking()
@@ -75,7 +78,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
         .ToListAsync();
   }
 
-  public async Task<MorphusApplication?> GetByKeyAsync(string key)
+  public async Task<Application?> GetByKeyAsync(string key)
   {
     var clean = (key ?? string.Empty).Trim().ToUpperInvariant();
     return await _context.Applications
@@ -99,7 +102,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
         .ToListAsync();
   }
 
-  public async Task EnsureInitialWorkspaceAndDashboardForNewAppAsync(MorphusApplication application)
+  public async Task EnsureInitialWorkspaceAndDashboardForNewAppAsync(Application application)
   {
     var defaultWs = await _context.Workspaces
         .OrderByDescending(w => w.Default)
@@ -421,7 +424,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
     await _context.SaveChangesAsync();
   }
 
-  public async Task<List<MorphusApplication>> GetAllApplicationsIgnoreFiltersAsync()
+  public async Task<List<Application>> GetAllApplicationsIgnoreFiltersAsync()
   {
     return await _context.Applications
         .IgnoreQueryFilters()
@@ -484,7 +487,7 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
       DomainName = cleanDomain,
       OriginType = isPurchased ? "PurchasedWithMorphus" : "CustomerOwned",
       VerificationStatus = isPurchased ? "Verified" : "PendingVerification",
-      VerificationToken = $"mpx-verify-{MorphusEntity.GenerateKey().ToLowerInvariant()}",
+      VerificationToken = $"mpx-verify-{MpxKey.Generate().ToLowerInvariant()}",
       IsPrimary = domain.IsPrimary,
       System = false,
       Inactive = false,
@@ -584,3 +587,4 @@ public class ApplicationRepository(MorphusDbContext context) : MorphusRepository
     await _context.SaveChangesAsync();
   }
 }
+

@@ -1,17 +1,19 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using Mpx.Application.Handlers;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Security;
-using Mpx.Infrastructure.Data;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/security")]
-public class SecurityController(SecurityHandler securityHandler, MorphusDbContext dbContext) : ControllerBase
+public class SecurityController(SecurityHandler securityHandler, MpxDbContext dbContext) : ControllerBase
 {
   [AllowAnonymous]
   [HttpPost("login")]
@@ -439,7 +441,7 @@ public class SecurityController(SecurityHandler securityHandler, MorphusDbContex
       await dbContext.Database.ExecuteSqlRawAsync(truncateSql);
     }
 
-    var (features, categories) = MorphusAccountSeed.CreateDefaultShowcaseContent();
+    var (features, categories) = MpxAccountSeed.CreateDefaultShowcaseContent();
     await dbContext.Features.AddRangeAsync(features);
     await dbContext.ModuleCategories.AddRangeAsync(categories);
     await dbContext.SaveChangesAsync();
@@ -451,3 +453,4 @@ public class SecurityController(SecurityHandler securityHandler, MorphusDbContex
     });
   }
 }
+

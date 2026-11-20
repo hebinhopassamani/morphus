@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+
 using Mpx.Infrastructure.Interfaces;
 
 namespace Mpx.Infrastructure.MultiTenant;

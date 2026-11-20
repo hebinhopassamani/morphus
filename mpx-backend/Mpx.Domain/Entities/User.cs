@@ -1,8 +1,10 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+
+using Mpx.Core.Entities;
 
 namespace Mpx.Domain.Entities;
 
-public class User : MorphusEntity
+public class User : MpxEntity
 {
   public required string? Name { get; set; }
   public string? FirstName { get; set; }
@@ -43,3 +45,4 @@ public class User : MorphusEntity
   public virtual ICollection<UserRole> UserRoles { get; set; } = [];
   public virtual ICollection<UserClaim> UserClaims { get; set; } = [];
 }
+

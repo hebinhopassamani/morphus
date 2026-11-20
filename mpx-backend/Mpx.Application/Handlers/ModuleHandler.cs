@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+
+using Mpx.Core.Dtos;
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -10,7 +12,7 @@ public class ModuleHandler(
     IModuleRepository moduleRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<Module>(httpContext)
+    : MpxHandler<Module>(httpContext)
 {
   public Task<Module?> GetByIdAsync(Guid id) => moduleRepository.GetByIdAsync(id);
 
@@ -23,7 +25,7 @@ public class ModuleHandler(
 
   public Task<List<SubModule>> GetSubModulesAsync(Guid id) => moduleRepository.GetSubModulesAsync(id);
 
-  public Task<DeleteDependenciesSummary> GetDependenciesSummaryAsync(Guid id) =>
+  public Task<MpxDeleteDependencySummary<Module>> GetDependenciesSummaryAsync(Guid id) =>
       moduleRepository.GetDependenciesSummaryAsync(id);
 
   public async Task<Module> CreateAsync(Module module)
@@ -66,3 +68,5 @@ public class ModuleHandler(
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+

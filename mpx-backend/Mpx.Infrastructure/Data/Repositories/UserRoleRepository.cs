@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class UserRoleRepository(MorphusDbContext context) : MorphusRepository<UserRole>(context), IUserRoleRepository
+public class UserRoleRepository(MpxDbContext context) : MpxRepository<UserRole>(context), IUserRoleRepository
 {
   public async Task<List<Role>> GetEntitiesToRelateAsync(Guid userId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null)
   {
@@ -84,4 +86,5 @@ public class UserRoleRepository(MorphusDbContext context) : MorphusRepository<Us
     return entity;
   }
 }
+
 

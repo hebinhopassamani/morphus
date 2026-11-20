@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+﻿using Microsoft.AspNetCore.Http;
+
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
@@ -11,7 +12,7 @@ public class CorporationHandler(
     ICorporationRepository corporationRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<Corporation>(httpContext)
+    : MpxHandler<Corporation>(httpContext)
 {
   public Task<Corporation?> GetByIdAsync(Guid id) => corporationRepository.GetByIdAsync(id);
 
@@ -34,7 +35,7 @@ public class CorporationHandler(
 
     if (currentUserId is not null && currentUserId != Guid.Empty)
     {
-      var seededBranch = MorphusAccountSeed.CreateCorporationGraphForExistingUser(
+      var seededBranch = MpxAccountSeed.CreateCorporationGraphForExistingUser(
           name: corporation.Name,
           email: corporation.Email,
           existingUserId: currentUserId.Value,
@@ -84,3 +85,5 @@ public class CorporationHandler(
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+

@@ -1,5 +1,6 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Mpx.Domain.Entities;
 
 namespace Mpx.Infrastructure.Data.EntitiesConfiguration;
@@ -34,3 +35,4 @@ public class ApplicationModuleConfiguration : IEntityTypeConfiguration<Applicati
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
+

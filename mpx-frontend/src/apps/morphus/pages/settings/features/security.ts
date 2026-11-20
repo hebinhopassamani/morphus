@@ -71,7 +71,7 @@ const SIGN_INS: SignIn[] = [
 ];
 
 const CONNECTED_ACCOUNTS: ConnectedAccount[] = [
-  { id: 'google', name: 'Google', email: 'hebinhopassamani@gmail.com' },
+  { id: 'google', name: 'Google', email: 'contato@morphus.me' },
   { id: 'github', name: 'GitHub', email: null },
   { id: 'microsoft', name: 'Microsoft', email: null },
 ];

@@ -1,6 +1,0 @@
-@Mpx.CrossCutting_HostAddress = http://localhost:5299
-
-GET {{Mpx.CrossCutting_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

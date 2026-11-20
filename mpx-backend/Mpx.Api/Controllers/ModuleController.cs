@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -13,7 +14,7 @@ public class ModuleController(
     ModuleHandler moduleHandler,
     EmailHandler emailHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<Module>(httpContext)
+    : MpxController<Module>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "MODULE_GET_BY_ID")]
@@ -76,11 +77,13 @@ public class ModuleController(
         .NewEmail()
         .Subject("Auditoria de Módulos - Morphus Workspace")
         .LoadHtmlFile("welcome")
-        .SetVariable("{{Nome}}", "Antônio Heber")
+        .SetVariable("{{Nome}}", "Equipe Morphus")
         .SetVariable("{{Empresa}}", "Morphus Enterprise Suite")
-        .MailTo("hebinhopassamani@gmail.com", "Antônio Heber")
+        .SetVariable("{{LinkPainel}}", "https://morphus.me")
+        .MailTo("contato@morphus.me", "Equipe Morphus")
         .SendEmailAsync();
 
     return Ok(new { message = "Auditoria disparada com sucesso! O motor de e-mails processou a fila no PostgreSQL." });
   }
 }
+

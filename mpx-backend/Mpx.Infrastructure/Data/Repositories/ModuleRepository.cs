@@ -1,10 +1,13 @@
 using Microsoft.EntityFrameworkCore;
+
+using Mpx.Core.Dtos;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class ModuleRepository(MorphusDbContext context) : MorphusRepository<Module>(context), IModuleRepository
+public class ModuleRepository(MpxDbContext context) : MpxRepository<Module>(context), IModuleRepository
 {
   public async Task<List<SubModule>> GetSubModulesAsync(Guid id)
   {
@@ -138,7 +141,7 @@ public class ModuleRepository(MorphusDbContext context) : MorphusRepository<Modu
     return await _context.Claims.AsNoTracking().AnyAsync(c => c.ModuleId == moduleId);
   }
 
-  public async Task<DeleteDependenciesSummary> GetDependenciesSummaryAsync(Guid moduleId)
+  public async Task<MpxDeleteDependencySummary<Module>> GetDependenciesSummaryAsync(Guid moduleId)
   {
     var subModules = await _context.SubModules
         .AsNoTracking()
@@ -160,7 +163,7 @@ public class ModuleRepository(MorphusDbContext context) : MorphusRepository<Modu
         .Select(c => !string.IsNullOrWhiteSpace(c.ClaimValue) ? c.ClaimValue : (!string.IsNullOrWhiteSpace(c.ClaimType) ? c.ClaimType : "(Sem nome)"))
         .ToListAsync();
 
-    return new DeleteDependenciesSummary
+    return new MpxDeleteDependencySummary<Module>
     {
       SubModules = subModules.Select(s => string.IsNullOrWhiteSpace(s.Name) ? "(Sem nome)" : s.Name).ToList(),
       Roles = roles,
@@ -226,3 +229,4 @@ public class ModuleRepository(MorphusDbContext context) : MorphusRepository<Modu
       _context.Modules.Remove(module);
   }
 }
+

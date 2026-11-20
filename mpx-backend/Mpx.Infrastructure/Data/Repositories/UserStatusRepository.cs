@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class UserStatusRepository(MorphusDbContext context) : MorphusRepository<UserStatus>(context), IUserStatusRepository
+public class UserStatusRepository(MpxDbContext context) : MpxRepository<UserStatus>(context), IUserStatusRepository
 {
   public async Task<List<UserStatus>> GetListAsync()
   {
@@ -14,4 +16,5 @@ public class UserStatusRepository(MorphusDbContext context) : MorphusRepository<
         .ToListAsync();
   }
 }
+
 

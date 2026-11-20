@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
@@ -12,7 +13,7 @@ namespace Mpx.Api.Controllers;
 public class MenuController(
     MenuHandler menuHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<Menu>(httpContext)
+    : MpxController<Menu>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "MENU_GET_BY_ID")]
@@ -56,3 +57,4 @@ public class MenuController(
     return NoContent();
   }
 }
+

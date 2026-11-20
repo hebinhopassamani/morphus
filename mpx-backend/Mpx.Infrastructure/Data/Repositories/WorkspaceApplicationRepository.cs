@@ -1,13 +1,15 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class WorkspaceApplicationRepository(MorphusDbContext context)
-    : MorphusRepository<WorkspaceApplication>(context), IWorkspaceApplicationRepository
+public class WorkspaceApplicationRepository(MpxDbContext context)
+    : MpxRepository<WorkspaceApplication>(context), IWorkspaceApplicationRepository
 {
-  public async Task<List<MorphusApplication>> GetEntitiesToRelateAsync(Guid workspaceId)
+  public async Task<List<Application>> GetEntitiesToRelateAsync(Guid workspaceId)
   {
     var relatedApplicationIds = await _context.WorkspaceApplications
         .AsNoTracking()
@@ -65,3 +67,4 @@ public class WorkspaceApplicationRepository(MorphusDbContext context)
     return entity;
   }
 }
+

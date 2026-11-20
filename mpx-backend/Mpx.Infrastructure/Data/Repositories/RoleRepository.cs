@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class RoleRepository(MorphusDbContext context) : MorphusRepository<Role>(context), IRoleRepository
+public class RoleRepository(MpxDbContext context) : MpxRepository<Role>(context), IRoleRepository
 {
   public async Task<List<Role>> GetListAsync()
   {
@@ -17,4 +19,5 @@ public class RoleRepository(MorphusDbContext context) : MorphusRepository<Role>(
         .ToListAsync();
   }
 }
+
 

@@ -1,28 +1,33 @@
 using System.Globalization;
 using System.Text;
+
 using Microsoft.AspNetCore.Http;
-using mpx.Domain.Interfaces;
-using Mpx.Application.MorphusHandler;
+
+using Mpx.Application.Dtos;
+using Mpx.Core.Handlers;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
 namespace Mpx.Application.Handlers;
+
+using Application = Mpx.Domain.Entities.Application;
 
 public class ApplicationHandler(
     IApplicationRepository applicationRepository,
     IApplicationUserRepository applicationUserRepository,
     IUnitOfWork unitOfWork,
     IHttpContextAccessor httpContext)
-    : MorphusHandler<MorphusApplication>(httpContext)
+    : MpxHandler<Application>(httpContext)
 {
-  public Task<MorphusApplication?> GetByIdAsync(Guid id) => applicationRepository.GetByIdAsync(id);
+  public Task<Application?> GetByIdAsync(Guid id) => applicationRepository.GetByIdAsync(id);
 
-  public Task<List<MorphusApplication>> GetListAsync() => applicationRepository.GetListAsync();
+  public Task<List<Application>> GetListAsync() => applicationRepository.GetListAsync();
 
-  public Task<List<MorphusApplication>> GetByWorkspaceAsync(Guid workspaceId) =>
+  public Task<List<Application>> GetByWorkspaceAsync(Guid workspaceId) =>
       applicationRepository.GetByWorkspaceAsync(workspaceId);
 
-  public Task<MorphusApplication?> GetByKeyAsync(string key) => applicationRepository.GetByKeyAsync(key);
+  public Task<Application?> GetByKeyAsync(string key) => applicationRepository.GetByKeyAsync(key);
 
   public Task<List<Category>> GetCategoriesAsync() => applicationRepository.GetCategoriesAsync();
 
@@ -181,7 +186,7 @@ public class ApplicationHandler(
     };
   }
 
-  public async Task<MorphusApplication> UpdateBasicSettingsAsync(Guid applicationId, UpdateApplicationBasicSettingsRequest request)
+  public async Task<Application> UpdateBasicSettingsAsync(Guid applicationId, UpdateApplicationBasicSettingsRequest request)
   {
     var existing = await applicationRepository.GetByIdAsync(applicationId)
         ?? throw new InvalidOperationException("Aplicação não encontrada.");
@@ -210,7 +215,7 @@ public class ApplicationHandler(
     return await applicationRepository.GetByIdAsync(applicationId) ?? existing;
   }
 
-  public async Task<MorphusApplication> CreateAsync(MorphusApplication application, Guid? creatorUserId = null)
+  public async Task<Application> CreateAsync(Application application, Guid? creatorUserId = null)
   {
     if (application.Id == Guid.Empty)
       application.Id = Guid.NewGuid();
@@ -240,7 +245,7 @@ public class ApplicationHandler(
     return await applicationRepository.GetByIdAsync(application.Id) ?? application;
   }
 
-  public async Task<MorphusApplication> UpdateAsync(MorphusApplication application)
+  public async Task<Application> UpdateAsync(Application application)
   {
     await ResolveAndValidatePrefixAsync(application);
     await ResolveAndValidateDomainAsync(application);
@@ -253,7 +258,7 @@ public class ApplicationHandler(
     return await applicationRepository.GetByIdAsync(application.Id) ?? application;
   }
 
-  private async Task ResolveAndValidatePrefixAsync(MorphusApplication application)
+  private async Task ResolveAndValidatePrefixAsync(Application application)
   {
     var existingApps = await applicationRepository.GetListAsync();
     var usedPrefixes = existingApps
@@ -278,7 +283,7 @@ public class ApplicationHandler(
     application.Prefix = normalizedPrefix;
   }
 
-  private async Task ResolveAndValidateDomainAsync(MorphusApplication application)
+  private async Task ResolveAndValidateDomainAsync(Application application)
   {
     if (application.System || string.Equals(application.Prefix, "KAL", StringComparison.OrdinalIgnoreCase))
     {
@@ -481,42 +486,4 @@ public class ApplicationHandler(
   }
 }
 
-public sealed class ApplicationDomainPreviewRequest
-{
-  public string? Name { get; set; }
-  public string? Prefix { get; set; }
-  public string? DomainMode { get; set; }
-  public string? CustomSubdomain { get; set; }
-  public Guid? CorporationDomainId { get; set; }
-  public Guid? ExcludeApplicationId { get; set; }
-}
 
-public sealed class DomainCandidateItem
-{
-  public required string Subdomain { get; set; }
-  public required string FullDomain { get; set; }
-  public bool Available { get; set; }
-}
-
-public sealed class ApplicationDomainPreviewResponse
-{
-  public required string ResolvedPrefix { get; set; }
-  public bool NameAndPrefixConflict { get; set; }
-  public required string FirstAttemptSubdomain { get; set; }
-  public required string FirstAttemptDomain { get; set; }
-  public bool FirstAttemptAvailable { get; set; }
-  public string? SuggestedAvailableSubdomain { get; set; }
-  public string? SuggestedAvailableDomain { get; set; }
-  public List<DomainCandidateItem> ProgressiveCandidates { get; set; } = [];
-  public string? CustomAttemptSubdomain { get; set; }
-  public string? CustomAttemptDomain { get; set; }
-  public bool? CustomAttemptAvailable { get; set; }
-}
-
-public sealed class UpdateApplicationBasicSettingsRequest
-{
-  public string? Name { get; set; }
-  public string? DomainMode { get; set; }
-  public string? Subdomain { get; set; }
-  public Guid? CorporationDomainId { get; set; }
-}

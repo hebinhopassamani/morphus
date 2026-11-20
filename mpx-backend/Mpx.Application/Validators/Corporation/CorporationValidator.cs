@@ -1,15 +1,15 @@
 using Microsoft.AspNetCore.Http;
-using Mpx.Application.MorphusValidator;
+
+using Mpx.Core.Validators;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
-using Mpx.Domain.Validation;
 
 namespace Mpx.Application.Validators;
 
 public class CorporationValidator(
     ICorporationRepository corporationRepository,
     IHttpContextAccessor httpContext)
-    : MorphusValidator<Corporation>(httpContext), ICorporationValidator
+    : MpxValidator<Corporation>(httpContext), ICorporationValidator
 {
   public Task ValidateCorporation(Corporation corporation)
   {
@@ -22,14 +22,14 @@ public class CorporationValidator(
     if (string.IsNullOrWhiteSpace(corporation.Key) || corporation.Key.Trim().Length != 12)
       AddErrorMessage("A chave de identificação (Key) deve possuir exatamente 12 caracteres.");
 
-    if (!MorphusDocumentValidator.IsEmail(corporation.Email))
+    if (!MpxDocumentValidator.IsEmail(corporation.Email))
       AddErrorMessage("Informe um endereço de e-mail válido para a corporação.");
 
     corporation.PersonType = string.Equals(corporation.PersonType?.Trim(), "PF", StringComparison.OrdinalIgnoreCase)
         ? "PF"
         : "PJ";
 
-    corporation.CpfCnpj = MorphusDocumentValidator.OnlyDigits(corporation.CpfCnpj);
+    corporation.CpfCnpj = MpxDocumentValidator.OnlyDigits(corporation.CpfCnpj);
 
     if (string.IsNullOrWhiteSpace(corporation.CpfCnpj))
     {
@@ -38,11 +38,11 @@ public class CorporationValidator(
               ? "O CPF da corporação é obrigatório."
               : "O CNPJ da corporação é obrigatório.");
     }
-    else if (corporation.PersonType == "PF" && !MorphusDocumentValidator.IsCpf(corporation.CpfCnpj))
+    else if (corporation.PersonType == "PF" && !MpxDocumentValidator.IsCpf(corporation.CpfCnpj))
     {
       AddErrorMessage("O CPF informado é inválido.");
     }
-    else if (corporation.PersonType == "PJ" && !MorphusDocumentValidator.IsCnpj(corporation.CpfCnpj))
+    else if (corporation.PersonType == "PJ" && !MpxDocumentValidator.IsCnpj(corporation.CpfCnpj))
     {
       AddErrorMessage("O CNPJ informado é inválido.");
     }

@@ -1,10 +1,14 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using Mpx.Application.Dtos;
 using Mpx.Application.Handlers;
-using Mpx.Application.MorphusController;
+using Mpx.Core.Controllers;
 using Mpx.Domain.Entities;
 
 namespace Mpx.Api.Controllers;
+
+using Application = Mpx.Domain.Entities.Application;
 
 [Authorize]
 [ApiController]
@@ -12,7 +16,7 @@ namespace Mpx.Api.Controllers;
 public class ApplicationController(
     ApplicationHandler applicationHandler,
     IHttpContextAccessor httpContext)
-    : MorphusController<MorphusApplication>(httpContext)
+    : MpxController<Application>(httpContext)
 {
   [HttpGet("{id:guid}")]
   [Authorize(Policy = "APPLICATION_GET_BY_ID")]
@@ -105,13 +109,13 @@ public class ApplicationController(
 
   [HttpPost]
   [Authorize(Policy = "APPLICATION_CREATE")]
-  public async Task<IActionResult> Create([FromBody] MorphusApplication application) =>
+  public async Task<IActionResult> Create([FromBody] Application application) =>
       Ok(await applicationHandler.CreateAsync(application, UserId));
 
   [HttpPut]
   [HttpPut("{id:guid}")]
   [Authorize(Policy = "APPLICATION_UPDATE")]
-  public async Task<IActionResult> Update([FromBody] MorphusApplication application, Guid? id = null)
+  public async Task<IActionResult> Update([FromBody] Application application, Guid? id = null)
   {
     if (id.HasValue && application.Id == Guid.Empty)
       application.Id = id.Value;
@@ -197,9 +201,3 @@ public class ApplicationController(
   }
 }
 
-public sealed class VsCodeBridgeOpenRequest
-{
-  public string? AppPrefix { get; set; }
-  public string? FileName { get; set; }
-  public string? HtmlContent { get; set; }
-}

@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class CorporationUserRepository(MorphusDbContext context) : MorphusRepository<CorporationUser>(context), ICorporationUserRepository
+public class CorporationUserRepository(MpxDbContext context) : MpxRepository<CorporationUser>(context), ICorporationUserRepository
 {
   public async Task<List<User>> GetEntitiesToRelateAsync(Guid corporationId)
   {
@@ -61,4 +63,5 @@ public class CorporationUserRepository(MorphusDbContext context) : MorphusReposi
     return entity;
   }
 }
+
 

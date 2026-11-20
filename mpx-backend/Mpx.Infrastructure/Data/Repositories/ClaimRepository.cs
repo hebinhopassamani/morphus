@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class ClaimRepository(MorphusDbContext context) : MorphusRepository<Claim>(context), IClaimRepository
+public class ClaimRepository(MpxDbContext context) : MpxRepository<Claim>(context), IClaimRepository
 {
   public async Task<List<Claim>> GetListAsync()
   {
@@ -18,4 +20,5 @@ public class ClaimRepository(MorphusDbContext context) : MorphusRepository<Claim
         .ToListAsync();
   }
 }
+
 

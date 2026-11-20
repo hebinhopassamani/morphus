@@ -285,6 +285,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   protected onSaveStep1(): void {
+    if (this.auth.isLoading()) {
+      return;
+    }
     if (this.step1Form.invalid) {
       this.step1Form.markAllAsTouched();
       return;
@@ -307,6 +310,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   protected onSaveStep2(): void {
+    if (this.auth.isLoading()) {
+      return;
+    }
     if (this.step2Form.invalid) {
       this.step2Form.markAllAsTouched();
       return;
@@ -340,6 +346,9 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   protected onSaveStep3(): void {
+    if (this.auth.isLoading()) {
+      return;
+    }
     if (this.step3Form.invalid) {
       this.step3Form.markAllAsTouched();
       return;
@@ -367,7 +376,7 @@ export class OnboardingComponent implements OnInit, OnDestroy {
   }
 
   protected goToStep(step: 1 | 2 | 3): void {
-    if (!this.emailConfirmed()) {
+    if (this.auth.isLoading() || !this.emailConfirmed()) {
       return;
     }
     if (step === 2 && !this.corporationId()) {

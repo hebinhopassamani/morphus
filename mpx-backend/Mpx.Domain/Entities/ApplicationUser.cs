@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class ApplicationUser : MorphusRelatedEntity
+public class ApplicationUser : MpxRelatedEntity
 {
   public Guid ApplicationId { get; set; }
   public Guid UserId { get; set; }
@@ -9,7 +11,8 @@ public class ApplicationUser : MorphusRelatedEntity
   public string? Color { get; set; }
   public bool Favorite { get; set; } = false;
 
-  public virtual MorphusApplication? Application { get; set; }
+  public virtual Application? Application { get; set; }
   public virtual User? User { get; set; }
   public virtual Corporation? Corporation { get; set; }
 }
+

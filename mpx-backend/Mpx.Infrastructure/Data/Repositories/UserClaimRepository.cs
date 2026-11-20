@@ -1,10 +1,12 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
+using Mpx.Infrastructure.Data.Core;
 
 namespace Mpx.Infrastructure.Data.Repositories;
 
-public class UserClaimRepository(MorphusDbContext context) : MorphusRepository<UserClaim>(context), IUserClaimRepository
+public class UserClaimRepository(MpxDbContext context) : MpxRepository<UserClaim>(context), IUserClaimRepository
 {
   public async Task<List<Claim>> GetEntitiesToRelateAsync(Guid userId, Guid? moduleId, Guid? subModuleId, Guid? applicationId = null)
   {
@@ -86,4 +88,5 @@ public class UserClaimRepository(MorphusDbContext context) : MorphusRepository<U
     return entity;
   }
 }
+
 

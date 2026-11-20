@@ -1,6 +1,8 @@
+﻿using Mpx.Core.Entities;
+
 namespace Mpx.Domain.Entities;
 
-public class Corporation : MorphusEntity
+public class Corporation : MpxEntity
 {
   public required string Name { get; set; }
   public required string Email { get; set; }
@@ -17,7 +19,7 @@ public class Corporation : MorphusEntity
   public virtual ICollection<Workspace> Workspaces { get; set; } = [];
   public virtual ICollection<WorkspaceUser> WorkspaceUsers { get; set; } = [];
   public virtual ICollection<WorkspaceApplication> WorkspaceApplications { get; set; } = [];
-  public virtual ICollection<MorphusApplication> Applications { get; set; } = [];
+  public virtual ICollection<Application> Applications { get; set; } = [];
   public virtual ICollection<Category> Categories { get; set; } = [];
   public virtual ICollection<ApplicationStatus> ApplicationStatuses { get; set; } = [];
   public virtual ICollection<ApplicationModule> ApplicationModules { get; set; } = [];
@@ -44,3 +46,4 @@ public class Corporation : MorphusEntity
   public virtual ICollection<EmailCc> EmailsCc { get; set; } = [];
   public virtual ICollection<EmailBcc> EmailsBcc { get; set; } = [];
 }
+

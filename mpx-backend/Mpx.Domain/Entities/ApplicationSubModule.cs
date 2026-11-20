@@ -1,8 +1,9 @@
-using Mpx.Domain.Interfaces;
+﻿using Mpx.Core.Entities;
+using Mpx.Core.Interfaces;
 
 namespace Mpx.Domain.Entities;
 
-public class ApplicationSubModule : MorphusEntity, IMorphusTenant
+public class ApplicationSubModule : MpxEntity, IMpxTenant
 {
   public required string Name { get; set; }
   public required string Label { get; set; }
@@ -24,3 +25,4 @@ public class ApplicationSubModule : MorphusEntity, IMorphusTenant
   public virtual ApplicationModule? ApplicationModule { get; set; }
   public virtual Corporation? Corporation { get; set; }
 }
+

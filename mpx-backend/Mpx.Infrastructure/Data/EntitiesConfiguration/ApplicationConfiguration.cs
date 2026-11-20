@@ -1,12 +1,13 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Mpx.Domain.Entities;
 
 namespace Mpx.Infrastructure.Data.EntitiesConfiguration;
 
-public class ApplicationConfiguration : IEntityTypeConfiguration<MorphusApplication>
+public class ApplicationConfiguration : IEntityTypeConfiguration<Application>
 {
-  public void Configure(EntityTypeBuilder<MorphusApplication> builder)
+  public void Configure(EntityTypeBuilder<Application> builder)
   {
     builder.ToTable("mpx_applications");
 
@@ -55,3 +56,4 @@ public class ApplicationConfiguration : IEntityTypeConfiguration<MorphusApplicat
            .OnDelete(DeleteBehavior.Restrict);
   }
 }
+

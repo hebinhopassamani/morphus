@@ -1,4 +1,4 @@
-using mpx.Domain.Interfaces;
+using Mpx.Core.Interfaces;
 using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 
@@ -95,4 +95,6 @@ public class UserClaimHandler(IUserClaimRepository userClaimRepository, IUnitOfW
     await unitOfWork.SaveChangesAsync();
   }
 }
+
+
 
