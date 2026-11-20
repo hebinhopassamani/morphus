@@ -853,7 +853,24 @@ export class MpxSecurity {
     }
 
     this.setSession(null);
-    void this.router.navigateByUrl(redirectUrl).finally(() => {
+    if (this.isBrowser) {
+      this.localStorage.removeItem(MPX_RETURN_URL_STORAGE_KEY);
+      const host = window.location.hostname.toLowerCase();
+      if (host === 'morphus.one' || host.endsWith('.morphus.one')) {
+        if (isSessionExpired) {
+          if (host !== 'security.morphus.one') {
+            window.location.href = `${window.location.protocol}//security.morphus.one`;
+            return;
+          }
+        } else if (host !== 'morphus.one' && host !== 'www.morphus.one' && host !== 'security.morphus.one') {
+          window.location.href = `${window.location.protocol}//morphus.one`;
+          return;
+        } else if (host === 'security.morphus.one') {
+          redirectUrl = '/';
+        }
+      }
+    }
+    void this.router.navigateByUrl(redirectUrl, { onSameUrlNavigation: 'reload' }).finally(() => {
       if (isSessionExpired) {
         this.messageService.messageType = 'SESSION_EXPIRED';
         this.messageService.showError(

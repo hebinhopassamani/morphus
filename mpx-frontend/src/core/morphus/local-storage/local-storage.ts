@@ -95,14 +95,15 @@ export class MpxLocalStorage {
       return this.storage.get(key) ?? null;
     }
 
-    const fromCookie = this.getSharedCookie(key);
-    if (fromCookie === '__CLEARED__') {
-      if (this.localStorage && this.localStorage.getItem(key) !== null) {
-        this.localStorage.removeItem(key);
+    const sharedDomain = this.getSharedCookieDomain();
+    if (sharedDomain) {
+      const fromCookie = this.getSharedCookie(key);
+      if (fromCookie === null || fromCookie === '__CLEARED__') {
+        if (this.localStorage && this.localStorage.getItem(key) !== null) {
+          this.localStorage.removeItem(key);
+        }
+        return null;
       }
-      return null;
-    }
-    if (fromCookie !== null) {
       if (this.localStorage && this.localStorage.getItem(key) !== fromCookie) {
         this.localStorage.setItem(key, fromCookie);
       }
@@ -110,11 +111,7 @@ export class MpxLocalStorage {
     }
 
     if (this.localStorage) {
-      const localVal = this.localStorage.getItem(key);
-      if (localVal !== null) {
-        this.setSharedCookie(key, localVal);
-      }
-      return localVal;
+      return this.localStorage.getItem(key);
     }
 
     return null;
