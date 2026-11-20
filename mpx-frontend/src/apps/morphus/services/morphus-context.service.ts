@@ -239,15 +239,15 @@ export class MpxContextService {
     if (targetCorpId && currentCorpId && targetCorpId !== currentCorpId) {
       this.auth.switchCorporation(targetCorpId).subscribe({
         next: () => {
-          void this.router.navigateByUrl('/website/home');
+          void this.router.navigateByUrl('/');
         },
         error: () => {
-          void this.router.navigateByUrl('/website/home');
+          void this.router.navigateByUrl('/');
         },
       });
       return;
     }
-    void this.router.navigateByUrl('/website/home');
+    void this.router.navigateByUrl('/');
   }
 
   readonly activeWorkspace = computed<Workspace | null>(() => {
@@ -857,7 +857,7 @@ export class MpxContextService {
             key: 'MORPHUS_ITEM_PORTAL',
             applicationId: '',
             label: 'Portal da Corporação',
-            url: '/website/home',
+            url: '/',
             icon: 'globe',
             order: 2,
           },
@@ -1028,7 +1028,7 @@ export class MpxContextService {
             key: 'SEC_ITEM_PORTAL',
             applicationId: '',
             label: 'Portal da Corporação',
-            url: '/website/home',
+            url: '/',
             icon: 'globe',
             order: 3,
           },

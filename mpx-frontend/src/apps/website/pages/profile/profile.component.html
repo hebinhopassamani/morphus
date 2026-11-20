@@ -13,7 +13,7 @@
     </p>
   </div>
 
-  <a matButton class="secondary small" routerLink="/website/home">
+  <a matButton class="secondary small" routerLink="/">
     <mat-icon svgIcon="arrow-left" />
     Voltar para o Portal
   </a>
@@ -86,7 +86,7 @@
         <mat-icon svgIcon="settings" />
         Configurações avançadas (Settings)
       </a>
-      <button type="button" matButton class="tertiary small text-error-a11!" (click)="auth.logout('/website')">
+      <button type="button" matButton class="tertiary small text-error-a11!" (click)="auth.logout('/')">
         <mat-icon svgIcon="log-out" />
         Encerrar sessão
       </button>
@@ -113,7 +113,7 @@
           type="button"
           matButton
           class="secondary small w-full"
-          (click)="auth.openCorporationSelector('/website/profile', 'website')"
+          (click)="auth.openCorporationSelector('/profile', 'website')"
         >
           <mat-icon svgIcon="building-2" />
           Trocar corporação

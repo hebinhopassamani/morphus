@@ -108,7 +108,7 @@
           type="button"
           matIconButton
           class="tiny shrink-0"
-          (click)="auth.openCorporationSelector('/website/home', 'security')"
+          (click)="auth.openCorporationSelector('/', 'security')"
           matTooltip="Trocar corporação"
         >
           <mat-icon svgIcon="repeat" />
@@ -119,12 +119,12 @@
     <mat-divider />
 
     <!-- Bloco 1: Perfil e Navegação do Ecossistema -->
-    <a mat-menu-item routerLink="/website/profile">
+    <a mat-menu-item routerLink="/profile">
       <mat-icon svgIcon="user-round" />
       <span>Meu Perfil</span>
     </a>
 
-    <a mat-menu-item routerLink="/website/home">
+    <a mat-menu-item routerLink="/">
       <mat-icon svgIcon="globe" />
       <span>Portal da Corporação</span>
     </a>
@@ -132,7 +132,7 @@
     @if (auth.availableCorporations().length > 1) {
       <button
         mat-menu-item
-        (click)="auth.openCorporationSelector('/website/home', 'security')"
+        (click)="auth.openCorporationSelector('/', 'security')"
       >
         <mat-icon svgIcon="building-2" />
         <span>Trocar corporação ({{ auth.corporation()?.name || 'Ativa' }})</span>

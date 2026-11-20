@@ -70,7 +70,7 @@ type SettingsNavSection = {
         </div>
 
         <a
-          routerLink="/website/profile"
+          routerLink="/profile"
           class="inline-flex items-center gap-x-1.5 rounded-lg border border-neutral-a5 bg-white px-3 py-1.5 text-xs font-semibold text-neutral-12 shadow-2xs transition hover:bg-neutral-a3 dark:bg-neutral-2"
         >
           <mat-icon svgIcon="user-round" class="size-3.5!" />

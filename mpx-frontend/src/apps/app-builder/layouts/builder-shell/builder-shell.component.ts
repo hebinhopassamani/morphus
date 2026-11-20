@@ -140,7 +140,7 @@ export class AppBuilderShellComponent {
   }
 
   protected goToPortal(): void {
-    void this.router.navigateByUrl('/website/home');
+    void this.router.navigateByUrl('/');
   }
 
   protected goToAppStudio(): void {

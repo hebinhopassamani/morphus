@@ -98,8 +98,8 @@ export class MpxMenuComponent {
       clean === '' ||
       clean === '/morphus' ||
       clean === '/security' ||
-      clean === '/website' ||
-      clean === '/website/home' ||
+      clean === '/' ||
+      clean === '/' ||
       clean === '/morphus/settings'
     );
   }

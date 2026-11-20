@@ -2,12 +2,13 @@ import { Routes } from '@angular/router';
 import { MpxOnboardingRedirectGuard } from '@core/morphus';
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'home' },
   {
-    path: 'home',
+    path: '',
+    pathMatch: 'full',
     canActivate: [MpxOnboardingRedirectGuard],
     loadChildren: () => import('@website/pages/home/home.routes').then((m) => m.routes),
   },
+  { path: 'home', pathMatch: 'full', redirectTo: '' },
   {
     path: 'produtos',
     loadChildren: () => import('@website/pages/products/products.routes').then((m) => m.routes),

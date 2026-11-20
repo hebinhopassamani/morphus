@@ -133,7 +133,7 @@ export class MpxAppLauncherComponent {
       name: 'Morphus',
       subtitle: 'morphus.one',
       subdomain: '',
-      localRoute: '/website/home',
+      localRoute: '/',
       icon: 'globe',
       iconBgClass: 'bg-cyan-500/15 ring-1 ring-cyan-500/30',
       iconTextClass: 'text-cyan-500 dark:text-cyan-300',

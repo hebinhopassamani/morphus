@@ -212,7 +212,7 @@ export class MpxSecurity {
   });
 
   getPostLoginRedirectUrl(): string {
-    return '/website/home';
+    return '/';
   }
 
   constructor() {
@@ -285,7 +285,7 @@ export class MpxSecurity {
       if (accessSeconds <= 0) {
         this.messageService.messageType = 'SESSION_EXPIRED';
         const currentUrl = this.router.url || '';
-        const targetUrl = currentUrl.startsWith('/website') ? '/website/home' : '/security/signin';
+        const targetUrl = currentUrl.startsWith('/') ? '/' : '/security/signin';
         this.logout(targetUrl);
       }
     };
@@ -540,7 +540,7 @@ export class MpxSecurity {
           this.refreshTokenSubject.next(false);
           this.messageService.messageType = 'SESSION_EXPIRED';
           const currentUrl = this.router.url || '';
-          const targetUrl = currentUrl.startsWith('/website') ? '/website/home' : '/security/signin';
+          const targetUrl = currentUrl.startsWith('/') ? '/' : '/security/signin';
           this.logout(targetUrl);
         },
       });
@@ -655,8 +655,8 @@ export class MpxSecurity {
     this.stopExpirationInterval();
     this.setSession(null);
     const currentUrl = this.router.url || '';
-    if (!currentUrl.startsWith('/website') && !currentUrl.startsWith('/security/signin') && !currentUrl.startsWith('/security/signup')) {
-      void this.router.navigateByUrl('/website/home');
+    if (!currentUrl.startsWith('/') && !currentUrl.startsWith('/security/signin') && !currentUrl.startsWith('/security/signup')) {
+      void this.router.navigateByUrl('/');
     }
   }
 

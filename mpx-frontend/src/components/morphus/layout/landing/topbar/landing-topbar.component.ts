@@ -85,7 +85,7 @@ export class MpxLandingTopBarComponent {
   }
 
   protected selectTopbarWorkspace(ws: Workspace): void {
-    const isOnWebsite = (this.router.url || '').startsWith('/website');
+    const isOnWebsite = (this.router.url || '').startsWith('/');
     this.context.selectWorkspace(ws, !isOnWebsite);
   }
 
@@ -128,13 +128,13 @@ export class MpxLandingTopBarComponent {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
-    void this.router.navigate(['/website'], { fragment: sectionId });
+    void this.router.navigate(['/'], { fragment: sectionId });
   }
 
   protected openSwitchCorporation(): void {
     const currentUrl = this.router.url.startsWith('/website/select-corporation')
-      ? '/website'
-      : this.router.url || '/website';
+      ? '/'
+      : this.router.url || '/';
     this.auth.openCorporationSelector(currentUrl, 'website');
   }
 }

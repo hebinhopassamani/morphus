@@ -70,7 +70,7 @@ export class SignupComponent implements OnInit {
       if (this.auth.needsOnboarding()) {
         this.router.navigateByUrl('/security/onboarding');
       } else {
-        this.router.navigateByUrl('/website/home');
+        this.router.navigateByUrl('/');
       }
     }
   }
@@ -141,7 +141,7 @@ export class SignupComponent implements OnInit {
                   this.router.navigateByUrl('/security/select-corporation');
                   return;
                 }
-                this.router.navigateByUrl('/website/home');
+                this.router.navigateByUrl('/');
               },
             });
           },

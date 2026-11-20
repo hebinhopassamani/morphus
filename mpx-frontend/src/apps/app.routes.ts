@@ -1,68 +1,62 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlSegment } from '@angular/router';
 import { MpxSecurityGuard } from '@core/morphus';
 
-const resolveRootRedirect = (): string => {
+const isSubdomain = (target: string): boolean => {
   if (typeof window === 'undefined') {
-    return 'website';
+    return false;
   }
-
   const host = window.location.hostname.toLowerCase();
-  const subdomain = host.split('.')[0];
+  return host.split('.')[0] === target;
+};
 
-  switch (subdomain) {
-    case 'cloud':
-      return 'morphus';
-    case 'security':
-      return 'security';
-    case 'flow':
-      return 'flow';
-    case 'kalupa':
-      return 'kalupa';
-    case 'send':
-      return 'send';
-    default:
-      if (
-        host !== 'localhost' &&
-        host !== '127.0.0.1' &&
-        host !== 'morphus.one' &&
-        host !== 'www.morphus.one' &&
-        !host.startsWith('192.168.')
-      ) {
-        return 'app';
-      }
-      return 'website';
+const isCustomAppDomain = (): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
   }
+  const host = window.location.hostname.toLowerCase();
+  const sub = host.split('.')[0];
+  if (['cloud', 'security', 'flow', 'kalupa', 'send', 'www'].includes(sub)) {
+    return false;
+  }
+  return (
+    host !== 'localhost' &&
+    host !== '127.0.0.1' &&
+    host !== 'morphus.one' &&
+    host !== 'www.morphus.one' &&
+    !host.startsWith('192.168.')
+  );
 };
 
 export const routes: Routes = [
   {
-    path: '',
-    redirectTo: resolveRootRedirect,
-    pathMatch: 'full',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isSubdomain('cloud') ? { consumed: [] } : null,
+    redirectTo: 'morphus',
   },
   {
-    path: 'website',
-    loadChildren: () => import('@website/website.routes').then((m) => m.routes),
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isSubdomain('security') ? { consumed: [] } : null,
+    redirectTo: 'security',
   },
   {
-    path: 'produtos',
-    redirectTo: 'website/produtos',
-    pathMatch: 'full',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isSubdomain('flow') ? { consumed: [] } : null,
+    redirectTo: 'flow',
   },
   {
-    path: 'contato',
-    redirectTo: 'website/contato',
-    pathMatch: 'full',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isSubdomain('kalupa') ? { consumed: [] } : null,
+    redirectTo: 'kalupa',
   },
   {
-    path: 'privacidade',
-    redirectTo: 'website/privacidade',
-    pathMatch: 'full',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isSubdomain('send') ? { consumed: [] } : null,
+    redirectTo: 'send',
   },
   {
-    path: 'termos',
-    redirectTo: 'website/termos',
-    pathMatch: 'full',
+    matcher: (segments: UrlSegment[]) =>
+      segments.length === 0 && isCustomAppDomain() ? { consumed: [] } : null,
+    redirectTo: 'app',
   },
   {
     path: 'morphus',
@@ -97,6 +91,45 @@ export const routes: Routes = [
     path: 'app',
     canActivate: [MpxSecurityGuard],
     loadChildren: () => import('@app-builder/app-builder.routes').then((m) => m.routes),
+  },
+  {
+    path: 'website/home',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website/privacidade',
+    redirectTo: 'privacidade',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website/termos',
+    redirectTo: 'termos',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website/produtos',
+    redirectTo: 'produtos',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website/contato',
+    redirectTo: 'contato',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website/profile',
+    redirectTo: 'profile',
+    pathMatch: 'full',
+  },
+  {
+    path: 'website',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
+    path: '',
+    loadChildren: () => import('@website/website.routes').then((m) => m.routes),
   },
   {
     path: 'notfound',

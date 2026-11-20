@@ -26,7 +26,7 @@ export const MpxSecurityGuard: CanActivateFn = (route, state) => {
   }
 
   if (!security.needsOnboarding() && isOnboardingRoute) {
-    return router.createUrlTree(['/website/home']);
+    return router.createUrlTree(['/']);
   }
 
   if (security.needsCorporationSelection() && !isSelectCorporationRoute) {
@@ -36,7 +36,7 @@ export const MpxSecurityGuard: CanActivateFn = (route, state) => {
   }
 
   if (isSelectCorporationRoute && security.corporationSelected() && route.queryParamMap.get('switch') !== 'true') {
-    const returnUrl = route.queryParamMap.get('returnUrl') || '/website/home';
+    const returnUrl = route.queryParamMap.get('returnUrl') || '/';
     return router.parseUrl(returnUrl);
   }
 

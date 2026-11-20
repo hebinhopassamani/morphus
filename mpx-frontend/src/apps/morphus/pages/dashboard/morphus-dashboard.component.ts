@@ -217,7 +217,7 @@ export class MpxDashboardComponent {
       badge: 'Catálogo',
       description:
         'Gerencie aplicações contratadas, modelos prontos de aplicação (Templates), formulários e páginas.',
-      route: '/website/home',
+      route: '/',
       actionLabel: 'Ver Aplicações',
       footerHint: 'My Apps, Forms, Pages & Profiles',
     },
