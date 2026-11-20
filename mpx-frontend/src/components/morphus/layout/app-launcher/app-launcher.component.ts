@@ -71,11 +71,11 @@ export interface EcosystemAppItem {
               class="group flex cursor-pointer flex-col items-center gap-y-1.5 rounded-2xl p-2.5 text-center transition hover:bg-neutral-a3"
             >
               <div
-                class="flex size-12 items-center justify-center overflow-hidden rounded-2xl shadow-2xs transition-transform group-hover:scale-105"
+                class="flex size-12 items-center justify-center transition-transform group-hover:scale-110"
                 [class]="item.iconBgClass + ' ' + item.iconTextClass"
               >
                 @if (item.imageUrl) {
-                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-cover" />
+                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-contain drop-shadow-sm" />
                 } @else {
                   <mat-icon [svgIcon]="item.icon" class="size-6!" />
                 }
