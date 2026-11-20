@@ -48,7 +48,7 @@ if ($TranscriptJsonlPath -and (Test-Path $TranscriptJsonlPath)) {
         try {
             $obj = $line | ConvertFrom-Json
             if ($obj.type -eq "USER_INPUT" -and $obj.content) {
-                $cleanUser = ($obj.content -replace '(?s)<ADDITIONAL_METADATA>.*?</ADDITIONAL_METADATA>', '' -replace '</?USER_REQUEST>', '').Trim()
+                $cleanUser = ($obj.content -replace '(?s)<ADDITIONAL_METADATA>.*?</ADDITIONAL_METADATA>', '' -replace '(?s)<USER_SETTINGS_CHANGE>.*?</USER_SETTINGS_CHANGE>', '' -replace '</?USER_REQUEST>', '').Trim()
                 if ($cleanUser) {
                     [void]$sb.AppendLine("## 👤 Hebinho")
                     [void]$sb.AppendLine("")
