@@ -69,22 +69,53 @@
           </div>
         </div>
       } @else {
-        <a class="inline-flex items-center gap-x-3 rounded-xl" [routerLink]="context.isSecurityContext() ? '/security' : '/morphus'">
-          <div class="flex size-10 items-center justify-center overflow-hidden rounded-xl shadow-sm">
-            @if (theming.sidebarScheme() === 'dark') {
-              <img src="/brands/favicon_dark_512.png" alt="Morphus logo" class="size-full object-cover" />
+        <a
+          class="inline-flex items-center gap-x-3 rounded-xl"
+          [routerLink]="
+            context.isFlowContext()
+              ? '/flow'
+              : context.isSendContext()
+                ? '/send'
+                : context.isSecurityContext()
+                  ? '/security'
+                  : '/morphus'
+          "
+        >
+          <div class="flex size-10 items-center justify-center overflow-hidden rounded-xl">
+            @if (context.isFlowContext()) {
+              <img src="/logos/morphus_flow_logo.png?v=5" alt="Morphus Flow" class="size-full object-contain drop-shadow-sm" />
+            } @else if (context.isSendContext()) {
+              <img src="/logos/morphus_send_logo.png?v=5" alt="Morphus Send" class="size-full object-contain drop-shadow-sm" />
+            } @else if (context.isSecurityContext()) {
+              <img src="/logos/morphus_security_logo.png?v=5" alt="Morphus Security" class="size-full object-contain drop-shadow-sm" />
             } @else {
-              <img src="/brands/favicon_light_512.png" alt="Morphus logo" class="size-full object-cover" />
+              <img src="/logos/morphus_cloud_logo.png?v=5" alt="Morphus Cloud" class="size-full object-contain drop-shadow-sm" />
             }
           </div>
           <div class="flex flex-col gap-y-0.5">
             <div
               class="bg-gradient-to-r from-[#0EA5E9] via-[#6D28D9] to-[#F43F5E] bg-clip-text text-2xl leading-none font-extrabold tracking-tight uppercase text-transparent dark:from-[#22D3EE] dark:via-[#A78BFA] dark:to-[#FB7185]"
             >
-              {{ context.isSecurityContext() ? 'SECURITY' : 'MORPHUS' }}
+              {{
+                context.isFlowContext()
+                  ? 'FLOW'
+                  : context.isSendContext()
+                    ? 'SEND'
+                    : context.isSecurityContext()
+                      ? 'SECURITY'
+                      : 'CLOUD'
+              }}
             </div>
             <div class="text-xs leading-none font-medium text-neutral-a10">
-              {{ context.isSecurityContext() ? 'Identidade & Controle de Acesso' : 'Do que você precisa hoje?' }}
+              {{
+                context.isFlowContext()
+                  ? 'Workflows, Estações & Plenário'
+                  : context.isSendContext()
+                    ? 'Motor Transacional de E-mails'
+                    : context.isSecurityContext()
+                      ? 'Identidade & Controle de Acesso'
+                      : 'Governança & Aplicações'
+              }}
             </div>
           </div>
         </a>

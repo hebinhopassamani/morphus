@@ -144,7 +144,7 @@ export class MpxAppLauncherComponent {
       subdomain: '',
       localRoute: '/',
       icon: 'globe',
-      imageUrl: '/logos/morphus_one_logo.png?v=4',
+      imageUrl: '/logos/morphus_one_logo.png?v=5',
     },
     {
       id: 'cloud',
@@ -153,7 +153,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'cloud',
       localRoute: '/morphus',
       icon: 'cloud',
-      imageUrl: '/logos/morphus_cloud_logo.png?v=4',
+      imageUrl: '/logos/morphus_cloud_logo.png?v=5',
     },
     {
       id: 'security',
@@ -162,7 +162,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'security',
       localRoute: '/security',
       icon: 'shield-check',
-      imageUrl: '/logos/morphus_security_logo.png?v=4',
+      imageUrl: '/logos/morphus_security_logo.png?v=5',
     },
     {
       id: 'flow',
@@ -171,7 +171,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'flow',
       localRoute: '/flow',
       icon: 'workflow',
-      imageUrl: '/logos/morphus_flow_logo.png?v=4',
+      imageUrl: '/logos/morphus_flow_logo.png?v=5',
     },
     {
       id: 'kalupa',
@@ -180,7 +180,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'kalupa',
       localRoute: '/kalupa',
       icon: 'sparkles',
-      imageUrl: '/logos/morphus_kalupa_logo.png?v=4',
+      imageUrl: '/logos/morphus_kalupa_logo.png?v=5',
     },
     {
       id: 'send',
@@ -189,7 +189,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'send',
       localRoute: '/send',
       icon: 'send',
-      imageUrl: '/logos/morphus_send_logo.png?v=4',
+      imageUrl: '/logos/morphus_send_logo.png?v=5',
     },
   ];
 

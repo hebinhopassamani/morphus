@@ -139,9 +139,27 @@ export class MpxContextService {
     { initialValue: this.router.url },
   );
 
-  readonly isSecurityContext = computed(() =>
-    (this.currentUrl() || '').startsWith('/security'),
-  );
+  private isSubdomainHost(sub: string): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    return window.location.hostname.toLowerCase().split('.')[0] === sub;
+  }
+
+  readonly isSecurityContext = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.startsWith('/security') || this.isSubdomainHost('security');
+  });
+
+  readonly isFlowContext = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.startsWith('/flow') || this.isSubdomainHost('flow');
+  });
+
+  readonly isSendContext = computed(() => {
+    const url = this.currentUrl() || '';
+    return url.startsWith('/send') || this.isSubdomainHost('send');
+  });
 
   readonly isAppRuntimeContext = computed(() => {
     const url = this.currentUrl() || '';
@@ -154,6 +172,12 @@ export class MpxContextService {
   readonly menus = computed<Menu[]>(() => {
     if (this.isSecurityContext()) {
       return this.buildSecurityMenus();
+    }
+    if (this.isFlowContext()) {
+      return this.buildFlowMenus();
+    }
+    if (this.isSendContext()) {
+      return this.buildSendMenus();
     }
     if (this.isAppRuntimeContext()) {
       return this.buildOperationalAppMenus();
@@ -1105,6 +1129,183 @@ export class MpxContextService {
             url: '/morphus/application',
             icon: 'layout-grid',
             order: 2,
+          },
+        ],
+      },
+    ];
+  }
+
+  private buildFlowMenus(): Menu[] {
+    return [
+      {
+        id: 'flow-sec-overview',
+        key: 'FLOW_SEC_OVERVIEW',
+        applicationId: '',
+        label: 'Visão Geral',
+        icon: 'workflow',
+        order: 1,
+        subMenus: [
+          {
+            id: 'flow-item-dashboard',
+            key: 'FLOW_ITEM_DASHBOARD',
+            applicationId: '',
+            label: 'Painel de Workflows',
+            url: '/flow',
+            icon: 'workflow',
+            order: 1,
+          },
+          {
+            id: 'flow-item-portal',
+            key: 'FLOW_ITEM_PORTAL',
+            applicationId: '',
+            label: 'Portal da Corporação',
+            url: '/',
+            icon: 'globe',
+            order: 2,
+          },
+        ],
+      },
+      {
+        id: 'flow-sec-studio',
+        key: 'FLOW_SEC_STUDIO',
+        applicationId: '',
+        label: 'Estúdio & Modelagem',
+        icon: 'git-branch',
+        order: 2,
+        subMenus: [
+          {
+            id: 'flow-item-types',
+            key: 'FLOW_ITEM_TYPES',
+            applicationId: '',
+            label: 'Tipos de Fluxo (Canvas)',
+            url: '/flow',
+            icon: 'git-branch',
+            order: 1,
+          },
+          {
+            id: 'flow-item-stations',
+            key: 'FLOW_ITEM_STATIONS',
+            applicationId: '',
+            label: 'Catálogo de Estações',
+            url: '/flow',
+            icon: 'layers',
+            order: 2,
+          },
+          {
+            id: 'flow-item-conditions',
+            key: 'FLOW_ITEM_CONDITIONS',
+            applicationId: '',
+            label: 'Condições & Regras',
+            url: '/flow',
+            icon: 'filter',
+            order: 3,
+          },
+        ],
+      },
+      {
+        id: 'flow-sec-runtime',
+        key: 'FLOW_SEC_RUNTIME',
+        applicationId: '',
+        label: 'Execução & Plenário',
+        icon: 'timer',
+        order: 3,
+        subMenus: [
+          {
+            id: 'flow-item-tasks',
+            key: 'FLOW_ITEM_TASKS',
+            applicationId: '',
+            label: 'Fila de Tarefas & Quórum',
+            url: '/flow',
+            icon: 'circle-check',
+            order: 1,
+          },
+          {
+            id: 'flow-item-slas',
+            key: 'FLOW_ITEM_SLAS',
+            applicationId: '',
+            label: 'Monitoramento de SLAs',
+            url: '/flow',
+            icon: 'timer',
+            order: 2,
+          },
+        ],
+      },
+    ];
+  }
+
+  private buildSendMenus(): Menu[] {
+    return [
+      {
+        id: 'send-sec-overview',
+        key: 'SEND_SEC_OVERVIEW',
+        applicationId: '',
+        label: 'Visão Geral',
+        icon: 'send',
+        order: 1,
+        subMenus: [
+          {
+            id: 'send-item-dashboard',
+            key: 'SEND_ITEM_DASHBOARD',
+            applicationId: '',
+            label: 'Painel de Disparo',
+            url: '/send',
+            icon: 'send',
+            order: 1,
+          },
+          {
+            id: 'send-item-portal',
+            key: 'SEND_ITEM_PORTAL',
+            applicationId: '',
+            label: 'Portal da Corporação',
+            url: '/',
+            icon: 'globe',
+            order: 2,
+          },
+        ],
+      },
+      {
+        id: 'send-sec-delivery',
+        key: 'SEND_SEC_DELIVERY',
+        applicationId: '',
+        label: 'Mensageria & Entrega',
+        icon: 'mail',
+        order: 2,
+        subMenus: [
+          {
+            id: 'send-item-domains',
+            key: 'SEND_ITEM_DOMAINS',
+            applicationId: '',
+            label: 'Domínios (SPF / DKIM)',
+            url: '/send',
+            icon: 'globe',
+            order: 1,
+          },
+          {
+            id: 'send-item-templates',
+            key: 'SEND_ITEM_TEMPLATES',
+            applicationId: '',
+            label: 'Templates HTML',
+            url: '/send',
+            icon: 'file-text',
+            order: 2,
+          },
+          {
+            id: 'send-item-playground',
+            key: 'SEND_ITEM_PLAYGROUND',
+            applicationId: '',
+            label: 'Playground & SDKs',
+            url: '/send',
+            icon: 'rocket',
+            order: 3,
+          },
+          {
+            id: 'send-item-keys',
+            key: 'SEND_ITEM_KEYS',
+            applicationId: '',
+            label: 'API Keys & Logs',
+            url: '/send',
+            icon: 'key-round',
+            order: 4,
           },
         ],
       },
