@@ -11,7 +11,6 @@ import {
   signal,
 } from '@angular/core';
 import { MatButton } from '@angular/material/button';
-import { MatCard, MatCardContent } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import {
   MatMenu,
@@ -160,8 +159,6 @@ const CARD_ACCENT_MAP: Record<CardColorKey, CardAccent> = {
   selector: 'web-home',
   imports: [
     MatButton,
-    MatCard,
-    MatCardContent,
     MatIcon,
     MatMenu,
     MatMenuItem,
@@ -170,7 +167,7 @@ const CARD_ACCENT_MAP: Record<CardColorKey, CardAccent> = {
     MpxPortalCardComponent,
   ],
   host: {
-    class: 'flex flex-auto flex-col gap-y-12 py-6 text-neutral-12 lg:gap-y-16 lg:py-8',
+    class: 'flex flex-auto flex-col justify-between gap-y-6 text-neutral-12',
   },
   templateUrl: './home.component.html',
 })
