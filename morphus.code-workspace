@@ -4,6 +4,53 @@
       "path": ".",
     },
   ],
+
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "type": "npm",
+        "script": "start",
+        "path": "mpx-frontend/",
+        "isBackground": true,
+        "problemMatcher": {
+          "owner": "typescript",
+          "pattern": "$tsc",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": {
+              "regexp": "Changes detected",
+            },
+            "endsPattern": {
+              "regexp": "bundle generation (complete|failed)",
+            },
+          },
+        },
+      },
+      {
+        "type": "npm",
+        "script": "test",
+        "path": "mpx-frontend/",
+        "isBackground": true,
+        "problemMatcher": {
+          "owner": "typescript",
+          "pattern": "$tsc",
+          "background": {
+            "activeOnStart": true,
+            "beginsPattern": {
+              "regexp": "Changes detected",
+            },
+            "endsPattern": {
+              "regexp": "bundle generation (complete|failed)",
+            },
+          },
+        },
+      },
+    ],
+  },
+  "extensions": {
+    "recommendations": ["angular.ng-template", "ms-dotnettools.csharp", "esbenp.prettier-vscode", "pkief.material-icon-theme"],
+  },
   "settings": {
     // 1. Configurações de Formatação e Lint do Projeto (Preferências visuais/fontes vêm do User Settings Global)
     "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -84,6 +131,47 @@
       "editor.defaultFormatter": "esbenp.prettier-vscode",
     },
 
+    "launch": {
+      "version": "0.2.0",
+      "configurations": [
+        {
+          "name": "Frontend: ng serve",
+          "type": "chrome",
+          "request": "launch",
+          "preLaunchTask": "npm: start",
+          "url": "http://localhost:4200/",
+        },
+        {
+          "name": "Frontend: ng test",
+          "type": "chrome",
+          "request": "launch",
+          "preLaunchTask": "npm: test",
+          "url": "http://localhost:9876/debug.html",
+        },
+        {
+          "name": "Backend: Mpx.Api",
+          "type": "coreclr",
+          "request": "launch",
+          "program": "${workspaceFolder}/mpx-backend/Mpx.Api/bin/Debug/net11.0/Mpx.Api.dll",
+          "cwd": "${workspaceFolder}/mpx-backend/Mpx.Api",
+          "stopAtEntry": false,
+          "env": {
+            "ASPNETCORE_ENVIRONMENT": "Development",
+          },
+        },
+        {
+          "name": "Service: Mpx.Jarbass",
+          "type": "coreclr",
+          "request": "launch",
+          "program": "${workspaceFolder}/mpx-backend/Mpx.Jarbass/bin/Debug/net11.0/Mpx.Jarbass.dll",
+          "cwd": "${workspaceFolder}/mpx-backend/Mpx.Jarbass",
+          "stopAtEntry": false,
+          "env": {
+            "DOTNET_ENVIRONMENT": "Development",
+          },
+        },
+      ],
+    },
     // 2. Todo o Monstro de Ícones Isolado Aqui Dentro!
     "material-icon-theme.folders.color": "#C870CC",
     "material-icon-theme.files.associations": {
@@ -226,92 +314,5 @@
         "folderNames": ["session"],
       },
     ],
-  },
-  "launch": {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Frontend: ng serve",
-        "type": "chrome",
-        "request": "launch",
-        "preLaunchTask": "npm: start",
-        "url": "http://localhost:4200/",
-      },
-      {
-        "name": "Frontend: ng test",
-        "type": "chrome",
-        "request": "launch",
-        "preLaunchTask": "npm: test",
-        "url": "http://localhost:9876/debug.html",
-      },
-      {
-        "name": "Backend: Mpx.Api",
-        "type": "coreclr",
-        "request": "launch",
-        "program": "${workspaceFolder}/mpx-backend/Mpx.Api/bin/Debug/net11.0/Mpx.Api.dll",
-        "cwd": "${workspaceFolder}/mpx-backend/Mpx.Api",
-        "stopAtEntry": false,
-        "env": {
-          "ASPNETCORE_ENVIRONMENT": "Development",
-        },
-      },
-      {
-        "name": "Service: Mpx.Jarbass",
-        "type": "coreclr",
-        "request": "launch",
-        "program": "${workspaceFolder}/mpx-backend/Mpx.Jarbass/bin/Debug/net11.0/Mpx.Jarbass.dll",
-        "cwd": "${workspaceFolder}/mpx-backend/Mpx.Jarbass",
-        "stopAtEntry": false,
-        "env": {
-          "DOTNET_ENVIRONMENT": "Development",
-        },
-      },
-    ],
-  },
-  "tasks": {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "type": "npm",
-        "script": "start",
-        "path": "mpx-frontend/",
-        "isBackground": true,
-        "problemMatcher": {
-          "owner": "typescript",
-          "pattern": "$tsc",
-          "background": {
-            "activeOnStart": true,
-            "beginsPattern": {
-              "regexp": "Changes detected",
-            },
-            "endsPattern": {
-              "regexp": "bundle generation (complete|failed)",
-            },
-          },
-        },
-      },
-      {
-        "type": "npm",
-        "script": "test",
-        "path": "mpx-frontend/",
-        "isBackground": true,
-        "problemMatcher": {
-          "owner": "typescript",
-          "pattern": "$tsc",
-          "background": {
-            "activeOnStart": true,
-            "beginsPattern": {
-              "regexp": "Changes detected",
-            },
-            "endsPattern": {
-              "regexp": "bundle generation (complete|failed)",
-            },
-          },
-        },
-      },
-    ],
-  },
-  "extensions": {
-    "recommendations": ["angular.ng-template", "ms-dotnettools.csharp", "esbenp.prettier-vscode", "pkief.material-icon-theme"],
   },
 }
