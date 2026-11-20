@@ -126,7 +126,6 @@ foreach ($r in $recentRows) {
         $idPart = ($parts[1] -replace '\[([^\]]+)\]\([^\)]+\)', '$1').Trim()
         $subjPart = $parts[2].Trim()
         $sumPart = $parts[3].Trim()
-        if ($sumPart.Length -gt 260) { $sumPart = $sumPart.Substring(0, 257) + "..." }
         $memoryLines.Add("- **$idPart ($subjPart)**: $sumPart")
     }
 }
