@@ -19,6 +19,8 @@
     // 2. Todo o Monstro de Ícones Isolado Aqui Dentro!
     "material-icon-theme.folders.color": "#C870CC",
     "material-icon-theme.files.associations": {
+      ".morphus": "fastlane",
+      "*.morphus": "fastlane",
       "index.ts": "gemini",
       "*.css": "codecov",
       "*.ts": "react_ts",
