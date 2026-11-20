@@ -28,3 +28,23 @@ kalupa.{$MORPHUS_DOMAIN} {
 morphus.uk, www.morphus.uk, morphus.mx, www.morphus.mx, morphus.dev, www.morphus.dev, morphus.pro, www.morphus.pro, morphus.me, www.morphus.me {
 	redir https://{$MORPHUS_DOMAIN}{uri} permanent
 }
+
+cloud.morphus.uk, cloud.morphus.mx, cloud.morphus.dev, cloud.morphus.pro, cloud.morphus.me {
+	redir https://cloud.{$MORPHUS_DOMAIN}{uri} permanent
+}
+
+security.morphus.uk, security.morphus.mx, security.morphus.dev, security.morphus.pro, security.morphus.me {
+	redir https://security.{$MORPHUS_DOMAIN}{uri} permanent
+}
+
+flow.morphus.uk, flow.morphus.mx, flow.morphus.dev, flow.morphus.pro, flow.morphus.me {
+	redir https://flow.{$MORPHUS_DOMAIN}{uri} permanent
+}
+
+kalupa.morphus.uk, kalupa.morphus.mx, kalupa.morphus.dev, kalupa.morphus.pro, kalupa.morphus.me {
+	redir https://kalupa.{$MORPHUS_DOMAIN}{uri} permanent
+}
+
+send.morphus.uk, send.morphus.mx, send.morphus.dev, send.morphus.pro, send.morphus.me {
+	redir https://send.{$MORPHUS_DOMAIN}{uri} permanent
+}
