@@ -17,8 +17,6 @@ export interface EcosystemAppItem {
   localRoute: string;
   icon: string;
   imageUrl?: string;
-  iconBgClass: string;
-  iconTextClass: string;
 }
 
 @Component({
@@ -72,12 +70,15 @@ export interface EcosystemAppItem {
             >
               <div
                 class="flex size-12 items-center justify-center transition-transform group-hover:scale-110"
-                [class]="item.iconBgClass + ' ' + item.iconTextClass"
               >
                 @if (item.imageUrl) {
-                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-contain drop-shadow-sm" />
+                  <img
+                    [src]="item.imageUrl"
+                    [alt]="item.name"
+                    class="size-full object-contain drop-shadow-sm"
+                  />
                 } @else {
-                  <mat-icon [svgIcon]="item.icon" class="size-6!" />
+                  <mat-icon [svgIcon]="item.icon" class="size-8! text-primary-a11" />
                 }
               </div>
               <span class="w-full truncate text-xs font-semibold text-neutral-12">
@@ -107,9 +108,17 @@ export interface EcosystemAppItem {
                 class="group flex cursor-pointer flex-col items-center gap-y-1.5 rounded-2xl p-2.5 text-center transition hover:bg-neutral-a3"
               >
                 <div
-                  class="flex size-12 items-center justify-center rounded-2xl bg-primary-a3 text-primary-a11 ring-1 ring-primary-a5 shadow-2xs transition-transform group-hover:scale-105"
+                  class="flex size-12 items-center justify-center transition-transform group-hover:scale-110"
                 >
-                  <mat-icon [svgIcon]="app.icon || 'boxes'" class="size-6!" />
+                  @if (context.isImageIcon(app.icon)) {
+                    <img
+                      [src]="app.icon"
+                      [alt]="app.name"
+                      class="size-full object-contain drop-shadow-sm"
+                    />
+                  } @else {
+                    <mat-icon [svgIcon]="app.icon || 'boxes'" class="size-8! text-primary-a11" />
+                  }
                 </div>
                 <span class="w-full truncate text-xs font-semibold text-neutral-12">
                   {{ app.name }}
@@ -135,9 +144,7 @@ export class MpxAppLauncherComponent {
       subdomain: '',
       localRoute: '/',
       icon: 'globe',
-      imageUrl: '/logos/morphus_one_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-cyan-500 dark:text-cyan-300',
+      imageUrl: '/logos/morphus_one_logo.png?v=4',
     },
     {
       id: 'cloud',
@@ -146,9 +153,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'cloud',
       localRoute: '/morphus',
       icon: 'cloud',
-      imageUrl: '/logos/morphus_cloud_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-indigo-a11',
+      imageUrl: '/logos/morphus_cloud_logo.png?v=4',
     },
     {
       id: 'security',
@@ -157,9 +162,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'security',
       localRoute: '/security',
       icon: 'shield-check',
-      imageUrl: '/logos/morphus_security_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-violet-a11',
+      imageUrl: '/logos/morphus_security_logo.png?v=4',
     },
     {
       id: 'flow',
@@ -168,9 +171,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'flow',
       localRoute: '/flow',
       icon: 'workflow',
-      imageUrl: '/logos/morphus_flow_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-amber-a11',
+      imageUrl: '/logos/morphus_flow_logo.png?v=4',
     },
     {
       id: 'kalupa',
@@ -179,9 +180,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'kalupa',
       localRoute: '/kalupa',
       icon: 'sparkles',
-      imageUrl: '/logos/morphus_kalupa_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-jade-a11',
+      imageUrl: '/logos/morphus_kalupa_logo.png?v=4',
     },
     {
       id: 'send',
@@ -190,9 +189,7 @@ export class MpxAppLauncherComponent {
       subdomain: 'send',
       localRoute: '/send',
       icon: 'send',
-      imageUrl: '/logos/morphus_send_logo.png',
-      iconBgClass: 'bg-transparent',
-      iconTextClass: 'text-sky-500 dark:text-sky-300',
+      imageUrl: '/logos/morphus_send_logo.png?v=4',
     },
   ];
 
