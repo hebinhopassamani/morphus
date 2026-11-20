@@ -9,6 +9,6 @@ export const environment = {
       audience: 'https://morphus.one', // 🧙‍♂️ A tranca mágica que faltava!
     },
   },
-  // 🚀 Ambiente de Produção apontando para o mesmo domínio (roteado via Caddy /api/*):
-  apiUrl: 'https://morphus.one/api/v1',
+  // 🚀 Ambiente de Produção apontando para o mesmo domínio/subdomínio (roteado via Caddy /api/*):
+  apiUrl: '/api/v1',
 };

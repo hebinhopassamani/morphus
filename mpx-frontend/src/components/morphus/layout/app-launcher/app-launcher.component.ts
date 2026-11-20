@@ -75,7 +75,7 @@ export interface EcosystemAppItem {
                 [class]="item.iconBgClass + ' ' + item.iconTextClass"
               >
                 @if (item.imageUrl) {
-                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-contain p-1" />
+                  <img [src]="item.imageUrl" [alt]="item.name" class="size-full object-cover" />
                 } @else {
                   <mat-icon [svgIcon]="item.icon" class="size-6!" />
                 }
@@ -135,7 +135,8 @@ export class MpxAppLauncherComponent {
       subdomain: '',
       localRoute: '/',
       icon: 'globe',
-      iconBgClass: 'bg-cyan-500/15 ring-1 ring-cyan-500/30',
+      imageUrl: '/brands/morphus-one-logo.jpg',
+      iconBgClass: 'bg-[#120924] ring-1 ring-white/10',
       iconTextClass: 'text-cyan-500 dark:text-cyan-300',
     },
     {
