@@ -8,6 +8,8 @@ public class WorkflowItem : MpxEntity, IMpxTenant
   public Guid CorporationId { get; set; }
   public Guid WorkflowId { get; set; }
   public Guid? ParentWorkflowItemId { get; set; }
+  public Guid? WorkflowTypeContextId { get; set; }
+  public Guid? EntityDefinitionId { get; set; }
   public Guid? AddedInConfigId { get; set; }
   public Guid? WorkflowTypeConfigFieldId { get; set; }
   public Guid? AddedByUserId { get; set; }
@@ -26,6 +28,8 @@ public class WorkflowItem : MpxEntity, IMpxTenant
   public virtual Corporation? Corporation { get; set; }
   public virtual Workflow? Workflow { get; set; }
   public virtual WorkflowItem? ParentWorkflowItem { get; set; }
+  public virtual WorkflowTypeContext? WorkflowTypeContext { get; set; }
+  public virtual EntityDefinition? EntityDefinition { get; set; }
   public virtual WorkflowTypeConfig? AddedInConfig { get; set; }
   public virtual WorkflowTypeConfigField? WorkflowTypeConfigField { get; set; }
   public virtual User? AddedByUser { get; set; }

@@ -15,6 +15,8 @@ public class WorkflowItemConfiguration : IEntityTypeConfiguration<WorkflowItem>
     builder.Property(i => i.CorporationId).IsRequired();
     builder.Property(i => i.WorkflowId).IsRequired();
     builder.Property(i => i.ParentWorkflowItemId).IsRequired(false);
+    builder.Property(i => i.WorkflowTypeContextId).IsRequired(false);
+    builder.Property(i => i.EntityDefinitionId).IsRequired(false);
     builder.Property(i => i.AddedInConfigId).IsRequired(false);
     builder.Property(i => i.WorkflowTypeConfigFieldId).IsRequired(false);
     builder.Property(i => i.AddedByUserId).IsRequired(false);
@@ -45,6 +47,18 @@ public class WorkflowItemConfiguration : IEntityTypeConfiguration<WorkflowItem>
            .HasForeignKey(i => i.ParentWorkflowItemId)
            .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne(i => i.WorkflowTypeContext)
+           .WithMany(ctx => ctx.Items)
+           .HasForeignKey(i => i.WorkflowTypeContextId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(i => i.EntityDefinition)
+           .WithMany()
+           .HasForeignKey(i => i.EntityDefinitionId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
 
     builder.HasOne(i => i.AddedInConfig)
            .WithMany()

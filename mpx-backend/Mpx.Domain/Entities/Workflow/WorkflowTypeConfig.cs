@@ -35,6 +35,7 @@ public class WorkflowTypeConfig : MpxEntity, IMpxTenant
   public virtual WorkflowType? WorkflowType { get; set; }
   public virtual Station? Station { get; set; }
 
+  public virtual ICollection<WorkflowTypeContext> AddedContexts { get; set; } = [];
   public virtual ICollection<WorkflowTypeConfigAction> Actions { get; set; } = [];
   public virtual ICollection<WorkflowTypeConfigCondition> Conditions { get; set; } = [];
   public virtual ICollection<WorkflowTypeConfigField> Fields { get; set; } = [];

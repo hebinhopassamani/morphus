@@ -14,11 +14,16 @@ public class WorkflowTypeConfigFieldConfiguration : IEntityTypeConfiguration<Wor
 
     builder.Property(f => f.CorporationId).IsRequired();
     builder.Property(f => f.WorkflowTypeConfigId).IsRequired();
+    builder.Property(f => f.WorkflowTypeContextId).IsRequired(false);
+    builder.Property(f => f.EntityDefinitionId).IsRequired(false);
+    builder.Property(f => f.EntityPropertyId).IsRequired(false);
+    builder.Property(f => f.TargetEntityDefinitionId).IsRequired(false);
     builder.Property(f => f.IsEntityProperty).IsRequired().HasDefaultValue(true);
     builder.Property(f => f.EntityName).IsRequired(false).HasMaxLength(120);
     builder.Property(f => f.EntityAlias).IsRequired(false).HasMaxLength(120);
     builder.Property(f => f.IsCollection).IsRequired().HasDefaultValue(false);
-    builder.Property(f => f.PropertyName).IsRequired().HasMaxLength(150);
+    builder.Property(f => f.PropertyName).IsRequired(false).HasMaxLength(150);
+    builder.Property(f => f.PropertyPath).IsRequired(false).HasMaxLength(300);
     builder.Property(f => f.Label).IsRequired().HasMaxLength(150);
     builder.Property(f => f.Placeholder).IsRequired(false).HasMaxLength(200);
     builder.Property(f => f.DataType).IsRequired().HasMaxLength(40).HasDefaultValue("text");
@@ -48,5 +53,29 @@ public class WorkflowTypeConfigFieldConfiguration : IEntityTypeConfiguration<Wor
            .WithMany(c => c.Fields)
            .HasForeignKey(f => f.WorkflowTypeConfigId)
            .OnDelete(DeleteBehavior.Cascade);
+
+    builder.HasOne(f => f.WorkflowTypeContext)
+           .WithMany(ctx => ctx.Fields)
+           .HasForeignKey(f => f.WorkflowTypeContextId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(f => f.EntityDefinition)
+           .WithMany()
+           .HasForeignKey(f => f.EntityDefinitionId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(f => f.EntityProperty)
+           .WithMany()
+           .HasForeignKey(f => f.EntityPropertyId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
+
+    builder.HasOne(f => f.TargetEntityDefinition)
+           .WithMany()
+           .HasForeignKey(f => f.TargetEntityDefinitionId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
   }
 }

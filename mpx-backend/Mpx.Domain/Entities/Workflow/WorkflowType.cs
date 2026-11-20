@@ -11,6 +11,7 @@ public class WorkflowType : MpxEntity, IMpxTenant
   public Guid? ApplicationId { get; set; }
   public Guid? ModuleId { get; set; }
   public Guid? SubModuleId { get; set; }
+  public Guid? RootEntityDefinitionId { get; set; }
   public string? EntityName { get; set; }
   public string TriggerType { get; set; } = "Internal";
   public double ViewportX { get; set; }
@@ -25,7 +26,9 @@ public class WorkflowType : MpxEntity, IMpxTenant
   public virtual Application? Application { get; set; }
   public virtual Module? Module { get; set; }
   public virtual SubModule? SubModule { get; set; }
+  public virtual EntityDefinition? RootEntityDefinition { get; set; }
 
+  public virtual ICollection<WorkflowTypeContext> Contexts { get; set; } = [];
   public virtual ICollection<WorkflowTypeConfig> Configs { get; set; } = [];
   public virtual ICollection<WorkflowPermission> Permissions { get; set; } = [];
   public virtual ICollection<Workflow> Workflows { get; set; } = [];

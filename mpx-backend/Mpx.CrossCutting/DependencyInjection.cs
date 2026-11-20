@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using Mpx.Application.Handlers;
 using Mpx.Application.Validators;
 using Mpx.Core.Interfaces;
+using Mpx.Domain.Entities;
 using Mpx.Domain.Interfaces;
 using Mpx.Domain.Security;
 using Mpx.Infrastructure.Data.Core;
@@ -160,6 +161,8 @@ public static class DependencyInjection
       Console.WriteLine(">>> TABELAS SHOWCASE DA HOME (mpx_features / mpx_modules) POPULADAS COM SUCESSO! <<<");
     }
 
+    SeedSystemEntityCatalog(dbContext);
+
     if (string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB"), "true", StringComparison.OrdinalIgnoreCase) &&
         string.Equals(Environment.GetEnvironmentVariable("RESET_MORPHUS_DB_EXIT"), "true", StringComparison.OrdinalIgnoreCase))
     {
@@ -167,6 +170,217 @@ public static class DependencyInjection
     }
 
     return app;
+  }
+
+  private static void SeedSystemEntityCatalog(MpxDbContext dbContext)
+  {
+    var existingEntities = dbContext.EntityDefinitions
+        .Include(e => e.Properties)
+        .Where(e => e.CorporationId == null && e.System)
+        .ToList();
+
+    var entityByName = existingEntities.ToDictionary(e => e.Name, StringComparer.OrdinalIgnoreCase);
+    var entityByClrType = new Dictionary<Type, EntityDefinition>();
+    var hasChanges = false;
+
+    foreach (var et in dbContext.Model.GetEntityTypes())
+    {
+      var clrType = et.ClrType;
+      if (clrType.IsAbstract)
+        continue;
+
+      var tableName = et.GetTableName() ?? clrType.Name;
+      var entityName = clrType.Name;
+      var moduleName = InferModuleNameFromTable(tableName);
+
+      if (!entityByName.TryGetValue(entityName, out var entityDef))
+      {
+        entityDef = new EntityDefinition
+        {
+          Id = Guid.NewGuid(),
+          CorporationId = null,
+          Name = entityName,
+          TableName = tableName,
+          Label = FormatFriendlyLabel(entityName),
+          PluralLabel = FormatFriendlyLabel(entityName) + "s",
+          ModuleName = moduleName,
+          Icon = InferEntityIcon(moduleName, entityName),
+          System = true,
+          Inactive = false,
+          Description = $"Entidade nativa do módulo {moduleName} ({tableName})."
+        };
+        dbContext.EntityDefinitions.Add(entityDef);
+        entityByName[entityName] = entityDef;
+        hasChanges = true;
+      }
+
+      entityByClrType[clrType] = entityDef;
+    }
+
+    if (hasChanges)
+    {
+      dbContext.SaveChanges();
+    }
+
+    var propChanges = false;
+    foreach (var et in dbContext.Model.GetEntityTypes())
+    {
+      if (!entityByClrType.TryGetValue(et.ClrType, out var ownerDef))
+        continue;
+
+      var existingProps = ownerDef.Properties.ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+      var order = existingProps.Count;
+
+      foreach (var prop in et.GetProperties())
+      {
+        if (existingProps.ContainsKey(prop.Name))
+          continue;
+
+        var isPk = prop.IsPrimaryKey();
+        var isFk = prop.IsForeignKey();
+        Guid? targetDefId = null;
+
+        if (isFk)
+        {
+          var fk = prop.GetContainingForeignKeys().FirstOrDefault();
+          if (fk is not null && entityByClrType.TryGetValue(fk.PrincipalEntityType.ClrType, out var principalDef))
+          {
+            targetDefId = principalDef.Id;
+          }
+        }
+
+        var (dataType, controlType) = InferScalarDataType(prop.Name, prop.ClrType);
+        var maxLen = prop.GetMaxLength();
+        var colName = prop.GetColumnName();
+
+        var newProp = new EntityProperty
+        {
+          Id = Guid.NewGuid(),
+          CorporationId = null,
+          EntityDefinitionId = ownerDef.Id,
+          Name = prop.Name,
+          ColumnName = colName,
+          Label = FormatFriendlyLabel(prop.Name),
+          DataType = dataType,
+          DefaultControlType = isFk ? "Select" : controlType,
+          TargetEntityDefinitionId = targetDefId,
+          ForeignKeyPropertyName = isFk ? prop.Name : null,
+          IsPrimaryKey = isPk,
+          IsForeignKey = isFk,
+          IsRequired = !prop.IsNullable,
+          MaxLength = maxLen,
+          Order = ++order,
+          System = true,
+          Inactive = false
+        };
+
+        dbContext.EntityProperties.Add(newProp);
+        existingProps[prop.Name] = newProp;
+        propChanges = true;
+      }
+
+      foreach (var nav in et.GetNavigations())
+      {
+        if (existingProps.ContainsKey(nav.Name))
+          continue;
+
+        entityByClrType.TryGetValue(nav.TargetEntityType.ClrType, out var targetDef);
+        var fkPropName = nav.ForeignKey.Properties.FirstOrDefault()?.Name;
+        var isCollection = nav.IsCollection;
+
+        var navProp = new EntityProperty
+        {
+          Id = Guid.NewGuid(),
+          CorporationId = null,
+          EntityDefinitionId = ownerDef.Id,
+          Name = nav.Name,
+          ColumnName = null,
+          Label = FormatFriendlyLabel(nav.Name),
+          DataType = isCollection ? "ListOfEntities" : "Entity",
+          DefaultControlType = isCollection ? "MultiSelect" : "Select",
+          TargetEntityDefinitionId = targetDef?.Id,
+          ForeignKeyPropertyName = fkPropName,
+          IsPrimaryKey = false,
+          IsForeignKey = false,
+          IsRequired = !isCollection && nav.ForeignKey.IsRequired,
+          Order = ++order,
+          System = true,
+          Inactive = false
+        };
+
+        dbContext.EntityProperties.Add(navProp);
+        existingProps[nav.Name] = navProp;
+        propChanges = true;
+      }
+    }
+
+    if (propChanges)
+    {
+      dbContext.SaveChanges();
+      Console.WriteLine(">>> CATÁLOGO DE ENTIDADES E PROPRIEDADES (mpx_entities / mpx_entity_properties) SINCRONIZADO VIA REFLECTION! <<<");
+    }
+  }
+
+  private static string InferModuleNameFromTable(string tableName)
+  {
+    if (tableName.StartsWith("sec_", StringComparison.OrdinalIgnoreCase))
+      return "Security";
+    if (tableName.StartsWith("wkf_", StringComparison.OrdinalIgnoreCase))
+      return "Workflow";
+    if (tableName.StartsWith("mpx_emails", StringComparison.OrdinalIgnoreCase))
+      return "Send";
+    if (tableName.StartsWith("mpx_feature", StringComparison.OrdinalIgnoreCase) ||
+        tableName.Equals("mpx_module_categories", StringComparison.OrdinalIgnoreCase) ||
+        tableName.Equals("mpx_modules", StringComparison.OrdinalIgnoreCase))
+      return "Website";
+    return "Morphus";
+  }
+
+  private static string InferEntityIcon(string moduleName, string entityName)
+  {
+    return moduleName switch
+    {
+      "Security" => entityName.Contains("User") ? "users" : "shield-check",
+      "Workflow" => "workflow",
+      "Send" => "send",
+      "Website" => "globe",
+      _ => entityName.Contains("Corporation") ? "building-2" : "database"
+    };
+  }
+
+  private static (string DataType, string ControlType) InferScalarDataType(string propName, Type clrType)
+  {
+    var underlying = Nullable.GetUnderlyingType(clrType) ?? clrType;
+    if (underlying == typeof(Guid))
+      return ("Guid", "Input");
+    if (underlying == typeof(bool))
+      return ("Boolean", "Switch");
+    if (underlying == typeof(int) || underlying == typeof(long) || underlying == typeof(short))
+      return ("Number", "NumberInput");
+    if (underlying == typeof(decimal) || underlying == typeof(double) || underlying == typeof(float))
+      return ("Decimal", "CurrencyInput");
+    if (underlying == typeof(DateTime) || underlying == typeof(DateTimeOffset))
+      return ("DateTime", "DatePicker");
+    if (propName.Contains("Email", StringComparison.OrdinalIgnoreCase))
+      return ("Email", "Input");
+    return ("Text", "Input");
+  }
+
+  private static string FormatFriendlyLabel(string pascalName)
+  {
+    if (string.IsNullOrWhiteSpace(pascalName))
+      return pascalName;
+    var sb = new System.Text.StringBuilder();
+    for (var i = 0; i < pascalName.Length; i++)
+    {
+      var c = pascalName[i];
+      if (i > 0 && char.IsUpper(c) && !char.IsUpper(pascalName[i - 1]))
+      {
+        sb.Append(' ');
+      }
+      sb.Append(c);
+    }
+    return sb.ToString();
   }
 
   private static WebApplicationBuilder AddCors(this WebApplicationBuilder builder)

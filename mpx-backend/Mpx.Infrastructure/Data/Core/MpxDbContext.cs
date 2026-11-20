@@ -170,9 +170,12 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<ModuleCategory> ModuleCategories { get; set; }
   public DbSet<ShowcaseModule> ShowcaseModules { get; set; }
 
+  public DbSet<EntityDefinition> EntityDefinitions { get; set; }
+  public DbSet<EntityProperty> EntityProperties { get; set; }
   public DbSet<FileType> FileTypes { get; set; }
   public DbSet<Station> Stations { get; set; }
   public DbSet<WorkflowType> WorkflowTypes { get; set; }
+  public DbSet<WorkflowTypeContext> WorkflowTypeContexts { get; set; }
   public DbSet<WorkflowTypeConfig> WorkflowTypeConfigs { get; set; }
   public DbSet<WorkflowTypeConfigAction> WorkflowTypeConfigActions { get; set; }
   public DbSet<WorkflowTypeConfigActionFileType> WorkflowTypeConfigActionFileTypes { get; set; }

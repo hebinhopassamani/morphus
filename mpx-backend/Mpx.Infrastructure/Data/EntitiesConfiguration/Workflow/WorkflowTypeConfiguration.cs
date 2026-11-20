@@ -18,6 +18,7 @@ public class WorkflowTypeConfiguration : IEntityTypeConfiguration<WorkflowType>
     builder.Property(w => w.ApplicationId).IsRequired(false);
     builder.Property(w => w.ModuleId).IsRequired(false);
     builder.Property(w => w.SubModuleId).IsRequired(false);
+    builder.Property(w => w.RootEntityDefinitionId).IsRequired(false);
     builder.Property(w => w.EntityName).IsRequired(false).HasMaxLength(120);
     builder.Property(w => w.TriggerType).IsRequired().HasMaxLength(60).HasDefaultValue("Manual");
     builder.Property(w => w.ViewportX).IsRequired().HasDefaultValue(0);
@@ -55,5 +56,11 @@ public class WorkflowTypeConfiguration : IEntityTypeConfiguration<WorkflowType>
            .HasForeignKey(w => w.SubModuleId)
            .IsRequired(false)
            .OnDelete(DeleteBehavior.Restrict);
+
+    builder.HasOne(w => w.RootEntityDefinition)
+           .WithMany()
+           .HasForeignKey(w => w.RootEntityDefinitionId)
+           .IsRequired(false)
+           .OnDelete(DeleteBehavior.SetNull);
   }
 }
