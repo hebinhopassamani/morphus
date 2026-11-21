@@ -186,6 +186,71 @@ export interface StudioWorkflowType {
   configs: StudioWorkflowConfig[];
 }
 
+export interface StudioParameterScope {
+  id: string;
+  code: number;
+  name: string;
+  label: string;
+  isSystemSovereign: boolean;
+  isExportableToJarbass: boolean;
+  icon?: string;
+  color?: string;
+  order: number;
+  description?: string;
+}
+
+export interface StudioMpxParameter {
+  id: string;
+  scopeId: string;
+  scopeCode: number;
+  workspaceId?: string;
+  applicationId?: string;
+  userId?: string;
+  machineKey?: string;
+  namespace: string;
+  name: string;
+  settingsJson: string;
+  isLockedBySovereign: boolean;
+  isExportable: boolean;
+  description?: string;
+  scope?: StudioParameterScope;
+}
+
+export interface StudioComponentType {
+  id: string;
+  code: number;
+  tagName: string;
+  name: string;
+  label: string;
+  isContainerWrapper: boolean;
+  supportsWorkflowAction: boolean;
+  supportsReflectedField: boolean;
+  defaultParametersJson: string;
+  icon?: string;
+  color?: string;
+  order: number;
+  description?: string;
+}
+
+export interface StudioScreenComponent {
+  id: string;
+  componentTypeId: string;
+  parentComponentId?: string;
+  routeId?: string;
+  workflowTypeId?: string;
+  stationId?: string;
+  workflowConfigId?: string;
+  workflowActionId?: string;
+  entityPropertyId?: string;
+  componentCode: string;
+  label: string;
+  triggerEvent: string;
+  embeddedConfigJson: string;
+  order: number;
+  description?: string;
+  componentType?: StudioComponentType;
+}
+
 @Component({
   selector: 'mpx-flow-dashboard',
   standalone: true,
@@ -243,31 +308,474 @@ export interface StudioWorkflowType {
       </div>
 
       <div class="flex flex-wrap items-center gap-2.5">
-        @if (activeView() === 'studio') {
-          <button
-            type="button"
-            matButton
-            class="secondary border border-neutral-a6"
-            (click)="setView('dashboard')"
-          >
-            <mat-icon svgIcon="layout-grid" />
-            Visão Geral
-          </button>
-        } @else {
-          <button
-            type="button"
-            matButton
-            class="primary filled"
-            (click)="setView('studio')"
-          >
-            <mat-icon svgIcon="workflow" />
-            Abrir Estúdio Visual (Canvas)
-          </button>
-        }
+        <button
+          type="button"
+          (click)="setView('dashboard')"
+          class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-all"
+          [class.border-primary-a8]="activeView() === 'dashboard'"
+          [class.bg-primary-a3]="activeView() === 'dashboard'"
+          [class.text-primary-a11]="activeView() === 'dashboard'"
+          [class.border-neutral-a6]="activeView() !== 'dashboard'"
+          [class.bg-neutral-a1]="activeView() !== 'dashboard'"
+        >
+          <mat-icon class="size-4!" svgIcon="layout-grid" />
+          Visão Geral
+        </button>
+
+        <button
+          type="button"
+          (click)="setView('studio')"
+          class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-all"
+          [class.border-primary-a8]="activeView() === 'studio'"
+          [class.bg-primary-a3]="activeView() === 'studio'"
+          [class.text-primary-a11]="activeView() === 'studio'"
+          [class.border-neutral-a6]="activeView() !== 'studio'"
+          [class.bg-neutral-a1]="activeView() !== 'studio'"
+        >
+          <mat-icon class="size-4!" svgIcon="workflow" />
+          Estúdio Visual de Fluxos (Canvas)
+        </button>
+
+        <button
+          type="button"
+          (click)="setView('lego')"
+          class="inline-flex h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-bold transition-all"
+          [class.border-amber-500]="activeView() === 'lego'"
+          [class.bg-amber-500/15]="activeView() === 'lego'"
+          [class.text-amber-400]="activeView() === 'lego'"
+          [class.border-neutral-a6]="activeView() !== 'lego'"
+          [class.bg-neutral-a1]="activeView() !== 'lego'"
+        >
+          <mat-icon class="size-4! text-amber-500" svgIcon="sparkles" />
+          MpxParameter (0..5) & Lego Mpx* (Draggable / Button)
+        </button>
       </div>
     </div>
 
-    @if (activeView() === 'studio') {
+    @if (activeView() === 'lego') {
+      <!-- MORPHUS STUDIO PLAYGROUND: CASCATA MPX_PARAMETERS (0..5) + LEGO MPX* (MpxDraggable / MpxDroppable / MpxButton) + JARBASS PORTABLE JSON -->
+      <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+        <!-- COLUNA 1 (4 cols): CASCATA MPX_PARAMETER (0..5) + SOBERANIA JARBASS + EXPORT/IMPORT PORTÁTIL -->
+        <div class="flex flex-col gap-3 rounded-xl border border-neutral-a5 bg-neutral-a2 p-4 lg:col-span-4">
+          <div class="flex items-center justify-between border-b border-neutral-a5 pb-2.5">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500">
+                Cascata Hierárquica 0..5 · GPU CSS Variables
+              </span>
+              <h2 class="text-sm font-bold">MpxParameter + MpxParameterScope</h2>
+              <p class="text-[11px] text-neutral-a11">
+                SystemDefault (0) ➔ Corporation (1) ➔ Workspace (2) ➔ App (3) ➔ User (4) ➔ Machine (5)
+              </p>
+            </div>
+          </div>
+
+          <!-- Régua das 6 Camadas da Cascata (0..5) -->
+          <div class="flex flex-col gap-1.5">
+            @for (p of parameters(); track p.id) {
+              <button
+                type="button"
+                (click)="selectParameterLayer(p)"
+                class="flex items-center justify-between rounded-lg border p-2.5 text-left transition-all"
+                [class.border-amber-500]="selectedParameter()?.id === p.id"
+                [class.bg-amber-500/10]="selectedParameter()?.id === p.id"
+                [class.border-neutral-a5]="selectedParameter()?.id !== p.id"
+                [class.bg-neutral-a1]="selectedParameter()?.id !== p.id"
+              >
+                <div class="flex items-center gap-2.5">
+                  <span
+                    class="flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-bold text-white"
+                    [style.background]="p.scope?.color || (p.scopeCode <= 1 ? '#dc2626' : '#10b981')"
+                  >
+                    {{ p.scopeCode }}
+                  </span>
+                  <div class="flex flex-col">
+                    <span class="text-xs font-bold text-neutral-12">
+                      {{ p.scope?.name || 'Layer ' + p.scopeCode }} · {{ p.name }}
+                    </span>
+                    <span class="font-mono text-[10px] text-neutral-a10">
+                      {{ p.namespace }}{{ p.machineKey ? ' · ' + p.machineKey : '' }}
+                    </span>
+                  </div>
+                </div>
+                <span
+                  class="rounded px-2 py-0.5 text-[10px] font-bold"
+                  [class.bg-red-500/15]="p.scopeCode <= 1"
+                  [class.text-red-400]="p.scopeCode <= 1"
+                  [class.bg-emerald-500/15]="p.scopeCode >= 2"
+                  [class.text-emerald-400]="p.scopeCode >= 2"
+                >
+                  {{ p.scopeCode <= 1 ? '🔒 Soberano' : '📦 Portátil' }}
+                </span>
+              </button>
+            }
+          </div>
+
+          <!-- Sliders Ao Vivo de Física do MpxDraggable / MpxDroppable / MpxButton (Muda em 0,01ms na GPU!) -->
+          <div class="rounded-xl border border-amber-500/30 bg-neutral-a1 p-3">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-400">
+                ⚡ Ajuste Ao Vivo na GPU (Muda 1 linha no JSON ➔ Reflete na Hora!)
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2.5 text-xs">
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-semibold">GrabPadding ({{ liveGrabPaddingPx() }}px):</span>
+                <input
+                  type="range"
+                  min="2"
+                  max="24"
+                  [ngModel]="liveGrabPaddingPx()"
+                  (ngModelChange)="updateLiveParameter('mpx.draggable.grabPadding', $event + 'px')"
+                />
+              </label>
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-semibold">ElevationTilt ({{ liveElevationTiltDeg() }}deg):</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="6"
+                  step="0.5"
+                  [ngModel]="liveElevationTiltDeg()"
+                  (ngModelChange)="updateLiveParameter('mpx.draggable.elevationTilt', $event + 'deg')"
+                />
+              </label>
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-semibold">BorderRadius ({{ liveBorderRadiusPx() }}px):</span>
+                <input
+                  type="range"
+                  min="2"
+                  max="24"
+                  [ngModel]="liveBorderRadiusPx()"
+                  (ngModelChange)="updateLiveParameter('mpx.theme.borderRadius', $event + 'px')"
+                />
+              </label>
+              <label class="flex flex-col gap-1">
+                <span class="text-[11px] font-semibold">Cor Ímã MpxDroppable:</span>
+                <select
+                  [ngModel]="effectiveParamValue('mpx.droppable.magneticGlowColor', '#3b82f6')"
+                  (ngModelChange)="updateLiveParameter('mpx.droppable.magneticGlowColor', $event)"
+                  class="h-7 rounded border border-neutral-a6 bg-neutral-a2 px-2 text-xs"
+                >
+                  <option value="#3b82f6">Azul Morphus (#3b82f6)</option>
+                  <option value="#10b981">Verde Esmeralda (#10b981)</option>
+                  <option value="#f59e0b">Âmbar Fogo (#f59e0b)</option>
+                  <option value="#8b5cf6">Roxo Kalupa (#8b5cf6)</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="mt-2.5 flex flex-wrap items-center gap-3 border-t border-neutral-a4 pt-2 text-[11px]">
+              <label class="inline-flex items-center gap-1.5 font-semibold">
+                <input
+                  type="checkbox"
+                  [ngModel]="effectiveParamBool('mpx.button.showSpinner', true)"
+                  (ngModelChange)="updateLiveParameter('mpx.button.showSpinner', $event)"
+                />
+                MpxButton: Spinner Automático
+              </label>
+              <label class="inline-flex items-center gap-1.5 font-semibold">
+                <input
+                  type="checkbox"
+                  [ngModel]="effectiveParamBool('mpx.button.disableOnClick', true)"
+                  (ngModelChange)="updateLiveParameter('mpx.button.disableOnClick', $event)"
+                />
+                MpxButton: Disable no Clique
+              </label>
+            </div>
+          </div>
+
+          <!-- Editor JSON da Camada Selecionada -->
+          @if (selectedParameter(); as selP) {
+            <div class="flex flex-col gap-1.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold">
+                  JSON da Camada {{ selP.scopeCode }} ({{ selP.scope?.name }}):
+                </span>
+                <button
+                  type="button"
+                  (click)="saveParameterLayer()"
+                  class="rounded bg-amber-500 px-2.5 py-1 text-[11px] font-bold text-neutral-950 hover:bg-amber-400"
+                >
+                  Salvar JSON da Camada {{ selP.scopeCode }}
+                </button>
+              </div>
+              <textarea
+                [(ngModel)]="editParameterJsonText"
+                rows="8"
+                class="w-full rounded-lg border border-neutral-a6 bg-neutral-a1 p-2.5 font-mono text-[11px] text-emerald-400 focus:border-amber-500 focus:outline-none"
+              ></textarea>
+            </div>
+          }
+
+          <!-- Exportar / Importar Pacote Portátil pro Jarbass (.mpxenv.json) -->
+          <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
+            <div class="text-xs font-bold text-emerald-400">
+              🤖 Mpx.Jarbass — Perfil Portátil (.mpxenv.json)
+            </div>
+            <p class="mt-0.5 text-[11px] text-neutral-a11">
+              Exporta apenas as camadas portáteis <strong>2..5 (Workspace, App, User, Machine)</strong>. As camadas <strong>0 (SystemDefault) e 1 (Corporation / Régua Jarbass 0..5)</strong> ficam blindadas e nunca vazam!
+            </p>
+            <div class="mt-2.5 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                (click)="exportPortableJarbassJson()"
+                class="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-500"
+              >
+                📤 Exportar .mpxenv.json (Níveis 2..5)
+              </button>
+              <button
+                type="button"
+                (click)="importPortableJarbassJson()"
+                class="rounded-lg border border-emerald-500/50 bg-neutral-a1 px-3 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/15"
+              >
+                📥 "Jarbass, importa essas configs pra mim!"
+              </button>
+            </div>
+            @if (jarbassStatusMessage()) {
+              <div class="mt-2 rounded bg-emerald-500/15 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300">
+                {{ jarbassStatusMessage() }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- COLUNA 2 (5 cols): TABULEIRO LEGO MPX* (MpxDraggable ➔ MpxDroppable + MpxButton com Configs Embarcadas em 0,01ms!) -->
+        <div class="flex flex-col gap-3 rounded-xl border border-neutral-a5 bg-neutral-a2 p-4 lg:col-span-5">
+          <div class="flex items-center justify-between border-b border-neutral-a5 pb-2.5">
+            <div>
+              <span class="text-[10px] font-bold uppercase tracking-wider text-primary-a11">
+                Só o MpxDraggable se mexe · 100% Width & Height · Zero Código Front-end
+              </span>
+              <h2 class="text-sm font-bold">
+                Tabuleiro Auto-Encaixável: <code class="text-amber-400">&lt;MpxDraggable&gt;</code> ⇄ <code class="text-primary-a11">&lt;MpxDroppable&gt;</code>
+              </h2>
+            </div>
+            <span class="rounded-full bg-primary-a3 px-2.5 py-1 text-[10px] font-bold text-primary-a11">
+              {{ screenComponents().length }} Objetos com ID
+            </span>
+          </div>
+
+          <!-- PALETA DE PEÇAS <MpxDraggable> PARA ARRASTAR E ENCAIXAR NO <MpxDroppable> -->
+          <div class="rounded-xl border border-neutral-a5 bg-neutral-a1 p-3">
+            <div class="mb-2 flex items-center justify-between">
+              <span class="text-xs font-bold">
+                1. Segure e Arraste uma Peça <code class="text-amber-400">&lt;MpxDraggable&gt;</code> (Veja o GrabPadding={{ effectiveParamValue('mpx.draggable.grabPadding', '8px') }} ao segurar!):
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+              @for (ct of paletteComponentTypes(); track ct.id) {
+                <!-- ENVELOPE <MpxDraggable>: Só ELE se mexe e aplica o GrabPadding e ElevationTilt! Quem está dentro ocupa 100% width e 100% height! -->
+                <div
+                  draggable="true"
+                  (dragstart)="onMpxDraggableStart($event, ct)"
+                  (dragend)="onMpxDraggableEnd()"
+                  class="cursor-grab select-none rounded-lg border transition-all duration-150 active:cursor-grabbing"
+                  [style.padding]="draggingComponentType()?.id === ct.id ? effectiveParamValue('mpx.draggable.grabPadding', '8px') : '0px'"
+                  [style.transform]="draggingComponentType()?.id === ct.id ? 'rotate(' + effectiveParamValue('mpx.draggable.elevationTilt', '1.5deg') + ') scale(1.03)' : 'none'"
+                  [style.opacity]="draggingComponentType()?.id === ct.id ? effectiveParamValue('mpx.draggable.originGhostOpacity', '0.65') : '1'"
+                  [style.border-color]="draggingComponentType()?.id === ct.id ? '#f59e0b' : 'rgba(148,163,184,0.25)'"
+                  [style.box-shadow]="draggingComponentType()?.id === ct.id ? '0 14px 28px rgba(0,0,0,0.45)' : 'none'"
+                >
+                  <!-- Componente passageiro lá dentro: 100% width e 100% height sem saber que está sendo arrastado! -->
+                  <div
+                    class="flex size-full items-center gap-2 rounded-md bg-neutral-a2 px-2.5 py-2"
+                    [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                  >
+                    <span
+                      class="flex size-6 shrink-0 items-center justify-center rounded text-[10px] font-bold text-white"
+                      [style.background]="ct.color || '#3b82f6'"
+                    >
+                      {{ ct.name.replace('Mpx', '').slice(0, 2).toUpperCase() }}
+                    </span>
+                    <div class="flex flex-col overflow-hidden">
+                      <span class="truncate text-xs font-bold text-neutral-12">{{ ct.name }}</span>
+                      <span class="truncate font-mono text-[9px] text-neutral-a10">&lt;{{ ct.tagName }}&gt;</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- BERÇO MAGNÉTICO <MpxDroppable>: Tela de Login (/security/signin -> WkfType SignIn) -->
+          <div
+            (dragover)="onMpxDroppableOver($event)"
+            (dragleave)="onMpxDroppableLeave()"
+            (drop)="onMpxDroppableDrop($event)"
+            class="relative flex flex-col gap-3 rounded-2xl border-2 p-4 transition-all duration-200"
+            [style.border-color]="isDroppableMagneticActive() ? effectiveParamValue('mpx.droppable.magneticGlowColor', '#3b82f6') : 'rgba(148,163,184,0.3)'"
+            [style.box-shadow]="isDroppableMagneticActive() ? '0 0 28px ' + effectiveParamValue('mpx.droppable.magneticGlowColor', '#3b82f6') + '55' : 'none'"
+            [style.background]="isDroppableMagneticActive() ? 'rgba(59,130,246,0.06)' : 'rgba(15,23,42,0.35)'"
+          >
+            <div class="flex items-center justify-between border-b border-neutral-a5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-primary-9 px-2 py-0.5 font-mono text-[10px] font-bold text-white">
+                  &lt;MpxDroppable&gt;
+                </span>
+                <span class="text-xs font-bold">
+                  Tela de Login (/security/signin) ⇄ Fluxo: SignIn
+                </span>
+              </div>
+              <span class="font-mono text-[10px] text-emerald-400">
+                {{ isDroppableMagneticActive() ? '🧲 ÍMÃ ATIVO: Solte para Auto-Encaixar (100% W/H)!' : 'Berço Pronto' }}
+              </span>
+            </div>
+
+            <!-- Lista de Objetos MpxScreenComponent Encaixados (Renderizados já com ID e Configurações Embarcadas!) -->
+            <div class="flex flex-col gap-2.5">
+              @for (sc of childScreenComponents(); track sc.id) {
+                <!-- Cada componente dentro do tabuleiro está envelopado por um <MpxDraggable> -->
+                <div
+                  draggable="true"
+                  (dragstart)="onExistingComponentDragStart(sc)"
+                  (dragend)="onExistingComponentDragEnd()"
+                  (click)="inspectScreenComponent(sc)"
+                  class="cursor-pointer rounded-xl border transition-all duration-150"
+                  [class.ring-2]="justLandedComponentId() === sc.id || selectedScreenComponent()?.id === sc.id"
+                  [class.ring-emerald-400]="justLandedComponentId() === sc.id"
+                  [class.ring-amber-400]="selectedScreenComponent()?.id === sc.id && justLandedComponentId() !== sc.id"
+                  [style.padding]="activeDraggedScreenCompId() === sc.id ? effectiveParamValue('mpx.draggable.grabPadding', '8px') : '4px'"
+                  [style.transform]="activeDraggedScreenCompId() === sc.id ? 'rotate(' + effectiveParamValue('mpx.draggable.elevationTilt', '1.5deg') + ')' : 'none'"
+                  [style.border-color]="selectedScreenComponent()?.id === sc.id ? '#f59e0b' : 'rgba(148,163,184,0.22)'"
+                >
+                  <!-- Cabeçalho da Moldura MpxDraggable mostrando o ID único e o vínculo embarcado -->
+                  <div class="mb-1 flex items-center justify-between px-1.5 text-[10px] text-neutral-a10">
+                    <span class="font-mono font-bold text-amber-400">
+                      &lt;MpxDraggable&gt; ➔ &lt;{{ sc.componentType?.tagName || 'mpx-component' }}&gt; · ID: {{ sc.componentCode }}
+                    </span>
+                    <span class="rounded bg-neutral-a3 px-1.5 py-0.5 font-mono text-[9px] text-emerald-400">
+                      Embarcado: {{ sc.triggerEvent }} ({{ sc.id.slice(0, 8) }})
+                    </span>
+                  </div>
+
+                  <!-- Renderização Real 100% Width / 100% Height do Componente Mpx* lá dentro! -->
+                  @if (sc.componentType?.name === 'MpxInput') {
+                    <div
+                      class="flex w-full flex-col gap-1 bg-neutral-a1 p-2.5"
+                      [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                    >
+                      <label class="text-xs font-semibold text-neutral-12">
+                        {{ sc.label }}
+                        <span class="font-mono text-[10px] text-primary-a11">(.Reflected)</span>
+                      </label>
+                      @if (sc.componentCode.includes('EMAIL')) {
+                        <input
+                          type="email"
+                          [(ngModel)]="previewLoginEmail"
+                          placeholder="arquiteto@morphus.one"
+                          class="h-9 w-full border bg-neutral-a2 px-3 text-xs text-neutral-12 focus:outline-none"
+                          [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                          [class.border-red-500]="invalidFieldCode() === sc.componentCode"
+                          [class.border-neutral-a6]="invalidFieldCode() !== sc.componentCode"
+                        />
+                      } @else {
+                        <input
+                          type="password"
+                          [(ngModel)]="previewLoginPassword"
+                          placeholder="••••••••"
+                          class="h-9 w-full border bg-neutral-a2 px-3 text-xs text-neutral-12 focus:outline-none"
+                          [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                          [class.border-red-500]="invalidFieldCode() === sc.componentCode"
+                          [class.border-neutral-a6]="invalidFieldCode() !== sc.componentCode"
+                        />
+                      }
+                    </div>
+                  } @else if (sc.componentType?.name === 'MpxButton') {
+                    <!-- <MpxButton>: Já nasce renderizado com todas as configurações do WkfType embarcadas! -->
+                    <button
+                      type="button"
+                      [disabled]="runningButtonId() === sc.id && effectiveParamBool('mpx.button.disableOnClick', true)"
+                      (click)="dispatchEmbeddedMpxButton($event, sc)"
+                      class="flex h-10 w-full items-center justify-center gap-2 px-4 text-xs font-bold text-white shadow-md transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                      [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                      [style.background]="sc.componentCode.includes('SIGNUP') ? '#10b981' : sc.componentCode.includes('FORGOT') ? '#f59e0b' : effectiveParamValue('mpx.theme.primaryColor', '#3b82f6')"
+                    >
+                      @if (runningButtonId() === sc.id && effectiveParamBool('mpx.button.showSpinner', true)) {
+                        <span class="inline-block size-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                        <span>Executando WkfType Embarcado ({{ sc.componentCode }})...</span>
+                      } @else {
+                        <span>⚡ {{ sc.label }}</span>
+                        <span class="rounded bg-black/25 px-1.5 py-0.5 font-mono text-[10px]">
+                          0,01ms RAM
+                        </span>
+                      }
+                    </button>
+                  } @else {
+                    <div
+                      class="flex w-full items-center justify-between bg-neutral-a1 p-3 text-xs"
+                      [style.border-radius]="effectiveParamValue('mpx.theme.borderRadius', '10px')"
+                    >
+                      <span class="font-bold">{{ sc.label }}</span>
+                      <span class="font-mono text-[10px] text-primary-a11">{{ sc.componentType?.name }} (100% W/H)</span>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Log de Execução Instantânea (0,01 ms na Memória RAM sem ir ao banco descobrir quem é o botão!) -->
+          @if (lastDispatchTrace()) {
+            <div class="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-3 text-xs">
+              <div class="flex items-center justify-between font-bold text-emerald-400">
+                <span>🚀 Despacho Instantâneo via Configuração Embarcada (0,01 ms RAM)</span>
+                <span class="font-mono text-[10px]">ZERO consulta extra ao banco!</span>
+              </div>
+              <pre class="mt-1.5 max-h-36 overflow-auto rounded bg-neutral-950/80 p-2 font-mono text-[10px] text-emerald-300">{{ lastDispatchTrace() }}</pre>
+            </div>
+          }
+        </div>
+
+        <!-- COLUNA 3 (3 cols): INSPETOR DO OBJETO MPX* EMBARCADO & JSON RESOLVIDO DA CASCATA (0..5) -->
+        <div class="flex flex-col gap-3 rounded-xl border border-neutral-a5 bg-neutral-a2 p-4 lg:col-span-3">
+          @if (selectedScreenComponent(); as selComp) {
+            <div class="border-b border-neutral-a5 pb-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                Objeto Registrado na Tela (MpxScreenComponent)
+              </span>
+              <h3 class="text-sm font-bold">{{ selComp.label }}</h3>
+              <div class="mt-1 font-mono text-[10px] text-primary-a11">
+                ID Banco: {{ selComp.id }}
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-1.5 text-xs">
+              <div class="rounded-lg border border-neutral-a5 bg-neutral-a1 p-2.5">
+                <div class="text-[11px] font-bold text-emerald-400">
+                  🎒 Mochila Embarcada na Renderização (EmbeddedConfigJson):
+                </div>
+                <p class="mt-0.5 text-[10px] text-neutral-a11">
+                  Quando este <code>&lt;{{ selComp.componentType?.tagName }}&gt;</code> é renderizado, ele já traz este JSON completo embarcado. No clique, o TypeScript lê direto daqui em 0,01ms:
+                </p>
+                <pre class="mt-2 max-h-60 overflow-auto rounded bg-neutral-950 p-2 font-mono text-[10px] text-amber-300">{{ selComp.embeddedConfigJson }}</pre>
+              </div>
+            </div>
+          }
+
+          <div class="border-t border-neutral-a5 pt-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+              Resultado Final da Cascata 0 ➔ 5
+            </span>
+            <h3 class="text-xs font-bold">
+              JSON Efetivo Resolvido na Memória (EffectiveParameters)
+            </h3>
+            <p class="text-[10px] text-neutral-a11">
+              Alimenta tanto os componentes visuais <code>Mpx*</code> quanto os 5 níveis de segurança do <code>Mpx.Jarbass</code>:
+            </p>
+            <pre class="mt-2 max-h-72 overflow-auto rounded-lg border border-neutral-a6 bg-neutral-950 p-2.5 font-mono text-[10px] text-emerald-400">{{ effectiveParametersPrettyJson() }}</pre>
+          </div>
+
+          @if (exportedJarbassJsonText()) {
+            <div class="border-t border-neutral-a5 pt-2">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">
+                Arquivo Portátil Gerado (.mpxenv.json)
+              </span>
+              <pre class="mt-1 max-h-56 overflow-auto rounded-lg border border-amber-500/40 bg-neutral-950 p-2 font-mono text-[9px] text-amber-300">{{ exportedJarbassJsonText() }}</pre>
+            </div>
+          }
+        </div>
+      </div>
+    } @else if (activeView() === 'studio') {
       <!-- STUDIO TOP BAR: Seletor de Fluxo, Novo Fluxo, Contexto (.Reflected) e Simulador de Erro -->
       <div class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-neutral-a5 bg-neutral-a2 p-3">
         <div class="flex flex-wrap items-center gap-2">
@@ -1012,7 +1520,7 @@ export class FlowDashboardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly apiBase = `${environment.apiUrl}/workflow`;
 
-  protected readonly activeView = signal<'dashboard' | 'studio'>('studio');
+  protected readonly activeView = signal<'dashboard' | 'studio' | 'lego'>('studio');
   protected readonly activeDrawer = signal<'context' | 'routes' | null>(null);
   protected readonly inspectorMode = signal<'trigger' | 'error' | 'config'>('trigger');
 
@@ -1024,6 +1532,28 @@ export class FlowDashboardComponent implements OnInit {
   protected readonly entityDefinitions = signal<StudioEntityDefinition[]>([]);
   protected readonly stations = signal<StudioStation[]>([]);
   protected readonly workflowTypes = signal<StudioWorkflowType[]>([]);
+
+  protected readonly parameterScopes = signal<StudioParameterScope[]>([]);
+  protected readonly parameters = signal<StudioMpxParameter[]>([]);
+  protected readonly effectiveParameters = signal<Record<string, any>>({});
+  protected readonly componentTypes = signal<StudioComponentType[]>([]);
+  protected readonly screenComponents = signal<StudioScreenComponent[]>([]);
+
+  protected readonly selectedParameter = signal<StudioMpxParameter | null>(null);
+  protected readonly selectedScreenComponent = signal<StudioScreenComponent | null>(null);
+  protected readonly draggingComponentType = signal<StudioComponentType | null>(null);
+  protected readonly activeDraggedScreenCompId = signal<string | null>(null);
+  protected readonly isDroppableMagneticActive = signal<boolean>(false);
+  protected readonly justLandedComponentId = signal<string | null>(null);
+  protected readonly runningButtonId = signal<string | null>(null);
+  protected readonly invalidFieldCode = signal<string | null>(null);
+  protected readonly lastDispatchTrace = signal<string>('');
+  protected readonly exportedJarbassJsonText = signal<string>('');
+  protected readonly jarbassStatusMessage = signal<string>('');
+
+  protected editParameterJsonText = '';
+  protected previewLoginEmail = 'arquiteto@morphus.one';
+  protected previewLoginPassword = '••••••••';
 
   protected readonly selectedWorkflowId = signal<string>('');
   protected readonly selectedConfig = signal<StudioWorkflowConfig | null>(null);
@@ -1064,6 +1594,33 @@ export class FlowDashboardComponent implements OnInit {
   protected readonly currentWorkflowErrors = computed(() =>
     this.errors().filter((e) => e.workflowTypeId === this.selectedWorkflowId())
   );
+
+  protected readonly paletteComponentTypes = computed(() =>
+    this.componentTypes().filter((c) => c.name !== 'MpxDraggable' && c.name !== 'MpxDroppable')
+  );
+
+  protected readonly childScreenComponents = computed(() =>
+    this.screenComponents().filter((sc) => sc.componentType?.name !== 'MpxDroppable')
+  );
+
+  protected readonly effectiveParametersPrettyJson = computed(() =>
+    JSON.stringify(this.effectiveParameters(), null, 2)
+  );
+
+  protected readonly liveGrabPaddingPx = computed(() => {
+    const val = String(this.effectiveParameters()['mpx.draggable.grabPadding'] ?? '8px');
+    return parseInt(val.replace('px', ''), 10) || 8;
+  });
+
+  protected readonly liveElevationTiltDeg = computed(() => {
+    const val = String(this.effectiveParameters()['mpx.draggable.elevationTilt'] ?? '1.5deg');
+    return parseFloat(val.replace('deg', '')) || 1.5;
+  });
+
+  protected readonly liveBorderRadiusPx = computed(() => {
+    const val = String(this.effectiveParameters()['mpx.theme.borderRadius'] ?? '10px');
+    return parseInt(val.replace('px', ''), 10) || 10;
+  });
 
   protected readonly actionEdges = computed(() => {
     const configs = this.normalConfigs();
@@ -1133,6 +1690,8 @@ export class FlowDashboardComponent implements OnInit {
       const view = params.get('view');
       if (view === 'dashboard') {
         this.activeView.set('dashboard');
+      } else if (view === 'lego') {
+        this.activeView.set('lego');
       } else {
         this.activeView.set('studio');
       }
@@ -1140,7 +1699,7 @@ export class FlowDashboardComponent implements OnInit {
     this.loadStudioBootstrap();
   }
 
-  protected setView(view: 'dashboard' | 'studio'): void {
+  protected setView(view: 'dashboard' | 'studio' | 'lego'): void {
     this.activeView.set(view);
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -1162,6 +1721,25 @@ export class FlowDashboardComponent implements OnInit {
         const wfs: StudioWorkflowType[] = res.workflowTypes ?? [];
         this.workflowTypes.set(wfs);
 
+        this.parameterScopes.set(res.parameterScopes ?? []);
+        const paramsList: StudioMpxParameter[] = res.parameters ?? [];
+        this.parameters.set(paramsList);
+        this.effectiveParameters.set(res.effectiveParameters ?? {});
+        this.applyEffectiveParametersToGpuCssVariables(res.effectiveParameters ?? {});
+        this.componentTypes.set(res.componentTypes ?? []);
+        const comps: StudioScreenComponent[] = res.screenComponents ?? [];
+        this.screenComponents.set(comps);
+
+        if (!this.selectedParameter() && paramsList.length > 0) {
+          const userParam = paramsList.find((p) => p.scopeCode === 4) ?? paramsList[0];
+          this.selectParameterLayer(userParam);
+        }
+
+        if (!this.selectedScreenComponent() && comps.length > 0) {
+          const submitBtn = comps.find((c) => c.componentCode === 'BTN_SIGNIN_SUBMIT') ?? comps[0];
+          this.selectedScreenComponent.set(submitBtn);
+        }
+
         if (preferredWorkflowId && wfs.some((w) => w.id === preferredWorkflowId)) {
           this.selectedWorkflowId.set(preferredWorkflowId);
         } else if (!this.selectedWorkflowId() && wfs.length > 0) {
@@ -1169,6 +1747,249 @@ export class FlowDashboardComponent implements OnInit {
         }
       },
     });
+  }
+
+  private applyEffectiveParametersToGpuCssVariables(eff: Record<string, any>): void {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+    root.style.setProperty('--mpx-grab-padding', String(eff['mpx.draggable.grabPadding'] ?? '8px'));
+    root.style.setProperty('--mpx-elevation-tilt', String(eff['mpx.draggable.elevationTilt'] ?? '1.5deg'));
+    root.style.setProperty('--mpx-magnetic-glow', String(eff['mpx.droppable.magneticGlowColor'] ?? '#3b82f6'));
+    root.style.setProperty('--mpx-border-radius', String(eff['mpx.theme.borderRadius'] ?? '10px'));
+  }
+
+  protected effectiveParamValue(key: string, fallback: string): string {
+    const val = this.effectiveParameters()[key];
+    return val !== undefined && val !== null ? String(val) : fallback;
+  }
+
+  protected effectiveParamBool(key: string, fallback: boolean): boolean {
+    const val = this.effectiveParameters()[key];
+    return typeof val === 'boolean' ? val : fallback;
+  }
+
+  protected selectParameterLayer(param: StudioMpxParameter): void {
+    this.selectedParameter.set(param);
+    this.editParameterJsonText = param.settingsJson;
+  }
+
+  protected updateLiveParameter(key: string, value: any): void {
+    const currentEff = { ...this.effectiveParameters(), [key]: value };
+    this.effectiveParameters.set(currentEff);
+    this.applyEffectiveParametersToGpuCssVariables(currentEff);
+
+    const sel = this.selectedParameter();
+    if (sel) {
+      try {
+        const parsed = JSON.parse(this.editParameterJsonText || '{}');
+        parsed[key] = value;
+        this.editParameterJsonText = JSON.stringify(parsed, null, 2);
+      } catch {
+        // Mantém texto atual se estiver em edição parcial
+      }
+    }
+  }
+
+  protected saveParameterLayer(): void {
+    const sel = this.selectedParameter();
+    if (!sel) return;
+
+    this.http
+      .put<any>(`${this.apiBase}/parameters/${sel.id}`, {
+        settingsJson: this.editParameterJsonText,
+        name: sel.name,
+        description: sel.description,
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.effectiveParameters) {
+            this.effectiveParameters.set(res.effectiveParameters);
+            this.applyEffectiveParametersToGpuCssVariables(res.effectiveParameters);
+          }
+          this.jarbassStatusMessage.set(
+            `Camada ${sel.scopeCode} (${sel.scope?.name}) salva e cascata 0..5 recalculada na GPU!`
+          );
+          this.loadStudioBootstrap(this.selectedWorkflowId());
+        },
+      });
+  }
+
+  protected exportPortableJarbassJson(): void {
+    this.http.get<any>(`${this.apiBase}/parameters/export-jarbass`).subscribe({
+      next: (envelope) => {
+        this.exportedJarbassJsonText.set(JSON.stringify(envelope, null, 2));
+        this.jarbassStatusMessage.set(
+          'Pacote portátil .mpxenv.json exportado (Camadas 0 e 1 blindadas e excluídas pelo Mpx.Jarbass)!'
+        );
+      },
+    });
+  }
+
+  protected importPortableJarbassJson(): void {
+    const raw = this.exportedJarbassJsonText();
+    let portableLayers: any[] = [];
+
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        portableLayers = parsed.portableLayers ?? [];
+      } catch {
+        portableLayers = [];
+      }
+    }
+
+    if (portableLayers.length === 0) {
+      portableLayers = this.parameters()
+        .filter((p) => p.scopeCode >= 2)
+        .map((p) => ({
+          scopeCode: p.scopeCode,
+          namespace: p.namespace,
+          name: p.name,
+          machineKey: p.machineKey ?? 'MPX-HOME-WORKSTATION-NVME',
+          settings: JSON.parse(p.settingsJson || '{}'),
+        }));
+    }
+
+    this.http
+      .post<any>(`${this.apiBase}/parameters/import-jarbass`, { portableLayers })
+      .subscribe({
+        next: (res) => {
+          this.jarbassStatusMessage.set(
+            res.message ?? 'Mpx.Jarbass importou seu ambiente portátil (2..5) com sucesso!'
+          );
+          if (res.effectiveParameters) {
+            this.effectiveParameters.set(res.effectiveParameters);
+            this.applyEffectiveParametersToGpuCssVariables(res.effectiveParameters);
+          }
+          this.loadStudioBootstrap(this.selectedWorkflowId());
+        },
+      });
+  }
+
+  protected onMpxDraggableStart(event: DragEvent, ct: StudioComponentType): void {
+    this.draggingComponentType.set(ct);
+    this.isDroppableMagneticActive.set(true);
+    event.dataTransfer?.setData('text/plain', ct.id);
+  }
+
+  protected onMpxDraggableEnd(): void {
+    this.draggingComponentType.set(null);
+    this.isDroppableMagneticActive.set(false);
+  }
+
+  protected onExistingComponentDragStart(sc: StudioScreenComponent): void {
+    this.activeDraggedScreenCompId.set(sc.id);
+    this.isDroppableMagneticActive.set(true);
+  }
+
+  protected onExistingComponentDragEnd(): void {
+    this.activeDraggedScreenCompId.set(null);
+    this.isDroppableMagneticActive.set(false);
+  }
+
+  protected onMpxDroppableOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDroppableMagneticActive.set(true);
+  }
+
+  protected onMpxDroppableLeave(): void {
+    this.isDroppableMagneticActive.set(false);
+  }
+
+  protected onMpxDroppableDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDroppableMagneticActive.set(false);
+
+    const ct = this.draggingComponentType();
+    this.draggingComponentType.set(null);
+    if (!ct) return;
+
+    const wf = this.selectedWorkflow() ?? this.workflowTypes()[0];
+    const screenCfg = wf?.configs.find((c) => c.station?.code === 'Screen') ?? wf?.configs[0];
+    const parentDrop = this.screenComponents().find((sc) => sc.componentType?.name === 'MpxDroppable');
+
+    this.http
+      .post<StudioScreenComponent>(`${this.apiBase}/screen-components`, {
+        componentTypeId: ct.id,
+        parentComponentId: parentDrop?.id ?? null,
+        routeId: wf?.triggerRouteId ?? null,
+        workflowTypeId: wf?.id ?? null,
+        workflowConfigId: screenCfg?.id ?? null,
+        workflowActionId: screenCfg?.actions?.[0]?.id ?? null,
+        label: `${ct.label} #${this.screenComponents().length + 1}`,
+        triggerEvent: ct.supportsWorkflowAction ? 'OnClick' : 'OnInput',
+      })
+      .subscribe({
+        next: (created) => {
+          // Lei de UX #4: Item novo aparece dando a piscadinha suave (LandingPulse) sem popup na cara!
+          this.screenComponents.update((list) => [created, ...list]);
+          this.selectedScreenComponent.set(created);
+          this.justLandedComponentId.set(created.id);
+          const pulseMs = Number(this.effectiveParameters()['mpx.ux.inlineCreateBlinkDurationMs'] ?? 1200);
+          setTimeout(() => this.justLandedComponentId.set(null), pulseMs);
+        },
+      });
+  }
+
+  protected inspectScreenComponent(sc: StudioScreenComponent): void {
+    this.selectedScreenComponent.set(sc);
+  }
+
+  protected dispatchEmbeddedMpxButton(event: MouseEvent, sc: StudioScreenComponent): void {
+    event.stopPropagation();
+    this.selectedScreenComponent.set(sc);
+    this.invalidFieldCode.set(null);
+
+    const t0 = performance.now();
+    let embedded: any = {};
+    try {
+      embedded = JSON.parse(sc.embeddedConfigJson || '{}');
+    } catch {
+      embedded = {};
+    }
+
+    // 1. Validação local em 0,05ms lendo o EmbeddedConfigJson na memória RAM (ZERO consulta ao banco!)
+    const reqFields: string[] = embedded.requiredContextFields ?? [];
+    if (reqFields.includes('CurrentUser.Email') && !this.previewLoginEmail.trim()) {
+      this.invalidFieldCode.set('INP_SIGNIN_EMAIL');
+      this.lastDispatchTrace.set(
+        `[0,04 ms RAM] Validação Embarcada bloqueou envio: CurrentUser.Email é obrigatório (ZERO ida ao banco!).`
+      );
+      return;
+    }
+    if (reqFields.includes('CurrentUser.Password') && this.previewLoginPassword.trim().length < 6) {
+      this.invalidFieldCode.set('INP_SIGNIN_PASSWORD');
+      this.lastDispatchTrace.set(
+        `[0,05 ms RAM] Validação Embarcada bloqueou envio: CurrentUser.Password exige minLength=6 (ZERO ida ao banco!).`
+      );
+      return;
+    }
+
+    const elapsedRamMs = (performance.now() - t0).toFixed(3);
+    this.runningButtonId.set(sc.id);
+
+    const traceObj = {
+      dispatchedInRamMs: `${elapsedRamMs} ms`,
+      componentId: sc.id,
+      componentCode: sc.componentCode,
+      workflowType: embedded.workflowType ?? 'SignIn',
+      actionCode: embedded.actionCode ?? 'SubmitSignIn',
+      nextStation: embedded.nextStationName ?? 'SecurityHandler.Login (Process)',
+      buttonBehaviorFromMpxParameter: {
+        disableOnClick: this.effectiveParamBool('mpx.button.disableOnClick', true),
+        showSpinner: this.effectiveParamBool('mpx.button.showSpinner', true),
+      },
+      contextPayloadSent: {
+        'CurrentUser.Email': this.previewLoginEmail,
+        'CurrentUser.Password': '*** (Sealed)',
+      },
+    };
+
+    this.lastDispatchTrace.set(JSON.stringify(traceObj, null, 2));
+
+    setTimeout(() => {
+      this.runningButtonId.set(null);
+    }, 900);
   }
 
   protected selectWorkflow(id: string): void {

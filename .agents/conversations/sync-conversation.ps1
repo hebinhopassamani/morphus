@@ -16,7 +16,7 @@
 )
 
 $ErrorActionPreference = "Stop"
-$baseDir = "C:\Projetos\Morphus\.agents\conversations"
+$baseDir = "C:\.dev\Projetos\Morphus\.agents\conversations"
 $mdIndexPath = Join-Path $baseDir "conversations.md"
 $fullConvDir = Join-Path $baseDir "full-conversations"
 $mdFileName = "$ConversationId.md"
@@ -74,7 +74,7 @@ if ($TranscriptJsonlPath -and (Test-Path $TranscriptJsonlPath)) {
 }
 
 # 2. Update conversations.md index table (zero file locks, live reload in editor/Obsidian)
-$newRow = "| [$ConversationId](./full-conversations/$mdFileName) | $safeSubject | $safeSummary | $safeTags |"
+$newRow = "| [$ConversationId]($mdFileName) | $safeSubject | $safeSummary | $safeTags |"
 
 if (-not (Test-Path $mdIndexPath)) {
     $initContent = @(
@@ -114,6 +114,20 @@ else {
     [System.IO.File]::WriteAllLines($mdIndexPath, $outLines, [System.Text.Encoding]::UTF8)
 }
 
+# 2b. Mirror to Obsidian Vault (Conversations With AI\Gemini Argon - Rafa\Morphus) if present
+$vaultConvDir = "I:\Meu Drive\Base de Conhecimento\Vault\Conversations With AI\Gemini Argon - Rafa\Morphus"
+if (Test-Path $vaultConvDir) {
+    $vaultFullDir = Join-Path $vaultConvDir "full-conversations"
+    if (-not (Test-Path $vaultFullDir)) {
+        New-Item -ItemType Directory -Path $vaultFullDir -Force | Out-Null
+    }
+    if (Test-Path $mdPath) {
+        Copy-Item -Path $mdPath -Destination (Join-Path $vaultFullDir $mdFileName) -Force
+    }
+    $vaultSummaryPath = Join-Path $vaultConvDir "Summary.md"
+    Copy-Item -Path $mdIndexPath -Destination $vaultSummaryPath -Force
+}
+
 # 3. Auto-update recent memory snapshot inside rafa-identity.md rules (zero extra token reads on new conversations)
 $allRows = [System.IO.File]::ReadAllLines($mdIndexPath, [System.Text.Encoding]::UTF8) | Where-Object { $_ -match '^\|\s*\[MPX_\d+\]' }
 $recentRows = $allRows | Select-Object -Last 4
@@ -133,7 +147,7 @@ $memoryLines.Add("<!-- MPX_RECENT_MEMORY_END -->")
 $memoryBlock = ($memoryLines -join "`r`n")
 
 $rulePaths = @(
-    "C:\Projetos\Morphus\.agents\rules\rafa-identity.md",
+    "C:\.dev\Projetos\Morphus\.agents\rules\rafa-identity.md",
     "C:\Users\hebin\.gemini\config\rules\rafa-identity.md"
 )
 foreach ($rp in $rulePaths) {

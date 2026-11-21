@@ -159,6 +159,89 @@ public static class DependencyInjection
         UPDATE mpx_application_sub_modules SET label = LEFT(label, 20) WHERE LENGTH(label) > 20;
         ALTER TABLE mpx_application_sub_modules ALTER COLUMN name TYPE character varying(20);
         ALTER TABLE mpx_application_sub_modules ALTER COLUMN label TYPE character varying(20);
+        CREATE TABLE IF NOT EXISTS mpx_parameter_scopes (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            code smallint NOT NULL DEFAULT 0,
+            name character varying(80) NOT NULL,
+            label character varying(150) NOT NULL,
+            is_system_sovereign boolean NOT NULL DEFAULT false,
+            is_exportable_to_jarbass boolean NOT NULL DEFAULT false,
+            icon character varying(100) NULL,
+            color character varying(50) NULL,
+            "order" integer NOT NULL DEFAULT 0,
+            description text NULL,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            created_at timestamp with time zone NOT NULL DEFAULT now(),
+            updated_at timestamp with time zone NOT NULL DEFAULT now()
+        );
+        CREATE TABLE IF NOT EXISTS mpx_parameters (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            scope_id uuid NOT NULL REFERENCES mpx_parameter_scopes(id) ON DELETE RESTRICT,
+            scope_code smallint NOT NULL DEFAULT 0,
+            workspace_id uuid NULL REFERENCES mpx_workspaces(id) ON DELETE SET NULL,
+            application_id uuid NULL REFERENCES mpx_applications(id) ON DELETE SET NULL,
+            user_id uuid NULL REFERENCES sec_users(id) ON DELETE SET NULL,
+            machine_key character varying(120) NULL,
+            namespace character varying(100) NOT NULL,
+            name character varying(150) NOT NULL,
+            settings_json text NOT NULL,
+            is_locked_by_sovereign boolean NOT NULL DEFAULT false,
+            is_exportable boolean NOT NULL DEFAULT true,
+            description text NULL,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            created_at timestamp with time zone NOT NULL DEFAULT now(),
+            updated_at timestamp with time zone NOT NULL DEFAULT now()
+        );
+        CREATE TABLE IF NOT EXISTS mpx_component_types (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            code smallint NOT NULL DEFAULT 2,
+            tag_name character varying(80) NOT NULL,
+            name character varying(100) NOT NULL,
+            label character varying(150) NOT NULL,
+            is_container_wrapper boolean NOT NULL DEFAULT false,
+            supports_workflow_action boolean NOT NULL DEFAULT false,
+            supports_reflected_field boolean NOT NULL DEFAULT false,
+            default_parameters_json text NOT NULL,
+            icon character varying(100) NULL,
+            color character varying(50) NULL,
+            "order" integer NOT NULL DEFAULT 0,
+            description text NULL,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            created_at timestamp with time zone NOT NULL DEFAULT now(),
+            updated_at timestamp with time zone NOT NULL DEFAULT now()
+        );
+        CREATE TABLE IF NOT EXISTS mpx_screen_components (
+            id uuid NOT NULL PRIMARY KEY,
+            corporation_id uuid NOT NULL REFERENCES mpx_corporations(id) ON DELETE RESTRICT,
+            component_type_id uuid NOT NULL REFERENCES mpx_component_types(id) ON DELETE RESTRICT,
+            route_id uuid NULL REFERENCES mpx_routes(id) ON DELETE SET NULL,
+            workflow_type_id uuid NULL REFERENCES wkf_types(id) ON DELETE SET NULL,
+            station_id uuid NULL REFERENCES wkf_stations(id) ON DELETE SET NULL,
+            workflow_config_id uuid NULL REFERENCES wkf_type_configs(id) ON DELETE SET NULL,
+            workflow_action_id uuid NULL REFERENCES wkf_type_config_actions(id) ON DELETE SET NULL,
+            entity_property_id uuid NULL REFERENCES mpx_entity_properties(id) ON DELETE SET NULL,
+            parent_component_id uuid NULL REFERENCES mpx_screen_components(id) ON DELETE SET NULL,
+            component_code character varying(120) NOT NULL,
+            label character varying(150) NOT NULL,
+            trigger_event character varying(60) NOT NULL DEFAULT 'OnClick',
+            embedded_config_json text NOT NULL,
+            "order" integer NOT NULL DEFAULT 0,
+            description text NULL,
+            key character varying(100) NOT NULL UNIQUE,
+            system boolean NOT NULL DEFAULT false,
+            inactive boolean NOT NULL DEFAULT false,
+            created_at timestamp with time zone NOT NULL DEFAULT now(),
+            updated_at timestamp with time zone NOT NULL DEFAULT now()
+        );
         """);
 
     if (!dbContext.Features.Any() || !dbContext.ModuleCategories.Any())
@@ -401,6 +484,732 @@ public static class DependencyInjection
     }
 
     SeedDefaultLoginWorkflows(dbContext);
+    SeedSystemParametersAndScreenComponents(dbContext);
+  }
+
+  private static void SeedSystemParametersAndScreenComponents(MpxDbContext dbContext)
+  {
+    var hasChanges = false;
+
+    if (!dbContext.ParameterScopes.IgnoreQueryFilters().Any(s => s.CorporationId == null && s.System))
+    {
+      dbContext.ParameterScopes.AddRange(
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.SystemDefault,
+          Name = "SystemDefault",
+          Label = "0 - Padrão Soberano de Fábrica (SystemDefault)",
+          IsSystemSovereign = true,
+          IsExportableToJarbass = false,
+          Icon = "shield-lock",
+          Color = "#64748b",
+          Order = 0,
+          Description = "Camada 0 imutável de fábrica do Morphus. Garante fallback seguro e nunca é exportada no JSON portátil do usuário."
+        },
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.Corporation,
+          Name = "Corporation",
+          Label = "1 - Soberania Corporativa (Corporation)",
+          IsSystemSovereign = true,
+          IsExportableToJarbass = false,
+          Icon = "building-2",
+          Color = "#dc2626",
+          Order = 1,
+          Description = "Camada 1 de governança e segurança da Corporação (ex.: os 5 níveis de segurança do Jarbass). Nunca exportável pelo usuário."
+        },
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.Workspace,
+          Name = "Workspace",
+          Label = "2 - Espaço de Trabalho (Workspace)",
+          IsSystemSovereign = false,
+          IsExportableToJarbass = true,
+          Icon = "folder-kanban",
+          Color = "#8b5cf6",
+          Order = 2,
+          Description = "Camada 2 do Workspace atual. Parâmetros permitidos podem ser exportados no perfil portátil do usuário."
+        },
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.Application,
+          Name = "Application",
+          Label = "3 - Aplicação (Application / App)",
+          IsSystemSovereign = false,
+          IsExportableToJarbass = true,
+          Icon = "app-window",
+          Color = "#3b82f6",
+          Order = 3,
+          Description = "Camada 3 por Aplicação (Workflow, Security, Relay, Kalupa). Exportável no JSON portátil."
+        },
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.User,
+          Name = "User",
+          Label = "4 - Preferências do Usuário (User)",
+          IsSystemSovereign = false,
+          IsExportableToJarbass = true,
+          Icon = "user-check",
+          Color = "#10b981",
+          Order = 4,
+          Description = "Camada 4 pessoal do usuário (fontes, cores, GrabPadding do MpxDraggable, comportamento visual). 100% exportável."
+        },
+        new MpxParameterScope
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxParameterScopeEnum.Machine,
+          Name = "Machine",
+          Label = "5 - Ambiente de Máquina Local (Machine / Jarbass)",
+          IsSystemSovereign = false,
+          IsExportableToJarbass = true,
+          Icon = "cpu",
+          Color = "#f59e0b",
+          Order = 5,
+          Description = "Camada 5 de hardware e ambiente local moldando o Mpx.Jarbass (caminhos .dev/.kalupa, GPU, monitores). 100% portátil para casa ou pós-formatação."
+        }
+      );
+      hasChanges = true;
+    }
+
+    if (!dbContext.ComponentTypes.IgnoreQueryFilters().Any(c => c.CorporationId == null && c.System))
+    {
+      dbContext.ComponentTypes.AddRange(
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxDraggable,
+          TagName = "mpx-draggable",
+          Name = "MpxDraggable",
+          Label = "Envelope de Arraste (MpxDraggable)",
+          IsContainerWrapper = true,
+          SupportsWorkflowAction = false,
+          SupportsReflectedField = false,
+          DefaultParametersJson = """{"grabPadding":"8px","elevationTilt":"1.5deg","originGhostOpacity":0.35,"elasticSnapBackMs":180,"occupyFullSlot":true}""",
+          Icon = "move",
+          Color = "#f59e0b",
+          Order = 0,
+          Description = "Envelope universal de arraste. Só ele se mexe aplicando o GrabPadding e ElevationTilt do MpxParameter, levando qualquer componente Mpx* (100% width/height) dentro dele."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxDroppable,
+          TagName = "mpx-droppable",
+          Name = "MpxDroppable",
+          Label = "Berço Magnético de Encaixe (MpxDroppable)",
+          IsContainerWrapper = true,
+          SupportsWorkflowAction = true,
+          SupportsReflectedField = false,
+          DefaultParametersJson = """{"magneticGlowColor":"#3b82f6","rejectGlowColor":"#ef4444","landingPulseMs":600,"autoFitChild":true}""",
+          Icon = "magnet",
+          Color = "#3b82f6",
+          Order = 1,
+          Description = "Zona magnética de encaixe que valida compatibilidade em 0,01ms, aplica LandingPulse e dispara evento OnDrop vinculado ao WkfType."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxButton,
+          TagName = "mpx-button",
+          Name = "MpxButton",
+          Label = "Botão Inteligente de Fluxo (MpxButton)",
+          IsContainerWrapper = false,
+          SupportsWorkflowAction = true,
+          SupportsReflectedField = false,
+          DefaultParametersJson = """{"disableOnClick":true,"showSpinner":true,"preventDoubleClick":true,"spinnerPosition":"left","validateContextBeforeDispatch":true}""",
+          Icon = "mouse-pointer-click",
+          Color = "#10b981",
+          Order = 2,
+          Description = "Botão oficial registrado com Id único que já nasce renderizado com todas as configurações do WkfType e WkfTypeConfigAction embarcadas."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxInput,
+          TagName = "mpx-input",
+          Name = "MpxInput",
+          Label = "Campo Inteligente .Reflected (MpxInput)",
+          IsContainerWrapper = false,
+          SupportsWorkflowAction = false,
+          SupportsReflectedField = true,
+          DefaultParametersJson = """{"highlightInvalid":true,"shakeOnError":true,"instantValidation":true}""",
+          Icon = "text-cursor-input",
+          Color = "#06b6d4",
+          Order = 3,
+          Description = "Campo de entrada vinculado diretamente a uma MpxEntityProperty do .Reflected / WkfTypeContext com validação local em 0,1ms."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxSelect,
+          TagName = "mpx-select",
+          Name = "MpxSelect",
+          Label = "Seletor 1:N .Reflected (MpxSelect)",
+          IsContainerWrapper = false,
+          SupportsWorkflowAction = true,
+          SupportsReflectedField = true,
+          DefaultParametersJson = """{"searchable":true,"preloadDomainTable":true}""",
+          Icon = "list-filter",
+          Color = "#8b5cf6",
+          Order = 4,
+          Description = "Combo inteligente alimentado automaticamente pelas tabelas de domínio 1:N do catálogo .Reflected."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxCard,
+          TagName = "mpx-card",
+          Name = "MpxCard",
+          Label = "Card Container (MpxCard)",
+          IsContainerWrapper = true,
+          SupportsWorkflowAction = false,
+          SupportsReflectedField = false,
+          DefaultParametersJson = """{"glassmorphism":true,"elevation":2}""",
+          Icon = "square-stack",
+          Color = "#6366f1",
+          Order = 5,
+          Description = "Bloco visual de agrupamento com suporte a encaixe 100% width/height dentro de MpxDraggable e MpxDroppable."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxForm,
+          TagName = "mpx-form",
+          Name = "MpxForm",
+          Label = "Formulário de Estação Screen (MpxForm)",
+          IsContainerWrapper = true,
+          SupportsWorkflowAction = true,
+          SupportsReflectedField = true,
+          DefaultParametersJson = """{"autoBindContext":true,"inlineCreateBlinkTop":true}""",
+          Icon = "layout-template",
+          Color = "#14b8a6",
+          Order = 6,
+          Description = "Formulário inteligente vinculado a uma estação Screen e ao Grupo de Dados (WkfTypeContext)."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxGrid,
+          TagName = "mpx-grid",
+          Name = "MpxGrid",
+          Label = "Tabuleiro Auto-Encaixável (MpxGrid)",
+          IsContainerWrapper = true,
+          SupportsWorkflowAction = false,
+          SupportsReflectedField = false,
+          DefaultParametersJson = """{"columns":12,"gap":"16px","autoSnap":true}""",
+          Icon = "layout-grid",
+          Color = "#0ea5e9",
+          Order = 7,
+          Description = "Tabuleiro base de tela formado por células MpxDroppable que organizam o HTML final sem permitir quebra de layout."
+        },
+        new MpxComponentType
+        {
+          CorporationId = null,
+          System = true,
+          Code = Mpx.Domain.Enums.MpxComponentTypeEnum.MpxTable,
+          TagName = "mpx-table",
+          Name = "MpxTable",
+          Label = "Tabela Dinâmica com Lei de UX (MpxTable)",
+          IsContainerWrapper = false,
+          SupportsWorkflowAction = true,
+          SupportsReflectedField = true,
+          DefaultParametersJson = """{"inlineCreateBlinkTop":true,"inlineCreateBlinkDurationMs":1200}""",
+          Icon = "table",
+          Color = "#ec4899",
+          Order = 8,
+          Description = "Listagem dinâmica conectada ao .Reflected que aplica automaticamente a piscadinha suave no topo ao salvar cadastros inline."
+        }
+      );
+      hasChanges = true;
+    }
+
+    if (hasChanges)
+    {
+      dbContext.SaveChanges();
+      Console.WriteLine(">>> ESCOPOS DE PARÂMETROS (0..5) E CATÁLOGO DE COMPONENTES MPX* (MpxDraggable, MpxDroppable, MpxButton, MpxInput...) SEMEADOS! <<<");
+    }
+
+    var scopes = dbContext.ParameterScopes.IgnoreQueryFilters()
+        .Where(s => s.CorporationId == null && s.System)
+        .ToDictionary(s => s.Code, s => s);
+
+    if (scopes.Count == 0)
+      return;
+
+    // Seed Camada 0 (SystemDefault global)
+    if (!dbContext.Parameters.IgnoreQueryFilters().Any(p => p.CorporationId == null && p.ScopeCode == Mpx.Domain.Enums.MpxParameterScopeEnum.SystemDefault))
+    {
+      dbContext.Parameters.Add(new MpxParameter
+      {
+        Id = Guid.CreateVersion7(),
+        CorporationId = null,
+        ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.SystemDefault].Id,
+        ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.SystemDefault,
+        Namespace = "mpx.core",
+        Name = "Morphus Factory Defaults (Layer 0)",
+        IsLockedBySovereign = true,
+        IsExportable = false,
+        System = true,
+        Description = "Valores padrão de fábrica do Morphus (Camada 0 Imutável). Governam tema, física do MpxDraggable/MpxDroppable, MpxButton, Lei de UX e níveis base do Mpx.Jarbass.",
+        SettingsJson = """
+{
+  "mpx.theme.mode": "dark",
+  "mpx.theme.fontFamily": "Inter, system-ui, sans-serif",
+  "mpx.theme.fontSize": 14,
+  "mpx.theme.borderRadius": "10px",
+  "mpx.theme.primaryColor": "#3b82f6",
+  "mpx.draggable.grabPadding": "8px",
+  "mpx.draggable.elevationTilt": "1.5deg",
+  "mpx.draggable.originGhostOpacity": 0.35,
+  "mpx.draggable.elasticSnapBackMs": 180,
+  "mpx.droppable.magneticGlowColor": "#3b82f6",
+  "mpx.droppable.rejectGlowColor": "#ef4444",
+  "mpx.droppable.landingPulseMs": 600,
+  "mpx.button.disableOnClick": true,
+  "mpx.button.showSpinner": true,
+  "mpx.button.preventDoubleClick": true,
+  "mpx.button.spinnerPosition": "left",
+  "mpx.ux.inlineCreateBlinkTop": true,
+  "mpx.ux.inlineCreateBlinkDurationMs": 1200,
+  "jrb.security.defaultLevel": 2,
+  "jrb.security.enforceDualSealV2": true,
+  "jrb.security.heartbeatSeconds": 30,
+  "jrb.security.rulesByExtension": {
+    ".txt": 0,
+    ".md": 2,
+    ".pdf": 3,
+    ".docx": 3,
+    ".xlsx": 4,
+    ".mpx": 5
+  }
+}
+"""
+      });
+      dbContext.SaveChanges();
+    }
+
+    var corpIds = dbContext.Corporations.IgnoreQueryFilters().Select(c => c.Id).ToList();
+    var compTypes = dbContext.ComponentTypes.IgnoreQueryFilters()
+        .Where(c => c.CorporationId == null && c.System)
+        .ToDictionary(c => c.Code, c => c);
+
+    var signInRoute = dbContext.Routes.IgnoreQueryFilters()
+        .FirstOrDefault(r => r.Path == "/security/signin");
+
+    var emailProp = dbContext.EntityProperties.IgnoreQueryFilters()
+        .Include(p => p.EntityDefinition)
+        .FirstOrDefault(p => p.Name == "Email" && p.EntityDefinition != null && p.EntityDefinition.Name == "SecUser");
+
+    var passProp = dbContext.EntityProperties.IgnoreQueryFilters()
+        .Include(p => p.EntityDefinition)
+        .FirstOrDefault(p => p.Name == "PasswordHash" && p.EntityDefinition != null && p.EntityDefinition.Name == "SecUser");
+
+    var paramAndCompSeeded = false;
+
+    foreach (var corpId in corpIds)
+    {
+      var existingScopesForCorp = dbContext.Parameters.IgnoreQueryFilters()
+          .Where(p => p.CorporationId == corpId)
+          .Select(p => p.ScopeCode)
+          .ToHashSet();
+
+      var defaultWorkspace = dbContext.Workspaces.IgnoreQueryFilters().FirstOrDefault(w => w.CorporationId == corpId);
+      var workflowApp = dbContext.Applications.IgnoreQueryFilters().FirstOrDefault(a => a.CorporationId == corpId);
+      var firstUser = dbContext.Users.IgnoreQueryFilters().FirstOrDefault(u => u.CorporationId == corpId);
+
+      if (!existingScopesForCorp.Contains(Mpx.Domain.Enums.MpxParameterScopeEnum.Corporation))
+      {
+        dbContext.Parameters.Add(new MpxParameter
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.Corporation].Id,
+          ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.Corporation,
+          Namespace = "jrb.security.policy",
+          Name = "Política Soberana da Corporação & Régua Jarbass (0..5)",
+          IsLockedBySovereign = true,
+          IsExportable = false,
+          System = true,
+          Description = "Regras corporativas inegociáveis (Camada 1). Moldam os 5 níveis de segurança do Mpx.Jarbass e nunca saem no JSON exportado pelo usuário.",
+          SettingsJson = """
+{
+  "jrb.security.defaultLevel": 3,
+  "jrb.security.enforceDualSealV2": true,
+  "jrb.security.allowUserDowngrade": false,
+  "jrb.security.rulesByExtension": {
+    ".txt": 1,
+    ".md": 2,
+    ".pdf": 3,
+    ".docx": 4,
+    ".xlsx": 4,
+    ".mpx": 5
+  }
+}
+"""
+        });
+        paramAndCompSeeded = true;
+      }
+
+      if (!existingScopesForCorp.Contains(Mpx.Domain.Enums.MpxParameterScopeEnum.Workspace))
+      {
+        dbContext.Parameters.Add(new MpxParameter
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.Workspace].Id,
+          ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.Workspace,
+          WorkspaceId = defaultWorkspace?.Id,
+          Namespace = "mpx.workspace.ui",
+          Name = "Parâmetros do Workspace Principal",
+          IsLockedBySovereign = false,
+          IsExportable = true,
+          System = true,
+          Description = "Preferências compartilhadas do Workspace (Camada 2). Exportáveis no pacote portátil.",
+          SettingsJson = """
+{
+  "mpx.ux.inlineCreateBlinkTop": true,
+  "mpx.ux.inlineCreateBlinkDurationMs": 1200,
+  "mpx.droppable.magneticGlowColor": "#3b82f6"
+}
+"""
+        });
+        paramAndCompSeeded = true;
+      }
+
+      if (!existingScopesForCorp.Contains(Mpx.Domain.Enums.MpxParameterScopeEnum.Application))
+      {
+        dbContext.Parameters.Add(new MpxParameter
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.Application].Id,
+          ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.Application,
+          ApplicationId = workflowApp?.Id,
+          Namespace = "wkf.app.runtime",
+          Name = "Parâmetros da Aplicação Morphus Workflow",
+          IsLockedBySovereign = false,
+          IsExportable = true,
+          System = true,
+          Description = "Comportamento padrão dos componentes MpxButton e MpxInput na aplicação (Camada 3).",
+          SettingsJson = """
+{
+  "mpx.button.disableOnClick": true,
+  "mpx.button.showSpinner": true,
+  "mpx.button.preventDoubleClick": true,
+  "wkf.runtime.embedConfigsOnRender": true
+}
+"""
+        });
+        paramAndCompSeeded = true;
+      }
+
+      if (!existingScopesForCorp.Contains(Mpx.Domain.Enums.MpxParameterScopeEnum.User))
+      {
+        dbContext.Parameters.Add(new MpxParameter
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.User].Id,
+          ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.User,
+          UserId = firstUser?.Id,
+          Namespace = "mpx.user.preferences",
+          Name = "Preferências Pessoais do Arquiteto (Camada 4)",
+          IsLockedBySovereign = false,
+          IsExportable = true,
+          System = true,
+          Description = "Física de arraste (GrabPadding), fontes, cores e estilo pessoal do usuário. Vai no JSON portátil para qualquer lugar.",
+          SettingsJson = """
+{
+  "mpx.theme.fontSize": 14,
+  "mpx.theme.borderRadius": "10px",
+  "mpx.draggable.grabPadding": "8px",
+  "mpx.draggable.elevationTilt": "1.5deg",
+  "mpx.draggable.originGhostOpacity": 0.35
+}
+"""
+        });
+        paramAndCompSeeded = true;
+      }
+
+      if (!existingScopesForCorp.Contains(Mpx.Domain.Enums.MpxParameterScopeEnum.Machine))
+      {
+        dbContext.Parameters.Add(new MpxParameter
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ScopeId = scopes[Mpx.Domain.Enums.MpxParameterScopeEnum.Machine].Id,
+          ScopeCode = Mpx.Domain.Enums.MpxParameterScopeEnum.Machine,
+          UserId = firstUser?.Id,
+          MachineKey = "MPX-WORKSTATION-NVME-01",
+          Namespace = "jrb.machine.env",
+          Name = "Ambiente Local da Máquina & Mpx.Jarbass (Camada 5)",
+          IsLockedBySovereign = false,
+          IsExportable = true,
+          System = true,
+          Description = "Configurações locais de máquina que moldam o Mpx.Jarbass (caminhos .dev, .bkp, .kalupa e aceleração GPU). 100% portátil pós-formatação ou home-office.",
+          SettingsJson = """
+{
+  "jrb.machine.activeDevRoot": "C:\\.dev\\Projetos\\Morphus",
+  "jrb.machine.pausedDevRoot": "D:\\.dev",
+  "jrb.machine.kalupaCoreRoot": "C:\\Users\\hebin\\.kalupa\\core",
+  "jrb.machine.kalupaVaultRoot": "I:\\Meu Drive\\Base de Conhecimento\\Vault",
+  "klp.vault.templatesFolder": "Templates",
+  "klp.vault.notesFolder": "Notes",
+  "klp.vault.filesFolder": "Files",
+  "jrb.machine.gpuHardwareAcceleration": true,
+  "mpx.draggable.elasticSnapBackMs": 160
+}
+"""
+        });
+        paramAndCompSeeded = true;
+      }
+
+      // Seed dos Objetos MpxScreenComponent da tela de Login (/security/signin -> Fluxo SignIn)
+      if (!dbContext.ScreenComponents.IgnoreQueryFilters().Any(sc => sc.CorporationId == corpId) && compTypes.Count > 0)
+      {
+        var signInWkf = dbContext.WorkflowTypes.IgnoreQueryFilters()
+            .Include(w => w.Configs)
+              .ThenInclude(c => c.Actions)
+            .FirstOrDefault(w => w.CorporationId == corpId && w.Name == "SignIn");
+
+        var signInScreenCfg = signInWkf?.Configs.FirstOrDefault(c => c.Name.Contains("Tela de Login") || c.Order == 2);
+        var actSubmit = signInScreenCfg?.Actions.FirstOrDefault(a => a.Name == "SubmitSignIn");
+        var actSignUp = signInScreenCfg?.Actions.FirstOrDefault(a => a.Name == "GoToSignUp");
+        var actForgot = signInScreenCfg?.Actions.FirstOrDefault(a => a.Name == "GoToForgotPassword");
+
+        var dropZoneBoard = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxDroppable].Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          ComponentCode = "DRP_SIGNIN_MAIN_CARD",
+          Label = "Berço Magnético: Card Central de Login (MpxDroppable)",
+          TriggerEvent = "OnDrop",
+          Order = 1,
+          System = true,
+          Description = "Zona MpxDroppable principal da tela /security/signin que recebe os componentes MpxDraggable em 100% width/height.",
+          EmbeddedConfigJson = """
+{
+  "componentCode": "DRP_SIGNIN_MAIN_CARD",
+  "tagName": "mpx-droppable",
+  "routePath": "/security/signin",
+  "workflowType": "SignIn",
+  "stationName": "Tela de Login (SignIn)",
+  "acceptedTags": ["mpx-input", "mpx-button", "mpx-card", "mpx-select"],
+  "magneticGlowColor": "var(--mpx-magnetic-glow, #3b82f6)",
+  "landingPulseMs": 600
+}
+"""
+        };
+
+        var inpEmail = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxInput].Id,
+          ParentComponentId = dropZoneBoard.Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          EntityPropertyId = emailProp?.Id,
+          ComponentCode = "INP_SIGNIN_EMAIL",
+          Label = "E-mail Corporativo (SecUser.Email)",
+          TriggerEvent = "OnInput",
+          Order = 2,
+          System = true,
+          Description = "MpxInput envelopado em MpxDraggable, vinculado via .Reflected a CurrentUser.Email.",
+          EmbeddedConfigJson = """
+{
+  "componentCode": "INP_SIGNIN_EMAIL",
+  "tagName": "mpx-input",
+  "wrappedInDraggable": true,
+  "contextBinding": "CurrentUser.Email",
+  "dataType": "Email",
+  "required": true,
+  "placeholder": "arquiteto@morphus.one",
+  "validationRule": "EMAIL_FORMAT",
+  "instantValidation": true
+}
+"""
+        };
+
+        var inpPassword = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxInput].Id,
+          ParentComponentId = dropZoneBoard.Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          EntityPropertyId = passProp?.Id,
+          ComponentCode = "INP_SIGNIN_PASSWORD",
+          Label = "Senha de Acesso (SecUser.Password)",
+          TriggerEvent = "OnInput",
+          Order = 3,
+          System = true,
+          Description = "MpxInput envelopado em MpxDraggable, vinculado ao Contexto CurrentUser.Password com validação minLength=6 embarcada.",
+          EmbeddedConfigJson = """
+{
+  "componentCode": "INP_SIGNIN_PASSWORD",
+  "tagName": "mpx-input",
+  "wrappedInDraggable": true,
+  "contextBinding": "CurrentUser.Password",
+  "dataType": "Password",
+  "required": true,
+  "minLength": 6,
+  "placeholder": "••••••••",
+  "instantValidation": true
+}
+"""
+        };
+
+        var btnSubmit = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxButton].Id,
+          ParentComponentId = dropZoneBoard.Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          WorkflowActionId = actSubmit?.Id,
+          ComponentCode = "BTN_SIGNIN_SUBMIT",
+          Label = "Entrar no Ecossistema Morphus",
+          TriggerEvent = "OnClick",
+          Order = 4,
+          System = true,
+          Description = "MpxButton principal com Id registrado e configurações do fluxo SignIn embarcadas na renderização (0,01ms no clique).",
+          EmbeddedConfigJson = $$"""
+{
+  "componentCode": "BTN_SIGNIN_SUBMIT",
+  "tagName": "mpx-button",
+  "wrappedInDraggable": true,
+  "workflowType": "SignIn",
+  "workflowTypeId": "{{signInWkf?.Id}}",
+  "stationConfigId": "{{signInScreenCfg?.Id}}",
+  "actionId": "{{actSubmit?.Id}}",
+  "actionCode": "SubmitSignIn",
+  "nextStationName": "SecurityHandler.Login (Process)",
+  "requiredContextFields": ["CurrentUser.Email", "CurrentUser.Password"],
+  "disableOnClick": true,
+  "showSpinner": true,
+  "loadingLabel": "Autenticando no SecurityHandler...",
+  "variant": "primary"
+}
+"""
+        };
+
+        var btnGoSignUp = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxButton].Id,
+          ParentComponentId = dropZoneBoard.Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          WorkflowActionId = actSignUp?.Id,
+          ComponentCode = "BTN_SIGNIN_GOTO_SIGNUP",
+          Label = "Criar Nova Conta (Subfluxo SignUp)",
+          TriggerEvent = "OnClick",
+          Order = 5,
+          System = true,
+          Description = "MpxButton que aciona a estação Output para chamar o Subfluxo SignUp e retornar à porta Input do SignIn.",
+          EmbeddedConfigJson = $$"""
+{
+  "componentCode": "BTN_SIGNIN_GOTO_SIGNUP",
+  "tagName": "mpx-button",
+  "wrappedInDraggable": true,
+  "workflowType": "SignIn",
+  "workflowTypeId": "{{signInWkf?.Id}}",
+  "stationConfigId": "{{signInScreenCfg?.Id}}",
+  "actionId": "{{actSignUp?.Id}}",
+  "actionCode": "GoToSignUp",
+  "nextStationName": "Chamar Subfluxo SignUp (Output ➔ SignUp)",
+  "requiredContextFields": [],
+  "disableOnClick": true,
+  "showSpinner": true,
+  "loadingLabel": "Abrindo Subfluxo SignUp...",
+  "variant": "emerald"
+}
+"""
+        };
+
+        var btnGoForgot = new MpxScreenComponent
+        {
+          Id = Guid.CreateVersion7(),
+          CorporationId = corpId,
+          ComponentTypeId = compTypes[Mpx.Domain.Enums.MpxComponentTypeEnum.MpxButton].Id,
+          ParentComponentId = dropZoneBoard.Id,
+          RouteId = signInRoute?.Id,
+          WorkflowTypeId = signInWkf?.Id,
+          StationId = signInScreenCfg?.StationId,
+          WorkflowConfigId = signInScreenCfg?.Id,
+          WorkflowActionId = actForgot?.Id,
+          ComponentCode = "BTN_SIGNIN_GOTO_FORGOT",
+          Label = "Esqueci Minha Senha (Subfluxo ForgotPassword)",
+          TriggerEvent = "OnClick",
+          Order = 6,
+          System = true,
+          Description = "MpxButton que aciona a estação Output para chamar o Subfluxo ForgotPassword e retornar ao SignIn.",
+          EmbeddedConfigJson = $$"""
+{
+  "componentCode": "BTN_SIGNIN_GOTO_FORGOT",
+  "tagName": "mpx-button",
+  "wrappedInDraggable": true,
+  "workflowType": "SignIn",
+  "workflowTypeId": "{{signInWkf?.Id}}",
+  "stationConfigId": "{{signInScreenCfg?.Id}}",
+  "actionId": "{{actForgot?.Id}}",
+  "actionCode": "GoToForgotPassword",
+  "nextStationName": "Chamar Subfluxo ForgotPassword (Output ➔ ForgotPassword)",
+  "requiredContextFields": ["CurrentUser.Email"],
+  "disableOnClick": true,
+  "showSpinner": true,
+  "loadingLabel": "Iniciando Recuperação via Relay...",
+  "variant": "amber"
+}
+"""
+        };
+
+        dbContext.ScreenComponents.AddRange(dropZoneBoard, inpEmail, inpPassword, btnSubmit, btnGoSignUp, btnGoForgot);
+        paramAndCompSeeded = true;
+      }
+    }
+
+    if (paramAndCompSeeded)
+    {
+      dbContext.SaveChanges();
+      Console.WriteLine(">>> CASCATA MPX_PARAMETERS (0..5) E COMPONENTES DE TELA EMBARCADOS (mpx_screen_components) SEMEADOS COM SUCESSO! <<<");
+    }
   }
 
   private static void SeedDefaultLoginWorkflows(MpxDbContext dbContext)

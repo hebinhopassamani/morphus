@@ -261,6 +261,10 @@ public class MpxDbContext(DbContextOptions<MpxDbContext> options, ITenantProvide
   public DbSet<MpxError> Errors { get; set; }
   public DbSet<WkfTriggerType> WorkflowTriggerTypes { get; set; }
   public DbSet<WkfStationType> WorkflowStationTypes { get; set; }
+  public DbSet<MpxParameterScope> ParameterScopes { get; set; }
+  public DbSet<MpxParameter> Parameters { get; set; }
+  public DbSet<MpxComponentType> ComponentTypes { get; set; }
+  public DbSet<MpxScreenComponent> ScreenComponents { get; set; }
 
   public async Task<IMpxTransaction> BeginTransactionAsync()
   {

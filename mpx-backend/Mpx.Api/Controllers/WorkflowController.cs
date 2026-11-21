@@ -129,6 +129,44 @@ public class WorkflowController(MpxDbContext dbContext, ITenantProvider tenantPr
         .ThenBy(w => w.Name)
         .ToListAsync();
 
+    var parameterScopes = await dbContext.ParameterScopes
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(s => (s.CorporationId == null || s.CorporationId == corpId) && !s.Inactive)
+        .OrderBy(s => s.Order)
+        .ToListAsync();
+
+    var parameters = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Include(p => p.Scope)
+        .Where(p => (p.CorporationId == null || p.CorporationId == corpId) && !p.Inactive)
+        .OrderBy(p => p.ScopeCode)
+        .ThenBy(p => p.Namespace)
+        .ToListAsync();
+
+    var effectiveParameters = BuildEffectiveParametersCascade(parameters);
+
+    var componentTypes = await dbContext.ComponentTypes
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(c => (c.CorporationId == null || c.CorporationId == corpId) && !c.Inactive)
+        .OrderBy(c => c.Order)
+        .ToListAsync();
+
+    var screenComponents = await dbContext.ScreenComponents
+        .AsNoTracking()
+        .Include(sc => sc.ComponentType)
+        .Include(sc => sc.Route)
+        .Include(sc => sc.WorkflowType)
+        .Include(sc => sc.Station)
+        .Include(sc => sc.WorkflowConfig)
+        .Include(sc => sc.WorkflowAction)
+        .Include(sc => sc.EntityProperty)
+        .Where(sc => !sc.Inactive)
+        .OrderBy(sc => sc.Order)
+        .ToListAsync();
+
     return Ok(new
     {
       triggerTypes,
@@ -140,8 +178,54 @@ public class WorkflowController(MpxDbContext dbContext, ITenantProvider tenantPr
       errors,
       entityDefinitions,
       stations,
-      workflowTypes
+      workflowTypes,
+      parameterScopes,
+      parameters,
+      effectiveParameters,
+      componentTypes,
+      screenComponents
     });
+  }
+
+  private static Dictionary<string, JsonElement> BuildEffectiveParametersCascade(IEnumerable<MpxParameter> orderedParameters)
+  {
+    var merged = new Dictionary<string, JsonElement>(StringComparer.OrdinalIgnoreCase);
+    var sovereignLockedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    foreach (var param in orderedParameters.OrderBy(p => (short)p.ScopeCode))
+    {
+      if (string.IsNullOrWhiteSpace(param.SettingsJson))
+        continue;
+
+      try
+      {
+        using var doc = JsonDocument.Parse(param.SettingsJson);
+        if (doc.RootElement.ValueKind != JsonValueKind.Object)
+          continue;
+
+        var isSovereignLayer = param.ScopeCode is MpxParameterScopeEnum.SystemDefault or MpxParameterScopeEnum.Corporation;
+
+        foreach (var prop in doc.RootElement.EnumerateObject())
+        {
+          // Se uma chave de segurança do Jarbass foi travada pela Camada 1 (Corporation), camadas 2..5 (User/Machine) nunca podem rebaixá-la
+          if (!isSovereignLayer && sovereignLockedKeys.Contains(prop.Name))
+            continue;
+
+          merged[prop.Name] = prop.Value.Clone();
+
+          if (param.ScopeCode == MpxParameterScopeEnum.Corporation && param.IsLockedBySovereign)
+          {
+            sovereignLockedKeys.Add(prop.Name);
+          }
+        }
+      }
+      catch
+      {
+        // Ignora JSON malformado individual sem derrubar a cascata
+      }
+    }
+
+    return merged;
   }
 
   public record CreateWorkflowTypeDto(
@@ -484,5 +568,273 @@ public class WorkflowController(MpxDbContext dbContext, ITenantProvider tenantPr
     await dbContext.SaveChangesAsync();
 
     return Ok(mpxError);
+  }
+
+  public record UpdateMpxParameterDto(string SettingsJson, string? Name, string? Description);
+
+  [HttpPut("parameters/{id:guid}")]
+  public async Task<IActionResult> UpdateParameterLayerAsync(Guid id, [FromBody] UpdateMpxParameterDto dto)
+  {
+    var corpId = tenantProvider.GetCorporationId();
+    var param = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .FirstOrDefaultAsync(p => p.Id == id && (p.CorporationId == null || p.CorporationId == corpId));
+
+    if (param is null)
+      return NotFound("Camada de parâmetro não encontrada.");
+
+    try
+    {
+      using var doc = JsonDocument.Parse(dto.SettingsJson);
+      if (doc.RootElement.ValueKind != JsonValueKind.Object)
+        return BadRequest("O conteúdo de SettingsJson deve ser um objeto JSON válido.");
+    }
+    catch (JsonException ex)
+    {
+      return BadRequest($"JSON inválido: {ex.Message}");
+    }
+
+    param.SettingsJson = dto.SettingsJson;
+    if (!string.IsNullOrWhiteSpace(dto.Name))
+      param.Name = dto.Name.Trim();
+    if (!string.IsNullOrWhiteSpace(dto.Description))
+      param.Description = dto.Description.Trim();
+
+    await dbContext.SaveChangesAsync();
+
+    var allParams = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Where(p => (p.CorporationId == null || p.CorporationId == corpId) && !p.Inactive)
+        .OrderBy(p => p.ScopeCode)
+        .ToListAsync();
+
+    return Ok(new
+    {
+      updatedParameter = param,
+      effectiveParameters = BuildEffectiveParametersCascade(allParams)
+    });
+  }
+
+  [HttpGet("parameters/export-jarbass")]
+  public async Task<IActionResult> ExportJarbassPortableEnvironmentAsync()
+  {
+    var corpId = tenantProvider.GetCorporationId();
+    var allParams = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Include(p => p.Scope)
+        .Where(p => (p.CorporationId == null || p.CorporationId == corpId) && !p.Inactive)
+        .OrderBy(p => p.ScopeCode)
+        .ToListAsync();
+
+    // REGRA SOBERANA: NUNCA exportar Camada 0 (SystemDefault) nem Camada 1 (Corporation)!
+    // Apenas Camadas 2..5 (Workspace, Application, User, Machine) com IsExportable == true saem no pacote portátil!
+    var exportableLayers = allParams
+        .Where(p => p.ScopeCode >= MpxParameterScopeEnum.Workspace && p.IsExportable)
+        .Select(p =>
+        {
+          JsonElement parsedSettings;
+          try
+          {
+            parsedSettings = JsonDocument.Parse(p.SettingsJson).RootElement.Clone();
+          }
+          catch
+          {
+            parsedSettings = JsonDocument.Parse("{}").RootElement.Clone();
+          }
+
+          return new
+          {
+            scopeCode = (short)p.ScopeCode,
+            scopeName = p.ScopeCode.ToString(),
+            @namespace = p.Namespace,
+            name = p.Name,
+            machineKey = p.MachineKey,
+            settings = parsedSettings
+          };
+        })
+        .ToList();
+
+    var excludedSovereignLayers = allParams
+        .Where(p => p.ScopeCode is MpxParameterScopeEnum.SystemDefault or MpxParameterScopeEnum.Corporation)
+        .Select(p => new
+        {
+          scopeCode = (short)p.ScopeCode,
+          scopeName = p.ScopeCode.ToString(),
+          @namespace = p.Namespace,
+          reason = "Camada Soberana Blindada (Bloqueada contra exportação externa pelo Mpx.Jarbass)"
+        })
+        .ToList();
+
+    var envelope = new
+    {
+      format = "MPX_JARBASS_PORTABLE_ENV_V1",
+      sealSignature = "MPX_JRB_SEAL_V2::AES256GCM+HMACSHA256::PORTABLE_PROFILE",
+      exportedAtUtc = DateTime.UtcNow,
+      exportedBy = User.Identity?.Name ?? "arquiteto@morphus.one",
+      sovereignProtectionApplied = true,
+      excludedSovereignLayers,
+      portableLayers = exportableLayers
+    };
+
+    return Ok(envelope);
+  }
+
+  public record ImportJarbassLayerItemDto(short ScopeCode, string? Namespace, string? Name, string? MachineKey, JsonElement Settings);
+  public record ImportJarbassPortableDto(List<ImportJarbassLayerItemDto> PortableLayers);
+
+  [HttpPost("parameters/import-jarbass")]
+  public async Task<IActionResult> ImportJarbassPortableEnvironmentAsync([FromBody] ImportJarbassPortableDto dto)
+  {
+    var corpId = tenantProvider.GetCorporationId();
+    if (dto.PortableLayers is null || dto.PortableLayers.Count == 0)
+      return BadRequest("Nenhuma camada portátil (2..5) encontrada no pacote JSON enviado ao Jarbass.");
+
+    var existingParams = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .Where(p => p.CorporationId == corpId && !p.Inactive)
+        .ToListAsync();
+
+    var appliedCount = 0;
+    var blockedSovereignAttempts = 0;
+
+    foreach (var incoming in dto.PortableLayers)
+    {
+      var scopeEnum = (MpxParameterScopeEnum)incoming.ScopeCode;
+
+      // Blindagem: Mesmo que alguém edite o JSON na mão tentando injetar ScopeCode 0 (SystemDefault) ou 1 (Corporation), o Jarbass bloqueia!
+      if (scopeEnum is MpxParameterScopeEnum.SystemDefault or MpxParameterScopeEnum.Corporation)
+      {
+        blockedSovereignAttempts++;
+        continue;
+      }
+
+      var target = existingParams.FirstOrDefault(p => p.ScopeCode == scopeEnum);
+      if (target is not null)
+      {
+        target.SettingsJson = JsonSerializer.Serialize(incoming.Settings, new JsonSerializerOptions { WriteIndented = true });
+        if (!string.IsNullOrWhiteSpace(incoming.MachineKey))
+          target.MachineKey = incoming.MachineKey;
+        appliedCount++;
+      }
+    }
+
+    await dbContext.SaveChangesAsync();
+
+    var allParams = await dbContext.Parameters
+        .IgnoreQueryFilters()
+        .AsNoTracking()
+        .Include(p => p.Scope)
+        .Where(p => (p.CorporationId == null || p.CorporationId == corpId) && !p.Inactive)
+        .OrderBy(p => p.ScopeCode)
+        .ToListAsync();
+
+    return Ok(new
+    {
+      message = $"Mpx.Jarbass importou {appliedCount} camada(s) portáteis (Workspace/App/User/Machine) com sucesso!",
+      appliedCount,
+      blockedSovereignAttempts,
+      parameters = allParams,
+      effectiveParameters = BuildEffectiveParametersCascade(allParams)
+    });
+  }
+
+  public record CreateScreenComponentDto(
+      Guid ComponentTypeId,
+      Guid? ParentComponentId,
+      Guid? RouteId,
+      Guid? WorkflowTypeId,
+      Guid? WorkflowConfigId,
+      Guid? WorkflowActionId,
+      Guid? EntityPropertyId,
+      string Label,
+      string? ComponentCode,
+      string? TriggerEvent);
+
+  [HttpPost("screen-components")]
+  public async Task<IActionResult> CreateScreenComponentAsync([FromBody] CreateScreenComponentDto dto)
+  {
+    var corpId = tenantProvider.GetCorporationId();
+
+    var compType = await dbContext.ComponentTypes.IgnoreQueryFilters()
+        .FirstOrDefaultAsync(c => c.Id == dto.ComponentTypeId);
+    if (compType is null)
+      return BadRequest("Tipo de componente Mpx* não encontrado.");
+
+    var wkfType = dto.WorkflowTypeId.HasValue
+        ? await dbContext.WorkflowTypes.FirstOrDefaultAsync(w => w.Id == dto.WorkflowTypeId.Value)
+        : null;
+
+    var wkfConfig = dto.WorkflowConfigId.HasValue
+        ? await dbContext.WorkflowTypeConfigs.Include(c => c.Station).FirstOrDefaultAsync(c => c.Id == dto.WorkflowConfigId.Value)
+        : null;
+
+    var wkfAction = dto.WorkflowActionId.HasValue
+        ? await dbContext.WorkflowTypeConfigActions.FirstOrDefaultAsync(a => a.Id == dto.WorkflowActionId.Value)
+        : null;
+
+    var entityProp = dto.EntityPropertyId.HasValue
+        ? await dbContext.EntityProperties.IgnoreQueryFilters().Include(p => p.EntityDefinition).FirstOrDefaultAsync(p => p.Id == dto.EntityPropertyId.Value)
+        : null;
+
+    var count = await dbContext.ScreenComponents.CountAsync(sc => sc.CorporationId == corpId);
+    var code = string.IsNullOrWhiteSpace(dto.ComponentCode)
+        ? $"{compType.Name.ToUpperInvariant()}_{count + 1:D2}"
+        : dto.ComponentCode.Trim().ToUpperInvariant();
+
+    var embeddedObj = new
+    {
+      componentCode = code,
+      tagName = compType.TagName,
+      componentTypeName = compType.Name,
+      wrappedInDraggable = compType.Code != MpxComponentTypeEnum.MpxDroppable,
+      workflowType = wkfType?.Name ?? "SignIn",
+      workflowTypeId = wkfType?.Id,
+      stationConfigId = wkfConfig?.Id,
+      stationName = wkfConfig?.Name ?? "Tela de Login (SignIn)",
+      actionId = wkfAction?.Id,
+      actionCode = wkfAction?.Name ?? (compType.SupportsWorkflowAction ? "CustomAction" : null),
+      contextBinding = entityProp is not null ? $"{entityProp.EntityDefinition?.Name}.{entityProp.Name}" : null,
+      dataType = entityProp?.DataType ?? "Text",
+      disableOnClick = true,
+      showSpinner = true,
+      instantValidation = true,
+      embeddedAtUtc = DateTime.UtcNow
+    };
+
+    var screenComp = new MpxScreenComponent
+    {
+      Id = Guid.CreateVersion7(),
+      CorporationId = corpId,
+      ComponentTypeId = compType.Id,
+      ParentComponentId = dto.ParentComponentId,
+      RouteId = dto.RouteId,
+      WorkflowTypeId = wkfType?.Id,
+      StationId = wkfConfig?.StationId,
+      WorkflowConfigId = wkfConfig?.Id,
+      WorkflowActionId = wkfAction?.Id,
+      EntityPropertyId = entityProp?.Id,
+      ComponentCode = code,
+      Label = string.IsNullOrWhiteSpace(dto.Label) ? compType.Label : dto.Label.Trim(),
+      TriggerEvent = string.IsNullOrWhiteSpace(dto.TriggerEvent) ? (compType.Code == MpxComponentTypeEnum.MpxDroppable ? "OnDrop" : "OnClick") : dto.TriggerEvent,
+      EmbeddedConfigJson = JsonSerializer.Serialize(embeddedObj, new JsonSerializerOptions { WriteIndented = true }),
+      Order = count + 1,
+      Description = $"Objeto {compType.Name} encaixado via MpxDraggable ➔ MpxDroppable com configurações embarcadas."
+    };
+
+    dbContext.ScreenComponents.Add(screenComp);
+    await dbContext.SaveChangesAsync();
+
+    var loaded = await dbContext.ScreenComponents
+        .AsNoTracking()
+        .Include(sc => sc.ComponentType)
+        .Include(sc => sc.WorkflowType)
+        .Include(sc => sc.WorkflowConfig)
+        .Include(sc => sc.WorkflowAction)
+        .Include(sc => sc.EntityProperty)
+        .FirstAsync(sc => sc.Id == screenComp.Id);
+
+    return Ok(loaded);
   }
 }
