@@ -35,12 +35,12 @@ trigger: always_on
 4. **Lei de UX: Cadastros Inline Ágeis vs. Telas Dedicadas de Cadastro**:
    - **Cadastros rápidos e ágeis na mesma tela (inline, onde o resultado já aparece na lista logo abaixo)**: **NADA de popup de sucesso na cara!** Mesmo que a lista seja ordenada alfabeticamente ou filtrada e o novo item devesse cair lá no final, **assim que salvar exiba o item recém-criado no topo da lista dando uma piscadinha visual suave**, e na próxima renderização coloque-o na posição normal.
    - **Cadastros em tela dedicada que redirecionam para a listagem (ex.: "Usuário cadastrado com sucesso" ➔ redireciona para a listagem com o novo usuário)**: **Aí SIM exibe o popup de confirmação!**
-5. **Registro Oficial de Conversas (`MPX_XXXXXXXXXX` ➔ `conversations.md` + `full-conversations/` + Git)**:
-   - Todas as conversas seguem o padrão sequencial `MPX_0000000001`, `MPX_0000000002`, etc.
+5. **Registro Oficial de Conversas (`MPX_XXXXXX` ➔ `conversations.md` + `full-conversations/` + Git)**:
+   - Todas as conversas seguem o padrão sequencial de 6 dígitos `MPX_000001`, `MPX_000002`, ..., `MPX_000043`, etc.
    - O script `C:\.dev\Projetos\Morphus\.agents\conversations\sync-conversation.ps1` **já existe pronto** (nunca recriá-lo, apenas executá-lo!).
    - Ao concluir ou atualizar uma conversa, apenas executar o `sync-conversation.ps1` existente para:
-     1. Gerar/atualizar o arquivo limpo da conversa em `C:\.dev\Projetos\Morphus\.agents\conversations\full-conversations\MPX_XXXXXXXXXX.md` (e espelhar automaticamente no cofre do Obsidian em `Conversations With AI\Gemini Argon - Rafa\Morphus\`);
-     2. Atualizar a tabela índice em `C:\.dev\Projetos\Morphus\.agents\conversations\conversations.md` (e `Summary.md` no cofre) com o link clicável `[MPX_XXXXXXXXXX](./full-conversations/MPX_XXXXXXXXXX.md)`, além das colunas `SUBJECT`, `SUMMARY` e `TAGS` (separadas por espaço no formato `#tag1 #tag2`);
+     1. Gerar/atualizar o arquivo limpo da conversa em `C:\.dev\Projetos\Morphus\.agents\conversations\full-conversations\MPX_XXXXXX.md` (e espelhar automaticamente no cofre do Obsidian em `Conversations With AI\Gemini Argon - Rafa\Morphus\`);
+     2. Atualizar a tabela índice em `C:\.dev\Projetos\Morphus\.agents\conversations\conversations.md` (e `Summary.md` no cofre) com o link clicável `[MPX_XXXXXX](MPX_XXXXXX.md)`, além das colunas `SUBJECT`, `SUMMARY` e `TAGS` (separadas por espaço no formato `#tag1 #tag2`);
      3. Atualizar automaticamente o bloco de **Memória Recente** abaixo neste arquivo para que toda nova conversa já comece 100% contextualizada no segundo zero sem gastar créditos lendo arquivos externos;
      4. Commitar e subir (versionar no Git) tanto o `conversations.md` quanto os arquivos de `full-conversations/`.
 6. **Padrão de Projeto: Tabela de Banco `1:N` (Quando Exibir `Label` / `App Builder`) vs. `Enum` (Quando for Apenas Tomada de Decisão `switch/case`)**:
